@@ -19,8 +19,7 @@ import os
 from abc import abstractmethod, ABC
 from typing import List, Union, Tuple, Dict, Optional, IO
 
-from labw_utils.bioutils.io.fai import FAI_INDEX_TYPE, create_fai_from_fasta
-from labw_utils.bioutils.typing.fai import FastaIndexEntry
+from labw_utils.bioutils.io.fai import FAI_INDEX_TYPE, create_fai_from_fasta, FAIBasedFastaIndexIterator
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
@@ -323,13 +322,9 @@ class _DiskAccessFastaView(_BaseFastaView):
         if not file_exists(index_filename) or \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
             create_fai_from_fasta(self.filename, index_filename)
-        self._read_index_from_fai(index_filename)
-
-    def _read_index_from_fai(self, index_filename: str):
-        self._fai = {}
-        for line in get_tqdm_line_reader(index_filename):
-            index_entry = FastaIndexEntry.from_fai_str(line)
-            self._fai[index_entry.name] = index_entry
+        self._fai = {
+            index_entry.name: index_entry for index_entry in FAIBasedFastaIndexIterator(index_filename)
+        }
 
     @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
@@ -371,10 +366,12 @@ class FastaViewFactory:
     The major Fasta handler class, supporting multiple backends.
     """
 
-    def __new__(cls,
-                filename: str,
-                full_header: bool = False,
-                read_into_memory: Optional[bool] = None) -> FastaViewType:
+    def __new__(
+            cls,
+            filename: str,
+            full_header: bool = False,
+            read_into_memory: Optional[bool] = None
+    ) -> FastaViewType:
         """
         Initialize a _DiskFasta interface using multiple backends.
 

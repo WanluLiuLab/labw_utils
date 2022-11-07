@@ -47,6 +47,7 @@ class BaseFileRule(FileRuleType):
     @classmethod
     def from_extension(cls, *extensions: str, opener: _OpenerType, rule_name: str = "unnames_rule"):
         def extension_rule(path: PathType, *args, **kwargs):
+            _, _ = args, kwargs
             for extension in extensions:
                 if path.endswith(extension):
                     return True

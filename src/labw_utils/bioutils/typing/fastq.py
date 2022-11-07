@@ -1,5 +1,7 @@
 """
-fastq.py -- An Im-Memory FastQ Record.
+fastq.py -- An In-Memory Fastq Record.
+
+Construct from 4 lines:
 
 >>> fastq_seq = ["@A\\n", "AGCT\\n", "+\\n", "0000\\n"]
 >>> fastq_record = FastqRecord.from_str(fastq_seq)
@@ -7,16 +9,50 @@ fastq.py -- An Im-Memory FastQ Record.
 'A'
 >>> fastq_record.sequence
 'AGCT'
+>>> len(fastq_record)
+4
 >>> fastq_record.quality
 '0000'
->>> str(fastq_record) == '@A\\nAGCT\\n+\\n0000'
-True
+>>> print(str(fastq_record))
+@A
+AGCT
++
+0000
+
+Construct from 1 string:
+
 >>> fastq_record = FastqRecord.from_single_str('@A\\nAGCT\\n+\\n0000')
->>> str(fastq_record) == '@A\\nAGCT\\n+\\n0000'
-True
+>>> print(str(fastq_record))
+@A
+AGCT
++
+0000
+
+The attributes in ``fastq_record`` are read-only. Example:
+
+>>> fastq_record.seq_id = "5"
+Traceback (most recent call last):
+    ...
+AttributeError: can't set attribute
 """
 
 from typing import List
+
+
+class FastqParserError(ValueError):
+    pass
+
+
+class MisFormattedFastqRecordError(FastqParserError):
+    def __init__(self, reason: str):
+        super().__init__(reason)
+
+
+class SequenceQualityLengthMismatchError(FastqParserError):
+    def __init__(self, seq_id: str, sequence: str, quality: str):
+        super().__init__(
+            f"Illegal FASTQ record '{seq_id}': sequence '{sequence}' and quality '{quality}' length not equal."
+        )
 
 
 class FastqRecord:
@@ -24,34 +60,53 @@ class FastqRecord:
     A naive in-memory FASTQ record.
     """
 
-    seq_id: str
-    """
-    Sequence ID.
-    """
+    __slots__ = (
+        '_seq_id',
+        '_sequence',
+        '_quality'
+    )
+    _seq_id: str
+    _sequence: str
+    _quality: str
 
-    sequence: str
-    """
-    The sequence.
-    """
+    @property
+    def seq_id(self) -> str:
+        """
+        Sequence ID.
+        """
+        return self._seq_id
 
-    quality: str
-    """
-    The corresponding quality, whose length should be equal to ``sequence``.
-    """
+    @property
+    def sequence(self) -> str:
+        """
+        The sequence.
+        """
+        return self._sequence
 
-    def __int__(self, seq_id: str, sequence: str, quality: str):
+    @property
+    def quality(self) -> str:
+        """
+        The corresponding quality, whose length should be equal to ``sequence``.
+        """
+        return self._quality
+
+    def __init__(self, seq_id: str, sequence: str, quality: str):
         if len(sequence) != len(quality):
-            raise ValueError(
-                f"Illegal FASTQ record '{seq_id}': sequence '{sequence}' and quality '{quality}' length not equal.")
-        self.seq_id = seq_id
-        self.sequence = sequence
-        self.quality = quality
+            raise SequenceQualityLengthMismatchError(seq_id, sequence, quality)
+        self._seq_id = seq_id
+        self._sequence = sequence
+        self._quality = quality
 
     def __len__(self):
         return len(self.sequence)
 
     def __repr__(self):
-        return f"@{self.seq_id}\n{self.sequence}\n+\n{self.quality}"
+        return "\n".join((
+            f"@{self._seq_id}",
+            self._sequence,
+            "+",
+            self._quality
+        ))
 
     def __str__(self):
         return repr(self)
@@ -64,14 +119,17 @@ class FastqRecord:
         This method is set to generate record from arbitrary :py:mod:`typing.TextIO` readers.
         """
         if len(lines) != 4:
-            raise ValueError("Should get a 4-element aray representing 4 FASTQ lines.")
+            raise MisFormattedFastqRecordError("Should get a 4-element aray representing 4 FASTQ lines.")
         l1, l2, l3, l4 = lines
         if not l1.startswith("@"):
-            raise ValueError(f"Line 1 {lines} should start with @")
-        new_instance = cls()
-        new_instance.seq_id = l1[1:].rstrip("\n\r")
-        new_instance.sequence = l2.rstrip("\n\r")
-        new_instance.quality = l4.rstrip("\n\r")
+            raise MisFormattedFastqRecordError(f"Line 1 {l1} should start with @")
+        if not l3.startswith("+"):
+            raise MisFormattedFastqRecordError(f"Line 3 {l3} should start with +")
+        new_instance = cls(
+            seq_id=l1[1:].rstrip("\n\r"),
+            sequence=l2.rstrip("\n\r"),
+            quality=l4.rstrip("\n\r")
+        )
         return new_instance
 
     @classmethod

@@ -2,7 +2,8 @@ import bisect
 import math
 
 from labw_utils.bioutils.datastructure._gv_errors import *
-from labw_utils.bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, Transcript, Exon, Gene
+from labw_utils.bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, Transcript, Exon, \
+    Gene
 
 
 class TranscriptMutator:

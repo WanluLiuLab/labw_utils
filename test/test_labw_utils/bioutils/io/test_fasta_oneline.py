@@ -6,7 +6,8 @@ import os
 import pytest
 
 import conftest
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, ChromosomeNotFoundError
+from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, \
+    ChromosomeNotFoundError
 from labw_utils.bioutils.io.fai import create_fai_from_fasta
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -110,6 +111,7 @@ def _fasta_without_full_header_assets(fa: FastaViewType) -> None:
     )
 )
 def test_newline_with_or_without_full_header(initialize_module, kwargs) -> None:
+    initialize_module: TestFastaModuleInfo
     for newline in VALID_NEWLINE:
         with get_writer(initialize_module.fasta_filename, newline=newline) as fh:
             fh.write(fasta_seq)

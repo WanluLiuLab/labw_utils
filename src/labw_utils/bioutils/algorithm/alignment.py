@@ -49,7 +49,7 @@ class SmithWatermanAligner:
     is_global: bool
     """Whether the alignment should be global"""
 
-    _sw_matrix: npt.ArrayLike
+    _sw_matrix: Optional[npt.NDArray[int]]
     """The Smith-Waterman Alignment Matrix"""
 
     _score: Optional[int]
@@ -58,13 +58,15 @@ class SmithWatermanAligner:
     _backtrack: Optional[List[str]]
     """Final Smith-Waterman backtrack"""
 
-    def __init__(self,
-                 seq1: str, seq2: str,
-                 match_score: int = 5,
-                 mismatch_score: int = -4,
-                 indel_score: int = -4,
-                 is_global: bool = True
-                 ):
+    def __init__(
+            self,
+            seq1: str,
+            seq2: str,
+            match_score: int = 5,
+            mismatch_score: int = -4,
+            indel_score: int = -4,
+            is_global: bool = True
+    ):
         self.seq1 = seq1
         self.seq2 = seq2
         self.mismatch_score = mismatch_score
@@ -96,9 +98,6 @@ class SmithWatermanAligner:
             return self._score
 
     def _build_smith_waterman_matrix(self):
-        """
-        Build Smith-Waterman Scoring matrix.
-        """
         l1 = len(self.seq1) + 1
         l2 = len(self.seq2) + 1
         self._sw_matrix = np.zeros((l1, l2), dtype=int)
@@ -117,11 +116,12 @@ class SmithWatermanAligner:
                 self._sw_matrix[i][j] = score
         self._sw_matrix = self._sw_matrix
 
-    def get_backtrack(self,
-                      seq1_title: str = "seq1",
-                      seq2_title: str = "seq2",
-                      alignment_title: str = "aln"
-                      ) -> Optional[List[str]]:
+    def get_backtrack(
+            self,
+            seq1_title: str = "seq1",
+            seq2_title: str = "seq2",
+            alignment_title: str = "aln"
+    ) -> Optional[List[str]]:
         """
         Get Smith-Waterman Alignment Backtrack in a human-readable form.
         """
@@ -206,7 +206,13 @@ class SmithWatermanAligner:
                 else:
                     out_array.append(("-", "?", "-"))
                 prev_location = this_location
-            rets = f">{alignment_title}:{seq1_title}:qual:{seq2_title}:{np.max(self._sw_matrix[1:, 1:])}\n" + "\n".join(
+            rets = ":".join((
+                f">{alignment_title}",
+                seq1_title,
+                "qual",
+                seq2_title,
+                str(np.max(self._sw_matrix[1:, 1:]))
+            )) + "\n" + "\n".join(
                 (_seq1 + "" for _seq1 in ["".join(_seq) for _seq in zip(*out_array)])
             )
             retl.add(rets)

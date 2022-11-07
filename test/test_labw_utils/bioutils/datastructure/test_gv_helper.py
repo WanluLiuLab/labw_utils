@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-import labw_utils.bioutils.datastructure.gv_helper as gvh
 import conftest
+import labw_utils.bioutils.datastructure.gv_helper as gvh
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.io.safe_io import get_writer
 

@@ -62,6 +62,7 @@ tags
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/sonarlint
 
 # AWS User-specific
 .idea/**/aws.xml

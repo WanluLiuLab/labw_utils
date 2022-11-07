@@ -16,6 +16,7 @@ def register_new_attribute(
         attribute_name: str,
         attribute_type: Type[_NewAttrType] = Any
 ):
+    _ = attribute_type
     setattr(cls, attribute_name, None)
 
 
@@ -45,7 +46,8 @@ def hookable_decorator(cls: Type[_HookedType]) -> Type[_HookedType]:
 
 if __name__ == "__main__":
     @hookable_decorator
-    class A: pass
+    class A:
+        pass
 
 
     def a_func(_a: A): return id(_a)

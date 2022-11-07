@@ -30,14 +30,14 @@ from abc import ABC
 from collections import defaultdict
 from typing import Dict, Iterator, Union, Optional, List, TextIO, Iterable
 
+from labw_utils.bioutils.io import BaseFileIterator
 from labw_utils.bioutils.typing.feature import FeatureType, GFF3_TOPLEVEL_NAME, Gff3Record, GtfRecord
-from labw_utils.bioutils.typing.misc import BaseIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
 
-class FeatureIterator(BaseIterator, Iterable[FeatureType], ABC):
+class FeatureIterator(BaseFileIterator, Iterable[FeatureType], ABC):
     filetype: str = "FeatureType"
     record_type = FeatureType
     pass

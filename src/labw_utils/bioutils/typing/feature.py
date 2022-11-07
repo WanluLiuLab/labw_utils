@@ -30,10 +30,10 @@ VALID_GTF_QUOTE_OPTIONS = (
 """
 Valid GTF Quoting Options. They are:
 
-* "none": Never quote, even if blanks found inside.
-* "blank": Quote if blanks (\\r, \\n, \\t, space, etc.) found inside.
-* "string": Quote if the field have type string. Will not quote for numeric types.
-* "all": Quote all fields.
+* ``none`` Never quote, even if blanks found inside.
+* ``blank``: Quote if blanks (\\r, \\n, \\t, space, etc.) found inside.
+* ``string``: Quote if the field have type string. Will not quote for numeric types.
+* ``all``: Quote all fields.
 """
 
 DEFAULT_GTF_QUOTE_OPTIONS = "all"
@@ -195,12 +195,14 @@ class Feature(FeatureType):
     def overlaps(self, other: Feature) -> bool:
         if self.seqname != other.seqname:
             return False
-        return self.start < other.start < self.end or \
-               self.start < other.end < self.end or \
-               (
-                       other.start < self.start and
-                       self.end < other.end
-               )
+        return (
+                self.start < other.start < self.end or
+                self.start < other.end < self.end or
+                (
+                        other.start < self.start and
+                        self.end < other.end
+                )
+        )
 
     def __gt__(self, other: Feature):
         return self.seqname > other.seqname or (

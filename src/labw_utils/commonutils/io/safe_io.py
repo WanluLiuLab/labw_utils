@@ -10,9 +10,9 @@ On writer or appender, it ensures existence of file by :py:func:`touch`-ing it f
 """
 
 from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io import get_appender as _get_appender
 from labw_utils.commonutils.io import get_reader as _get_reader
-from labw_utils.commonutils.io import file_system
 from labw_utils.commonutils.io import get_writer as _get_writer
 from labw_utils.commonutils.io._ioproxy import IOProxyType
 from labw_utils.commonutils.stdlib_helper.docstring_helper import copy_doc
