@@ -36,19 +36,26 @@ Traceback (most recent call last):
 AttributeError: can't set attribute
 """
 
+__all__ = (
+    "FastqRecordParserError",
+    "MisFormattedFastqRecordError",
+    "SequenceQualityLengthMismatchError",
+    "FastqRecord"
+)
+
 from typing import List
 
 
-class FastqParserError(ValueError):
+class FastqRecordParserError(ValueError):
     pass
 
 
-class MisFormattedFastqRecordError(FastqParserError):
+class MisFormattedFastqRecordError(FastqRecordParserError):
     def __init__(self, reason: str):
         super().__init__(reason)
 
 
-class SequenceQualityLengthMismatchError(FastqParserError):
+class SequenceQualityLengthMismatchError(FastqRecordParserError):
     def __init__(self, seq_id: str, sequence: str, quality: str):
         super().__init__(
             f"Illegal FASTQ record '{seq_id}': sequence '{sequence}' and quality '{quality}' length not equal."

@@ -1,4 +1,28 @@
-class FastaIndexEntry:
+"""
+labw_utils.bioutils.record.fai -- Record of Fasta Index (``*.fai``)
+
+This data structure wraps one FAI record.
+"""
+
+from __future__ import annotations
+
+__all__ = (
+    "FastaIndexRecordParserError",
+    "MisFormattedFastaIndexRecordError",
+    "FastaIndexRecord"
+)
+
+
+class FastaIndexRecordParserError(ValueError):
+    pass
+
+
+class MisFormattedFastaIndexRecordError(FastaIndexRecordParserError):
+    def __init__(self, reason: str):
+        super().__init__(reason)
+
+
+class FastaIndexRecord:
     """
     An entry from ``.fai`` files
     """
@@ -70,7 +94,7 @@ class FastaIndexEntry:
     def from_fai_str(cls, fai_str: str):
         fields = fai_str.rstrip().split("\t")
         if len(fields) != 5:
-            raise ValueError(f"Illegal record: {fai_str}. Need to have 5 fields.")
+            raise MisFormattedFastaIndexRecordError(f"Illegal record: '{fai_str}'. Need to have 5 fields.")
         new_instance = cls(
             name=fields[0],
             length=int(fields[1]),
@@ -91,3 +115,8 @@ class FastaIndexEntry:
 
     def __str__(self):
         return repr(self)
+
+    def __eq__(self, other: FastaIndexRecord) -> bool:
+        if not isinstance(other, FastaIndexRecord):
+            return False
+        return repr(self) == repr(other)

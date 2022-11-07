@@ -2,7 +2,7 @@ from typing import Iterator, Any
 
 import pytest
 
-from labw_utils.bioutils.io import FileTypeNotFoundError, BaseFileIterator
+from labw_utils.bioutils.parser import FileTypeNotFoundError, BaseFileIterator
 
 
 class ErrorFileIterator(BaseFileIterator):

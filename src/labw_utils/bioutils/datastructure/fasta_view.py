@@ -19,7 +19,8 @@ import os
 from abc import abstractmethod, ABC
 from typing import List, Union, Tuple, Dict, Optional, IO
 
-from labw_utils.bioutils.io.fai import FAI_INDEX_TYPE, create_fai_from_fasta, FAIBasedFastaIndexIterator
+from labw_utils.bioutils.datastructure.fai_view import FastaIndex
+from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
@@ -304,7 +305,7 @@ class _DiskAccessFastaView(_BaseFastaView):
     Underlying file descriptor
     """
 
-    _fai: FAI_INDEX_TYPE
+    _fai: FastaIndex
 
     def get_chr_length(self, chromosome: str) -> int:
         return self._fai[chromosome].length
@@ -321,10 +322,16 @@ class _DiskAccessFastaView(_BaseFastaView):
         index_filename = self.filename + ".fai"
         if not file_exists(index_filename) or \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
-            create_fai_from_fasta(self.filename, index_filename)
-        self._fai = {
-            index_entry.name: index_entry for index_entry in FAIBasedFastaIndexIterator(index_filename)
-        }
+            self._fai = FastaIndex.from_fasta(
+                filename=filename,
+                full_header=full_header
+            )
+            try:
+                self._fai.write(index_filename)
+            except FastaIndexNotWritableError:
+                ...  # TODO
+        else:
+            self._fai = FastaIndex.from_fai(filename)
 
     @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:

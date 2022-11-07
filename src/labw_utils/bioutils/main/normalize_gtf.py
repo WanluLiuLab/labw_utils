@@ -8,8 +8,8 @@ from typing import List
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.bioutils.datastructure.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
     VALID_SORT_EXON_EXON_STRAND_POLICY
-from labw_utils.bioutils.io.feature import GtfIterator, GtfWriter
-from labw_utils.bioutils.typing.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS
+from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter
+from labw_utils.bioutils.record.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)

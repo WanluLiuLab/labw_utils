@@ -8,7 +8,7 @@ from labw_utils.bioutils.datastructure.fastq_view import FastqView
 
 __version__ = 0.1
 
-from labw_utils.bioutils.io.fastq import FastqWriter
+from labw_utils.bioutils.parser.fastq import FastqWriter
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer

@@ -7,9 +7,8 @@ import pytest
 
 import conftest
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, \
-    ChromosomeNotFoundError, \
-    FromGreaterThanToError
-from labw_utils.bioutils.io.fai import create_fai_from_fasta
+    ChromosomeNotFoundError
+from labw_utils.bioutils.parser.fai import create_fai_from_fasta
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper import logger_helper
@@ -17,23 +16,11 @@ from labw_utils.commonutils.stdlib_helper import logger_helper
 lh = logger_helper.get_logger(__name__)
 
 fasta_seq = """>chr1 some att
-NNNNNNNNNNNNNNNATCGTTACGTAC
-CATATACTATATCTTAGTCTAGTCTAA
-CGTCTTTTTCTNNNNNNNNNNNNNNNA
-NNNNNNNNATCGTTACGTACTTCTNNN
-CATATACTATATCTTAGTCTAGTCTAA
-CGTCTTTTTCTNNNNNNNN
+NNNNNNNNNNNNNNNATCGTTACGTACCATATACTATATCTTAGTCTAGTCTAACGTCTTTTTCTNNNNNNNNNNNNNNNANNNNNNNNATCGTTACGTACTTCTNNNCATATACTATATCTTAGTCTAGTCTAACGTCTTTTTCTNNNNNNNN
 >chr2
-NNNNNNNNNNNNNNNATCGTTACGTAC
-CATATACTATATCTTAGTCTAGTCTAA
-CGTCTTTTTCTNNNNNNNNN
+NNNNNNNNNNNNNNNATCGTTACGTACCATATACTATATCTTAGTCTAGTCTAACGTCTTTTTCTNNNNNNNNN
 >chr3
-ACT
-ANN
-TGN
-ATN
-ATG
-N
+ACTANNTGNATNATGN
 >chr4
 AAAAAAAAAACCCCCC
 >chr6
@@ -88,8 +75,6 @@ def _public_asserts(fa: FastaViewType) -> None:
         fa.sequence('chr2', -5, 29)
     with pytest.raises(SeekTooFarError):
         fa.sequence('chr2', 500, 29)
-    with pytest.raises(FromGreaterThanToError):
-        fa.sequence('chr2', 12, 5)
 
 
 def _fasta_with_full_header_assets(fa: FastaViewType) -> None:

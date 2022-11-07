@@ -1,11 +1,12 @@
 """
-io -- Basic bioinformatics database parsers
+parser -- Basic bioinformatics database parsers
 
 Here contains codes of parsers for basic bioinformatics databases
 """
-
 from abc import abstractmethod
 from typing import Iterable, Optional, IO, Iterator, TypeVar
+
+from labw_utils.commonutils import shell_utils
 
 _RecordType = TypeVar("_RecordType")
 
@@ -38,10 +39,10 @@ class _BaseFileIO:
         Method that checks whether a subclass was properly created.
         The subclass should have ``filetype`` attribute.
         """
-        new_instance = super().__new__(cls)
-        if new_instance.filetype is None:
+        _new_instance = super().__new__(cls)
+        if _new_instance.filetype is None:
             raise FileTypeNotFoundError(cls.__name__)
-        return new_instance
+        return _new_instance
 
     def __repr__(self) -> str:
         return f"{self.filetype} Iterator for {self._filename} @ {self.tell()}"
@@ -98,3 +99,7 @@ class BaseIteratorWriter(_BaseFileIO):
     @abstractmethod
     def write(self, record: _RecordType) -> None:
         pass
+
+    def destroy_file(self):
+        self.close()
+        shell_utils.rm_rf(self._filename)

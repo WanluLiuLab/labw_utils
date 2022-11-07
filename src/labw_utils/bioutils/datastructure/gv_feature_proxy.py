@@ -13,7 +13,7 @@ from typing import List, Callable, Optional, Iterable, Tuple, Type, Union
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure._gv_errors import _all as _gve_all
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
-from labw_utils.bioutils.typing.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
+from labw_utils.bioutils.record.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
 from labw_utils.commonutils.dynamic.hook_helper import hookable_decorator
 
 __all__ = [

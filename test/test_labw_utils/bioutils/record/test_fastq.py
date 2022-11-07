@@ -1,6 +1,6 @@
 import pytest
 
-from labw_utils.bioutils.typing.fastq import FastqRecord, SequenceQualityLengthMismatchError, \
+from labw_utils.bioutils.record.fastq import FastqRecord, SequenceQualityLengthMismatchError, \
     MisFormattedFastqRecordError
 
 

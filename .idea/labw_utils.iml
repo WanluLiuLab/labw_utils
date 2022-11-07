@@ -14,7 +14,7 @@
       <excludeFolder url="file://$MODULE_DIR$/pytest" />
       <excludeFolder url="file://$MODULE_DIR$/.maint" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (labw_utils)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

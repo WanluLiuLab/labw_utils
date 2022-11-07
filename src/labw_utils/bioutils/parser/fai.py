@@ -1,11 +1,34 @@
-from typing import Dict, Iterator, Iterable, Final
+__all__ = (
+    "FastaIndexParserError",
+    "DuplicatedFastaNameError",
+    "FastaBasedFastaIndexIterator",
+    "FAIBasedFastaIndexIterator",
+    "FastaIndexWriter"
+)
 
-from labw_utils.bioutils.io import BaseFileIterator
-from labw_utils.bioutils.typing.fai import FastaIndexEntry
+from typing import Iterator, Iterable, Final, List
+
+from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
+from labw_utils.bioutils.record.fai import FastaIndexRecord
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
-FAI_INDEX_TYPE = Dict[str, FastaIndexEntry]
+
+class FastaIndexParserError(ValueError):
+    pass
+
+
+class DuplicatedFastaNameError(FastaIndexParserError):
+    def __init__(self, name: str):
+        super().__init__(f"FAI seqname {name} had occurred more than once")
+
+
+class FastaIndexNotWritableError(FastaIndexParserError):
+    def __init__(self, name: str):
+        super().__init__(
+            f"FAI seqname '{name}' is valid in-memory not valid on disk"
+            "Reason might be your using `full_header` on abnormal FASTAs"
+        )
 
 
 class FAIBasedFastaIndexIterator(BaseFileIterator):
@@ -18,9 +41,14 @@ class FAIBasedFastaIndexIterator(BaseFileIterator):
         else:
             self._fd = get_reader(self.filename)
 
-    def __iter__(self) -> Iterator[FastaIndexEntry]:
+    def __iter__(self) -> Iterator[FastaIndexRecord]:
+        _names = []
         for line in self._fd:
-            yield FastaIndexEntry.from_fai_str(line)
+            new_record = FastaIndexRecord.from_fai_str(line)
+            if new_record.name in _names:
+                raise DuplicatedFastaNameError(new_record.name)
+            _names.append(new_record.name)
+            yield new_record
         self._fd.close()
 
 
@@ -28,6 +56,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
     filetype: Final[str] = "FAI (FASTA based)"
     _full_header: bool
     _name: str
+    _names: List[str]
     _length: int
     _offset: int
     _line_blen: int
@@ -50,9 +79,14 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
         else:
             self._fd = get_reader(self.filename)
         self._full_header = full_header
+        self._names = []
 
-    def _generate_fai_record(self) -> FastaIndexEntry:
-        return FastaIndexEntry(
+    def _generate_fai_record(self) -> FastaIndexRecord:
+        if self._name in self._names:
+            raise DuplicatedFastaNameError(self._name)
+        else:
+            self._names.append(self._name)
+        return FastaIndexRecord(
             name=self._name,
             length=self._length,
             offset=self._offset,
@@ -60,7 +94,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
             line_len=self._line_len
         )
 
-    def __iter__(self) -> Iterable[FastaIndexEntry]:
+    def __iter__(self) -> Iterable[FastaIndexRecord]:
         while True:
             line = self._fd.readline()
             if not line:
@@ -75,7 +109,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
                     self._line_blen = 0
                     self._length = 0
                 if self._full_header:
-                    self._name = line[1:]
+                    self._name = line[1:].strip()
                 else:
                     self._name = line[1:].strip().split(' ')[0].split('\t')[0]
                 self._offset = self._fd.tell()
@@ -91,20 +125,21 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
         self._fd.close()
 
 
-def create_fai_from_fasta(
-        filename: str,
-        index_filename: str
-) -> FAI_INDEX_TYPE:
-    """
-    Create an FAI index for Fasta
+class FastaIndexWriter(BaseIteratorWriter):
+    filetype: Final[str] = "FAI"
 
-    Do not use this feature on full headers.
-    """
-    return_fai: FAI_INDEX_TYPE = {}
-    for fai_record in FastaBasedFastaIndexIterator(filename, full_header=False):
-        return_fai[fai_record.name] = fai_record
+    def __init__(self, filename: str, **kwargs):
+        super().__init__(filename, **kwargs)
+        self._fd = get_writer(self._filename)
 
-    with get_writer(index_filename) as writer:
-        for fai_record in return_fai.values():
-            writer.write(str(fai_record) + "\n")
-    return return_fai
+    def write(self, record: FastaIndexRecord) -> None:
+        self._fd.write(str(record) + "\n")
+
+    @staticmethod
+    def write_iterator(iterable: Iterable[FastaIndexRecord], filename: str):
+        with FastaIndexWriter(filename) as writer:
+            for fastq_record in iterable:
+                if fastq_record.name.count("\t") + fastq_record.name.count(" ") != 0:
+                    writer.destroy_file()
+                    raise FastaIndexNotWritableError(fastq_record.name)
+                writer.write(fastq_record)

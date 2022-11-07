@@ -11,9 +11,9 @@ from typing import Optional, Dict, Iterator, Union, Type, Iterable
 from labw_utils.bioutils.datastructure._gv_feature_proxy_mutator import GeneMutator, TranscriptMutator
 from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene, Transcript, Exon, BaseFeatureProxy, \
     DEFAULT_SORT_EXON_EXON_STRAND_POLICY
-from labw_utils.bioutils.io import get_file_type_from_suffix
-from labw_utils.bioutils.io.feature import GtfIterator, GtfWriter, Gff3Iterator
-from labw_utils.bioutils.typing.feature import GtfRecord, FeatureType, Gff3Record
+from labw_utils.bioutils.parser import get_file_type_from_suffix
+from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter, Gff3Iterator
+from labw_utils.bioutils.record.feature import GtfRecord, FeatureType, Gff3Record
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.stdlib_helper import pickle_helper

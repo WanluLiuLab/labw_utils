@@ -4,8 +4,8 @@ Under construction!
 
 from typing import Dict
 
-from labw_utils.bioutils.io.fastq import FastqIterator
-from labw_utils.bioutils.typing.fastq import FastqRecord
+from labw_utils.bioutils.parser.fastq import FastqIterator
+from labw_utils.bioutils.record.fastq import FastqRecord
 
 
 class FastqView:

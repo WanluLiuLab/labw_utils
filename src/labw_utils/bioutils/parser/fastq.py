@@ -1,7 +1,12 @@
-from typing import Iterator, Union, Final
+__all__ = (
+    "FastqIterator",
+    "FastqWriter"
+)
 
-from labw_utils.bioutils.io import BaseFileIterator, BaseIteratorWriter
-from labw_utils.bioutils.typing.fastq import FastqRecord
+from typing import Iterator, Final
+
+from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
+from labw_utils.bioutils.record.fastq import FastqRecord
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
@@ -30,7 +35,7 @@ class FastqWriter(BaseIteratorWriter):
 
     @staticmethod
     def write_iterator(
-            iterable: Union[FastqIterator, Iterator[FastqRecord]],
+            iterable: Iterator[FastqRecord],
             filename: str
     ):
         with FastqWriter(filename) as writer:
@@ -41,5 +46,5 @@ class FastqWriter(BaseIteratorWriter):
         super().__init__(filename, **kwargs)
         self._fd = get_writer(self._filename)
 
-    def write(self, fastq_record: FastqRecord):
-        self._fd.write(str(fastq_record) + "\n")
+    def write(self, record: FastqRecord):
+        self._fd.write(str(record) + "\n")

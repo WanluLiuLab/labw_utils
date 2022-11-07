@@ -4,8 +4,8 @@ Under construction!
 
 from typing import Optional, List
 
-from labw_utils.bioutils.io.feature import GtfIterator
-from labw_utils.bioutils.typing.feature import GtfRecord
+from labw_utils.bioutils.parser.feature import GtfIterator
+from labw_utils.bioutils.record.feature import GtfRecord
 
 
 class GtfView(List[GtfRecord]):

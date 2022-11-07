@@ -3,8 +3,8 @@ import random
 import tempfile
 from typing import List
 
-from labw_utils.bioutils.io.fastq import FastqIterator, FastqWriter
-from labw_utils.bioutils.typing.fastq import FastqRecord
+from labw_utils.bioutils.parser.fastq import FastqIterator, FastqWriter
+from labw_utils.bioutils.record.fastq import FastqRecord
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_fastq_path = os.path.join(TEST_DATA_DIR, "test.fastq")
