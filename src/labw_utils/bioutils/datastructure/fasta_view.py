@@ -11,15 +11,23 @@ Highlights: This utility can read all format supported by :py:mod:`commonutils.i
 
 .. warning::
     This module uses 0-based ``[)`` indexing!
-
-TODO: Update FAI into a factory design -- support another format that supports full headers
 """
+
+__all__ = (
+    'FastaViewType',
+    'FastaViewFactory',
+    "SeekTooFarError",
+    "ChromosomeNotFoundError",
+    "FromGreaterThanToError",
+    "FastaViewInvalidRegionError",
+    "DuplicatedChromosomeNameError"
+)
 
 import os
 from abc import abstractmethod, ABC
-from typing import List, Union, Tuple, Dict, Optional, IO
+from typing import List, Union, Tuple, Dict, Optional, IO, Iterable
 
-from labw_utils.bioutils.datastructure.fai_view import FastaIndex
+from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
@@ -28,17 +36,16 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog, get_lo
 
 _lh = get_logger(__name__)
 
-__all__ = [
-    'FastaViewType',
-    'FastaViewFactory'
-]
-
 QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
 
 
 class FastaViewError(ValueError):
     pass
 
+
+class DuplicatedChromosomeNameError(FastaViewError):
+    def __init__(self, name:str):
+        super().__init__(f"Chromosome name {name} duplicated")
 
 class FastaViewInvalidRegionError(FastaViewError):
     pass
@@ -51,7 +58,7 @@ class SeekTooFarError(FastaViewInvalidRegionError):
 
 class ChromosomeNotFoundError(FastaViewInvalidRegionError):
     def __init__(self, chromosome: str):
-        super().__init__(f"Requested chromosome {chromosome} not found")
+        super().__init__(f"Requested chromosome '{chromosome}' not found")
 
 
 class FromGreaterThanToError(FastaViewInvalidRegionError):
@@ -155,11 +162,12 @@ class FastaViewType:
         pass
 
     @abstractmethod
-    def subset(self, output_filename: str, querys: List[QueryTupleType]):
-        pass
-
-    @abstractmethod
-    def subset_chr(self, output_filename: str, querys: List[str]):
+    def subset_to_file(
+            self,
+            output_filename: str,
+            querys: Iterable[QueryTupleType],
+            output_chr_names: Optional[Iterable[str]] = None
+    ):
         pass
 
     @abstractmethod
@@ -217,16 +225,24 @@ class _BaseFastaView(FastaViewType, ABC):
     def query(self, query: QueryTupleType) -> str:
         return self.sequence(*query)
 
-    def subset(self, output_filename: str, querys: List[QueryTupleType]):
+    @abstractmethod
+    def subset_to_file(
+            self,
+            output_filename: str,
+            querys: Iterable[QueryTupleType],
+            output_chr_names: Optional[Iterable[str]] = None
+    ):
+        querys = list(querys)
+        if output_chr_names is None:
+            output_chr_names = list(map(lambda x: x[0], querys))
+        else:
+            output_chr_names = list(output_chr_names)
+        for output_chr_name in output_chr_names:
+            if output_chr_names.count(output_chr_name) > 1:
+                raise DuplicatedChromosomeNameError(output_chr_name)
         with get_writer(output_filename) as writer:
-            for query in querys:
-                fa_str = f">{query[0]}\n{self.query(query)}\n"
-                writer.write(fa_str)
-
-    def subset_chr(self, output_filename: str, querys: List[str]):
-        with get_writer(output_filename) as writer:
-            for query in querys:
-                fa_str = f">{query}\n{self.sequence(query)}\n"
+            for output_chr_name, query in zip(output_chr_names, querys):
+                fa_str = f">{output_chr_name}\n{self.query(query)}\n"
                 writer.write(fa_str)
 
     def __enter__(self):
@@ -305,7 +321,7 @@ class _DiskAccessFastaView(_BaseFastaView):
     Underlying file descriptor
     """
 
-    _fai: FastaIndex
+    _fai: FastaIndexView
 
     def get_chr_length(self, chromosome: str) -> int:
         return self._fai[chromosome].length
@@ -322,16 +338,16 @@ class _DiskAccessFastaView(_BaseFastaView):
         index_filename = self.filename + ".fai"
         if not file_exists(index_filename) or \
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
-            self._fai = FastaIndex.from_fasta(
+            self._fai = FastaIndexView.from_fasta(
                 filename=filename,
                 full_header=full_header
             )
             try:
                 self._fai.write(index_filename)
-            except FastaIndexNotWritableError:
-                ...  # TODO
+            except FastaIndexNotWritableError as e:
+                _lh.error(f"Fasta index generated but not writable %s", e)
         else:
-            self._fai = FastaIndex.from_fai(filename)
+            self._fai = FastaIndexView.from_fai(filename)
 
     @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:

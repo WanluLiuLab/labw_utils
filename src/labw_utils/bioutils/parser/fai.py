@@ -1,6 +1,7 @@
 __all__ = (
     "FastaIndexParserError",
     "DuplicatedFastaNameError",
+    "FastaIndexNotWritableError",
     "FastaBasedFastaIndexIterator",
     "FAIBasedFastaIndexIterator",
     "FastaIndexWriter"
@@ -26,7 +27,7 @@ class DuplicatedFastaNameError(FastaIndexParserError):
 class FastaIndexNotWritableError(FastaIndexParserError):
     def __init__(self, name: str):
         super().__init__(
-            f"FAI seqname '{name}' is valid in-memory not valid on disk"
+            f"FAI seqname '{name}' is valid in-memory not valid on disk\n"
             "Reason might be your using `full_header` on abnormal FASTAs"
         )
 
@@ -75,9 +76,10 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
         self._line_blen = 0
         self._length = 0
         if self._show_tqdm:
-            self._fd = get_tqdm_line_reader(self.filename)
+            # Here required binary to deal with line endings
+            self._fd = get_tqdm_line_reader(self.filename, is_binary=True)
         else:
-            self._fd = get_reader(self.filename)
+            self._fd = get_reader(self.filename, is_binary=True)
         self._full_header = full_header
         self._names = []
 
@@ -96,7 +98,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
 
     def __iter__(self) -> Iterable[FastaIndexRecord]:
         while True:
-            line = self._fd.readline()
+            line = str(self._fd.readline(), encoding="utf-8")
             if not line:
                 break
             if line == '':

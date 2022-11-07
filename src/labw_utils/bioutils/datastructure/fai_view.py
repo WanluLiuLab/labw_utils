@@ -64,6 +64,7 @@ class FastaIndexView:
     def __str__(self):
         return f"Fasta Index from {self._filename} [Full Header: {self._full_header}]"
 
+
 def create_fai_from_fasta(
         fasta_filename: str,
         fai_filename: str,
