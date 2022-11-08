@@ -225,7 +225,6 @@ class _BaseFastaView(FastaViewType, ABC):
     def query(self, query: QueryTupleType) -> str:
         return self.sequence(*query)
 
-    @abstractmethod
     def subset_to_file(
             self,
             output_filename: str,
