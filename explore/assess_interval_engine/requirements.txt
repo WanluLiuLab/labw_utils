@@ -1,0 +1,7 @@
+pysam
+vaex-core
+pandas
+numexpr
+bottleneck
+numpy
+numba

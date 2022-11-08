@@ -1,0 +1,57 @@
+import os
+from typing import Type
+
+import pytest
+
+from naive_interval_engine import BaseNaiveIntervalEngine
+from naive_interval_engine.interval_tree_impl import IntervalTreeIntervalEngine
+from naive_interval_engine.np_impl import NumpyIntervalEngine
+from naive_interval_engine.pd_impl import PandasIntervalEngine
+
+argvalues = (
+    {"engine": PandasIntervalEngine},
+    {"engine": NumpyIntervalEngine},
+    {"engine": IntervalTreeIntervalEngine}
+
+)
+
+test_filename = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "test_data.tsv"
+)
+test_match_filename = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "test_match.tsv"
+)
+
+
+@pytest.mark.parametrize(
+    argnames="kwargs",
+    argvalues=argvalues,
+    ids=list(map(lambda d: d["engine"].__name__, argvalues))
+)
+def test(kwargs):
+    engine_type: Type[BaseNaiveIntervalEngine] = kwargs["engine"]
+    engine_test = engine_type(test_filename)
+    engine_match = engine_type(test_match_filename)
+
+    l_engine_test = list(engine_test)
+    l_engine_match = list(engine_match)
+    assert l_engine_test[0] == ("1", 12006, 184926)
+    assert len(l_engine_match) == 2
+
+    assert list(engine_test.match(l_engine_match[0])) == []
+    assert list(engine_test.match(l_engine_match[1])) == [4, 6]
+    assert list(engine_test.matches(engine_match)) == [[], [4, 6]]
+    assert list(engine_match.matches(engine_test)) == [[0, 1], [], [], [], [], [], [], [], []]
+    assert list(
+        engine_match.parallel_matches(engine_test, batch_size=2)
+    ) == list(engine_match.matches(engine_test))
+
+    assert list(engine_test.overlap(l_engine_match[0])) == [0, 1, 2, 3]
+    assert list(engine_test.overlap(l_engine_match[1])) == [0, 1, 2, 3, 4, 5, 6, 7, 8]
+    assert list(engine_test.overlaps(engine_match)) == [[0, 1, 2, 3], [0, 1, 2, 3, 4, 5, 6, 7, 8]]
+    assert list(engine_match.overlaps(engine_test)) == [[0, 1], [0, 1], [0, 1], [0, 1], [1], [1], [1], [1], [1]]
+    assert list(
+        engine_match.parallel_overlaps(engine_test, batch_size=2)
+    ) == list(engine_match.overlaps(engine_test))
