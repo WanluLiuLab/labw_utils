@@ -3,6 +3,8 @@ from typing import Iterable, Dict
 
 import intervaltree
 
+from labw_utils.commonutils.io.safe_io import get_reader
+from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
 
 
@@ -21,13 +23,17 @@ class IntervalTreeIntervalEngine(BaseNaiveIntervalEngine):
         )):
             yield it
 
-    def __init__(self, interval_file: str):
+    def __init__(self, interval_file: str, show_tqdm: bool = True):
+        if show_tqdm:
+            reader = get_tqdm_line_reader(interval_file)
+        else:
+            reader = get_reader(interval_file)
         self._dfs = defaultdict(lambda: intervaltree.IntervalTree())
-        with open(interval_file, "rt") as reader:
-            _ = next(reader)
-            for i, line in enumerate(reader):
-                chr_name, s_str, e_str = line.rstrip("\n").split("\t")
-                self._dfs[chr_name].addi(int(s_str), int(e_str), i)
+        _ = next(reader)
+        for i, line in enumerate(reader):
+            chr_name, s_str, e_str = line.rstrip("\n").split("\t")
+            self._dfs[chr_name].addi(int(s_str), int(e_str), i)
+        reader.close()
 
     def match(self, interval: IntervalType) -> Iterable[int]:
         interval_chr, interval_s, interval_e = interval

@@ -1,6 +1,6 @@
-import functools
 from typing import Iterable, Dict
 
+import numexpr as ne
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -10,7 +10,7 @@ from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
 from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
 
 
-class NumpyIntervalEngine(BaseNaiveIntervalEngine):
+class NumExprIntervalEngine(BaseNaiveIntervalEngine):
     _dfs: Dict[str, npt.NDArray]
 
     def overlap(self, interval: IntervalType) -> Iterable[int]:
@@ -22,25 +22,25 @@ class NumpyIntervalEngine(BaseNaiveIntervalEngine):
         s = selected_chr[:, 0]
         e = selected_chr[:, 1]
         for it in np.nonzero(
-                functools.reduce(
-                    np.logical_or, (
-                            np.logical_and(
-                                np.asarray(s < interval_s),
-                                np.asarray(interval_s < e),
-                            ),
-                            np.logical_and(
-                                np.asarray(s < interval_e),
-                                np.asarray(interval_e < e),
-                            ),
-                            np.logical_and(
-                                np.asarray(interval_s < s),
-                                np.asarray(s < interval_e)
-                            ),
-                            np.logical_and(
-                                np.asarray(interval_s < e),
-                                np.asarray(e < interval_e)
-                            )
-                    )
+                ne.evaluate(
+                    "|".join((
+                            "(" + "&".join((
+                                    "(s < interval_s)",
+                                    "(interval_s < e)"
+                            )) + ")",
+                            "(" + "&".join((
+                                    "(s < interval_e)",
+                                    "(interval_e < e)"
+                            )) + ")",
+                            "(" + "&".join((
+                                    "(interval_s < s)",
+                                    "(s < interval_e)"
+                            )) + ")",
+                            "(" + "&".join((
+                                    "(interval_s < e)",
+                                    "(e < interval_e)"
+                            )) + ")",
+                    ))
                 )
         )[0].tolist():
             yield it
@@ -77,9 +77,8 @@ class NumpyIntervalEngine(BaseNaiveIntervalEngine):
         s = selected_chr[:, 0]
         e = selected_chr[:, 1]
         match_result = np.nonzero(
-            np.logical_and(
-                np.asarray(s > interval_s),
-                np.asarray(e < interval_e)
+            ne.evaluate(
+                "(s > interval_s) & (e < interval_e)"
             )
         )[0]
         for it in match_result.tolist():

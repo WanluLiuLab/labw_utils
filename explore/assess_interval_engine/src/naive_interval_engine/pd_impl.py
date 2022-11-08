@@ -2,6 +2,8 @@ from typing import Iterable
 
 import pandas as pd
 
+from labw_utils.commonutils.io.safe_io import get_reader
+from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
 from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
 
 
@@ -22,9 +24,13 @@ class PandasIntervalEngine(BaseNaiveIntervalEngine):
         )["idx"]:
             yield idx
 
-    def __init__(self, interval_file: str):
+    def __init__(self, interval_file: str, show_tqdm: bool = True):
+        if show_tqdm:
+            reader = get_tqdm_reader(interval_file, is_binary=True)
+        else:
+            reader = get_reader(interval_file, is_binary=True)
         self._pd = pd.read_csv(
-            interval_file,
+            reader,
             sep="\t",
             engine="pyarrow",
             dtype={
@@ -33,6 +39,7 @@ class PandasIntervalEngine(BaseNaiveIntervalEngine):
                 "e": int
             }
         )
+        reader.close()
         self._pd["idx"] = range(0, self._pd.shape[0])
 
     def match(self, interval: IntervalType) -> Iterable[int]:

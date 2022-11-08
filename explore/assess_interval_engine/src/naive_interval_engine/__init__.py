@@ -1,105 +1,80 @@
 from __future__ import annotations
 
 __all__ = (
-    "parallel_map",
     "IntervalType",
-    "BaseNaiveIntervalEngine"
+    "IntervalEngineType",
+    "BaseNaiveIntervalEngine",
 )
 
-from abc import abstractmethod
-from typing import Tuple, List
+from abc import abstractmethod, ABC
+from typing import Tuple, List, Iterable
+
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
 IntervalType = Tuple[str, int, int]
 
-import multiprocessing
-from typing import Callable, TypeVar, Iterable
 
-import joblib
-
-_InType = TypeVar("_InType")
-_OutType = TypeVar("_OutType")
-
-
-def window(
-        intervals: Iterable[_InType],
-        batch_size: int,
-) -> Iterable[List[_InType]]:
-    cid = 0
-    batch = []
-    for interval in intervals:
-        batch.append(interval)
-        cid += 1
-        if cid % batch_size == 0:
-            yield batch
-    if len(batch) != 0:
-        yield batch
-
-
-def parallel_map(
-        f: Callable[[_InType], _OutType],
-        input_iterable: Iterable[_InType],
-        n_jobs: int = multiprocessing.cpu_count(),
-        backend: str = "threading",
-) -> Iterable[_OutType]:
-    it: Iterable[_OutType] = joblib.Parallel(
-        n_jobs=n_jobs,
-        backend=backend
-    )(
-        joblib.delayed(f)(i) for i in input_iterable
-    )
-    return it
-
-
-class BaseNaiveIntervalEngine:
+class IntervalEngineType:
     @abstractmethod
-    def __init__(self, interval_file: str):
-        _ = interval_file
+    def __init__(
+            self,
+            interval_file: str,
+            show_tqdm: bool = True
+    ):
+        _ = interval_file, show_tqdm
 
     @abstractmethod
     def match(self, interval: IntervalType) -> Iterable[int]:
         pass
 
-    def matches(self, intervals: Iterable[IntervalType]) -> Iterable[List[int]]:
-        for interval in intervals:
-            yield list(self.match(interval))
-
-    def _parallel_prepared_matches(self, intervals: List[IntervalType]) -> List[List[int]]:
-        return list(map(lambda x: list(self.match(x)), intervals))
+    @abstractmethod
+    def matches(
+            self,
+            intervals: Iterable[IntervalType],
+            show_tqdm: bool = True
+    ) -> Iterable[List[int]]:
+        pass
 
     @abstractmethod
     def overlap(self, interval: IntervalType) -> Iterable[int]:
         pass
 
-    def overlaps(self, intervals: Iterable[IntervalType]) -> Iterable[List[int]]:
-        for interval in intervals:
-            yield list(self.overlap(interval))
-
-    def parallel_matches(
+    @abstractmethod
+    def overlaps(
             self,
             intervals: Iterable[IntervalType],
-            batch_size: int = 50
+            show_tqdm: bool = True
     ) -> Iterable[List[int]]:
-        windows = list(window(intervals, batch_size))
-        for matches in parallel_map(
-                self._parallel_prepared_matches,
-                windows,
-                backend="loky"
-        ):
-            for matched in matches:
-                yield matched
-
-    def parallel_overlaps(
-            self,
-            intervals: Iterable[IntervalType],
-            batch_size: int = 1000
-    ) -> Iterable[List[int]]:
-        for overlaps in parallel_map(
-                self.overlaps,
-                window(list(intervals), batch_size)
-        ):
-            for overlapped in overlaps:
-                yield overlapped
+        pass
 
     @abstractmethod
     def __iter__(self) -> Iterable[IntervalType]:
         pass
+
+
+class BaseNaiveIntervalEngine(IntervalEngineType, ABC):
+    def matches(
+            self,
+            intervals: Iterable[IntervalType],
+            show_tqdm: bool = True
+    ) -> Iterable[List[int]]:
+        if show_tqdm:
+            intervals = tqdm(
+                iterable=list(intervals),
+                desc="matching...",
+            )
+        for interval in intervals:
+            yield list(self.match(interval))
+
+    def overlaps(
+            self,
+            intervals: Iterable[IntervalType],
+            show_tqdm: bool = True
+    ) -> Iterable[List[int]]:
+        if show_tqdm:
+            intervals = tqdm(
+                iterable=list(intervals),
+                desc="overlapping...",
+            )
+        for interval in intervals:
+            yield list(self.overlap(interval))
