@@ -10,7 +10,7 @@ import pytest
 from labw_utils.bioutils.datastructure.fai_view import create_fai_from_fasta
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, FastaViewType, SeekTooFarError, \
     ChromosomeNotFoundError, \
-    FromGreaterThanToError
+    FromGreaterThanToError, DuplicatedChromosomeNameError
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.stdlib_helper import logger_helper
@@ -148,4 +148,7 @@ def test_subset_to_file():
         ) as fa:
             subset_filename = fasta_filename + ".subset.fa"
             querys = (('chr3', 2, 15), ('chr3', 2),( 'chr3',))
-            fa.subset_to_file(subset_filename, querys, )
+            with pytest.raises(DuplicatedChromosomeNameError):
+                fa.subset_to_file(subset_filename, querys)
+            fa.subset_to_file(subset_filename, querys, ["1", "2", "3"])
+            # TODO: Not finished

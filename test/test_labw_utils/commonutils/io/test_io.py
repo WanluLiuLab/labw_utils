@@ -7,7 +7,7 @@ import pytest
 import conftest
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader
+from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader, TqdmReader
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -21,7 +21,7 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     module_test_info.teardown()
 
 
-CONTENT_SIZE = 1024
+CONTENT_SIZE = 1024*1024
 
 
 def assess_binary_archive_io(filename: str):
@@ -36,6 +36,7 @@ def assess_binary_archive_io(filename: str):
     with get_reader(filename, is_binary=True) as reader:
         assert reader.read(len_contents) == contents
     with get_tqdm_reader(filename, is_binary=True) as reader:
+        reader: TqdmReader
         assert reader.read(len_contents) == contents
         assert reader._tqdm.total == len(contents)
     assert filename.endswith("txt") == (os.path.getsize(filename) == len_contents)
@@ -55,11 +56,13 @@ def assess_text_archive_io(filename: str):
     with get_reader(filename, encoding="UTF-8", newline='\n') as reader:
         assert reader.read(len_contents) == contents
     with get_tqdm_reader(filename, encoding="UTF-8", newline='\n') as reader:
+        reader: TqdmReader
         assert reader.read(len_contents) == contents
         assert reader._tqdm.total == len(contents)
     with get_tqdm_line_reader(filename, encoding="UTF-8", newline='\n') as reader:
+        reader: TqdmReader
         i = 0
-        assert reader._tqdm.total == len(contents_list) + 1
+        assert reader._tqdm.total == len(contents_list)
         for line in reader:
             assert contents_list[i] == line
             i += 1
@@ -83,8 +86,3 @@ def test_ext(initialize_module, ext: str):
     assess_binary_archive_io(filename)
     shell_utils.rm_rf(filename)
 
-# def test_string_io():
-#     # FIXME
-#     sio = io.StringIO(contents)
-#     bare_archive_io = RuleBasedIOProxy(sio)
-#     assert bare_archive_io.read(len_contents) == contents

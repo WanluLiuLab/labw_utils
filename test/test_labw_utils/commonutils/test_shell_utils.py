@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import pytest
 
@@ -62,6 +63,22 @@ def test_wc_c(initialize_module):
         assert shell_utils.wc_c(dot_profile) == os.path.getsize(dot_profile)
     shell_utils.rm_rf(aa)
 
+
+@pytest.mark.parametrize(
+    argnames="kwargs",
+    argvalues=(
+            {"text": b"", "answer": 0},
+            {"text": b"\n", "answer": 1},
+            {"text": b"A", "answer": 1},
+            {"text": b"A\n", "answer": 1},
+    )
+)
+def test_wc_l(kwargs):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        target_filepath = os.path.join(tmpdir, "tmp")
+        with open(target_filepath, "wb") as writer:
+            writer.write(kwargs["text"])
+        assert shell_utils.wc_l(target_filepath) == kwargs["answer"]
 
 def test_readlink_f(initialize_module):
     assert shell_utils.readlink_f('') == ''

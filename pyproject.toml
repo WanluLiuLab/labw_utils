@@ -48,6 +48,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 addopts = " --doctest-modules -vv --continue-on-collection-errors --junitxml=pytest/junit.xml --cov --cov-report=html --html=pytest/pytest_report.html --self-contained-html --ignore-glob='*.ipynb.py'"
+norecursedirs = "explore"
 testpaths = ["test", "src"]
 log_level = 8
 log_file = "log/pytest.log"

@@ -44,7 +44,7 @@ def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
     :return: Line number.
     """
     if opener is None:
-        fd = get_reader(filename)
+        fd = get_reader(filename, is_binary=True)
     else:
         fd = opener(filename)
     return wc_l_io(fd)
@@ -60,7 +60,7 @@ def wc_c(filename: str, opener: Callable[[str], IO] = None) -> int:
     :return: File length.
     """
     if opener is None:
-        fd = get_reader(filename)
+        fd = get_reader(filename, is_binary=True)
     else:
         fd = opener(filename)
     return wc_c_io(fd)
@@ -78,10 +78,15 @@ def wc_l_io(fd: IO) -> int:
         curr_pos = fd.tell()
     else:
         return -1
-    reti = 1
+    reti = 0
     fd.seek(0)
-    while fd.readline():
-        reti += 1
+    while True:
+        segment = fd.read(1024)
+        if len(segment) == 0:
+            break
+        reti += segment.count("\n") if isinstance(segment, str) else segment.count(b"\n")
+    if fd.tell() != 0 and reti == 0:
+        reti = 1 # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
     return reti
 

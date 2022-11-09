@@ -4,7 +4,7 @@ tqdm_reader.py -- Reader with Progress Bar
 Here are wrappings for basic IO classes & functions in :py:mod:`commonutils.io` with additional progress bar.
 """
 
-from typing import Iterator, AnyStr, List, Type
+from typing import Iterator, AnyStr, List, Type, Union
 
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
@@ -21,7 +21,7 @@ __all__ = (
 
 
 class _BaseTqdmReader(SequentialReader):
-    _tqdm: Type[tqdm]
+    _tqdm: tqdm
 
     @copy_doc(RuleBasedIOProxy.__enter__)
     def __enter__(self, *args, **kwargs):
@@ -75,7 +75,11 @@ class TqdmLineReader(_BaseTqdmReader):
     @copy_doc(RuleBasedIOProxy.__init__)
     def __init__(self, filename: str, *args, **kwargs):
         super().__init__(filename, *args, **kwargs)
-        self._tqdm = tqdm(desc=f"Reading {filename}", total=shell_utils.wc_l_io(self._fd), unit='L')
+        self._tqdm = tqdm(
+            desc=f"Reading {filename}",
+            total=shell_utils.wc_l_io(self._fd) + 1,
+            unit='L'
+        )
 
     def read(self, *args, **kwargs):
         """This function is disabled, will raise :py:class:`OSError`"""

@@ -403,7 +403,7 @@ class BaseGeneView(GeneViewType, ABC):
         if gene_id not in self.iter_gene_ids() or self.get_gene(gene_id).feature != "gene":
             self._add_gene(gene)
         if gene.feature != "gene":
-            lh.warn(f"Gene {gene_id} is inferred from feature {gene.feature}")
+            lh.warning(f"Gene {gene_id} is inferred from feature {gene.feature}")
 
     def _add_gene(self, gene: Gene):
         self._genes[gene.gene_id] = gene
@@ -431,7 +431,7 @@ class BaseGeneView(GeneViewType, ABC):
                 self.get_transcript(transcript_id).feature != "transcript":
             self._add_transcript(transcript)
         if transcript.feature != "transcript":
-            lh.warn(f"Transcript {transcript_id} is inferred from feature {transcript.feature}")
+            lh.warning(f"Transcript {transcript_id} is inferred from feature {transcript.feature}")
 
     def add_exon(self, exon: Exon, fast: bool = False):
         transcript_id = exon.transcript_id
