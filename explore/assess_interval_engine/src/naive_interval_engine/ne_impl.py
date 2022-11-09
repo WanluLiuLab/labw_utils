@@ -1,90 +1,54 @@
-from typing import Iterable, Dict
+from typing import Iterable
 
 import numexpr as ne
 import numpy as np
-import numpy.typing as npt
-import pandas as pd
 
-from labw_utils.commonutils.io.safe_io import get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
-from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
+from naive_interval_engine import IntervalType
+from naive_interval_engine.np_impl import NumpyIntervalEngine
 
 
-class NumExprIntervalEngine(BaseNaiveIntervalEngine):
-    _dfs: Dict[str, npt.NDArray]
+class NumExprIntervalEngine(NumpyIntervalEngine):
 
-    def overlap(self, interval: IntervalType) -> Iterable[int]:
-        interval_chr, interval_s, interval_e = interval
+    def overlap(self, query_interval: IntervalType) -> Iterable[int]:
+        query_chr, query_s, query_e = query_interval
         try:
-            selected_chr = self._dfs[interval_chr]
+            s, e = self._select_chromosome(query_chr)
         except KeyError:
             return None
-        s = selected_chr[:, 0]
-        e = selected_chr[:, 1]
         for it in np.nonzero(
                 ne.evaluate(
                     "|".join((
                             "(" + "&".join((
-                                    "(s < interval_s)",
-                                    "(interval_s < e)"
+                                    "(s < query_s)",
+                                    "(query_s < e)"
                             )) + ")",
                             "(" + "&".join((
-                                    "(s < interval_e)",
-                                    "(interval_e < e)"
+                                    "(s < query_e)",
+                                    "(query_e < e)"
                             )) + ")",
                             "(" + "&".join((
-                                    "(interval_s < s)",
-                                    "(s < interval_e)"
+                                    "(query_s < s)",
+                                    "(s < query_e)"
                             )) + ")",
                             "(" + "&".join((
-                                    "(interval_s < e)",
-                                    "(e < interval_e)"
+                                    "(query_s < e)",
+                                    "(e < query_e)"
                             )) + ")",
                     ))
                 )
         )[0].tolist():
             yield it
 
-    def __init__(self, interval_file: str, show_tqdm: bool = True):
-        if show_tqdm:
-            reader = get_tqdm_reader(interval_file, is_binary=True)
-        else:
-            reader = get_reader(interval_file, is_binary=True)
-        pd_df = pd.read_csv(
-            reader,
-            sep="\t",
-            engine="pyarrow",
-            dtype={
-                "chr": str,
-                "s": int,
-                "e": int
-            }
-        )
-        reader.close()
-        self._dfs = {}
-        for chr_name in pd.unique(pd_df["chr"]):
-            self._dfs[chr_name] = pd_df.query(
-                f"`chr` == '{chr_name}'"
-            ).loc[:, ["s", "e"]].to_numpy(dtype=np.int_)
-        del pd_df
-
-    def match(self, interval: IntervalType) -> Iterable[int]:
-        interval_chr, interval_s, interval_e = interval
+    def match(self, query_interval: IntervalType) -> Iterable[int]:
+        query_chr, query_s, query_e = query_interval
         try:
-            selected_chr = self._dfs[interval_chr]
+            s, e = self._select_chromosome(query_chr)
         except KeyError:
             return None
-        s = selected_chr[:, 0]
-        e = selected_chr[:, 1]
         match_result = np.nonzero(
             ne.evaluate(
-                "(s > interval_s) & (e < interval_e)"
+                "(s > query_s) & (e < query_e)"
             )
         )[0]
         for it in match_result.tolist():
             yield it
-
-    def __iter__(self) -> Iterable[IntervalType]:
-        for chr_name, chr_value in self._dfs.items():
-            for start_end in chr_value:
-                yield chr_name, start_end[0], start_end[1]

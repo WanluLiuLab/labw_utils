@@ -2,53 +2,38 @@ from typing import Iterable
 
 import pandas as pd
 
-from labw_utils.commonutils.io.safe_io import get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
-from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
+from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType, create_pandas_dataframe_from_input_file
 
 
 class PandasIntervalEngine(BaseNaiveIntervalEngine):
-    _pd: pd.DataFrame
+    _df: pd.DataFrame
 
-    def overlap(self, interval: IntervalType) -> Iterable[int]:
-        interval_chr, interval_s, interval_e = interval
-        for idx in self._pd.query(
-                f"`chr` == '{interval_chr}' & (" +
+    def overlap(self, query_interval: IntervalType) -> Iterable[int]:
+        query_chr, query_s, query_e = query_interval
+        for idx in self._df.query(
+                f"`chr` == '{query_chr}' & (" +
                 "|".join((
-                        f"s < {interval_s} < e",
-                        f"s < {interval_e} < e",
-                        f"{interval_s} < s < {interval_e}",
-                        f"{interval_s} < e < {interval_e}"
+                        f"s < {query_s} < e",
+                        f"s < {query_e} < e",
+                        f"{query_s} < s < {query_e}",
+                        f"{query_s} < e < {query_e}"
                 )) +
                 ")"
         )["idx"]:
             yield idx
 
     def __init__(self, interval_file: str, show_tqdm: bool = True):
-        if show_tqdm:
-            reader = get_tqdm_reader(interval_file, is_binary=True)
-        else:
-            reader = get_reader(interval_file, is_binary=True)
-        self._pd = pd.read_csv(
-            reader,
-            sep="\t",
-            engine="pyarrow",
-            dtype={
-                "chr": str,
-                "s": int,
-                "e": int
-            }
+        self._df = create_pandas_dataframe_from_input_file(
+            interval_file, show_tqdm
         )
-        reader.close()
-        self._pd["idx"] = range(0, self._pd.shape[0])
 
-    def match(self, interval: IntervalType) -> Iterable[int]:
-        interval_chr, interval_s, interval_e = interval
-        for idx in self._pd.query(
-                f"`chr` == '{interval_chr}' & s > {interval_s} & e < {interval_e}"
+    def match(self, query_interval: IntervalType) -> Iterable[int]:
+        query_chr, query_s, query_e = query_interval
+        for idx in self._df.query(
+                f"`chr` == '{query_chr}' & s > {query_s} & e < {query_e}"
         )["idx"]:
             yield idx
 
     def __iter__(self) -> Iterable[IntervalType]:
-        for it in self._pd.itertuples(index=False):
+        for it in self._df.itertuples(index=False):
             yield it[0:3]

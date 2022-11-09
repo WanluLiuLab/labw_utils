@@ -11,8 +11,8 @@ from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
 class IntervalTreeIntervalEngine(BaseNaiveIntervalEngine):
     _dfs: Dict[str, intervaltree.IntervalTree]
 
-    def overlap(self, interval: IntervalType) -> Iterable[int]:
-        interval_chr, interval_s, interval_e = interval
+    def overlap(self, query_interval: IntervalType) -> Iterable[int]:
+        interval_chr, interval_s, interval_e = query_interval
         try:
             selected_chr = self._dfs[interval_chr]
         except KeyError:
@@ -35,8 +35,8 @@ class IntervalTreeIntervalEngine(BaseNaiveIntervalEngine):
             self._dfs[chr_name].addi(int(s_str), int(e_str), i)
         reader.close()
 
-    def match(self, interval: IntervalType) -> Iterable[int]:
-        interval_chr, interval_s, interval_e = interval
+    def match(self, query_interval: IntervalType) -> Iterable[int]:
+        interval_chr, interval_s, interval_e = query_interval
         try:
             selected_chr = self._dfs[interval_chr]
         except KeyError:
