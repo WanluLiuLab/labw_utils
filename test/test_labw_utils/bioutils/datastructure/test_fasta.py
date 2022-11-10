@@ -147,7 +147,7 @@ def test_subset_to_file():
                 read_into_memory=True
         ) as fa:
             subset_filename = fasta_filename + ".subset.fa"
-            querys = (('chr3', 2, 15), ('chr3', 2),( 'chr3',))
+            querys = (('chr3', 2, 15), ('chr3', 2), ('chr3',))
             with pytest.raises(DuplicatedChromosomeNameError):
                 fa.subset_to_file(subset_filename, querys)
             fa.subset_to_file(subset_filename, querys, ["1", "2", "3"])

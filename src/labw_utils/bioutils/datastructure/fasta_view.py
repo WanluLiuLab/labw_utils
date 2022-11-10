@@ -44,8 +44,9 @@ class FastaViewError(ValueError):
 
 
 class DuplicatedChromosomeNameError(FastaViewError):
-    def __init__(self, name:str):
+    def __init__(self, name: str):
         super().__init__(f"Chromosome name {name} duplicated")
+
 
 class FastaViewInvalidRegionError(FastaViewError):
     pass

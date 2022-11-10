@@ -86,7 +86,7 @@ def wc_l_io(fd: IO) -> int:
             break
         reti += segment.count("\n") if isinstance(segment, str) else segment.count(b"\n")
     if fd.tell() != 0 and reti == 0:
-        reti = 1 # To keep similar behaviour to GNU WC
+        reti = 1  # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
     return reti
 

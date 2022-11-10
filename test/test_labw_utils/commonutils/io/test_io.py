@@ -21,7 +21,7 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     module_test_info.teardown()
 
 
-CONTENT_SIZE = 1024*1024
+CONTENT_SIZE = 1024
 
 
 def assess_binary_archive_io(filename: str):
@@ -85,4 +85,3 @@ def test_ext(initialize_module, ext: str):
     assess_text_archive_io(filename)
     assess_binary_archive_io(filename)
     shell_utils.rm_rf(filename)
-

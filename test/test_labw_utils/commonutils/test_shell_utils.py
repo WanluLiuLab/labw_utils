@@ -80,6 +80,7 @@ def test_wc_l(kwargs):
             writer.write(kwargs["text"])
         assert shell_utils.wc_l(target_filepath) == kwargs["answer"]
 
+
 def test_readlink_f(initialize_module):
     assert shell_utils.readlink_f('') == ''
     test_path = initialize_module.path

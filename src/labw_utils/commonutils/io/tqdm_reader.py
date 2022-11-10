@@ -4,7 +4,7 @@ tqdm_reader.py -- Reader with Progress Bar
 Here are wrappings for basic IO classes & functions in :py:mod:`commonutils.io` with additional progress bar.
 """
 
-from typing import Iterator, AnyStr, List, Type, Union
+from typing import Iterator, AnyStr, List
 
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
