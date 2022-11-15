@@ -384,6 +384,10 @@ class Transcript(BaseFeatureProxy):
 
 
 class Gene(BaseFeatureProxy):
+    @property
+    def transcribed_length(self):
+        ...  # TODO
+
     _transcript_ids: List[str]
     _transcripts: List[Transcript]
 

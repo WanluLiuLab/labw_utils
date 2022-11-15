@@ -2,11 +2,10 @@ import os
 
 import pytest
 
-from labw_utils.commonutils import sysctl
 from labw_utils.commonutils.io import file_system
 
-if sysctl.is_windows():
-    pytest.skip("System is widows", allow_module_level=True)
+if os.name != 'posix':
+    pytest.skip("System is NOT POSIX", allow_module_level=True)
 
 
 def test_get_abspath():

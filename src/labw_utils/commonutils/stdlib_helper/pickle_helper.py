@@ -7,7 +7,7 @@ We may firstly generate some random sequence:
 
 >>> import random
 >>> import tempfile
->>> from labw_utils.commonutils.shell_utils import rm_rf
+>>> from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 >>> random_arr = [random.random() for _ in range(1000)]
 >>> test_path = tempfile.mkdtemp()
 

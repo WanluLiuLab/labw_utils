@@ -159,7 +159,7 @@ class Gff3Tree:
         return self._id_tree[gff3_id]
 
     def get_all_ids(self) -> Iterator[str]:
-        return self._flat_record.keys()
+        return iter(self._flat_record.keys())
 
     def get_toplevel_ids(self) -> Iterator[str]:
         return self.get_child_ids(GFF3_TOPLEVEL_NAME)
@@ -175,5 +175,5 @@ class Gff3Tree:
             gff3_id = self.get_parent_id(gff3_id)
             if self.get(gff3_id).feature == parent_feature_name:
                 return gff3_id
-
-        raise ValueError("Backtrack failed!")
+            elif gff3_id is GFF3_TOPLEVEL_NAME:
+                raise ValueError("Backtrack failed!")

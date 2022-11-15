@@ -151,6 +151,6 @@ def test_exon_superset(initialize_module) -> None:
     gvh.enable_exon_superset()
     gv = GeneViewFactory.from_file(file_name)
     gv.standardize()
-    STRG_3 = gv.get_gene("STRG.3")
-    STRG_3.generate_exon_superset()
-    assert len(STRG_3.get_exon_superset()) == 11
+    example_gene = gv.get_gene("STRG.3")
+    example_gene.generate_exon_superset()
+    assert len(example_gene.get_exon_superset()) == 11

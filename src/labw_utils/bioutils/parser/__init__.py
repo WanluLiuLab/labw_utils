@@ -6,7 +6,7 @@ Here contains codes of parsers for basic bioinformatics databases
 from abc import abstractmethod
 from typing import Iterable, Optional, IO, Iterator, TypeVar
 
-from labw_utils.commonutils import shell_utils
+from labw_utils.commonutils.stdlib_helper import shutil_helper
 
 _RecordType = TypeVar("_RecordType")
 
@@ -102,4 +102,4 @@ class BaseIteratorWriter(_BaseFileIO):
 
     def destroy_file(self):
         self.close()
-        shell_utils.rm_rf(self._filename)
+        shutil_helper.rm_rf(self._filename)

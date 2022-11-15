@@ -328,18 +328,18 @@ class GtfRecord(Feature):
     """
     A general GTF Record.
     
-    >>> gtf_str = 'chr1\\thg38_rmsk\\texon\\t50331337\\t50332274\\t1587.000000\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
+    >>> gtf_str = 'chr1\\thg38\\texon\\t1337\\t2274\\t1587.0\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
     >>> gtf_from_line = GtfRecord.from_string(gtf_str)
     >>> gtf_from_line.seqname
     'chr1'
     >>> gtf_from_line.source
-    'hg38_rmsk'
+    'hg38'
     >>> gtf_from_line.feature
     'exon'
     >>> gtf_from_line.start
-    50331337
+    1337
     >>> gtf_from_line.end
-    50332274
+    2274
     >>> gtf_from_line.score
     1587
     >>> gtf_from_line.strand
@@ -347,14 +347,13 @@ class GtfRecord(Feature):
     >>> gtf_from_line.attribute['gene_id']
     'HAL1'
     >>> str(gtf_from_line)
-    'chr1\\thg38_rmsk\\texon\\t50331337\\t50332274\\t1587\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
+    'chr1\\thg38\\texon\\t1337\\t2274\\t1587\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
     """
 
     @classmethod
     def from_string(cls, in_str: str):
         global lh
         in_str = in_str.rstrip('\n\r')
-        lh.trace(f'Adding {in_str}')
         line_split = in_str.split('\t')
 
         required_fields = line_split[0:-1]

@@ -4,72 +4,10 @@ str_utils.py -- String utilities
 This file defines ANSI color supported by most terminals.
 """
 import copy
-import os
 
 import string
-from enum import Enum
 
 from typing import List, Dict, Any, Optional
-
-
-class AnsiColorEnum(Enum):
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    PURPLE = "\033[35m"
-    CRAYON = "\033[36m"
-    CLEAR = "\033[0m"
-
-
-class DumbColorEnum(Enum):
-    RED = ""
-    GREEN = ""
-    YELLOW = ""
-    BLUE = ""
-    PURPLE = ""
-    CRAYON = ""
-    CLEAR = ""
-
-
-def get_color(fd: int):
-    """
-    Get ANSI color dictionary for current file descriptor.
-
-    Python can test whether the output is a tty. Other method have to employ ncurses.
-
-    :param fd: File descriptor.
-    :return: A color enum with a format like ``{RED = "\\033[31m"}``.
-    """
-    if os.isatty(fd):
-        retd = AnsiColorEnum
-    else:
-        retd = DumbColorEnum
-    return retd
-
-
-def dict_exchange_key_val(in_dict: Dict[Any, Any]) -> Dict[Any, Any]:
-    """
-    To exchange the keys and values of one dictionary, that is,
-    make a key value and make a value key.
-
-    If the value contains duplicates, will use last key.
-
-    >>> input_dict = {1: 'a', 2: 'b'}
-    >>> dict_exchange_key_val(input_dict)
-    {'a': 1, 'b': 2}
-
-    >>> input_dict = {1: 'a', 2: 'a'}
-    >>> dict_exchange_key_val(input_dict)
-    {'a': 2}
-
-    :param in_dict: Dictionary to be exchanged.
-    :return: Exchanged dictionary.
-    """
-    out_dict = {}
-    for k, v in in_dict.items():
-        out_dict[v] = k
-    return out_dict
 
 
 def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[str, Any]:

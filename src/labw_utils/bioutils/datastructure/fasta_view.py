@@ -3,7 +3,8 @@ fasta_view.py -- General FASTA reader
 
 Can provide random access to FASTA files, compressed or non-compressed.
 
-Highlights: This utility can read all format supported by :py:mod:`commonutils.io`, while others require Block GZipped ones.
+Highlights: This utility can read all format supported by :py:mod:`commonutils.io`,
+while others require Block GZipped ones.
 
 .. note::
     Although this module supports all format supported by :py:mod:`commonutils.io`,
@@ -32,7 +33,7 @@ from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
-from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog, get_logger
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
 
@@ -185,7 +186,6 @@ class _BaseFastaView(FastaViewType, ABC):
     Base class of other backends.
     """
 
-    @chronolog(display_time=True)
     def __init__(self, filename: str, full_header: bool = False):
         self.full_header = full_header
         self.filename = filename
@@ -276,7 +276,6 @@ class _MemoryAccessFastaView(_BaseFastaView):
         self._all_dict = {}  # For in-memory reader, will read in all sequences
         self._read_into_mem()
 
-    @chronolog(display_time=True)
     def _read_into_mem(self) -> None:
         """
         Read FASTA into memory
@@ -349,7 +348,6 @@ class _DiskAccessFastaView(_BaseFastaView):
         else:
             self._fai = FastaIndexView.from_fai(filename)
 
-    @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)
         chr_fai = self._fai[chromosome]

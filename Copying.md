@@ -10,6 +10,16 @@ Available from <https://github.com/github/gitignore>
 
 Affected files:
 
-* `/.gitignore`
+* `.gitignore`
 
 With CC0 1.0 Universal License.
+
+## Python Project
+
+Available from <https://github.com/python/cpython>, commit `57be5459593bbd09583317ebdafc4d58ae51dbf4`.
+
+Affected files:
+
+* `labw_utils/src/labw_utils/stdlib/cpy310/pkgutil.py`
+
+with Python license.

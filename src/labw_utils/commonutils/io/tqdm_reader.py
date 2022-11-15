@@ -6,11 +6,11 @@ Here are wrappings for basic IO classes & functions in :py:mod:`commonutils.io` 
 
 from typing import Iterator, AnyStr, List
 
-from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io import get_reader
 from labw_utils.commonutils.io._ioproxy import RuleBasedIOProxy, SequentialReader
-from labw_utils.commonutils.stdlib_helper.docstring_helper import copy_doc
+from labw_utils.commonutils.stdlib_helper import shutil_helper
+from labw_utils.devutils.decorators import copy_doc
 
 __all__ = (
     "TqdmReader",
@@ -42,7 +42,7 @@ class TqdmReader(_BaseTqdmReader):
     def __init__(self, filename: str, *args, **kwargs):
         super().__init__(filename, *args, **kwargs)
         self._tqdm = tqdm(
-            desc=f"Reading {filename}", total=shell_utils.wc_c_io(self._fd), unit='B', unit_scale=True,
+            desc=f"Reading {filename}", total=shutil_helper.wc_c_io(self._fd), unit='B', unit_scale=True,
             unit_divisor=1024
         )
 
@@ -77,7 +77,7 @@ class TqdmLineReader(_BaseTqdmReader):
         super().__init__(filename, *args, **kwargs)
         self._tqdm = tqdm(
             desc=f"Reading {filename}",
-            total=shell_utils.wc_l_io(self._fd) + 1,
+            total=shutil_helper.wc_l_io(self._fd) + 1,
             unit='L'
         )
 

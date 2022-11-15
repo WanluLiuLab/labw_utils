@@ -7,9 +7,10 @@ import sys
 from typing import List, Iterable, Callable
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
-from labw_utils.commonutils.stdlib_helper import pkgutil_helper
 
 __all__ = ['setup_frontend']
+
+from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 
 lh = logger_helper.get_logger(__name__)
 
@@ -19,7 +20,7 @@ if os.environ.get('LOG_LEVEL') is None:
 
 def _get_subcommands(package_main_name: str) -> Iterable[str]:
     for spec in pkgutil.iter_modules(
-            pkgutil_helper.resolve_name(package_main_name).__spec__.submodule_search_locations):
+            resolve_name(package_main_name).__spec__.submodule_search_locations):
         if not spec.name.startswith("_"):
             yield spec.name
 
@@ -32,7 +33,7 @@ def _get_main_func_from_subcommand(
     Return a subcommands' "main" function.
     """
     importlib.import_module(f'{package_main_name}.{subcommand_name}')
-    i = pkgutil_helper.resolve_name(f'{package_main_name}.{subcommand_name}')
+    i = resolve_name(f'{package_main_name}.{subcommand_name}')
     if hasattr(i, 'main') and inspect.isfunction(getattr(i, 'main')):
         return i.main
 
@@ -58,8 +59,6 @@ class _ParsedArgs:
             return
         if self.verbose_level == 1:
             logger_helper.set_level(logging.DEBUG, quiet=False)
-        elif self.verbose_level >= 2:
-            logger_helper.set_level(logger_helper.TRACE, quiet=False)
 
 
 def _parse_args(

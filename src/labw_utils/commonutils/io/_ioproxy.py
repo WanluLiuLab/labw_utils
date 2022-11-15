@@ -4,8 +4,8 @@ from typing import IO, Union, AnyStr, List, Optional, Iterable, Iterator, Type
 from labw_utils.commonutils.io.rules import FileRuleRing
 from labw_utils.commonutils.io.std_rules import use_python_std_rules
 from labw_utils.commonutils.io.typing import IOProxyType
-from labw_utils.commonutils.stdlib_helper.docstring_helper import copy_doc
 from labw_utils.commonutils.typing import PathOrFDType, FDType
+from labw_utils.devutils.decorators import copy_doc
 
 use_python_std_rules()
 

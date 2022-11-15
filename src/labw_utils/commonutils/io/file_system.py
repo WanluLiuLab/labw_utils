@@ -8,8 +8,6 @@ like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.shell_utils`.
 import os
 import stat
 
-from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog
-
 __all__ = (
     "get_abspath",
     "file_exists",
@@ -18,7 +16,6 @@ __all__ = (
 )
 
 
-@chronolog(display_time=True)
 def get_abspath(path: str) -> str:
     """
     Get the absolute path of a given relative path. Can be a non-existent file or directory.
@@ -57,6 +54,5 @@ def directory_exists(path: str) -> bool:
     return os.path.exists(path) and os.path.isdir(path)
 
 
-@chronolog(display_time=True)
 def is_soft_link(path: str) -> bool:
     return stat.S_ISLNK(os.stat(path, follow_symlinks=False)[0])

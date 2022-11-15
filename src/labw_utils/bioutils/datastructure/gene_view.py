@@ -472,7 +472,7 @@ class _GtfGeneView(BaseGeneView):
         )
 
 
-class _Gff3GeneView(BaseGeneView):
+class _Gff3GeneView(BaseGeneView, ABC):
     pass
 
 

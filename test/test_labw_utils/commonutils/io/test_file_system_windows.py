@@ -3,11 +3,10 @@ import pathlib
 
 import pytest
 
-from labw_utils.commonutils import sysctl
 from labw_utils.commonutils.io import file_system
 
-if not sysctl.is_windows():
-    pytest.skip("System is not widows", allow_module_level=True)
+if os.name != 'nt':
+    pytest.skip("System is not NT", allow_module_level=True)
 
 
 def test_get_abspath():

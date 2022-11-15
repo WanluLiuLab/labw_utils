@@ -6,8 +6,7 @@ import tempfile
 
 import pytest
 
-from labw_utils.commonutils import shell_utils
-from labw_utils.commonutils.stdlib_helper import logger_helper
+from labw_utils.commonutils.stdlib_helper import logger_helper, shutil_helper
 
 
 class SessionTestInfo:
@@ -22,7 +21,7 @@ class SessionTestInfo:
         lh.info(f"Test dir {self.base_test_dir}")
 
     def teardown(self):
-        shell_utils.rm_rf(self.base_test_dir)
+        shutil_helper.rm_rf(self.base_test_dir)
 
 
 class ModuleTestInfo:
@@ -35,15 +34,15 @@ class ModuleTestInfo:
     def __init__(self, base_test_dir: str, name: str):
         self.name = name
         self.path = os.path.join(base_test_dir, name)
-        shell_utils.mkdir_p(self.path)
+        os.makedirs(self.path, exist_ok=True)
 
     def teardown(self):
-        shell_utils.rm_rf(self.path)
+        shutil_helper.rm_rf(self.path)
 
 
 @pytest.fixture(scope="session")
 def initialize_session():
-    logger_helper.set_level(logger_helper.TRACE)
+    logger_helper.set_level(logger_helper.DEBUG)
     session_test_info = SessionTestInfo()
     yield session_test_info
     session_test_info.teardown()

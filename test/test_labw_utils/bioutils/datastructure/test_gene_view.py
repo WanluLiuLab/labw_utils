@@ -4,9 +4,9 @@ import pytest
 
 import conftest
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
-from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper import logger_helper
+from labw_utils.commonutils.stdlib_helper import shutil_helper
 
 gene_gtf = """
 chrI	ncbiRefSeq	exon	4221	4358	.	-	.	gene_id "homt-1"; transcript_id "NM_058260.4"; exon_number "1"; exon_id "NM_058260.4.1"; gene_name "homt-1";
@@ -50,4 +50,4 @@ def test_gene(initialize_module) -> None:
     assert list(gv.iter_transcript_ids()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3']
     gv.to_file(os.path.join(test_path, "3.gtf"))
     os.system(f"gedit {test_path}/*.gtf")
-    shell_utils.rm_rf(test_path)
+    shutil_helper.rm_rf(test_path)

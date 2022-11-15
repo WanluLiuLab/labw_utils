@@ -87,7 +87,7 @@ class tqdm(Iterable[_VarType]):
             yield item
             self.update(1)
 
-    def __enter__(self):
+    def __enter__(self, *args, **kwargs):
         return self
 
     def __exit__(self, *args, **kwargs):

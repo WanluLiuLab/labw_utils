@@ -11,12 +11,8 @@ from typing import IO, Callable
 
 from labw_utils.commonutils.io import get_reader
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
-from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog, get_logger
-
-lh = get_logger(__name__)
 
 
-@chronolog(display_time=True)
 def readlink_f(path: str) -> str:
     """
     Remove soft links out of the path and return its abstract form, just like what is done by GNU CoreUtils readlink -f.
@@ -34,7 +30,6 @@ def readlink_f(path: str) -> str:
     return path
 
 
-@chronolog(display_time=True)
 def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
     """
     Count lines in a file.
@@ -50,7 +45,6 @@ def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
     return wc_l_io(fd)
 
 
-@chronolog(display_time=True)
 def wc_c(filename: str, opener: Callable[[str], IO] = None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
@@ -66,7 +60,6 @@ def wc_c(filename: str, opener: Callable[[str], IO] = None) -> int:
     return wc_c_io(fd)
 
 
-@chronolog(display_time=True)
 def wc_l_io(fd: IO) -> int:
     """
     Count lines in a file.
@@ -91,7 +84,6 @@ def wc_l_io(fd: IO) -> int:
     return reti
 
 
-@chronolog(display_time=True)
 def wc_c_io(fd: IO) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
@@ -109,24 +101,7 @@ def wc_c_io(fd: IO) -> int:
         return -1
 
 
-@chronolog(display_time=True)
-def mkdir_p(path: str) -> str:
-    """
-    Protected mkdir, as is done by mkdir in GNU CoreUtils. It will:
-
-    1) create the directory tree if not exist, and
-    2) not complain about existing target directory.
-
-    :param path: The directory you wish to create.
-    :return: Absolute path of directory created.
-    """
-    abspath = get_abspath(path)
-    os.makedirs(path, exist_ok=True)
-    return abspath
-
-
-@chronolog(display_time=True)
-def touch(filename: str):
+def touch(filename: str) -> None:
     """
     touch: ensure the existence of a file, just like GNU CoreUtils touch.
     Please note that this version of touch CANNOT change file attributes like times.
@@ -135,41 +110,37 @@ def touch(filename: str):
     """
     filename = get_abspath(filename)
     if file_exists(filename):
-        lh.debug(f"File '{filename}' exists")
+        return
     elif os.path.isdir(filename):
         raise IsADirectoryError(f"File '{filename}' is a directory")
     else:
-        mkdir_p(os.path.dirname(filename))
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         open(filename, mode="a").close()
 
 
-@chronolog(display_time=True)
-def rm_rf(path: str):
+def rm_rf(path: str) -> None:
     """
     Remove path recursively from the filesystem, just like rm -rf
     Should not complain on non-existing files.
 
     :param path: The path you wish to remove
+
+    Compare with :py:func:`shutil.rmtree`, this function can remove files.
     """
-    dbg_head = "rm(path='" + path + "')"
     if os.path.isdir(path) and not os.path.islink(path):
-        lh.debug(f"{dbg_head} is a directory")
         shutil.rmtree(path)
     elif os.path.exists(path):
-        lh.debug(f"{dbg_head} is a file")
         os.remove(path)
-    else:
-        lh.debug(f"{dbg_head} not exist")
 
 
-def gz_compress(in_file: str, out_file: str, keep_in_file: bool = False, compresslevel: int = 9):
+def gz_compress(in_file: str, out_file: str, keep_in_file: bool = False, compresslevel: int = 9) -> None:
     with open(in_file, 'rb') as f_in, gzip.open(out_file, 'wb', compresslevel=compresslevel) as f_out:
         shutil.copyfileobj(f_in, f_out)
     if not keep_in_file:
         rm_rf(in_file)
 
 
-def gz_decompress(in_file: str, out_file: str, keep_in_file: bool = False):
+def gz_decompress(in_file: str, out_file: str, keep_in_file: bool = False) -> None:
     with gzip.open(in_file, 'rb') as f_in, open(out_file, 'wb') as f_out:
         shutil.copyfileobj(f_in, f_out)
     if not keep_in_file:

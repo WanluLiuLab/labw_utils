@@ -5,9 +5,9 @@ import string
 import pytest
 
 import conftest
-from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader, TqdmReader
+from labw_utils.commonutils.stdlib_helper import shutil_helper
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -30,7 +30,7 @@ def assess_binary_archive_io(filename: str):
     contents = bytes("".join((random.choice(available_chars) for _ in range(CONTENT_SIZE))), encoding="UTF-8")
     len_contents = len(contents)
 
-    shell_utils.rm_rf(filename)
+    shutil_helper.rm_rf(filename)
     with get_writer(filename, is_binary=True) as writer:
         writer.write(contents)
     with get_reader(filename, is_binary=True) as reader:
@@ -50,7 +50,7 @@ def assess_text_archive_io(filename: str):
     len_contents = len(contents)
 
     contents_list = contents.split('\n')
-    shell_utils.rm_rf(filename)
+    shutil_helper.rm_rf(filename)
     with get_writer(filename, encoding="UTF-8", newline='\n') as writer:
         writer.write(contents)
     with get_reader(filename, encoding="UTF-8", newline='\n') as reader:
@@ -84,4 +84,4 @@ def test_ext(initialize_module, ext: str):
     filename = os.path.join(module_test_info.path, f"1.{ext}")
     assess_text_archive_io(filename)
     assess_binary_archive_io(filename)
-    shell_utils.rm_rf(filename)
+    shutil_helper.rm_rf(filename)
