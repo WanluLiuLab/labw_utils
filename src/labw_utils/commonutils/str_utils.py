@@ -3,64 +3,10 @@ str_utils.py -- String utilities
 
 This file defines ANSI color supported by most terminals.
 """
-import copy
 
 import string
 
-from typing import List, Dict, Any, Optional
-
-
-def dict_translate(in_dict: Dict[str, Any], trans_dict: Dict[str, str]) -> Dict[str, Any]:
-    """
-    Dictionary Translator.
-
-    This function will change the key of in_dict with the rules specified
-    in trans_dict.
-
-    For example:
-
-    >>> dict_translate({'A':1, 'B':2, 'C':3}, {'A':'a', 'B':'b'})
-    {'a': 1, 'b': 2, 'C': 3}
-
-    .. warning::
-     The order of item will change!
-
-    :param in_dict: The input dictionary.
-    :param trans_dict: The translator.
-    """
-    new_dict = {}
-    for old_key in in_dict.keys():
-        if old_key in trans_dict.keys():
-            new_key = trans_dict[old_key]
-        else:
-            new_key = old_key
-        new_dict[new_key] = in_dict[old_key]
-    return new_dict
-
-
-def list_translate(in_list: List[str], trans_dict: Dict[str, str]) -> List[str]:
-    """
-    List Translator.
-
-    Translate the list as is specified in py:func:`dict_translate`.
-
-    The order of the item will NOT be changed.
-
-    >>> list_translate(['A', 'B', 'C'], {'A':'a', 'B':'b'})
-    ['a', 'b', 'C']
-
-    :param in_list: Input list
-    :param trans_dict: The translator.
-    :type trans_dict: dict
-    :return: Translated dictionary.
-    """
-    retl = []
-    for old_item in copy.deepcopy(in_list):
-        if old_item in trans_dict.keys():
-            retl.append(trans_dict[old_item])
-        else:
-            retl.append(old_item)
-    return retl
+from typing import Dict, Any, Optional
 
 
 def to_dict(
