@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import uuid
-from typing import Callable, TypeVar
+from abc import abstractmethod
+from typing import Callable
 
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
@@ -13,7 +14,6 @@ class _NotSet:
 
 
 _notset = _NotSet()
-_T = TypeVar("_T")
 
 
 def generate_unknown_transcript_id() -> str:
@@ -30,6 +30,12 @@ class GVPError(ValueError):
     pass
 
 
-class CanTranscribe:
+class CanTranscribeInterface:
+    @abstractmethod
     def transcribe(self, sequence_func: SequenceFuncType) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    @property
+    def transcribed_length(self) -> int:
         raise NotImplementedError

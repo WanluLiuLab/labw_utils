@@ -5,51 +5,31 @@ gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Dat
 from __future__ import annotations
 
 __all__ = [
-    'TranscriptInAGeneOnDifferentStrandError',
-    'DuplicatedTranscriptIDError',
-    'DuplicatedTranscriptError',
-    'TranscriptInAGeneOnDifferentChromosomeError'
+    'BaseFeatureProxy'
 ]
 
 import copy
-from typing import Optional, Iterable, Type
+from typing import Optional, Iterable, Type, TypeVar
 
-from labw_utils.bioutils.datastructure._gv_errors import _all as _gve_all
-from labw_utils.bioutils.datastructure.gv import _T, GVPError
 from labw_utils.bioutils.record.feature import Feature, FeatureType, GtfAttributeValueType
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.devutils.decorators import copy_doc
 
-__all__.extend(_gve_all)
-
 lh = get_logger(__name__)
 
-
-class TranscriptInAGeneOnDifferentChromosomeError(GVPError):
-    pass
-
-
-class DuplicatedTranscriptError(GVPError):
-    pass
-
-
-class DuplicatedTranscriptIDError(GVPError):
-    pass
-
-
-class TranscriptInAGeneOnDifferentStrandError(GVPError):
-    pass
+_T = TypeVar("_T")
 
 
 class BaseFeatureProxy:
     """
     Base class of Feature Proxy.
     """
+
     __slots__ = (
         "_data",
     )
     _data: Feature
-    _preserved_attrs: Iterable[str]
+    preserved_attributes: Iterable[str]
 
     def cast_to(
             self,
@@ -60,13 +40,18 @@ class BaseFeatureProxy:
         Cast the type of current feature proxy to another using existing data.
 
         :param class_type: Destination type.
+
+        Example:
+
+            BaseFeatureProxy.cast_to(exon, class_type=Transcript, is_inferred=True)
+
+        would cast an exon to a transcript.
         """
         return class_type(self._data, **kwargs)
 
     def __init__(self, data: Feature, **kwargs):
-        if not hasattr(self, "_preserved_attrs"):
-            # TODO
-            raise TypeError("_preserved_attrs not defined; ask your maintainer for this problem")
+        if not hasattr(self, "preserved_attributes"):
+            raise TypeError("preserved_attributes not defined; ask your maintainer for this problem")
         self._data = copy.deepcopy(data)
 
     def __repr__(self):
@@ -100,20 +85,30 @@ class BaseFeatureProxy:
         return self._data <= other._data
 
     def update(self, **kwargs) -> BaseFeatureProxy:
+        """
+        Update data attributes that ARE related to ``preserved_attributes``.
+
+        :param kwargs: Arguments for :py:func:`Feature.update`
+        """
         data_attributes_update_kwargs = {k: v for k, v in zip(
             self._data.attribute_keys, self._data.attribute_values
         )}
-        for preserved_attribute_name in self._preserved_attrs:
+        for preserved_attribute_name in self.preserved_attributes:
             if preserved_attribute_name in kwargs:
                 data_attributes_update_kwargs[preserved_attribute_name] = kwargs[preserved_attribute_name]
         new_data = self._data.update(attribute=data_attributes_update_kwargs)
         return self.__class__(new_data, shortcut=True)
 
     def update_data(self, **kwargs) -> BaseFeatureProxy:
+        """
+        Update data attributes that are NOT related to ``preserved_attributes``.
+
+        :param kwargs: Arguments for :py:func:`Feature.update`
+        """
         if "attribute" in kwargs and any(
                 map(
                     lambda preserved_attribute_name: preserved_attribute_name in kwargs["attribute"],
-                    self._preserved_attrs
+                    self.preserved_attributes
                 )
         ):
             raise ValueError("Preserved attribute should not be updated here")
@@ -187,62 +182,3 @@ class BaseFeatureProxy:
     @copy_doc(Feature.attribute_get)
     def attribute_get(self, name: str, default: Optional[GtfAttributeValueType] = None) -> GtfAttributeValueType:
         return self._data.attribute_get(name, default)
-
-#
-# class Gene(BaseFeatureProxy):
-#     _transcript_ids: List[str]
-#     _transcripts: List[Transcript]
-#
-#     @property
-#     def transcribed_length(self):
-#         raise TypeError("Do not know how to get transcribed length for a gene")
-#
-#     def check_transcript_duplication(self) -> Optional[Tuple[str, str]]:
-#         for i in range(self.number_of_transcripts):
-#             for j in range(i, self.number_of_transcripts):
-#                 if self._transcripts[i] == self._transcripts[j]:
-#                     return self._transcripts[i].transcript_id, self._transcripts[j].transcript_id
-#         return None
-#
-#     def check_whether_one_transcript_duplicates_with_others(self, transcript_id: str) -> Optional[str]:
-#         transcript = self.get_transcript(transcript_id)
-#         for other_transcript in self.iter_transcripts():
-#             if other_transcript == transcript and \
-#                     other_transcript.transcript_id != transcript.transcript_id:
-#                 return other_transcript.transcript_id
-#         return None
-#
-#     @property
-#     def gene_id(self) -> str:
-#         return self._data.attribute["gene_id"]
-#
-#     @gene_id.setter
-#     def gene_id(self, value: str):
-#         self._data.attribute["gene_id"] = value
-#
-#     @property
-#     def number_of_transcripts(self) -> int:
-#         return len(self._transcripts)
-#
-#     def get_transcript(self, transcript_id: str) -> Transcript:
-#         return self._transcripts[self._transcript_ids.index(transcript_id)]
-#
-#     def iter_transcripts(self) -> Iterable[Transcript]:
-#         return self._transcripts
-#
-#     def iter_transcript_ids(self) -> Iterable[str]:
-#         return self._transcript_ids
-#
-#     def _setup(self):
-#         self._transcripts = []
-#         self._transcript_ids = []
-#
-#     def _setup_gtf(self) -> None:
-#         if "gene_id" not in self._data.attribute:
-#             self._data.attribute["gene_id"] = generate_unknown_gene_id()
-#
-#     def _setup_gff3(self) -> None:
-#         raise NotImplementedError
-#
-#     def __repr__(self):
-#         return f"Gene {self.gene_id}"

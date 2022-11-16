@@ -1,9 +1,9 @@
 """
 pickle_helper.py -- Pickle helper with compression and progress-bar.
 
-Example:
+Example
 
-We may firstly generate some random sequence:
+We may firstly generate some random sequence
 
 >>> import random
 >>> import tempfile
@@ -11,21 +11,21 @@ We may firstly generate some random sequence:
 >>> random_arr = [random.random() for _ in range(1000)]
 >>> test_path = tempfile.mkdtemp()
 
-Test with a normal file:
+Test with a normal file
 
 >>> pickle_fn = f'{test_path}/rd.pickle'
 >>> dump(random_arr, pickle_fn)
 >>> unpickle_obj = load(pickle_fn)
 >>> assert unpickle_obj == random_arr
 
-This module can also handle compressed pickle:
+This module can also handle compressed pickle
 
 >>> pickle_fn = f'{test_path}/rd.pickle.xz'
 >>> dump(random_arr, pickle_fn)
 >>> unpickle_obj = load(pickle_fn)
 >>> assert unpickle_obj == random_arr
 
-Without a progress bar:
+Without a progress bar
 >>> unpickle_obj = load(pickle_fn, with_tqdm=False)
 >>> assert unpickle_obj == random_arr
 

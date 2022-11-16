@@ -34,7 +34,7 @@ apidoc:
 	rm -rf $(CURDIR)/_apidoc
 	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/labw_utils
 
-html:
+html: apidoc
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
 pdf: apidoc

@@ -53,7 +53,7 @@ def parse_record(
     )
 
     if included_attributes is not None:
-        attributes={k: v for k, v in attributes.items() if k in included_attributes}
+        attributes = {k: v for k, v in attributes.items() if k in included_attributes}
 
     return Feature(
         seqname=required_fields[0],

@@ -29,7 +29,7 @@ def dict_translate(in_dict: Dict[_InType, Any], trans_dict: Dict[_InType, _InTyp
     :param in_dict: The input dictionary.
     :param trans_dict: The translator.
     """
-    return {k:v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
+    return {k: v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
 
 
 def list_translate(in_list: List[_InType], trans_dict: Dict[_InType, _InType]) -> List[_InType]:

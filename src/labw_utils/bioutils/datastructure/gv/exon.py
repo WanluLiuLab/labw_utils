@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Optional, Final, List
 
 from labw_utils.bioutils.datastructure.gv import SequenceFuncType, generate_unknown_transcript_id, \
-    generate_unknown_gene_id, CanTranscribe
+    generate_unknown_gene_id, CanTranscribeInterface
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -11,12 +11,12 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 lh = get_logger(__name__)
 
 
-class Exon(BaseFeatureProxy, CanTranscribe):
+class Exon(BaseFeatureProxy, CanTranscribeInterface):
     __slots__ = (
         "_cdna",
     )
     _cdna: Optional[str]
-    _preserved_attrs: Final[List[str]] = ("gene_id", "transcript_id", "exon_number")
+    preserved_attributes: Final[List[str]] = ("gene_id", "transcript_id", "exon_number")
 
     @property
     def transcript_id(self) -> str:

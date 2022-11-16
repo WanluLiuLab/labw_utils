@@ -1,10 +1,11 @@
 import os
 from typing import List, Tuple, Iterable
 
+from labw_utils.bioutils.datastructure.gv_feature_proxy import Transcript, Gene, Exon
+
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.datastructure.gene_view import GeneViewType
-from labw_utils.bioutils.datastructure.gv_feature_proxy import Transcript, Gene, Exon
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger

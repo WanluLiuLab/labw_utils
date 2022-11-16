@@ -6,6 +6,14 @@ dist:
 doc:
 	$(MAKE) -C doc
 
+.PHONY: html
+html:
+	$(MAKE) -C doc html
+
+.PHONY: pdf
+pdf:
+	$(MAKE) -C doc pdf
+
 .PHONY: cleandoc
 cleandoc:
 	$(MAKE) -C doc clean

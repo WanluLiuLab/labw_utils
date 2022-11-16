@@ -6,7 +6,7 @@ from typing import Final, List, Optional, Iterable, Tuple, Union, Callable
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure.gv import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, generate_unknown_transcript_id, \
-    generate_unknown_gene_id, GVPError, CanTranscribe
+    generate_unknown_gene_id, GVPError, CanTranscribeInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature, FeatureType
@@ -27,11 +27,11 @@ class ExonInATranscriptOnDifferentStrandError(GVPError):
     pass
 
 
-class Transcript(BaseFeatureProxy, CanTranscribe):
+class Transcript(BaseFeatureProxy, CanTranscribeInterface):
     """
     Transcript is a list of exons, always sorted.
     """
-    _preserved_attrs: Final[List[str]] = ("gene_id", "transcript_id")
+    preserved_attributes: Final[List[str]] = ("gene_id", "transcript_id")
     __slots__ = (
         "_exons",
         "_cdna",
@@ -80,6 +80,11 @@ class Transcript(BaseFeatureProxy, CanTranscribe):
         for i in range(len(self._exons) - 1):
             yield self._exons[i].end, self._exons[i + 1].start
 
+    @property
+    def exons(self) -> Iterable[Exon]:
+        """Get Exon Iterator"""
+        return iter(self._exons)
+
     def __init__(
             self,
             data: Feature,
@@ -110,10 +115,6 @@ class Transcript(BaseFeatureProxy, CanTranscribe):
         self._cdna = None
         self._exons = list(exons)
 
-    def __iter__(self) -> Iterable[Exon]:
-        """Get Exon Iterator"""
-        return iter(self._exons)
-
     def __repr__(self):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
 
@@ -131,15 +132,6 @@ class Transcript(BaseFeatureProxy, CanTranscribe):
             return math.inf
         _len = self._exons[intron_index + 1].start - self._exons[intron_index].end + 1
         return _len
-
-    def del_exon(self, exon_number: int) -> Transcript:
-        new_exons = list(self._exons)
-        _ = new_exons.pop(exon_number)
-        return Transcript(
-            data=self._data,
-            exons=new_exons,
-            shortcut=True
-        )
 
     def update_exon_number(
             self,
@@ -190,6 +182,15 @@ class Transcript(BaseFeatureProxy, CanTranscribe):
             data=self._data,
             exons=new_exons,
             is_inferred=self._is_inferred,
+            shortcut=True
+        )
+
+    def del_exon(self, exon_number: int) -> Transcript:
+        new_exons = list(self._exons)
+        _ = new_exons.pop(exon_number)
+        return Transcript(
+            data=self._data,
+            exons=new_exons,
             shortcut=True
         )
 
