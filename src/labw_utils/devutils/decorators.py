@@ -2,10 +2,10 @@ import logging
 import os
 import types
 import uuid
-from typing import Callable
+from typing import Callable, Any
 
 
-def copy_doc(copy_func: Callable) -> Callable:
+def copy_doc(source: Any) -> Callable:
     """
     The following piece of code is from
     https://stackoverflow.com/questions/68901049/copying-the-docstring-of-function-onto-another-function-by-name
@@ -40,8 +40,8 @@ def copy_doc(copy_func: Callable) -> Callable:
     ...         self._A.foo()
     """
 
-    def wrapper(func: Callable) -> Callable:
-        func.__doc__ = copy_func.__doc__
+    def wrapper(func: Any) -> Callable:
+        func.__doc__ = source.__doc__
         return func
 
     return wrapper

@@ -60,11 +60,14 @@ class _BaseFileIO:
     def tell(self) -> int:
         try:
             return self._fd.tell()
-        except OSError:
+        except (OSError, AttributeError):
             return -1
 
     def close(self):
-        self._fd.close()
+        try:
+            self._fd.close()
+        except AttributeError:
+            pass
 
 
 class BaseFileIterator(_BaseFileIO, Iterable[_RecordType]):

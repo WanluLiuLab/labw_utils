@@ -132,7 +132,7 @@ class BaseFeatureProxy(FeatureType):
         return self._data <= other._data
 
     def __repr__(self):
-        return "BaseFeatureProxy"
+        return "BaseGeneViewFeature"
 
     def __str__(self):
         return repr(self)

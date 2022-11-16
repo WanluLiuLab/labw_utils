@@ -7,6 +7,7 @@ This module includes GTF/GFF3/BED record datastructure and their one-line parser
 from __future__ import annotations
 
 import enum
+from abc import abstractmethod
 from typing import Union, Optional, Dict, Iterable
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -34,6 +35,13 @@ Valid GTF Quoting Options. They are:
 """
 
 DEFAULT_GTF_QUOTE_OPTIONS = "all"
+
+
+class _NotSet:
+    pass
+
+
+_notset = _NotSet()
 
 
 def feature_repr(v: GtfAttributeValueType) -> str:
@@ -224,13 +232,50 @@ class Feature:
         """Other attributes presented in Key-Value pair"""
         return self._attribute.values()
 
+    @property
+    def naive_length(self) -> int:
+        return self.end0b - self.start0b
+
     def attribute_get(self, name: str, default: Optional[GtfAttributeValueType] = None) -> GtfAttributeValueType:
         """Other attributes presented in Key-Value pair"""
         return self._attribute.get(name, default)
 
-    @property
-    def naive_length(self) -> int:
-        return self.end - self.start
+    def overlaps(self, other: Feature) -> bool:
+        if self.seqname != other.seqname:
+            return False
+        return (
+                self.start < other.start < self.end or
+                self.start < other.end < self.end or
+                (
+                        other.start < self.start and
+                        self.end < other.end
+                )
+        )
+
+    def update(
+            self,
+            *,
+            seqname: Union[str, _NotSet] = _notset,
+            source: Union[Optional[str], _NotSet] = _notset,
+            feature: Union[Optional[str], _NotSet] = _notset,
+            start: Union[int, _NotSet] = _notset,
+            end: Union[int, _NotSet] = _notset,
+            score: Union[Optional[Union[int, float]], _NotSet] = _notset,
+            strand: Union[Optional[bool], _NotSet] = _notset,
+            frame: Union[Optional[int], _NotSet] = _notset,
+            attribute: Union[GTFAttributeType, _NotSet] = _notset
+    ) -> Feature:
+        return Feature(
+            seqname=self._seqname if seqname is _notset else seqname,
+            source=self._source if source is _notset else source,
+            feature=self._feature if feature is _notset else feature,
+            start=self._start if start is _notset else start,
+            end=self._end if end is _notset else end,
+            score=self._score if score is _notset else score,
+            strand=self._strand if strand is _notset else strand,
+            frame=self._frame if frame is _notset else frame,
+            attribute=self._attribute if attribute is _notset else attribute,
+        )
 
     def __init__(
             self,
@@ -278,18 +323,6 @@ class Feature:
     def __ne__(self, other: Feature):
         return not self == other
 
-    def overlaps(self, other: Feature) -> bool:
-        if self.seqname != other.seqname:
-            return False
-        return (
-                self.start < other.start < self.end or
-                self.start < other.end < self.end or
-                (
-                        other.start < self.start and
-                        self.end < other.end
-                )
-        )
-
     def __gt__(self, other: Feature):
         return self.seqname > other.seqname or (
                 self.seqname == other.seqname and self.start > other.start
@@ -306,5 +339,6 @@ class Feature:
     def __le__(self, other: Feature):
         return self < other or self == other
 
+    @abstractmethod
     def __repr__(self):
-        return ""  # TODO
+        raise NotImplementedError

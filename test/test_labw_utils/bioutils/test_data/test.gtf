@@ -1,0 +1,5 @@
+1	NA	gene	1	40	.	+	.	gene_id "UN1";
+1	NA	transcript	5	35	.	+	.	gene_id "UN1"; transcript_id "UN1.1"
+1	NA	exon	5	10	.	+	.	gene_id "UN1"; transcript_id "UN1.1"; exon_number 1
+1	NA	exon	15	20	.	+	.	gene_id "UN1"; transcript_id "UN1.2"; exon_number 2
+1	NA	exon	25	30	.	+	.	gene_id "UN1"; transcript_id "UN1.3"; exon_number3
