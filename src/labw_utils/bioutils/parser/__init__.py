@@ -88,7 +88,8 @@ class BaseIteratorWriter(_BaseFileIO):
     @abstractmethod
     def write_iterator(
             iterable: Iterable[_RecordType],
-            filename: str
+            filename: str,
+            **kwargs
     ):
         pass
 

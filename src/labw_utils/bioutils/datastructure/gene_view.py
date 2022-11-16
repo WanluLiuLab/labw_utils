@@ -8,11 +8,12 @@ import uuid
 from abc import abstractmethod, ABC
 from typing import Optional, Dict, Iterator, Union, Type, Iterable
 
+from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter, Gff3Iterator
+
 from labw_utils.bioutils.datastructure._gv_feature_proxy_mutator import GeneMutator, TranscriptMutator
 from labw_utils.bioutils.datastructure.gv_feature_proxy import Gene, Transcript, Exon, BaseFeatureProxy, \
     DEFAULT_SORT_EXON_EXON_STRAND_POLICY
 from labw_utils.bioutils.parser._determine_filetype import get_file_type_from_suffix
-from labw_utils.bioutils.parser.feature import GtfIterator, GtfWriter, Gff3Iterator
 from labw_utils.bioutils.record.feature import GtfRecord, FeatureType, Gff3Record
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.file_system import file_exists
@@ -419,7 +420,7 @@ class BaseGeneView(GeneViewType, ABC):
         gene_id = transcript.gene_id
         transcript_id = transcript.transcript_id
         if gene_id not in self.iter_gene_ids():
-            self.add_gene(BaseFeatureProxy.duplicate_cast(transcript, Gene))
+            self.add_gene(BaseFeatureProxy.cast_to(transcript, Gene))
         gene = self.get_gene(gene_id)
         if transcript_id not in gene.iter_transcript_ids() or gene.get_transcript(
                 transcript_id).feature != "transcript":
@@ -436,7 +437,7 @@ class BaseGeneView(GeneViewType, ABC):
     def add_exon(self, exon: Exon, fast: bool = False):
         transcript_id = exon.transcript_id
         if transcript_id not in self.iter_transcript_ids():
-            self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript), fast=fast)
+            self.add_transcript(BaseFeatureProxy.cast_to(exon, Transcript), fast=fast)
         if fast:
             TranscriptMutator.fast_add_exon(self.get_transcript(transcript_id), exon)
         else:

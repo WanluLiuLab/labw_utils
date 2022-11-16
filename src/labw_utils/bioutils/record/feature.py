@@ -6,20 +6,17 @@ This module includes GTF/GFF3/BED record datastructure and their one-line parser
 
 from __future__ import annotations
 
-import uuid
-from abc import abstractmethod
-from typing import Union, Optional, Dict
+import enum
+from typing import Union, Optional, Dict, Iterable
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.commonutils.str_utils import to_dict
 
 lh = get_logger(__name__)
 
-GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
-"""Type of GTF/GFF fields"""
+GtfAttributeValueType = Union[str, int, float, bool, None]
 
-GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
-"""The top-level virtual parent for GFF record that does not have a parent"""
+GTFAttributeType = Dict[str, GtfAttributeValueType]
+"""Type of GTF/GFF fields"""
 
 VALID_GTF_QUOTE_OPTIONS = (
     "none",
@@ -39,6 +36,34 @@ Valid GTF Quoting Options. They are:
 DEFAULT_GTF_QUOTE_OPTIONS = "all"
 
 
+def feature_repr(v: GtfAttributeValueType) -> str:
+    """
+    Python standard :py:func:`repr` for genomic data.
+
+    >>> feature_repr(None)
+    '.'
+    >>> feature_repr(1)
+    '1'
+    >>> feature_repr(1.0)
+    '1.0'
+    >>> feature_repr("ANS")
+    'ANS'
+    >>> feature_repr([])
+    Traceback (most recent call last):
+        ...
+    TypeError: <class 'list'> is not supported!
+    """
+    if v is None:
+        attr_str = "."
+    elif isinstance(v, str):
+        attr_str = v
+    elif isinstance(v, float) or isinstance(v, int) or isinstance(v, bool):
+        attr_str = str(v)
+    else:
+        raise TypeError(f"{type(v)} is not supported!")
+    return attr_str
+
+
 class FeatureParserError(ValueError):
     pass
 
@@ -48,115 +73,175 @@ class RegionError(FeatureParserError):
         super(RegionError, self).__init__(*args)
 
 
-class FeatureType(object):
-    """
-    Abstract type of general GTF/GFF/BED Record.
-    """
-
-    seqname: str
-    """
-    Chromosome or Contig name.
-    """
-
-    source: str
-    """
-    The source of this record. e.g. ``hg38_rmsk`` or ``ensembl``.
-    """
-
-    feature: str
-    """
-    Feature type name. e.g. ``exon`` or ``start_codon`` or ``5UTR``.
-    """
-
-    start: int
-    """
-    Inclusive 1-based start position.
-    """
-
-    end: int
-    """
-    Inclusive 1-based end position.
-    """
-
-    score: Union[int, float]
-    """
-    Some kind of scoring.
-    """
-
-    strand: str
-    """
-    Positive (``+``) or negative(``-``) or unknown (``.``)
-    """
-
-    frame: str
-    """
-    frame: One of ``0`` (first base of the feature is the first base of a codon),
-                    ``1`` (the second base is the first base of a codon) or ``2``.
-    """
-
-    attribute: GTFAttributeType
-    """Other attributes presented in Key-Value pair"""
-
-    @abstractmethod
-    def __eq__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def __ne__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def overlaps(self, other: FeatureType) -> bool:
-        pass
-
-    @abstractmethod
-    def __gt__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def __ge__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def __lt__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def __le__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def format_string(self, **kwargs) -> str:
-        pass
+class FeatureType(enum.Enum):
+    NotPresent = -1
+    Unknown = 0
+    Exon = 1
+    Transcript = 2
+    Gene = 3
+    FivePrimeUTR = 4
+    ThreePrimeUTR = 5
+    OtherUTR = 6
+    CDS = 7
+    StartCodon = 8
+    StopCodon = 9
 
 
-class Feature(FeatureType):
+_raw_feature_type_translator = {
+    "3utr": FeatureType.ThreePrimeUTR,
+    "three_prime_utr": FeatureType.ThreePrimeUTR,
+    "5utr": FeatureType.FivePrimeUTR,
+    "five_prime_utr": FeatureType.FivePrimeUTR,
+    "utr": FeatureType.OtherUTR,
+    "transcript": FeatureType.Transcript,
+    "gene": FeatureType.Gene,
+    "exon": FeatureType.Exon,
+    "cds": FeatureType.CDS,
+    "start_codon": FeatureType.StartCodon,
+    "stop_codon": FeatureType.StopCodon,
+}
+
+
+class Feature:
     """
     A general GTF/GFF/BED Record.
     """
 
     __slots__ = (
-        'seqname',
-        'source',
-        'feature',
-        'start',
-        'end',
-        'score',
-        'strand',
-        'frame',
-        'attribute',
+        '_seqname',
+        '_source',
+        '_feature',
+        '_start',
+        '_end',
+        '_score',
+        '_strand',
+        '_frame',
+        '_attribute',
+        '_parsed_feature'
     )
+
+    _seqname: str
+    _source: Optional[str]
+    _feature: Optional[str]
+    _parsed_feature: Optional[FeatureType]
+    _start: int
+    _end: int
+    _score: Optional[Union[int, float]]
+    _strand: Optional[bool]
+    _frame: Optional[int]
+    _attribute: GTFAttributeType
+
+    @property
+    def seqname(self) -> str:
+        """
+        Chromosome or Contig name.
+        """
+        return self._seqname
+
+    @property
+    def source(self) -> Optional[str]:
+        """
+        The source of this record. e.g. ``hg38_rmsk`` or ``ensembl``.
+        """
+        return self._source
+
+    @property
+    def feature(self) -> Optional[str]:
+        """
+        Feature type name. e.g. ``exon`` or ``start_codon`` or ``5UTR``.
+        """
+        return self._feature
+
+    @property
+    def parsed_feature(self) -> FeatureType:
+        if self._parsed_feature is None:
+            if self._feature is None:
+                self._parsed_feature = FeatureType.NotPresent
+            else:
+                self._parsed_feature = _raw_feature_type_translator.get(
+                    self._feature.lower(),
+                    FeatureType.Unknown
+                )
+        return self._parsed_feature
+
+    @property
+    def start(self) -> int:
+        """
+        Inclusive 1-based start position.
+        """
+        return self._start
+
+    @property
+    def start0b(self) -> int:
+        """
+        Inclusive 0-based start position.
+        """
+        return self._start - 1
+
+    @property
+    def end(self) -> int:
+        """
+        Inclusive 1-based end position.
+        """
+        return self._end
+
+    @property
+    def end0b(self) -> int:
+        """
+        Exclusive 0-based end position.
+        """
+        return self._end
+
+    @property
+    def score(self) -> Optional[Union[int, float]]:
+        """
+        Some kind of scoring.
+        """
+        return self._score
+
+    @property
+    def strand(self) -> Optional[bool]:
+        """
+        True (``+``) or False (``-``) or None (``.``)
+        """
+        return self._strand
+
+    @property
+    def frame(self) -> Optional[int]:
+        """
+        One of ``0`` (first base of the feature is the first base of a codon),
+                        ``1`` (the second base is the first base of a codon) or ``2``.
+        """
+        return self._frame
+
+    @property
+    def attribute_keys(self) -> Iterable[str]:
+        """Other attributes presented in Key-Value pair"""
+        return self._attribute.keys()
+
+    @property
+    def attribute_values(self) -> Iterable[GtfAttributeValueType]:
+        """Other attributes presented in Key-Value pair"""
+        return self._attribute.values()
+
+    def attribute_get(self, name: str, default: Optional[GtfAttributeValueType] = None) -> GtfAttributeValueType:
+        """Other attributes presented in Key-Value pair"""
+        return self._attribute.get(name, default)
+
+    @property
+    def naive_length(self) -> int:
+        return self.end - self.start
 
     def __init__(
             self,
             seqname: str,
-            source: str,
-            feature: str,
+            source: Optional[str],
+            feature: Optional[str],
             start: int,
             end: int,
-            score: Union[int, float],
-            strand: str,
-            frame: str,
+            score: Optional[Union[int, float]],
+            strand: Optional[bool],
+            frame: Optional[int],
             attribute: Optional[GTFAttributeType] = None
     ):
         """
@@ -171,23 +256,24 @@ class Feature(FeatureType):
             raise RegionError(f"End ({end}) cannot less than 1")
         if end < start:
             raise RegionError(f"End ({end}) cannot less than Start ({start})")
-        self.seqname = seqname
-        self.source = source
-        self.feature = feature
-        self.start = start
-        self.end = end
-        self.score = score
-        self.strand = strand
-        self.frame = frame
+        self._seqname = seqname
+        self._source = source
+        self._feature = feature
+        self._parsed_feature = None
+        self._start = start
+        self._end = end
+        self._score = score
+        self._strand = strand
+        self._frame = frame
         if attribute is None:
             attribute = {}
-        self.attribute = attribute
+        self._attribute = dict(attribute)
 
     def __eq__(self, other: Feature):
-        return self.start == other.start and \
-               self.end == other.end and \
-               self.seqname == other.seqname and \
-               self.strand == other.strand
+        return self._start == other.start and \
+               self._end == other.end and \
+               self._seqname == other.seqname and \
+               self._strand == other.strand
 
     def __ne__(self, other: Feature):
         return not self == other
@@ -220,186 +306,5 @@ class Feature(FeatureType):
     def __le__(self, other: Feature):
         return self < other or self == other
 
-    @classmethod
-    def from_string(cls, in_str: str):
-        """
-        To generate ONE record from existing string.
-
-        :param in_str: Input dictionary.
-        """
-        pass
-
-    @abstractmethod
-    def format_string(self, **kwargs) -> str:
-        pass
-
     def __repr__(self):
-        return self.format_string()
-
-
-class Gff3Record(Feature):
-    """
-    A general GTF Record.
-    """
-
-    id: str
-    """The ID field in Gff3, cannot be none. Will initialized to UUID if not present"""
-
-    parent_id: str
-    """
-    FIXME: Multi parents
-    
-    https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
-    """
-
-    def __init__(
-            self,
-            seqname: str,
-            source: str,
-            feature: str,
-            start: int,
-            end: int,
-            score: float,
-            strand: str,
-            frame: str,
-            attribute: GTFAttributeType):
-        super(Gff3Record, self).__init__(
-            seqname=seqname,
-            source=source,
-            feature=feature,
-            start=start,
-            end=end,
-            score=score,
-            strand=strand,
-            frame=frame,
-            attribute=attribute
-        )
-        self.id = attribute.get("ID", uuid.uuid4())
-        self.parent_id = attribute.get("Parent", GFF3_TOPLEVEL_NAME)
-
-    @classmethod
-    def from_string(cls, in_str: str):
-        """
-        To generate ONE record from existing string.
-
-        :param in_str: Input dictionary.
-        """
-        global lh
-        lh.debug(f'Adding {in_str}')
-        line_split = in_str.split('\t')
-
-        required_fields = line_split[0:-1]
-        attributes = to_dict(line_split[-1], field_sep='=', record_sep=';', quotation_mark='\"\'', resolve_str=True)
-
-        # Score should be an integer
-        if required_fields[5] == ".":
-            required_fields[5] = "0"
-        return Gff3Record(
-            seqname=required_fields[0],
-            source=required_fields[1],
-            feature=required_fields[2],
-            start=int(required_fields[3]),
-            end=int(required_fields[4]),
-            score=int(float(required_fields[5])),
-            strand=(required_fields[6]),
-            frame=(required_fields[7]),
-            attribute=attributes
-        )
-
-    def format_string(self):
-        attribute_str = ""
-        for k, v in self.attribute.items():
-            v_str = repr(v).replace("'", '"')
-            attribute_str = f"{attribute_str}{k}={v_str}; "
-        return ("\t".join((
-            self.seqname,
-            self.source,
-            self.feature,
-            str(self.start),
-            str(self.end),
-            str(self.score),
-            self.strand,
-            self.frame,
-            attribute_str
-        )))
-
-
-class GtfRecord(Feature):
-    """
-    A general GTF Record.
-    
-    >>> gtf_str = 'chr1\\thg38\\texon\\t1337\\t2274\\t1587.0\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
-    >>> gtf_from_line = GtfRecord.from_string(gtf_str)
-    >>> gtf_from_line.seqname
-    'chr1'
-    >>> gtf_from_line.source
-    'hg38'
-    >>> gtf_from_line.feature
-    'exon'
-    >>> gtf_from_line.start
-    1337
-    >>> gtf_from_line.end
-    2274
-    >>> gtf_from_line.score
-    1587
-    >>> gtf_from_line.strand
-    '+'
-    >>> gtf_from_line.attribute['gene_id']
-    'HAL1'
-    >>> str(gtf_from_line)
-    'chr1\\thg38\\texon\\t1337\\t2274\\t1587\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
-    """
-
-    @classmethod
-    def from_string(cls, in_str: str):
-        global lh
-        in_str = in_str.rstrip('\n\r')
-        line_split = in_str.split('\t')
-
-        required_fields = line_split[0:-1]
-        attributes = to_dict(line_split[-1], field_sep=' ', record_sep=';', quotation_mark='\"\'', resolve_str=True)
-
-        # Score should be an integer
-        if required_fields[5] == ".":
-            required_fields[5] = "0"
-        return GtfRecord(
-            seqname=required_fields[0],
-            source=required_fields[1],
-            feature=required_fields[2],
-            start=int(required_fields[3]),
-            end=int(required_fields[4]),
-            score=int(float(required_fields[5])),
-            strand=(required_fields[6]),
-            frame=(required_fields[7]),
-            attribute=attributes
-        )
-
-    def format_string(
-            self,
-            quote: str = DEFAULT_GTF_QUOTE_OPTIONS
-    ):
-        if quote not in VALID_GTF_QUOTE_OPTIONS:
-            raise ValueError(f"Invalid quoting option {quote}, should be one in {VALID_GTF_QUOTE_OPTIONS}.")
-        attribute_full_str = ""
-        for k, v in self.attribute.items():
-            attr_str = repr(v).replace("'", '')
-            if quote == "blank":
-                if "\r" in attr_str or "\n" in attr_str or "\f" in attr_str or "\t" in attr_str or " " in attr_str:
-                    attr_str = f"\"{attr_str}\""
-            elif quote == "string":
-                if not isinstance(v, int) and not isinstance(v, float):
-                    attr_str = f"\"{attr_str}\""
-            elif quote == "all":
-                attr_str = f"\"{attr_str}\""
-            attribute_full_str = f"{attribute_full_str}{k} " + attr_str + "; "
-        return ("\t".join((
-            self.seqname,
-            self.source,
-            self.feature,
-            str(self.start),
-            str(self.end),
-            str(self.score),
-            self.strand,
-            self.frame,
-            attribute_full_str
-        )))
+        return ""  # TODO

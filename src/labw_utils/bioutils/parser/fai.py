@@ -138,7 +138,11 @@ class FastaIndexWriter(BaseIteratorWriter):
         self._fd.write(str(record) + "\n")
 
     @staticmethod
-    def write_iterator(iterable: Iterable[FastaIndexRecord], filename: str):
+    def write_iterator(
+            iterable: Iterable[FastaIndexRecord],
+            filename: str,
+            **kwargs
+    ):
         with FastaIndexWriter(filename) as writer:
             for fastq_record in iterable:
                 if fastq_record.name.count("\t") + fastq_record.name.count(" ") != 0:

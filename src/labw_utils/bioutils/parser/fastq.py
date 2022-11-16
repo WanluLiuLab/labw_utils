@@ -36,7 +36,8 @@ class FastqWriter(BaseIteratorWriter):
     @staticmethod
     def write_iterator(
             iterable: Iterator[FastqRecord],
-            filename: str
+            filename: str,
+            **kwargs
     ):
         with FastqWriter(filename) as writer:
             for fastq_record in iterable:

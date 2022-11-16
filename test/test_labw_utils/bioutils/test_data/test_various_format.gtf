@@ -1,0 +1,2 @@
+1	ensembl_havana	gene	685679	686673	.	-	.	gene_id "ENSG00000284662"; gene_version "1"; gene_name "OR4F16"; gene_source "ensembl_havana"; gene_biotype "protein_coding";
+chr1	refGene	.	11874	14409	1024.3	.	2	gene_id "DDX11L1"; transcript_id "NR_046018"; gene_name "DDX11L1";

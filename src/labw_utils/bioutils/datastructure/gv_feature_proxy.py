@@ -13,7 +13,7 @@ from typing import List, Callable, Optional, Iterable, Tuple, Type, Union
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure._gv_errors import _all as _gve_all
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
-from labw_utils.bioutils.record.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
+from labw_utils.bioutils.record.feature import GtfRecord, FeatureType, Gff3Record
 from labw_utils.commonutils.dynamic.hook_helper import hookable_decorator
 
 __all__ = [
@@ -29,12 +29,12 @@ __all__.extend(_gve_all)
 lh = get_logger(__name__)
 
 
-def unknown_transcript_id() -> str:
+def generate_unknown_transcript_id() -> str:
     """Generate a new unknown transcript ID"""
     return 'unknown_transcript_id' + str(uuid.uuid4())
 
 
-def unknown_gene_id() -> str:
+def generate_unknown_gene_id() -> str:
     """Generate a new unknown gene ID"""
     return 'unknown_gene_id' + str(uuid.uuid4())
 
@@ -49,11 +49,12 @@ class BaseFeatureProxy(FeatureType):
     Base class of Feature Proxy.
     """
 
-    _data: Feature
+    def cast_to(self, class_type: Type[BaseFeatureProxy]):
+        """
+        Cast the type of current feature proxy to another using existing data.
 
-    _was_modified: bool
-
-    def duplicate_cast(self, class_type: Type[BaseFeatureProxy]):
+        :param class_type: Destination type.
+        """
         return class_type.from_feature(copy.deepcopy(self._data))
 
     def copy_data(self):
@@ -62,71 +63,7 @@ class BaseFeatureProxy(FeatureType):
         """
         self._data = copy.deepcopy(self._data)
 
-    @property
-    def start(self) -> int:
-        return self._data.start
-
-    @start.setter
-    def start(self, value: int):
-        self._data.start = value
-
-    @property
-    def end(self) -> int:
-        return self._data.end
-
-    @end.setter
-    def end(self, value: int):
-        self._data.end = value
-
-    @property
-    def strand(self) -> str:
-        return self._data.strand
-
-    @strand.setter
-    def strand(self, value: str):
-        self._data.strand = value
-
-    @property
-    def source(self) -> str:
-        return self._data.source
-
-    @source.setter
-    def source(self, value: str):
-        self._data.source = value
-
-    @property
-    def seqname(self) -> str:
-        return self._data.seqname
-
-    @seqname.setter
-    def seqname(self, value: str):
-        self._data.seqname = value
-
-    @property
-    def feature(self) -> str:
-        return self._data.feature
-
-    @feature.setter
-    def feature(self, value: str):
-        self._data.feature = value
-
-    @property
-    def frame(self) -> str:
-        return self._data.frame
-
-    @frame.setter
-    def frame(self, value: str):
-        self._data.frame = value
-
-    @property
-    def attribute(self) -> GTFAttributeType:
-        return self._data.attribute
-
-    @attribute.setter
-    def attribute(self, value: GTFAttributeType):
-        self._data.attribute = value
-
-    def get_data(self) -> Feature:
+    def get_data(self) -> FeatureType:
         """Read-only _data"""
         return self._data
 
@@ -135,25 +72,35 @@ class BaseFeatureProxy(FeatureType):
         """
         This method prepares underlying method to set the record up for GTF
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _setup_gff3(self) -> None:
         """
         This method prepares underlying method to set the record up for GFF3
         """
-        pass
+        raise NotImplementedError
 
-    def _setup(self):
+    def _setup(self) -> None:
         """
         This method prepares the object for arbitrary :py:class:`Feature` types from `data`.
+        Can be blank.
         """
         pass
 
     @classmethod
-    def from_feature(cls, feature: Feature):
-        new_instance = cls()
-        new_instance._data = feature
+    def from_feature(cls, feature: FeatureType):
+        new_instance = cls(
+            seqname=feature.seqname,
+            source=feature.source,
+            feature=feature.feature,
+            start=feature.start,
+            end=feature.end,
+            score=feature.score,
+            strand=feature.strand,
+            frame=feature.frame,
+            attribute=dict(feature.attribute)
+        )
         new_instance._setup()
         if isinstance(feature, GtfRecord):
             new_instance._setup_gtf()
@@ -190,12 +137,8 @@ class BaseFeatureProxy(FeatureType):
     def __str__(self):
         return repr(self)
 
-    def format_string(self, **kwargs) -> str:
-        """Disabled"""
-        return repr(self)
-
     @property
-    def naive_length(self):
+    def naive_length(self) -> int:
         """
         The length on GTF
         """
@@ -203,8 +146,11 @@ class BaseFeatureProxy(FeatureType):
 
     @property
     @abstractmethod
-    def transcribed_length(self):
-        pass
+    def transcribed_length(self) -> int:
+        """
+        Length after being transcribed.
+        """
+        raise NotImplementedError
 
 
 class Exon(BaseFeatureProxy):
@@ -235,9 +181,9 @@ class Exon(BaseFeatureProxy):
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
-            self._data.attribute["transcript_id"] = unknown_transcript_id()
+            self._data.attribute["transcript_id"] = generate_unknown_transcript_id()
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = unknown_gene_id()
+            self._data.attribute["gene_id"] = generate_unknown_gene_id()
         if "exon_number" not in self._data.attribute:
             self._data.attribute["exon_number"] = 0
 
@@ -289,9 +235,9 @@ class Transcript(BaseFeatureProxy):
 
     def _setup_gtf(self) -> None:
         if "transcript_id" not in self._data.attribute:
-            self._data.attribute["transcript_id"] = unknown_transcript_id()
+            self._data.attribute["transcript_id"] = generate_unknown_transcript_id()
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = unknown_gene_id()
+            self._data.attribute["gene_id"] = generate_unknown_gene_id()
 
     def _setup_gff3(self) -> None:
         raise NotImplementedError
@@ -384,12 +330,12 @@ class Transcript(BaseFeatureProxy):
 
 
 class Gene(BaseFeatureProxy):
-    @property
-    def transcribed_length(self):
-        ...  # TODO
-
     _transcript_ids: List[str]
     _transcripts: List[Transcript]
+
+    @property
+    def transcribed_length(self):
+        raise TypeError("Do not know how to get transcribed length for a gene")
 
     def check_transcript_duplication(self) -> Optional[Tuple[str, str]]:
         for i in range(self.number_of_transcripts):
@@ -433,7 +379,7 @@ class Gene(BaseFeatureProxy):
 
     def _setup_gtf(self) -> None:
         if "gene_id" not in self._data.attribute:
-            self._data.attribute["gene_id"] = unknown_gene_id()
+            self._data.attribute["gene_id"] = generate_unknown_gene_id()
 
     def _setup_gff3(self) -> None:
         raise NotImplementedError
