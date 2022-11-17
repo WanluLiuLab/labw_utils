@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import bisect
 import math
+import operator
 from typing import List, Optional, Iterable, Tuple, Union, Callable
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
@@ -77,7 +78,7 @@ class Transcript(
 
     @property
     def splice_sites(self) -> Iterable[Tuple[int, int]]:
-        for i in range(len(self._exons) - 1):
+        for i in range(self.number_of_exons - 1):
             yield self._exons[i].end, self._exons[i + 1].start
 
     @property
@@ -92,14 +93,11 @@ class Transcript(
             is_checked: bool,
             keep_sorted: bool,
             shortcut: bool,
-            exons: Optional[List[Exon]],
+            exons: Iterable[Exon],
             is_inferred: bool
     ):
         self._is_sorted = keep_sorted
-        if exons is None:
-            self._exons = []
-        else:
-            self._exons = list(exons)
+        self._exons = list(exons)
         self._cdna = None
         self._is_inferred = is_inferred
         if not shortcut:
@@ -115,10 +113,9 @@ class Transcript(
         return f"Transcript {self.transcript_id} of {self.gene_id}"
 
     def exon_level_equiv(self, other: Transcript) -> bool:
-        for exon_s, exon_o in zip(self._exons, other._exons):
-            if not exon_s == exon_o:
-                return False
-        return True
+        if not self.number_of_exons == other.number_of_exons:
+            return False
+        return all(map(lambda exon_pair: operator.eq(*exon_pair), zip(self.exons, other.exons)))
 
     def get_exon(self, exon_id: int) -> Exon:
         return self._exons[exon_id]
@@ -133,20 +130,52 @@ class Transcript(
             self,
             exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     ) -> Transcript:
+        """
+        Renew exon numbers.
+
+        :param exon_number_policy: The UCSC style. TODO
+
+        In UCSC::
+            chr19_GL000209v2_alt	ncbiRefSeq	transcript	162306	167842	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	162306	162662	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "7";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	162811	162861	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "6";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	165349	165651	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "5";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	165907	166203	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "4";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	166413	166722	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "3";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	166872	167156	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "2";
+            chr19_GL000209v2_alt	ncbiRefSeq	exon	167320	167842	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "1";
+        """
+        def update_exon_number(_exon:Exon, target_exon_number:int) -> Exon:
+            return Exon(
+                data=_exon.get_data().update_attribute(exon_number=target_exon_number),
+                is_checked=_exon.is_checked,
+                shortcut=True
+            )
+
+        new_exons = []
         if exon_number_policy == "stranded":
             if self.strand is True:
-                for i in range(len(self._exons)):
-                    self._exons[i] = self._exons[i].get_data().update_attribute(exon_number=i + 1)
+                for i in range(self.number_of_exons):
+                    new_exons.append(update_exon_number(self._exons[i], i + 1))
             elif self.strand is False:
-                for i in range(len(self._exons)):
-                    self._exons[len(self._exons) - i - 1] = \
-                        self._exons[len(self._exons) - i - 1].get_data().update_attribute(exon_number=i + 1)
+                for i in range(self.number_of_exons):
+                    new_exons.append(
+                        update_exon_number(self._exons[self.number_of_exons - i - 1], i + 1)
+                    )
+                new_exons.reverse()
             else:
                 raise ValueError("Unstranded exon detected!")
         elif exon_number_policy == "unstranded":
-            for i in range(len(self._exons)):
-                self._exons[i] = self._exons[i].get_data().update_attribute(exon_number=i + 1)
-        return self
+            for i in range(self.number_of_exons):
+                new_exons.append(update_exon_number(self._exons[i], i + 1))
+        return Transcript(
+            data=self._data,
+            is_checked=self._is_checked,
+            keep_sorted=self._is_sorted,
+            exons=new_exons,
+            shortcut=True,
+            is_inferred=False
+        )
 
     def rescale_from_exon_boundaries(self) -> Transcript:
         if self._is_inferred:
@@ -164,10 +193,11 @@ class Transcript(
 
     def add_exon(self, exon: Exon) -> Transcript:
         new_exons = list(self._exons)
-        if exon.seqname != self.seqname:
-            raise ExonInATranscriptOnDifferentChromosomeError
-        if exon.strand != self.strand and exon.strand is not None:
-            raise ExonInATranscriptOnDifferentStrandError
+        if self._is_checked:
+            if exon.seqname != self.seqname:
+                raise ExonInATranscriptOnDifferentChromosomeError
+            if exon.strand != self.strand and exon.strand is not None:
+                raise ExonInATranscriptOnDifferentStrandError
         if self._is_sorted:
             new_pos = bisect.bisect_left(new_exons, exon)
             new_exons.insert(new_pos, exon)
