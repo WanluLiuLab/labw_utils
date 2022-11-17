@@ -3,30 +3,39 @@ from __future__ import annotations
 import bisect
 from typing import Final, List, Optional, Iterable
 
-from labw_utils.bioutils.datastructure.gv import generate_unknown_gene_id, GVPError, ContainerInterface
+from labw_utils.bioutils.datastructure.gv import generate_unknown_gene_id, GVPError, SortedContainerInterface
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
-from labw_utils.bioutils.datastructure.gv.transcript_container import TranscriptContainerInterface
+from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface
 from labw_utils.bioutils.record.feature import Feature, FeatureType
 
 
 class TranscriptInAGeneOnDifferentChromosomeError(GVPError):
-    pass
-
-
-class DuplicatedTranscriptError(GVPError):
-    pass
+    def __init__(self, transcript: Transcript, gene_seqname: str):
+        super().__init__(
+            f"{transcript}: "
+            f"gene.seqname={gene_seqname}, "
+            f"while transcript.seqname={transcript.seqname}"
+        )
 
 
 class TranscriptInAGeneOnDifferentStrandError(GVPError):
-    pass
+    def __init__(self, transcript: Transcript, gene_strand: Optional[bool]):
+        super().__init__(
+            f"{transcript}: "
+            f"gene.strand={gene_strand}, "
+            f"while transcript.strand={transcript.strand}"
+        )
 
 
 class DuplicatedTranscriptIDError(GVPError):
-    pass
+    def __init__(self, transcript_id: str):
+        super().__init__(
+            f"Transcript ID {transcript_id} duplicated"
+        )
 
 
-class Gene(BaseFeatureProxy, TranscriptContainerInterface, ContainerInterface):
+class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterface):
     _gene_id: str
     preserved_attributes: Final[List[str]] = ("gene_id",)
     __slots__ = (
@@ -48,34 +57,28 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, ContainerInterface):
     def transcript_ids(self) -> Iterable[str]:
         return iter(self._transcript_ids)
 
-    def get_transcript(self, transcript_id: str) -> Transcript:
-        return self._transcripts[self._transcript_ids.index(transcript_id)]
-
     @property
     def gene_id(self) -> str:
         return self._gene_id
 
+    def get_transcript(self, transcript_id: str) -> Transcript:
+        return self._transcripts[self._transcript_ids.index(transcript_id)]
+
     def __init__(
             self,
-            data: Feature,
             *,
-            keep_sorted: bool = False,
-            shortcut: bool = False,
-            transcripts: Optional[Iterable[Transcript]] = None,
-            transcript_ids: Optional[Iterable[str]] = None,
-            is_inferred: bool = False,
-            **kwargs
+            data: Feature,
+            is_checked: bool,
+            keep_sorted: bool,
+            shortcut: bool,
+            transcripts: Optional[Iterable[Transcript]],
+            transcript_ids: Optional[Iterable[str]],
+            is_inferred: bool
     ):
         self._is_sorted = keep_sorted
         self._is_inferred = is_inferred
-        if transcripts is None:
-            self._transcripts = []
-        else:
-            self._transcripts = list(transcripts)
-        if transcript_ids is None:
-            self._transcript_ids = list(transcript.transcript_id for transcript in self._transcripts)
-        else:
-            self._transcript_ids = list(transcript_ids)
+        self._transcripts = list(transcripts)
+        self._transcript_ids = list(transcript_ids)
         if not shortcut:
             should_update_attributes = False
             data_attributes_update_kwargs = {k: v for k, v in zip(
@@ -88,22 +91,19 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, ContainerInterface):
                 data = data.update(feature="gene")
             if should_update_attributes:
                 data = data.update(attribute=data_attributes_update_kwargs)
-        BaseFeatureProxy.__init__(self, data, **kwargs)
+        BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
         self._gene_id = self.attribute_get("gene_id")
 
     def add_transcript(self, transcript: Transcript) -> Gene:
-        if transcript.seqname != self.seqname:
-            raise TranscriptInAGeneOnDifferentChromosomeError(
-                f"gene.seqname={self.seqname}, while transcript.seqname={transcript.seqname}"
-            )
-        if transcript.strand != self.strand and transcript.strand is not None:
-            raise TranscriptInAGeneOnDifferentStrandError
+        if self._is_checked:
+            if transcript.seqname != self.seqname:
+                raise TranscriptInAGeneOnDifferentChromosomeError(transcript, self.seqname)
+            if transcript.strand != self.strand and transcript.strand is not None:
+                raise TranscriptInAGeneOnDifferentStrandError(transcript, self.strand)
+            if transcript.transcript_id in self._transcript_ids:
+                raise DuplicatedTranscriptIDError(transcript.transcript_id)
         new_transcripts = list(self._transcripts)
         new_transcript_ids = list(self._transcript_ids)
-        if transcript.transcript_id in self._transcript_ids:
-            raise DuplicatedTranscriptIDError(
-                f"Transcript ID {transcript.transcript_id} duplicated"
-            )
         if self._is_sorted:
             new_pos = bisect.bisect_left(self._transcripts, transcript)
             new_transcripts.insert(new_pos, transcript)
@@ -111,13 +111,13 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, ContainerInterface):
         else:
             new_transcripts.append(transcript)
             new_transcript_ids.append(transcript.transcript_id)
-
         return Gene(
             data=self._data,
+            is_checked=self._is_checked,
             keep_sorted=self._is_sorted,
-            transcripts=new_transcripts,
-            transcript_ids=self.transcript_ids,
             is_inferred=self._is_inferred,
+            transcripts=new_transcripts,
+            transcript_ids=new_transcript_ids,
             shortcut=True
         )
 
@@ -129,9 +129,10 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, ContainerInterface):
         _ = new_transcript_ids.pop(pop_pos)
         return Gene(
             data=self._data,
+            is_checked=self._is_checked,
             keep_sorted=self._is_sorted,
             transcripts=new_transcripts,
-            transcript_ids=self.transcript_ids,
+            transcript_ids=new_transcript_ids,
             is_inferred=self._is_inferred,
             shortcut=True
         )

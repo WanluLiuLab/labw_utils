@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import bisect
 import math
-from typing import Final, List, Optional, Iterable, Tuple, Union, Callable
+from typing import List, Optional, Iterable, Tuple, Union, Callable
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure.gv import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, generate_unknown_transcript_id, \
-    generate_unknown_gene_id, GVPError, CanTranscribeInterface, ContainerInterface
+    generate_unknown_gene_id, GVPError, CanTranscribeInterface, SortedContainerInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature, FeatureType
@@ -19,24 +19,24 @@ class ExonInATranscriptOnDifferentChromosomeError(GVPError):
     pass
 
 
-class DuplicatedExonError(GVPError):
-    pass
-
-
 class ExonInATranscriptOnDifferentStrandError(GVPError):
     pass
 
 
-class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
+class Transcript(
+    BaseFeatureProxy,
+    CanTranscribeInterface,
+    SortedContainerInterface
+):
     """
     Transcript is a list of exons, always sorted.
     """
-    preserved_attributes: Final[List[str]] = ("gene_id", "transcript_id")
-    __slots__ = (
+
+    __slots__ = [
         "_exons",
         "_cdna",
         "_is_inferred"
-    )
+    ]
     _exons: List[Exon]
     _cdna: Optional[str]
     _is_inferred: Optional[bool]
@@ -87,36 +87,29 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
 
     def __init__(
             self,
-            data: Feature,
             *,
-            keep_sorted: bool = True,
-            shortcut: bool = False,
-            exons: Optional[List[Exon]] = None,
-            is_inferred: bool = False,
-            **kwargs
+            data: Feature,
+            is_checked: bool,
+            keep_sorted: bool,
+            shortcut: bool,
+            exons: Optional[List[Exon]],
+            is_inferred: bool
     ):
         self._is_sorted = keep_sorted
         if exons is None:
-            exons = []
+            self._exons = []
+        else:
+            self._exons = list(exons)
+        self._cdna = None
         self._is_inferred = is_inferred
         if not shortcut:
-            should_update_attributes = False
-            data_attributes_update_kwargs = {k: v for k, v in zip(
-                data.attribute_keys, data.attribute_values
-            )}
             if data.attribute_get("transcript_id") is None:
-                should_update_attributes = True
-                data_attributes_update_kwargs["transcript_id"] = generate_unknown_transcript_id()
+                data = data.update_attribute(transcript_id=generate_unknown_transcript_id())
             if data.attribute_get("gene_id") is None:
-                should_update_attributes = True
-                data_attributes_update_kwargs["gene_id"] = generate_unknown_gene_id()
+                data = data.update_attribute(gene_id=generate_unknown_gene_id())
             if self._is_inferred and data.parsed_feature is not FeatureType.Transcript:
                 data = data.update(feature="transcript")
-            if should_update_attributes:
-                data = data.update(attribute=data_attributes_update_kwargs)
-        super().__init__(data, **kwargs)
-        self._cdna = None
-        self._exons = list(exons)
+        BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 
     def __repr__(self):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
@@ -143,16 +136,16 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
         if exon_number_policy == "stranded":
             if self.strand is True:
                 for i in range(len(self._exons)):
-                    self._exons[i] = self._exons[i].update(exon_number=i + 1)
+                    self._exons[i] = self._exons[i].get_data().update_attribute(exon_number=i + 1)
             elif self.strand is False:
                 for i in range(len(self._exons)):
                     self._exons[len(self._exons) - i - 1] = \
-                        self._exons[len(self._exons) - i - 1].update(exon_number=i + 1)
+                        self._exons[len(self._exons) - i - 1].get_data().update_attribute(exon_number=i + 1)
             else:
                 raise ValueError("Unstranded exon detected!")
         elif exon_number_policy == "unstranded":
             for i in range(len(self._exons)):
-                self._exons[i] = self._exons[i].update(exon_number=i + 1)
+                self._exons[i] = self._exons[i].get_data().update_attribute(exon_number=i + 1)
         return self
 
     def rescale_from_exon_boundaries(self) -> Transcript:
@@ -160,6 +153,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
             new_data = self._data.update(start=self._exons[0].start, end=self._exons[-1].end)
             return Transcript(
                 data=new_data,
+                is_checked=self._is_checked,
                 keep_sorted=self._is_sorted,
                 exons=self._exons,
                 shortcut=True,
@@ -167,10 +161,6 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
             )
         else:
             return self
-
-    @classmethod
-    def infer_from_exon(cls, exon: Exon) -> Transcript:
-        return BaseFeatureProxy.cast_to(exon, class_type=Transcript, is_inferred=True)
 
     def add_exon(self, exon: Exon) -> Transcript:
         new_exons = list(self._exons)
@@ -180,13 +170,12 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
             raise ExonInATranscriptOnDifferentStrandError
         if self._is_sorted:
             new_pos = bisect.bisect_left(new_exons, exon)
-            if new_pos < len(new_exons) and exon == new_exons[new_pos]:
-                raise DuplicatedExonError
             new_exons.insert(new_pos, exon)
         else:
             new_exons.append(exon)
         return Transcript(
             data=self._data,
+            is_checked=self._is_checked,
             keep_sorted=self._is_sorted,
             exons=new_exons,
             is_inferred=self._is_inferred,
@@ -198,8 +187,10 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
         _ = new_exons.pop(exon_number)
         return Transcript(
             data=self._data,
+            is_checked=self._is_checked,
             keep_sorted=self._is_sorted,
             exons=new_exons,
+            is_inferred=self._is_inferred,
             shortcut=True
         )
 

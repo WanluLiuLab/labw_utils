@@ -110,7 +110,113 @@ _raw_feature_type_translator = {
 }
 
 
-class Feature:
+class FeatureInterface:
+
+    @property
+    @abstractmethod
+    def seqname(self) -> str:
+        """
+        Chromosome or Contig name.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def source(self) -> Optional[str]:
+        """
+        The source of this record. e.g. ``hg38_rmsk`` or ``ensembl``.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def feature(self) -> Optional[str]:
+        """
+        Feature type name. e.g. ``exon`` or ``start_codon`` or ``5UTR``.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def parsed_feature(self) -> FeatureType:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def start(self) -> int:
+        """
+        Inclusive 1-based start position.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def start0b(self) -> int:
+        """
+        Inclusive 0-based start position.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def end(self) -> int:
+        """
+        Inclusive 1-based end position.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def end0b(self) -> int:
+        """
+        Exclusive 0-based end position.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def score(self) -> Optional[Union[int, float]]:
+        """
+        Some kind of scoring.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def strand(self) -> Optional[bool]:
+        """
+        True (``+``) or False (``-``) or None (``.``)
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def frame(self) -> Optional[int]:
+        """
+        One of ``0`` (first base of the feature is the first base of a codon),
+                        ``1`` (the second base is the first base of a codon) or ``2``.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def attribute_keys(self) -> Iterable[str]:
+        """Other attributes presented in Key-Value pair"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def attribute_values(self) -> Iterable[GtfAttributeValueType]:
+        """Other attributes presented in Key-Value pair"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def naive_length(self) -> int:
+        raise NotImplementedError
+
+
+class Feature(FeatureInterface):
     """
     A general GTF/GFF/BED Record.
     """
@@ -141,23 +247,14 @@ class Feature:
 
     @property
     def seqname(self) -> str:
-        """
-        Chromosome or Contig name.
-        """
         return self._seqname
 
     @property
     def source(self) -> Optional[str]:
-        """
-        The source of this record. e.g. ``hg38_rmsk`` or ``ensembl``.
-        """
         return self._source
 
     @property
     def feature(self) -> Optional[str]:
-        """
-        Feature type name. e.g. ``exon`` or ``start_codon`` or ``5UTR``.
-        """
         return self._feature
 
     @property
@@ -174,62 +271,38 @@ class Feature:
 
     @property
     def start(self) -> int:
-        """
-        Inclusive 1-based start position.
-        """
         return self._start
 
     @property
     def start0b(self) -> int:
-        """
-        Inclusive 0-based start position.
-        """
         return self._start - 1
 
     @property
     def end(self) -> int:
-        """
-        Inclusive 1-based end position.
-        """
         return self._end
 
     @property
     def end0b(self) -> int:
-        """
-        Exclusive 0-based end position.
-        """
         return self._end
 
     @property
     def score(self) -> Optional[Union[int, float]]:
-        """
-        Some kind of scoring.
-        """
         return self._score
 
     @property
     def strand(self) -> Optional[bool]:
-        """
-        True (``+``) or False (``-``) or None (``.``)
-        """
         return self._strand
 
     @property
     def frame(self) -> Optional[int]:
-        """
-        One of ``0`` (first base of the feature is the first base of a codon),
-                        ``1`` (the second base is the first base of a codon) or ``2``.
-        """
         return self._frame
 
     @property
     def attribute_keys(self) -> Iterable[str]:
-        """Other attributes presented in Key-Value pair"""
         return self._attribute.keys()
 
     @property
     def attribute_values(self) -> Iterable[GtfAttributeValueType]:
-        """Other attributes presented in Key-Value pair"""
         return self._attribute.values()
 
     @property
@@ -275,6 +348,37 @@ class Feature:
             strand=self._strand if strand is _notset else strand,
             frame=self._frame if frame is _notset else frame,
             attribute=self._attribute if attribute is _notset else attribute,
+        )
+
+    def update_attribute(
+            self,
+            **attribute
+    ):
+        new_attribute = dict(self._attribute)
+        new_attribute.update(attribute)
+        return Feature(
+            seqname=self._seqname,
+            source=self._source,
+            feature=self._feature,
+            start=self._start,
+            end=self._end,
+            score=self._score,
+            strand=self._strand,
+            frame=self._frame,
+            attribute=new_attribute,
+        )
+
+    def reset_attribute(self, **attribute) -> Feature:
+        return Feature(
+            seqname=self._seqname,
+            source=self._source,
+            feature=self._feature,
+            start=self._start,
+            end=self._end,
+            score=self._score,
+            strand=self._strand,
+            frame=self._frame,
+            attribute=attribute,
         )
 
     def __init__(

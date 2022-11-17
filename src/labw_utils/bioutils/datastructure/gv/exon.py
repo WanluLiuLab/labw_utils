@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Final, List
+from typing import Optional
 
 from labw_utils.bioutils.datastructure.gv import SequenceFuncType, generate_unknown_transcript_id, \
     generate_unknown_gene_id, CanTranscribeInterface
@@ -16,7 +16,6 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
         "_cdna",
     )
     _cdna: Optional[str]
-    preserved_attributes: Final[List[str]] = ("gene_id", "transcript_id", "exon_number")
 
     @property
     def transcript_id(self) -> str:
@@ -34,25 +33,22 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
     def transcribed_length(self):
         return self.naive_length
 
-    def __init__(self, data: Feature, shortcut: bool = False, **kwargs):
-        if not shortcut:
-            should_update_attributes = False
-            data_attributes_update_kwargs = {k: v for k, v in zip(
-                data.attribute_keys, data.attribute_values
-            )}
-            if data.attribute_get("transcript_id") is None:
-                should_update_attributes = True
-                data_attributes_update_kwargs["transcript_id"] = generate_unknown_transcript_id()
-            if data.attribute_get("gene_id") is None:
-                should_update_attributes = True
-                data_attributes_update_kwargs["gene_id"] = generate_unknown_gene_id()
-            if data.attribute_get("exon_number") is None:
-                should_update_attributes = True
-                data_attributes_update_kwargs["exon_number"] = 0
-            if should_update_attributes:
-                data = data.update(attribute=data_attributes_update_kwargs)
-        super().__init__(data, **kwargs)
+    def __init__(
+            self,
+            *,
+            data: Feature,
+            is_checked: bool,
+            shortcut: bool
+    ):
         self._cdna = None
+        if not shortcut:
+            if data.attribute_get("transcript_id") is None:
+                data = data.update_attribute(transcript_id=generate_unknown_transcript_id())
+            if data.attribute_get("gene_id") is None:
+                data = data.update_attribute(gene_id=generate_unknown_gene_id())
+            if data.attribute_get("exon_number") is None:
+                data = data.update_attribute(exon_number=0)
+        BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 
     def __repr__(self):
         return f"Exon {self.exon_number} of {self.transcript_id}"

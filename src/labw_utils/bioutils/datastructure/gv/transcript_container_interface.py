@@ -38,4 +38,3 @@ class TranscriptContainerInterface:
     @abstractmethod
     def replace_transcript(self, new_transcript: Transcript) -> TranscriptContainerInterface:
         raise NotImplementedError
-

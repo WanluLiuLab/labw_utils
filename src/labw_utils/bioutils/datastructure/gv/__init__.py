@@ -31,6 +31,8 @@ class GVPError(ValueError):
 
 
 class CanTranscribeInterface:
+    __slots__ = []
+
     @abstractmethod
     def transcribe(self, sequence_func: SequenceFuncType) -> str:
         raise NotImplementedError
@@ -41,9 +43,17 @@ class CanTranscribeInterface:
         raise NotImplementedError
 
 
-class ContainerInterface:
+class SortedContainerInterface:
     _is_sorted: bool
 
     @property
     def is_sorted(self) -> bool:
         return self._is_sorted
+
+
+class CanCheckInterface:
+    _is_checked: bool
+
+    @property
+    def is_checked(self) -> bool:
+        return self._is_checked
