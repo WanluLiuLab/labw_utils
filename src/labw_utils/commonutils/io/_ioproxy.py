@@ -7,6 +7,13 @@ from labw_utils.commonutils.io.typing import IOProxyType
 from labw_utils.commonutils.typing import PathOrFDType, FDType
 from labw_utils.devutils.decorators import copy_doc
 
+
+try:
+    from io import RawIOBase
+    _ = RawIOBase.write
+except AttributeError:
+    from typing import IO as RawIOBase
+
 use_python_std_rules()
 
 
@@ -31,75 +38,82 @@ class IOProxy(IOProxyType):
     def closed(self) -> bool:
         return self._fd.closed
 
-    @copy_doc(io.RawIOBase.close)
+    @copy_doc(RawIOBase.close)
     def close(self) -> None:
         return self._fd.close()
 
-    @copy_doc(io.RawIOBase.fileno)
+    @copy_doc(RawIOBase.fileno)
     def fileno(self) -> int:
         return self._fd.fileno()
 
-    @copy_doc(io.RawIOBase.flush)
+    @copy_doc(RawIOBase.flush)
     def flush(self) -> None:
         self._fd.flush()
 
-    @copy_doc(io.RawIOBase.isatty)
+    @copy_doc(RawIOBase.isatty)
     def isatty(self) -> bool:
         return self._fd.isatty()
 
-    @copy_doc(io.RawIOBase.read)
+    @copy_doc(RawIOBase.read)
     def read(self, size: int = -1) -> AnyStr:
         return self._fd.read(size)
 
-    @copy_doc(io.RawIOBase.readable)
+    @copy_doc(RawIOBase.readable)
     def readable(self) -> bool:
         return self._fd.readable()
 
-    @copy_doc(io.RawIOBase.readline)
+    @copy_doc(RawIOBase.readline)
     def readline(self, limit: int = -1) -> AnyStr:
         return self._fd.readline(limit)
 
-    @copy_doc(io.RawIOBase.readlines)
+    @copy_doc(RawIOBase.readlines)
     def readlines(self, hint: int = -1) -> List[AnyStr]:
         return self._fd.readlines(hint)
 
-    @copy_doc(io.RawIOBase.seek)
+    @copy_doc(RawIOBase.seek)
     def seek(self, offset: int, whence: int = io.SEEK_SET) -> int:
         return self._fd.seek(offset, whence)
 
-    @copy_doc(io.RawIOBase.seekable)
+    @copy_doc(RawIOBase.seekable)
     def seekable(self) -> bool:
         return self._fd.seekable()
 
-    @copy_doc(io.RawIOBase.tell)
+    @copy_doc(RawIOBase.tell)
     def tell(self) -> int:
         return self._fd.tell()
 
-    @copy_doc(io.RawIOBase.truncate)
+    @copy_doc(RawIOBase.truncate)
     def truncate(self, size: Optional[int]) -> int:
         return self._fd.truncate(size)
 
-    @copy_doc(io.RawIOBase.writable)
+    @copy_doc(RawIOBase.writable)
     def writable(self) -> bool:
         return self._fd.writable()
 
-    @copy_doc(io.RawIOBase.write)
+    @copy_doc(RawIOBase.write)
     def write(self, s: AnyStr) -> int:
         return self._fd.write(s)
 
-    @copy_doc(io.RawIOBase.writelines)
+    @copy_doc(RawIOBase.writelines)
     def writelines(self, lines: Iterable[AnyStr]) -> None:
         self._fd.writelines(lines)
 
-    @copy_doc(io.RawIOBase.__next__)
-    def __next__(self) -> AnyStr:
-        return self._fd.__next__()
+    try:
+        @copy_doc(RawIOBase.__next__)
+        def __next__(self) -> AnyStr:
+            return self._fd.__next__()
 
-    @copy_doc(io.RawIOBase.__iter__)
-    def __iter__(self) -> Iterator[AnyStr]:
-        return self._fd.__iter__()
+        @copy_doc(RawIOBase.__iter__)
+        def __iter__(self) -> Iterator[AnyStr]:
+            return self._fd.__iter__()
+    except AttributeError:
+        def __next__(self) -> AnyStr:
+            return self._fd.__next__()
 
-    @copy_doc(io.RawIOBase.__enter__)
+        def __iter__(self) -> Iterator[AnyStr]:
+            return self._fd.__iter__()
+
+    @copy_doc(RawIOBase.__enter__)
     def __enter__(self) -> IOProxyType:
         try:
             self._fd.__enter__()
@@ -107,7 +121,7 @@ class IOProxy(IOProxyType):
             pass
         return self
 
-    @copy_doc(io.RawIOBase.__exit__)
+    @copy_doc(RawIOBase.__exit__)
     def __exit__(self,
                  exc_type: Optional[Type[BaseException]],
                  exc_val: Optional[BaseException],

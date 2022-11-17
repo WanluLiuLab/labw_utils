@@ -122,7 +122,7 @@ def test_newline_with_or_without_full_header(kwargs) -> None:
 def test_fai(kwargs) -> None:
     try:
         from pysam import faidx
-    except ImportError:
+    except (ImportError, ValueError): # ValueError raised by pypy
         return
     with tempfile.TemporaryDirectory() as tmpdir:
         fasta_filename = os.path.join(tmpdir, "tmp.fa")
