@@ -8,18 +8,18 @@ from labw_utils.bioutils.datastructure.gv.gene import Gene
 
 class GeneContainerInterface:
 
-    @abstractmethod
     @property
+    @abstractmethod
     def number_of_genes(self) -> int:
         raise NotImplementedError
 
-    @abstractmethod
     @property
+    @abstractmethod
     def gene_values(self) -> Iterable[Gene]:
         raise NotImplementedError
 
-    @abstractmethod
     @property
+    @abstractmethod
     def gene_ids(self) -> Iterable[str]:
         raise NotImplementedError
 

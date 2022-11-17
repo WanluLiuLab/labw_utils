@@ -6,7 +6,7 @@ from typing import Final, List, Optional, Iterable, Tuple, Union, Callable
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure.gv import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, generate_unknown_transcript_id, \
-    generate_unknown_gene_id, GVPError, CanTranscribeInterface
+    generate_unknown_gene_id, GVPError, CanTranscribeInterface, ContainerInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature, FeatureType
@@ -27,7 +27,7 @@ class ExonInATranscriptOnDifferentStrandError(GVPError):
     pass
 
 
-class Transcript(BaseFeatureProxy, CanTranscribeInterface):
+class Transcript(BaseFeatureProxy, CanTranscribeInterface, ContainerInterface):
     """
     Transcript is a list of exons, always sorted.
     """
@@ -88,11 +88,14 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
     def __init__(
             self,
             data: Feature,
+            *,
+            keep_sorted: bool = True,
             shortcut: bool = False,
             exons: Optional[List[Exon]] = None,
             is_inferred: bool = False,
             **kwargs
     ):
+        self._is_sorted = keep_sorted
         if exons is None:
             exons = []
         self._is_inferred = is_inferred
@@ -157,6 +160,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
             new_data = self._data.update(start=self._exons[0].start, end=self._exons[-1].end)
             return Transcript(
                 data=new_data,
+                keep_sorted=self._is_sorted,
                 exons=self._exons,
                 shortcut=True,
                 is_inferred=False
@@ -170,16 +174,20 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
 
     def add_exon(self, exon: Exon) -> Transcript:
         new_exons = list(self._exons)
-        new_pos = bisect.bisect_left(new_exons, exon)
-        if new_pos < len(new_exons) and exon == new_exons[new_pos]:
-            raise DuplicatedExonError
         if exon.seqname != self.seqname:
             raise ExonInATranscriptOnDifferentChromosomeError
         if exon.strand != self.strand and exon.strand is not None:
             raise ExonInATranscriptOnDifferentStrandError
-        new_exons.insert(new_pos, exon)
+        if self._is_sorted:
+            new_pos = bisect.bisect_left(new_exons, exon)
+            if new_pos < len(new_exons) and exon == new_exons[new_pos]:
+                raise DuplicatedExonError
+            new_exons.insert(new_pos, exon)
+        else:
+            new_exons.append(exon)
         return Transcript(
             data=self._data,
+            keep_sorted=self._is_sorted,
             exons=new_exons,
             is_inferred=self._is_inferred,
             shortcut=True
@@ -190,6 +198,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
         _ = new_exons.pop(exon_number)
         return Transcript(
             data=self._data,
+            keep_sorted=self._is_sorted,
             exons=new_exons,
             shortcut=True
         )
@@ -207,3 +216,6 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
                     f"cdna_len({len(self._cdna)}) != transcribed_len ({self.transcribed_length})."
                 )
         return self._cdna
+
+    def replace_exon(self, exon: Exon) -> Transcript:
+        return self.del_exon(exon.exon_number).add_exon(exon)

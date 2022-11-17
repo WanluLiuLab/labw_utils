@@ -35,7 +35,15 @@ class CanTranscribeInterface:
     def transcribe(self, sequence_func: SequenceFuncType) -> str:
         raise NotImplementedError
 
-    @abstractmethod
     @property
+    @abstractmethod
     def transcribed_length(self) -> int:
         raise NotImplementedError
+
+
+class ContainerInterface:
+    _is_sorted: bool
+
+    @property
+    def is_sorted(self) -> bool:
+        return self._is_sorted

@@ -8,7 +8,6 @@ __all__ = [
     'BaseFeatureProxy'
 ]
 
-import copy
 from typing import Optional, Iterable, Type, TypeVar
 
 from labw_utils.bioutils.record.feature import Feature, FeatureType, GtfAttributeValueType
@@ -50,9 +49,12 @@ class BaseFeatureProxy:
         return class_type(self._data, **kwargs)
 
     def __init__(self, data: Feature, **kwargs):
+        """
+        Modification of `data` will cause errors!
+        """
         if not hasattr(self, "preserved_attributes"):
             raise TypeError("preserved_attributes not defined; ask your maintainer for this problem")
-        self._data = copy.deepcopy(data)
+        self._data = data
 
     def __repr__(self):
         return "BaseGeneViewFeature"
