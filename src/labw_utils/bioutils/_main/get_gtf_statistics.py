@@ -4,10 +4,10 @@ import argparse
 import statistics
 from typing import List
 
+from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.bioutils.parser.feature import GtfWriter
 from matplotlib import pyplot as plt
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 

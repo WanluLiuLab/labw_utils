@@ -157,8 +157,8 @@ class GeneTree(
                 )
             ).add_exon(exon)
 
-    def del_exon(self, transcript_id: str, exon_number: int) -> GeneTree:
-        return self.replace_transcript(self.get_transcript(transcript_id).del_exon(exon_number))
+    def del_exon(self, transcript_id: str, exon_index: int) -> GeneTree:
+        return self.replace_transcript(self.get_transcript(transcript_id).del_exon(exon_index))
 
     def replace_exon(self, transcript_id: str, exon: Exon) -> GeneTree:
         return self.replace_transcript(self.get_transcript(transcript_id).replace_exon(exon))

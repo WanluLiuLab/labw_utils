@@ -1,8 +1,9 @@
 import argparse
 from typing import List
 
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
+
+from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gv_helper import transcribe
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 

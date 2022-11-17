@@ -1,3 +1,4 @@
+import math
 import os
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
@@ -45,8 +46,10 @@ def test_transcript():
         assert transcript.transcribe(fasta_view.sequence) == "NNNNNNNATCGTTACCAT"
         assert transcript.span_length == 26
         assert transcript.naive_length == 31
-        assert list(transcript.exon_boundaries) == [(5, 10), (15, 20), (25, 30)]
-        assert list(transcript.splice_sites) == [(10, 15), (20, 25)]
+        assert transcript.exon_boundaries == [(5, 10), (15, 20), (25, 30)]
+        assert transcript.splice_sites == [(10, 15), (20, 25)]
+        assert transcript.get_intron_length(0) == 5
+        assert transcript.get_intron_length(3) == math.inf
 
 
 def test_infer_names():
@@ -161,3 +164,4 @@ def test_del_exon():
     assert list(exon.exon_number for exon in transcript_after_del.exons) == [1, 3]
     transcript_after_del_and_add = transcript_after_del.add_exon(exons[1])
     assert transcript_after_del_and_add.exon_level_equiv(transcript)
+    assert not transcript_after_del.exon_level_equiv(transcript)

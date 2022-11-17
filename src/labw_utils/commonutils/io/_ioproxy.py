@@ -7,9 +7,9 @@ from labw_utils.commonutils.io.typing import IOProxyType
 from labw_utils.commonutils.typing import PathOrFDType, FDType
 from labw_utils.devutils.decorators import copy_doc
 
-
 try:
     from io import RawIOBase
+
     _ = RawIOBase.write
 except AttributeError:
     from typing import IO as RawIOBase

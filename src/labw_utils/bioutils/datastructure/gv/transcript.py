@@ -41,6 +41,8 @@ class Transcript(
     _exons: List[Exon]
     _cdna: Optional[str]
     _is_inferred: Optional[bool]
+    _exon_boundaries: Optional[List[Tuple[int, int]]]
+    _splice_sites: Optional[List[Tuple[int, int]]]
 
     @property
     def transcript_id(self) -> str:
@@ -72,14 +74,19 @@ class Transcript(
         return sum(exon.transcribed_length for exon in self._exons)
 
     @property
-    def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
-        for exon in self._exons:
-            yield exon.start, exon.end
+    def exon_boundaries(self) -> List[Tuple[int, int]]:
+        if self._exon_boundaries is None:
+            self._exon_boundaries = list((exon.start, exon.end) for exon in self._exons)
+        return list(self._exon_boundaries)
 
     @property
-    def splice_sites(self) -> Iterable[Tuple[int, int]]:
-        for i in range(self.number_of_exons - 1):
-            yield self._exons[i].end, self._exons[i + 1].start
+    def splice_sites(self) -> List[Tuple[int, int]]:
+        if self._splice_sites is None:
+            self._splice_sites = list(
+                (self._exons[i].end, self._exons[i + 1].start)
+                for i in range(self.number_of_exons - 1)
+            )
+        return list(self._splice_sites)
 
     @property
     def exons(self) -> Iterable[Exon]:
@@ -99,6 +106,8 @@ class Transcript(
         self._is_sorted = keep_sorted
         self._exons = list(exons)
         self._cdna = None
+        self._exon_boundaries = None
+        self._splice_sites = None
         self._is_inferred = is_inferred
         if not shortcut:
             if data.attribute_get("transcript_id") is None:
@@ -123,8 +132,7 @@ class Transcript(
     def get_intron_length(self, intron_index: int) -> Union[int, float]:
         if intron_index == -1 or intron_index == self.number_of_exons:
             return math.inf
-        _len = self._exons[intron_index + 1].start - self._exons[intron_index].end + 1
-        return _len
+        return - operator.sub(*self._exon_boundaries[intron_index])
 
     def update_exon_number(
             self,
@@ -135,17 +143,67 @@ class Transcript(
 
         :param exon_number_policy: The UCSC style. TODO
 
-        In UCSC::
-            chr19_GL000209v2_alt	ncbiRefSeq	transcript	162306	167842	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	162306	162662	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "7";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	162811	162861	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "6";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	165349	165651	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "5";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	165907	166203	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "4";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	166413	166722	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "3";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	166872	167156	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "2";
-            chr19_GL000209v2_alt	ncbiRefSeq	exon	167320	167842	.	-	.	gene_id "LILRP2"; transcript_id "NR_003061.2"; exon_number "1";
+        .. code-block::
+            :caption: An example from ``GCF_000001405.39_GRCh38.p13_genomic.gtf``.
+
+                NC_000001.11	BestRefSeq	exon	29321	29370	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "1";
+                NC_000001.11	BestRefSeq	exon	24738	24891	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "2";
+                NC_000001.11	BestRefSeq	exon	18268	18366	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "3";
+                NC_000001.11	BestRefSeq	exon	17915	18061	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "4";
+                NC_000001.11	BestRefSeq	exon	17606	17742	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "5";
+                NC_000001.11	BestRefSeq	exon	17233	17368	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "6";
+                NC_000001.11	BestRefSeq	exon	16858	17055	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "7";
+                NC_000001.11	BestRefSeq	exon	16607	16765	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "8";
+                NC_000001.11	BestRefSeq	exon	15796	15947	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "9";
+                NC_000001.11	BestRefSeq	exon	14970	15038	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "10";
+                NC_000001.11	BestRefSeq	exon	14362	14829	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; db_xref "GeneID:653635"; gene "WASH7P"; product "WASP family homolog 7, pseudogene"; pseudo "true"; transcript_biotype "transcript"; exon_number "11";
+
+        .. code-block::
+            :caption: An example from ``gencode.v38.annotation.gtf``.
+
+                chr1	HAVANA	exon	29534	29570	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 1; exon_id "ENSE00001890219.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	24738	24891	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 2; exon_id "ENSE00003507205.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	18268	18366	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 3; exon_id "ENSE00003477500.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	17915	18061	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 4; exon_id "ENSE00003565697.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	17606	17742	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 5; exon_id "ENSE00003475637.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	17233	17368	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 6; exon_id "ENSE00003502542.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	16858	17055	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 7; exon_id "ENSE00003553898.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	16607	16765	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 8; exon_id "ENSE00003621279.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	15796	15947	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 9; exon_id "ENSE00002030414.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	15005	15038	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 10; exon_id "ENSE00001935574.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+                chr1	HAVANA	exon	14404	14501	.	-	.	gene_id "ENSG00000227232.5"; transcript_id "ENST00000488147.1"; gene_type "unprocessed_pseudogene"; gene_name "WASH7P"; transcript_type "unprocessed_pseudogene"; transcript_name "WASH7P-201"; exon_number 11; exon_id "ENSE00001843071.1"; level 2; transcript_support_level "NA"; hgnc_id "HGNC:38034"; ont "PGO:0000005"; tag "basic"; tag "Ensembl_canonical"; havana_gene "OTTHUMG00000000958.1"; havana_transcript "OTTHUMT00000002839.1";
+
+        .. code-block::
+            :caption: An example from ``hg38.ncbiRefSeq.gtf``.
+
+                chr1	ncbiRefSeq.2021-05-28	exon	14362	14829	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "11"; exon_id "NR_024540.1.11"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	14970	15038	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "10"; exon_id "NR_024540.1.10"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	15796	15947	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "9"; exon_id "NR_024540.1.9"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	16607	16765	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "8"; exon_id "NR_024540.1.8"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	16858	17055	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "7"; exon_id "NR_024540.1.7"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	17233	17368	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "6"; exon_id "NR_024540.1.6"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	17606	17742	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "5"; exon_id "NR_024540.1.5"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	17915	18061	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "4"; exon_id "NR_024540.1.4"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	18268	18366	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "3"; exon_id "NR_024540.1.3"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	24738	24891	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "2"; exon_id "NR_024540.1.2"; gene_name "WASH7P";
+                chr1	ncbiRefSeq.2021-05-28	exon	29321	29370	.	-	.	gene_id "WASH7P"; transcript_id "NR_024540.1"; exon_number "1"; exon_id "NR_024540.1.1"; gene_name "WASH7P";
+
+        .. code-block::
+            :caption: An example from ``Homo_sapiens.GRCh38.104.gtf``.
+
+                1	havana	exon	29534	29570	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "1"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00001890219"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	24738	24891	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "2"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003507205"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	18268	18366	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "3"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003477500"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	17915	18061	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "4"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003565697"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	17606	17742	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "5"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003475637"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	17233	17368	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "6"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003502542"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	16858	17055	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "7"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003553898"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	16607	16765	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "8"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00003621279"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	15796	15947	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "9"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source "havana"; transcript_biotype "unprocessed_pseudogene"; exon_id "ENSE00002030414"; exon_version "1"; tag "basic"; transcript_support_level "NA";
+                1	havana	exon	15005	15038	.	-	.	gene_id "ENSG00000227232"; gene_version "5"; transcript_id "ENST00000488147"; transcript_version "1"; exon_number "10"; gene_name "WASH7P"; gene_source "havana"; gene_biotype "unprocessed_pseudogene"; transcript_name "WASH7P-201"; transcript_source
         """
-        def update_exon_number(_exon:Exon, target_exon_number:int) -> Exon:
+
+        def update_exon_number(_exon: Exon, target_exon_number: int) -> Exon:
             return Exon(
                 data=_exon.get_data().update_attribute(exon_number=target_exon_number),
                 is_checked=_exon.is_checked,
@@ -177,8 +235,17 @@ class Transcript(
             is_inferred=False
         )
 
-    def rescale_from_exon_boundaries(self) -> Transcript:
-        if self._is_inferred:
+    def rescale_from_exon_boundaries(self, force: bool = False) -> Transcript:
+        """
+        This method is only used if the transcript is inferred from exon.
+
+        For example, in a GTF that contains only exons,
+        we need to infer transcript and gene from existing exons.
+
+        :param force: Force to rescale transcript from exon boundaries.
+        :returns: New instance whose boundary is rescaled.
+        """
+        if self._is_inferred or force:
             new_data = self._data.update(start=self._exons[0].start, end=self._exons[-1].end)
             return Transcript(
                 data=new_data,
@@ -212,9 +279,21 @@ class Transcript(
             shortcut=True
         )
 
-    def del_exon(self, exon_number: int) -> Transcript:
+    def del_exon(self, exon_index: int) -> Transcript:
+        """
+        Delete an exon with corresponding index.
+
+        .. warning::
+            Exon index is NOT exon number!
+
+            * If the transcript is positively stranded, checked and sorted with exon number rearranged,
+              Exon index is Exon number - 1.
+            * If the transcript is negatively stranded, checked and sorted with exon number rearranged,
+              Exon index is Exon number - 1 in reversed order.
+            * Unstranded similar to positively stranded.
+        """
         new_exons = list(self._exons)
-        _ = new_exons.pop(exon_number)
+        _ = new_exons.pop(exon_index)
         return Transcript(
             data=self._data,
             is_checked=self._is_checked,
@@ -228,7 +307,6 @@ class Transcript(
         if self._cdna is None:
             if self.strand is False:
                 self._cdna = "".join(reverse_complement(exon.transcribe(sequence_func)) for exon in self._exons[::-1])
-
             else:
                 self._cdna = "".join(exon.transcribe(sequence_func) for exon in self._exons)
             if len(self._cdna) != self.transcribed_length:
@@ -238,5 +316,15 @@ class Transcript(
                 )
         return self._cdna
 
-    def replace_exon(self, exon: Exon) -> Transcript:
-        return self.del_exon(exon.exon_number).add_exon(exon)
+    def replace_exon(self, exon_index: int, exon: Exon) -> Transcript:
+        new_exons = list(self.exons)
+        _ = new_exons.pop(exon_index)
+        new_exons.insert(exon_index, exon)
+        return Transcript(
+            data=self._data,
+            is_checked=self._is_checked,
+            keep_sorted=self._is_sorted,
+            exons=new_exons,
+            is_inferred=self._is_inferred,
+            shortcut=True
+        )

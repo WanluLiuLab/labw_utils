@@ -6,9 +6,9 @@ import argparse
 import random
 from typing import List, Iterator
 
+from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.bioutils.parser.feature import GtfIterator
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.bioutils.record.feature import GtfRecord
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
