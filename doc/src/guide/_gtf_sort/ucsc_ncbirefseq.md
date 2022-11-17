@@ -3,7 +3,7 @@
 - Chromosomes: Sorted on unknown flavor with `chr` prefix.
 - Coordinate: Related to text order: Incremental on positive strand and negative strand.
 - Quoted Attribute: All quoted.
-- `exon_number`: Related to text order: Incremental on positive strand, decremental on negative strand.
+- `exon_number`: Related to text order: Incremental on positive strand, decremental on negative strand, which is different compared with other UCSC flavors.
 - `gene_id`: Gene in HGNC Format
 - `gene_name`: Gene in HGNC Format
 - `transcript_id`: Transcript in HGNC Format

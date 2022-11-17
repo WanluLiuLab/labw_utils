@@ -3,9 +3,9 @@
 # UCSC Flavour of `knownGene`
 
 - Chromosomes: Sorted on alphabetical order with `chr` prefix, where `chr10` after `chr1`.
-- Coordinate: Related to text order: Incremental on positive strand and negative strand.
+- Coordinate: Related to text order: Incremental on positive and negative strand.
 - Quoted Attribute: All quoted.
-- `exon_number`: Related to text order: Incremental on positive strand, decremental on negative strand.
+- `exon_number`: Related to text order: Incremental on positive and negative strand.
 - `gene_id`: Gene in Uniprot Format
 - `gene_name`: Gene in Uniprot Format
 - `transcript_id`: Transcript in Ensembl Format

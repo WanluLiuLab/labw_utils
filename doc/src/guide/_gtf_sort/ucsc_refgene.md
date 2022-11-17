@@ -3,7 +3,7 @@
 - Chromosomes: Sorted on unknown order with `chr` prefix.
 - Coordinate: Related to text order: Incremental on positive strand and negative strand.
 - Quoted Attribute: All quoted.
-- `exon_number`: Related to text order: Incremental on positive strand, decremental on negative strand.
+- `exon_number`: Related to text order: Incremental on positive and negative strand.
 - `gene_id`: Gene in HGNC Format
 - `gene_name`: Gene in HGNC Format
 - `transcript_id`: Transcript in NCBI Format
