@@ -1,5 +1,3 @@
-
-
 # UCSC Flavour of `knownGene`
 
 - Chromosomes: Sorted on alphabetical order with `chr` prefix, where `chr10` after `chr1`.
@@ -13,6 +11,8 @@
 - `exon_id`: Exon in Ensembl Format
 
 ## Examples
+
+Downloaded from <https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.knownGene.gtf.gz>
 
 ### List of all chromosomes
 

@@ -21,7 +21,7 @@ cleandoc:
 
 .PHONY: serve-doc
 serve-doc:
-	python -m http.server -d doc/_build/html 1> /dev/null &
+	python -m http.server -d doc/_build/html
 
 .PHONY: test
 test:

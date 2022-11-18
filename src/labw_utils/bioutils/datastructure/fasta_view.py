@@ -346,7 +346,7 @@ class _DiskAccessFastaView(_BaseFastaView):
             except FastaIndexNotWritableError as e:
                 _lh.error(f"Fasta index generated but not writable %s", e)
         else:
-            self._fai = FastaIndexView.from_fai(filename)
+            self._fai = FastaIndexView.from_fai(index_filename)
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)

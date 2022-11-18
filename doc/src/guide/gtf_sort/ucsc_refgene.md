@@ -12,6 +12,8 @@
 
 ## Examples
 
+Downloaded from <https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.refGene.gtf.gz>
+
 ### List of all chromosomes
 
 Chromosome names are sorted. They are of unknown order at the beginning.
