@@ -381,6 +381,20 @@ class Feature(FeatureInterface):
             attribute=attribute,
         )
 
+    def keep_only_selected_attribute(self, *attribute_names) -> Feature:
+
+        return Feature(
+            seqname=self._seqname,
+            source=self._source,
+            feature=self._feature,
+            start=self._start,
+            end=self._end,
+            score=self._score,
+            strand=self._strand,
+            frame=self._frame,
+            attribute={k:self._attribute[k] for k in self._attribute.keys() if k in attribute_names},
+        )
+
     def __init__(
             self,
             seqname: str,
