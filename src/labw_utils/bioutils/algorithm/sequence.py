@@ -53,9 +53,8 @@ def get_gc_percent(seq: str) -> float:
             gc += 1
     return gc / len(seq)
 
-def get_n_percent(seq:str) -> float:
+
+def get_n_percent(seq: str) -> float:
     if len(seq) == 0:
         return 0
     return seq.count("N") / len(seq)
-
-

@@ -1,8 +1,28 @@
 from typing import List, Optional
 
 from labw_utils.bioutils.record.feature import Feature, DEFAULT_GTF_QUOTE_OPTIONS, VALID_GTF_QUOTE_OPTIONS, \
-    feature_repr
+    feature_repr, GtfAttributeValueType
 from labw_utils.commonutils.str_utils import to_dict
+
+
+def format_attribute_str(
+        attribute_key: str,
+        attribute_value: GtfAttributeValueType,
+        quote: str
+) -> str:
+    if isinstance(attribute_value, List):
+        return "; ".join(
+            format_attribute_str(attribute_key, _single_value, quote) for _single_value in attribute_value
+        )
+    attr_str = feature_repr(attribute_value)
+    if quote == "blank":
+        if any(map(lambda blank_or_sep: blank_or_sep in attr_str, " \t\n\f\r;")):
+            attr_str = f"\"{attr_str}\""
+    elif quote == "string" and isinstance(attribute_value, str):
+        attr_str = f"\"{attr_str}\""
+    elif quote == "all":
+        attr_str = f"\"{attr_str}\""
+    return f"{attribute_key} {attr_str}"
 
 
 def format_string(
@@ -11,17 +31,10 @@ def format_string(
 ):
     if quote not in VALID_GTF_QUOTE_OPTIONS:
         raise ValueError(f"Invalid quoting option {quote}, should be one in {VALID_GTF_QUOTE_OPTIONS}.")
-    attribute_full_str = ""
-    for k, v in zip(feature.attribute_keys, feature.attribute_values):
-        attr_str = feature_repr(v)
-        if quote == "blank":
-            if any(map(lambda blank_or_sep: blank_or_sep in attr_str, " \t\n\f\r;")):
-                attr_str = f"\"{attr_str}\""
-        elif quote == "string" and isinstance(v, str):
-            attr_str = f"\"{attr_str}\""
-        elif quote == "all":
-            attr_str = f"\"{attr_str}\""
-        attribute_full_str = f"{attribute_full_str}{k} " + attr_str + "; "
+    attribute_full_str = "; ".join(
+        format_attribute_str(attribute_key, attribute_value, quote)
+        for attribute_key, attribute_value in zip(feature.attribute_keys, feature.attribute_values)
+    ) + ";"
     return ("\t".join((
         feature_repr(feature.seqname),
         feature_repr(feature.source),
@@ -31,7 +44,7 @@ def format_string(
         feature_repr(feature.score),
         "." if feature.strand is None else ("+" if feature.strand else "-"),
         feature_repr(feature.frame),
-        attribute_full_str[:-1]
+        attribute_full_str
     )))
 
 

@@ -6,7 +6,7 @@ This file defines ANSI color supported by most terminals.
 
 import string
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
 
 def to_dict(
@@ -30,6 +30,11 @@ def to_dict(
     {'CPU': '2', 'MEM': '5.1', 'PCIE': '3rd Gen', 'GRAPHICS': '"UHD630\\tRTX2070"', 'USB': '"3.1"', 'Others': 'info'}
     >>> to_dict(input_str, field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=True)
     {'CPU': 2, 'MEM': 5.1, 'PCIE': '3rd Gen', 'GRAPHICS': '"UHD630\\tRTX2070"', 'USB': '"3.1"', 'Others': 'info'}
+    >>> to_dict(
+    ... 'CPU:\\t2\\nMEM:\\t5.1\\nGRAPHICS:\\tUHD630\\nGRAPHICS:\\tRTX2070',
+    ... field_sep=':', record_sep='\\n', quotation_mark=None, resolve_str=False
+    ... )
+    {'CPU': '2', 'MEM': '5.1', 'GRAPHICS': ['UHD630', 'RTX2070']}
 
     :param in_str: Input string
     :param field_sep: Field separator, the FS variable in AWK programming language.
@@ -69,5 +74,11 @@ def to_dict(
                     record_val = int(record_val)
             except ValueError:
                 pass
-        retd[record_key] = record_val
+        if record_key in retd:
+            if isinstance(retd[record_key], List):
+                retd[record_key].append(record_val)
+            else:
+                retd[record_key] = [retd[record_key], record_val]
+        else:
+            retd[record_key] = record_val
     return retd

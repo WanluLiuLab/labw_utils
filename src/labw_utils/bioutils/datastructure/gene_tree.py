@@ -160,7 +160,6 @@ class GeneTree(
     def del_exon(self, transcript_id: str, exon_index: int) -> GeneTree:
         return self.replace_transcript(self.get_transcript(transcript_id).del_exon(exon_index))
 
-
     def _add(self, feature: Feature) -> GeneTree:
         if feature.parsed_feature == FeatureType.Exon:
             return self.add_exon(Exon(

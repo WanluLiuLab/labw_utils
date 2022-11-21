@@ -32,7 +32,7 @@ class QuantificationOptimizedGeneTree:
         feature_ids = list(_feature.attribute_get(feature_attribute_name) for _feature in staged_features)
         return cls(feature_ids, nie)
 
-    def overlap(self, query_interval:Tuple[Tuple[str, Optional[bool]], int, int]) -> List[str]:
+    def overlap(self, query_interval: Tuple[Tuple[str, Optional[bool]], int, int]) -> List[str]:
         return [self._feature_ids[i] for i in self._feature_boundary.overlap(query_interval)]
 
 

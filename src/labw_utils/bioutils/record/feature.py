@@ -8,13 +8,17 @@ from __future__ import annotations
 
 import enum
 from abc import abstractmethod
-from typing import Union, Optional, Dict, Iterable
+from functools import total_ordering
+from typing import Union, Optional, Dict, Iterable, List
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
 
-GtfAttributeValueType = Union[str, int, float, bool, None]
+GtfAttributeValueType = Union[
+    str, int, float, bool, None,
+    List[str], List[int], List[float], List[bool], List[None]
+]
 
 GTFAttributeType = Dict[str, GtfAttributeValueType]
 """Type of GTF/GFF fields"""
@@ -81,18 +85,18 @@ class RegionError(FeatureParserError):
         super(RegionError, self).__init__(*args)
 
 
-class FeatureType(enum.Enum):
+class FeatureType(enum.IntEnum):
     NotPresent = -1
     Unknown = 0
-    Exon = 1
-    Transcript = 2
-    Gene = 3
-    FivePrimeUTR = 4
-    ThreePrimeUTR = 5
+    Exon = 9
+    FivePrimeUTR = 8
+    ThreePrimeUTR = 7
     OtherUTR = 6
-    CDS = 7
-    StartCodon = 8
-    StopCodon = 9
+    CDS = 5
+    StartCodon = 4
+    StopCodon = 3
+    Transcript = 2
+    Gene = 1
 
 
 _raw_feature_type_translator = {
@@ -160,6 +164,10 @@ class BiologicalIntervalInterface:
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def regional_equiv(self, other: BiologicalIntervalInterface):
+        raise NotImplementedError
+
 
 class FeatureInterface(BiologicalIntervalInterface):
 
@@ -219,6 +227,7 @@ class FeatureInterface(BiologicalIntervalInterface):
         raise NotImplementedError
 
 
+@total_ordering
 class Feature(FeatureInterface):
     """
     A general GTF/GFF/BED Record.
@@ -436,29 +445,32 @@ class Feature(FeatureInterface):
         self._attribute = dict(attribute)
 
     def __eq__(self, other: Feature):
+        return self.seqname == other.seqname and \
+               self.source == other.source and \
+               self.feature == other.feature and \
+               self.start == other.start and \
+               self.end == other.end and \
+               self.score == other.score and \
+               self.strand == other.strand and \
+               self.frame == other.frame and \
+               self.attribute_keys == other.attribute_keys and \
+               self.attribute_values == other.attribute_values
+
+    def regional_equiv(self, other: Feature):
         return self._start == other.start and \
                self._end == other.end and \
                self._seqname == other.seqname and \
                self._strand == other.strand
 
-    def __ne__(self, other: Feature):
-        return not self == other
-
     def __gt__(self, other: Feature):
-        return self.seqname > other.seqname or (
-                self.seqname == other.seqname and self.start > other.start
-        )
-
-    def __ge__(self, other: Feature):
-        return self > other or self == other
-
-    def __lt__(self, other: Feature):
-        return self.seqname < other.seqname or (
-                self.seqname == other.seqname and self.start < other.start
-        )
-
-    def __le__(self, other: Feature):
-        return self < other or self == other
+        if not self.seqname == other.seqname:
+            return self.seqname > other.seqname
+        if not self.start == other.start:
+            return self.start > other.start
+        if not self.parsed_feature == other.parsed_feature:
+            return self.parsed_feature > other.parsed_feature
+        if not self.end == other.end:
+            return self.end > other.end
 
     @abstractmethod
     def __repr__(self):

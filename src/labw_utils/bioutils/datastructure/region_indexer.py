@@ -7,7 +7,7 @@ __all__ = (
 
 import functools
 from collections import defaultdict
-from typing import Iterable, Dict, Tuple, Optional, TypeVar
+from typing import Iterable, Dict, Tuple, TypeVar
 from typing import List
 
 import numpy as np
@@ -120,13 +120,12 @@ class NumpyIntervalEngine:
         return cls(tmpd)
 
     @classmethod
-    def from_interval_iterator(cls, interval_iterator:Iterable[IntervalType]):
+    def from_interval_iterator(cls, interval_iterator: Iterable[IntervalType]):
         tmpd: Dict[_QueryType, List[Tuple[int, int]]] = defaultdict(lambda: [])
         for interval in interval_iterator:
             append_chr, append_s, append_e = interval
             tmpd[append_chr].append((append_s, append_e))
-        return cls({k:np.array(tmpd[k], dtype=int) for k in tmpd.keys()})
-
+        return cls({k: np.array(tmpd[k], dtype=int) for k in tmpd.keys()})
 
     def match(self, query_interval: IntervalType) -> Iterable[int]:
         query_chr, query_s, query_e = query_interval
