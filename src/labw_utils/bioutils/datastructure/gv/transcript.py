@@ -114,7 +114,7 @@ class Transcript(
                 data = data.update_attribute(transcript_id=generate_unknown_transcript_id())
             if data.attribute_get("gene_id") is None:
                 data = data.update_attribute(gene_id=generate_unknown_gene_id())
-            if self._is_inferred and data.parsed_feature is not FeatureType.Transcript:
+            if self._is_inferred and data.parsed_feature is not FeatureType.TRANSCRIPT:
                 data = data.update(feature="transcript")
         BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 

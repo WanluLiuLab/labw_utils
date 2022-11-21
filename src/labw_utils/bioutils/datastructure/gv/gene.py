@@ -87,7 +87,7 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterf
             if data.attribute_get("gene_id") is None:
                 should_update_attributes = True
                 data_attributes_update_kwargs["gene_id"] = generate_unknown_gene_id()
-            if self._is_inferred and data.parsed_feature is not FeatureType.Gene:
+            if self._is_inferred and data.parsed_feature is not FeatureType.GENE:
                 data = data.update(feature="gene")
             if should_update_attributes:
                 data = data.update(attribute=data_attributes_update_kwargs)

@@ -32,7 +32,8 @@ def main(args: List[str]) -> None:
                 if (
                         chr_name.startswith("KI") or
                         chr_name.startswith("GL") or
-                        chr_name.startswith("KQ")
+                        chr_name.startswith("KQ") or
+                    chr_name.startswith("CHR_")
                 ):
                     continue
 

@@ -15,7 +15,7 @@ def test_gtf_reader():
     assert featl[0].seqname == "1"
     assert featl[0].source == "ensembl_havana"
     assert featl[0].feature == "gene"
-    assert featl[0].parsed_feature == FeatureType.Gene
+    assert featl[0].parsed_feature == FeatureType.GENE
     assert featl[0].start == 685679
     assert featl[0].end == 686673
     assert featl[0].score is None
@@ -27,7 +27,7 @@ def test_gtf_reader():
 
     assert featl[1].score == 1024.3
     assert featl[1].strand is None
-    assert featl[1].parsed_feature is FeatureType.NotPresent
+    assert featl[1].parsed_feature is FeatureType.NOT_PRESENT
     assert list(featl[1].attribute_values) == ["DDX11L1", "NR_046018", "DDX11L1"]
 
     with get_reader(test_gtf_path) as reader:

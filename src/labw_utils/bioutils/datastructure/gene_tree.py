@@ -161,13 +161,13 @@ class GeneTree(
         return self.replace_transcript(self.get_transcript(transcript_id).del_exon(exon_index))
 
     def _add(self, feature: Feature) -> GeneTree:
-        if feature.parsed_feature == FeatureType.Exon:
+        if feature.parsed_feature == FeatureType.EXON:
             return self.add_exon(Exon(
                 data=feature,
                 is_checked=self._is_checked,
                 shortcut=False
             ))
-        elif feature.parsed_feature == FeatureType.Transcript:
+        elif feature.parsed_feature == FeatureType.TRANSCRIPT:
             return self.add_transcript(Transcript(
                 data=feature,
                 is_checked=self._is_checked,
@@ -176,7 +176,7 @@ class GeneTree(
                 is_inferred=False,
                 shortcut=False
             ))
-        elif feature.parsed_feature == FeatureType.Gene:
+        elif feature.parsed_feature == FeatureType.GENE:
             return self.add_gene(Gene(
                 data=feature,
                 is_checked=self._is_checked,

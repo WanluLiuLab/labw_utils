@@ -86,31 +86,31 @@ class RegionError(FeatureParserError):
 
 
 class FeatureType(enum.IntEnum):
-    NotPresent = -1
-    Unknown = 0
-    Exon = 9
-    FivePrimeUTR = 8
-    ThreePrimeUTR = 7
-    OtherUTR = 6
+    NOT_PRESENT = -1
+    UNKNOWN = 0
+    EXON = 9
+    FIVE_PRIME_UTR = 8
+    THREE_PRIME_UTR = 7
+    OTHER_UTR = 6
     CDS = 5
-    StartCodon = 4
-    StopCodon = 3
-    Transcript = 2
-    Gene = 1
+    START_CODON = 4
+    STOP_CODON = 3
+    TRANSCRIPT = 2
+    GENE = 1
 
 
 _raw_feature_type_translator = {
-    "3utr": FeatureType.ThreePrimeUTR,
-    "three_prime_utr": FeatureType.ThreePrimeUTR,
-    "5utr": FeatureType.FivePrimeUTR,
-    "five_prime_utr": FeatureType.FivePrimeUTR,
-    "utr": FeatureType.OtherUTR,
-    "transcript": FeatureType.Transcript,
-    "gene": FeatureType.Gene,
-    "exon": FeatureType.Exon,
+    "3utr": FeatureType.THREE_PRIME_UTR,
+    "three_prime_utr": FeatureType.THREE_PRIME_UTR,
+    "5utr": FeatureType.FIVE_PRIME_UTR,
+    "five_prime_utr": FeatureType.FIVE_PRIME_UTR,
+    "utr": FeatureType.OTHER_UTR,
+    "transcript": FeatureType.TRANSCRIPT,
+    "gene": FeatureType.GENE,
+    "exon": FeatureType.EXON,
     "cds": FeatureType.CDS,
-    "start_codon": FeatureType.StartCodon,
-    "stop_codon": FeatureType.StopCodon,
+    "start_codon": FeatureType.START_CODON,
+    "stop_codon": FeatureType.STOP_CODON,
 }
 
 
@@ -273,11 +273,11 @@ class Feature(FeatureInterface):
     def parsed_feature(self) -> FeatureType:
         if self._parsed_feature is None:
             if self._feature is None:
-                self._parsed_feature = FeatureType.NotPresent
+                self._parsed_feature = FeatureType.NOT_PRESENT
             else:
                 self._parsed_feature = _raw_feature_type_translator.get(
                     self._feature.lower(),
-                    FeatureType.Unknown
+                    FeatureType.UNKNOWN
                 )
         return self._parsed_feature
 
