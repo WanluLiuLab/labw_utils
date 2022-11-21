@@ -15,7 +15,7 @@ test_fasta_path = os.path.join(TEST_DATA_DIR, "test.fasta")
 def test_exon():
     with FastaViewFactory(test_fasta_path, read_into_memory=True) as fasta_view:
         exon = exons[0]
-        assert exon.exon_number == 1
+        assert exon.attribute_get("exon_number") == 1
         assert exon.transcribe(fasta_view.sequence) == "NNNNNN"
         assert len(exon.transcribe(fasta_view.sequence)) == exon.transcribed_length
         assert exon.transcribed_length == exon.naive_length
@@ -35,7 +35,7 @@ def test_error_exon():
             is_checked=True,
             shortcut=False
         )
-        assert exon.exon_number == 0
+        assert exon.attribute_get("exon_number") is None
         assert exon.transcribe(fasta_view.sequence) == ""
         assert exon.transcript_id.startswith("unknown_transcript")
         assert exon.gene_id == "UN1"

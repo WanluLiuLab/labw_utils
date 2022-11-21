@@ -26,10 +26,6 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
         return self.attribute_get("gene_id")
 
     @property
-    def exon_number(self) -> int:
-        return self.attribute_get("exon_number")
-
-    @property
     def transcribed_length(self):
         return self.naive_length
 
@@ -46,12 +42,10 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
                 data = data.update_attribute(transcript_id=generate_unknown_transcript_id())
             if data.attribute_get("gene_id") is None:
                 data = data.update_attribute(gene_id=generate_unknown_gene_id())
-            if data.attribute_get("exon_number") is None:
-                data = data.update_attribute(exon_number=0)
         BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 
     def __repr__(self):
-        return f"Exon {self.exon_number} of {self.transcript_id}"
+        return f"Exon ({self.start, self.end}) of Transcript {self.transcript_id}"
 
     def transcribe(self, sequence_func: SequenceFuncType) -> str:
         if self._cdna is None:
@@ -63,6 +57,6 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
                         f"cdna ({len(self._cdna)}) != exon ({self.transcribed_length})"
                     )
             except Exception as e:  # TODO
-                lh.warn(f"{self.transcript_id}: Failed to get cDNA sequence at exon {self.exon_number} {e}")
+                lh.warn(f"{self.transcript_id}: Failed to get cDNA sequence at exon ({self.start, self.end}) {e}")
                 self._cdna = ""
         return self._cdna

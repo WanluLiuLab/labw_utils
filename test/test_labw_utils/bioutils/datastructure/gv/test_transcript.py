@@ -116,8 +116,8 @@ def test_exon_number():
     for exon in unnumbered_exons:
         transcript = transcript.add_exon(exon)
     updated_transcript = transcript.update_exon_number(exon_number_policy="stranded")
-    assert list(exon.exon_number for exon in transcript.exons) == [0, 0, 0]
-    assert list(exon.exon_number for exon in updated_transcript.exons) == [1, 2, 3]
+    assert list(exon.attribute_get("exon_number") for exon in transcript.exons) == [0, 0, 0]
+    assert list(exon.attribute_get("exon_number") for exon in updated_transcript.exons) == [1, 2, 3]
 
 
 def test_exon_number_rev():
@@ -144,9 +144,9 @@ def test_exon_number_rev():
     for exon in unnumbered_exons:
         transcript = transcript.add_exon(exon)
     updated_transcript = transcript.update_exon_number(exon_number_policy="stranded")
-    assert list(exon.exon_number for exon in updated_transcript.exons) == [3, 2, 1]
+    assert list(exon.attribute_get("exon_number") for exon in updated_transcript.exons) == [3, 2, 1]
     updated_transcript = transcript.update_exon_number(exon_number_policy="unstranded")
-    assert list(exon.exon_number for exon in updated_transcript.exons) == [1, 2, 3]
+    assert list(exon.attribute_get("exon_number") for exon in updated_transcript.exons) == [1, 2, 3]
 
 
 def test_del_exon():
@@ -161,7 +161,7 @@ def test_del_exon():
     for exon in exons:
         transcript = transcript.add_exon(exon)
     transcript_after_del = transcript.del_exon(1)
-    assert list(exon.exon_number for exon in transcript_after_del.exons) == [1, 3]
+    assert list(exon.attribute_get("exon_number") for exon in transcript_after_del.exons) == [1, 3]
     transcript_after_del_and_add = transcript_after_del.add_exon(exons[1])
     assert transcript_after_del_and_add.exon_level_equiv(transcript)
     assert not transcript_after_del.exon_level_equiv(transcript)
