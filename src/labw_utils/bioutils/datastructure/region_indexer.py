@@ -6,7 +6,8 @@ __all__ = (
 )
 
 import functools
-from typing import Iterable, Dict, Tuple
+from collections import defaultdict
+from typing import Iterable, Dict, Tuple, Optional, TypeVar
 from typing import List
 
 import numpy as np
@@ -17,7 +18,9 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
 
-IntervalType = Tuple[str, int, int]
+_QueryType = TypeVar("_QueryType")
+
+IntervalType = Tuple[_QueryType, int, int]
 
 
 def create_pandas_dataframe_from_input_file(
@@ -58,9 +61,12 @@ class NumpyIntervalEngine:
 
     [[s, e], [s, e], [s, e,], ...]
     """
-    _chromosomal_split_np_index: Dict[str, npt.NDArray[int]]
+    _chromosomal_split_np_index: Dict[_QueryType, npt.NDArray[int]]
 
-    def _select_chromosome(self, query_chr: str) -> Tuple[npt.NDArray[int], npt.NDArray[int]]:
+    def _select_chromosome(
+            self,
+            query_chr: _QueryType
+    ) -> Tuple[npt.NDArray[int], npt.NDArray[int]]:
         stored_values_of_selected_chromosome = self._chromosomal_split_np_index[query_chr]
         s = stored_values_of_selected_chromosome[:, 0]
         e = stored_values_of_selected_chromosome[:, 1]
@@ -97,16 +103,30 @@ class NumpyIntervalEngine:
         )[0].tolist():
             yield it
 
-    def __init__(self, interval_file: str, show_tqdm: bool = True):
+    def __init__(self, chromosomal_split_np_index: Dict[_QueryType, npt.NDArray[int]]):
+        self._chromosomal_split_np_index = chromosomal_split_np_index
+
+    @classmethod
+    def from_interval_tsv(cls, interval_file: str, show_tqdm: bool = True):
         pd_df = create_pandas_dataframe_from_input_file(
             interval_file, show_tqdm
         )
-        self._chromosomal_split_np_index = {}
+        tmpd = {}
         for chr_name in pd.unique(pd_df["chr"]):
-            self._chromosomal_split_np_index[chr_name] = pd_df.query(
+            tmpd = pd_df.query(
                 f"`chr` == '{chr_name}'"
-            ).loc[:, ["s", "e"]].to_numpy(dtype=np.int_)
+            ).loc[:, ["s", "e"]].to_numpy(dtype=int)
         del pd_df
+        return cls(tmpd)
+
+    @classmethod
+    def from_interval_iterator(cls, interval_iterator:Iterable[IntervalType]):
+        tmpd: Dict[_QueryType, List[Tuple[int, int]]] = defaultdict(lambda: [])
+        for interval in interval_iterator:
+            append_chr, append_s, append_e = interval
+            tmpd[append_chr].append((append_s, append_e))
+        return cls({k:np.array(tmpd[k], dtype=int) for k in tmpd.keys()})
+
 
     def match(self, query_interval: IntervalType) -> Iterable[int]:
         query_chr, query_s, query_e = query_interval

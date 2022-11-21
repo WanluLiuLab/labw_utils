@@ -10,6 +10,7 @@ __all__ = (
 from typing import Iterator, Iterable, Final, List
 
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
+from labw_utils.bioutils.parser.fasta import extract_fasta_name
 from labw_utils.bioutils.record.fai import FastaIndexRecord
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
@@ -110,10 +111,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
                     self._line_len = 0
                     self._line_blen = 0
                     self._length = 0
-                if self._full_header:
-                    self._name = line[1:].strip()
-                else:
-                    self._name = line[1:].strip().split(' ')[0].split('\t')[0]
+                self._name = extract_fasta_name(line, self._full_header)
                 self._offset = self._fd.tell()
             else:
                 if self._line_len == 0:

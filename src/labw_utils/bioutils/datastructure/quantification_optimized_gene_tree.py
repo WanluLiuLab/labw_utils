@@ -1,79 +1,43 @@
-"""
-
->>> import numpy as np
->>> splice_sites = [[1, 2], [4, 5], [6, 7]]
->>> splice_sites_np = np.array(splice_sites, dtype=int)
->>> splice_sites_np
-array([[1, 2],
-       [4, 5],
-       [6, 7]])
->>> splice_sites_np.shape
-(3, 2)
-"""
-
 from __future__ import annotations
 
-from collections import defaultdict
-from typing import Iterable, List, Tuple, Dict
+from typing import Iterable, List, Tuple, Optional
 
-import numpy as np
-import numpy.typing as npt
-
-from labw_utils.bioutils.record.feature import Feature, FeatureType
-
-
-class QuantificationOptimizedGene:
-    _transcript_ids: List[str]
-    _exon_boundaries: npt.NDArray[int]
-    _exon_boundaries_graph: npt.NDArray[bool]
-    _splice_sites: npt.NDArray[int]
-    _splice_sites_graph: npt.NDArray[bool]
-    _self_boundaries: Tuple[int, int]
-
-    @classmethod
-    def from_exons(cls, exons: List[Feature]) -> QuantificationOptimizedGene:
-        transcript_id_to_exon_index = defaultdict(lambda: [])
-        for exon in exons:
-            transcript_id_to_exon_index[exon.attribute_get("transcript_id")].append(exon)
-
-        transcript_id_to_splice_site_index: Dict[str, List[Tuple[int, int]]] = {}
-        transcript_id_to_exon_boundary_index: Dict[str, List[Tuple[int, int]]] = {}
-        for transcript_id, selected_exons in transcript_id_to_exon_index.items():
-            selected_exons = sorted(selected_exons)
-            transcript_id_to_splice_site_index[transcript_id] = list(
-                (selected_exons[i].end, selected_exons[i + 1].start)
-                for i in range(len(selected_exons) - 1)
-            )
-            transcript_id_to_exon_boundary_index[transcript_id] = list(
-                (exon.start, exon.end) for exon in selected_exons
-            )
-        splice_sites: List[Tuple[int, int]] = list(set(*transcript_id_to_splice_site_index.values()))
-        exon_boundaries: List[Tuple[int, int]] = list(set(*transcript_id_to_exon_boundary_index.values()))
-        transcript_ids: List[str] = list(set(transcript_id_to_exon_index.keys()))
-        splice_sites_graph = np.ndarray((len(splice_sites), len(transcript_ids)), dtype=bool)
-        exon_boundaries_graph = np.ndarray((len(exon_boundaries), len(transcript_ids)), dtype=bool)
+from labw_utils.bioutils.datastructure.region_indexer import NumpyIntervalEngine
+from labw_utils.bioutils.parser.gtf import GtfIterator
+from labw_utils.bioutils.record.feature import Feature
 
 
 class QuantificationOptimizedGeneTree:
-    _gene_ids: List[str]
-    _transcript_boundary: npt.NDArray
+    _feature_ids: List[str]
+    _feature_boundary: NumpyIntervalEngine
+
+    def __init__(self, feature_ids: List[str], feature_boundary: NumpyIntervalEngine):
+        self._feature_ids = feature_ids
+        self._feature_boundary = feature_boundary
 
     @classmethod
     def from_feature_iterator(
             cls,
-            feature_iterator: Iterable[Feature]
+            feature_iterator: Iterable[Feature],
+            feature_attribute_name: str = "transcript_id",
+            feature_type: str = "exon"
     ) -> QuantificationOptimizedGeneTree:
-        gene_id_to_exon_index = defaultdict(lambda: [])
-        """gene_id -> List[Exon]"""
+        staged_features = []
         for feature in feature_iterator:
-            if feature.parsed_feature != FeatureType.Exon:
-                continue
-            feature = feature.keep_only_selected_attribute("gene_id", "transcript_id")
-            if feature.attribute_get("gene_id") is None or feature.attribute_get("transcript_id") is None:
-                raise ValueError("Feature needs gene_id and transcript_id")
-            gene_id_to_exon_index[feature.attribute_get("gene_id")].append(feature)
+            if feature.feature == feature_type and feature.attribute_get(feature_attribute_name) is not None:
+                staged_features.append(feature)
+        nie = NumpyIntervalEngine.from_interval_iterator(
+            ((_feature.seqname, _feature.strand), _feature.start0b, _feature.end0b) for _feature in staged_features
+        )
+        feature_ids = list(_feature.attribute_get(feature_attribute_name) for _feature in staged_features)
+        return cls(feature_ids, nie)
 
-        for exon in gene_id_to_exon_index:
-            exon.attribute_get("gene_id")
+    def overlap(self, query_interval:Tuple[Tuple[str, Optional[bool]], int, int]) -> List[str]:
+        return [self._feature_ids[i] for i in self._feature_boundary.overlap(query_interval)]
 
-        ...
+
+if __name__ == "__main__":
+    qgt = QuantificationOptimizedGeneTree.from_feature_iterator(
+        GtfIterator("/home/yuzj/Documents/cpptetgs_experimental/test_data/gtf/hg38.ncbiRefSeq_sel.gtf")
+    )
+    print(qgt.overlap((("chr1", True), 0, 100000)))

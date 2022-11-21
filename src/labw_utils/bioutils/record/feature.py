@@ -110,7 +110,7 @@ _raw_feature_type_translator = {
 }
 
 
-class FeatureInterface:
+class BiologicalIntervalInterface:
 
     @property
     @abstractmethod
@@ -118,27 +118,6 @@ class FeatureInterface:
         """
         Chromosome or Contig name.
         """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def source(self) -> Optional[str]:
-        """
-        The source of this record. e.g. ``hg38_rmsk`` or ``ensembl``.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def feature(self) -> Optional[str]:
-        """
-        Feature type name. e.g. ``exon`` or ``start_codon`` or ``5UTR``.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def parsed_feature(self) -> FeatureType:
         raise NotImplementedError
 
     @property
@@ -175,17 +154,41 @@ class FeatureInterface:
 
     @property
     @abstractmethod
-    def score(self) -> Optional[Union[int, float]]:
+    def strand(self) -> Optional[bool]:
         """
-        Some kind of scoring.
+        True (``+``) or False (``-``) or None (``.``)
+        """
+        raise NotImplementedError
+
+
+class FeatureInterface(BiologicalIntervalInterface):
+
+    @property
+    @abstractmethod
+    def source(self) -> Optional[str]:
+        """
+        The source of this record. e.g. ``hg38_rmsk`` or ``ensembl``.
         """
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def strand(self) -> Optional[bool]:
+    def feature(self) -> Optional[str]:
         """
-        True (``+``) or False (``-``) or None (``.``)
+        Feature type name. e.g. ``exon`` or ``start_codon`` or ``5UTR``.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def parsed_feature(self) -> FeatureType:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def score(self) -> Optional[Union[int, float]]:
+        """
+        Some kind of scoring.
         """
         raise NotImplementedError
 
@@ -392,7 +395,7 @@ class Feature(FeatureInterface):
             score=self._score,
             strand=self._strand,
             frame=self._frame,
-            attribute={k:self._attribute[k] for k in self._attribute.keys() if k in attribute_names},
+            attribute={k: self._attribute[k] for k in self._attribute.keys() if k in attribute_names},
         )
 
     def __init__(

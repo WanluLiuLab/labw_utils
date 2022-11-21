@@ -30,6 +30,7 @@ from typing import List, Union, Tuple, Dict, Optional, IO, Iterable
 
 from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
+from labw_utils.bioutils.parser.fasta import extract_fasta_name
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
@@ -82,11 +83,6 @@ class FastaViewType:
     Whether to read in all header.
     If False (default), will read until seeing space or tab.
     See :py:mod:`pybedtools` for more details.
-    """
-
-    backend: str
-    """
-    The backend to use.
     """
 
     @abstractmethod
@@ -189,7 +185,6 @@ class _BaseFastaView(FastaViewType, ABC):
     def __init__(self, filename: str, full_header: bool = False):
         self.full_header = full_header
         self.filename = filename
-        self.backend = ''
 
     def is_valid_region(self, chromosome: str, from_pos: int, to_pos: int):
         if chromosome not in self.chr_names:
@@ -207,7 +202,7 @@ class _BaseFastaView(FastaViewType, ABC):
 
     def __repr__(self):
         try:
-            return f"Fasta from {self.filename} with backend {self.backend}, len={len(self)}"
+            return f"Fasta from {self.filename}, len={len(self)}"
         except AttributeError:
             return "Fasta being constructed"
 
@@ -272,7 +267,6 @@ class _MemoryAccessFastaView(_BaseFastaView):
 
     def __init__(self, filename: str, full_header: bool = False):
         super().__init__(filename, full_header)
-        self.backend = 'tetgs_in_memory'
         self._all_dict = {}  # For in-memory reader, will read in all sequences
         self._read_into_mem()
 
@@ -291,10 +285,7 @@ class _MemoryAccessFastaView(_BaseFastaView):
                     self._all_dict[chr_name] = seq
                     seq = ''
                     line_len = 0
-                if self.full_header:
-                    chr_name = line[1:].strip()
-                else:
-                    chr_name = line[1:].strip().split(' ')[0].split('\t')[0]
+                chr_name = extract_fasta_name(line, self.full_header)
             else:
                 seq = seq + line
                 if line_len == 0:
@@ -311,7 +302,7 @@ class _MemoryAccessFastaView(_BaseFastaView):
 
 class _DiskAccessFastaView(_BaseFastaView):
     """
-    Fasta whose sequence is NOT read into memory, with :py:mod:``tetgs`` backend.
+    Fasta whose sequence is NOT read into memory.
     Slow but memory-efficient.
     """
 
@@ -331,7 +322,6 @@ class _DiskAccessFastaView(_BaseFastaView):
 
     def __init__(self, filename: str, full_header: bool = False):
         super().__init__(filename, full_header)
-        self.backend = 'tetgs'
         # If has prebuilt index file, read it
         self._fd = get_reader(self.filename)
         index_filename = self.filename + ".fai"
