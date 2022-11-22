@@ -85,7 +85,7 @@ GenBank Accession
 : The GenBank Accession starts with `CM`. For example, [CM000663](https://www.ncbi.nlm.nih.gov/nuccore/CM000663) for chromosome 1.
 
 Analysis Set Naming Convention
-: The analysis set naming convention is defined by UCSC genome browser. Theya are:
+: The analysis set naming convention is defined by UCSC genome browser. They are:
     - Chromosome are numerically sorted with `chr` prefix. Specific chromosomes are named `chrX` `chrY` and `chrM`.
     - Unlocalized scaffolds are named using `chr[CHROMOSOME]_[ACCESSION]v[VERSION]_random`, where `[ACCESSION]` satisfies GenBank naming conventions.
     - Unplaced scaffolds are named using `chrUn_[ACCESSION]v[VERSION]`.
@@ -97,6 +97,14 @@ Analysis Set Naming Convention
 
     See also: {cite}`NCBI_analysis_set` and {cite}`1kg_2015`.
 
+Ensebml Naming Convention
+: The naming convention used by Ensembl Genome Browser. They are:
+    - Chromosome names without `chr` prefix: `1`, `2` ... `22`, `X`, `Y`, `MT`.
+    - Other regions shown by NCBI RefSeq Accession.
+
+GenCode Accesion
+: The naming convention used by GenCode project. Is Ensembl convention with `chr` prefix in chromosome names.
+
 ## FASTA Samples
 
 Summary:
@@ -105,10 +113,11 @@ Summary:
 - PA: Primiary Assembly
 - TL: Toplevel Assembly
 - SM: Soft Mask
-- HM: Hard Mask
+- HM/RM: Hard Mask
 
 ```{csv-table}
-:file: feature.csv
+:file: feature.tsv
+:delim: '	'
 ```
 
 ```{toctree}

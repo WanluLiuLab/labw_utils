@@ -1,4 +1,4 @@
-@Online{NCBI_assembly_help,
+@Misc{NCBI_assembly_help,
   author  = {{National Center for Biotechnology Information}},
   title   = {Assembly Help},
   url     = {https://www.ncbi.nlm.nih.gov/assembly/help/},
@@ -13,13 +13,14 @@
 }
 
 @Book{NCBI2013,
-  author  = {{National Center for Biotechnology Information}},
-  date    = {2013},
-  title   = {The NCBI Handbook},
-  edition = {2},
-  editor  = {Jeffrey Beck and Dennis Benson and Janet Coleman and Marilu Hoeppner and Mark Johnson and Donna Maglott and Ilene Mizrachi and Rana Morris and Jim Ostell and Kim Pruitt and Wendy Rubinstein and Eric Sayers and Karl Sirotkin and Tatiana Tatusova},
-  url     = {https://www.ncbi.nlm.nih.gov/books/NBK143764/},
-  urldate = {2022-11-18},
+  author    = {{National Center for Biotechnology Information}},
+  editor    = {Jeffrey Beck and Dennis Benson and Janet Coleman and Marilu Hoeppner and Mark Johnson and Donna Maglott and Ilene Mizrachi and Rana Morris and Jim Ostell and Kim Pruitt and Wendy Rubinstein and Eric Sayers and Karl Sirotkin and Tatiana Tatusova},
+  publisher = {unknown},
+  title     = {The NCBI Handbook},
+  edition   = {2},
+  date      = {2013},
+  url       = {https://www.ncbi.nlm.nih.gov/books/NBK143764/},
+  urldate   = {2022-11-18},
 }
 
 @Online{CaetanoAnolles2022,
@@ -40,13 +41,13 @@
 
 @Article{Anderson1981,
   author    = {S. Anderson and A. T. Bankier and B. G. Barrell and M. H. L. de Bruijn and A. R. Coulson and J. Drouin and I. C. Eperon and D. P. Nierlich and B. A. Roe and F. Sanger and P. H. Schreier and A. J. H. Smith and R. Staden and I. G. Young},
-  date      = {1981-04},
+  journal   = {Nature},
   title     = {Sequence and organization of the human mitochondrial genome},
-  doi       = {10.1038/290457a0},
   number    = {5806},
   pages     = {457--465},
   volume    = {290},
-  journal   = {Nature},
+  date      = {1981-04},
+  doi       = {10.1038/290457a0},
   publisher = {Springer Science and Business Media {LLC}},
 }
 
@@ -72,4 +73,4 @@
   url    = {http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/GRCh38_reference_genome/README.20150309.GRCh38_full_analysis_set_plus_decoy_hla},
 }
 
-@Comment{jabref-meta: databaseType:biblatex;}
+@Comment{jabref-meta: databaseType:bibtex;}

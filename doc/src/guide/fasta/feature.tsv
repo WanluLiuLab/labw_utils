@@ -1,0 +1,16 @@
+Name	Major	Minor	URL	Contig Names	Unplaced/Unlocalized	Alt. Loci	EBV	Decoy	HLA	N. Contigs	Mask	PAR
+NCBI RefSeq	GRCh38	14	[Here](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/)	RefSeq	Y	Y	N	N	N	705	SM	NA
+NCBI AS	GRCh38	0	[Here](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/)	AS	Y	Y/N	Y/N	Y/N	N	2841	NA	HM
+1000 Genome	GRCh38	0	[Here](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/GRCh38_reference_genome/)	AS	Y	Y	Y	Y	Y	3366	?	HM
+UCSC AS	GRCh38	0	[Here](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/)	AS	Y	N	Y	N	N	195	SM	NA
+UCSC	GRCh38	13	[Here](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/)	AS	Y	Y	N	N	N	455	SM	NA
+UCSC HM	GRCh38	13	[Here](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/)	AS	Y	Y	N	N	N	455	HM	NA
+Ensembl PA	GRCh38	13	[Here](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz)	Ensembl	Y	N	N	N	N	194	NA	HM
+Ensembl PA SM	GRCh38	13	[Here](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz)	Ensembl	Y	N	N	N	N	194	SM	HM
+Ensembl PA RM	GRCh38	13	[Here](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.primary_assembly.fa.gz)	Ensembl	Y	N	N	N	N	194	HM	HM
+Ensembl TL	GRCh38	13	[Here](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.toplevel.fa.gz)	Ensembl	Y	Y	N	N	N	639	NA	HM
+Ensembl TL SM	GRCh38	13	[Here](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.toplevel.fa.gz)	Ensembl	Y	Y	N	N	N	639	SM	HM
+Ensembl TL RM	GRCh38	13	[Here](https://ftp.ensembl.org/pub/release-108/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz)	Ensembl	Y	Y	N	N	N	639	HM	HM
+GenCode	GRCh38	?	[Here](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.p13.genome.fa.gz)	GenCode	Y	Y	N	N	N	639	NA	NA
+GenCode PA	GRCh38	?	[Here](https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_42/GRCh38.primary_assembly.genome.fa.gz)	GenCode	Y	N	N	N	N	194	NA	NA
+CellRanger	GRCh38	?	[Here](https://support.10xgenomics.com/single-cell-gene-expression/software/downloads/latest)	GenCode	Y	N	N	N	N	194	NA	HM

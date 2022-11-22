@@ -7,16 +7,18 @@ The latest release is GRCh38 p14.
 - GenBank assembly: [GCA_000001405.29](https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.40/)
 - RefSeq assembly: [GCF_000001405.40](https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.40/)
 
-Downloaded from <https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.fna.gz>.
+Example in chromosome 21:
 
-All chromozome/contig names satisfies RefSeq naming conventions.
+![chr21](./chr21/NCBI.png)
 
-Total 705 contigs.
+Example in chromosome Y:
+
+![chrY](./chrY/NCBI.png)
 
 Sample FASTA Index
 
 | Contig Name    | Length    |
-| -------------- | --------- |
+|----------------|-----------|
 | NC_000001.11   | 248956422 |
 | NT_187361.1    | 175055    |
 | NT_187362.1    | 32032     |
@@ -43,22 +45,16 @@ Sample FASTA Index
 
 ## GRCh38 Analysis Set
 
-All files available at <https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/>.
+Example in chromosome 21:
 
-All contains chromosomes, unplaced/unlocalized scaffolds. Some contains alternative loci and/or decoy sequences.
+![chr21](./chr21/NCBI_AS.png)
 
-Centromeric arrays and DNA satelites on chromosomes 5, 14, 19, 21 \& 22 with two PARs removed.
+Example in chromosome Y:
 
-Analysis Set without HLA.
-
-No patch sequence observed.
-
-Total 2841 contigs.
-
-Chromosome names from the full analysis set with alternative loci and decoy is as follows:
+![chrY](./chrY/NCBI_AS.png)
 
 | Chromosome                 | Length    |
-| -------------------------- | --------- |
+|----------------------------|-----------|
 | chr1                       | 248956422 |
 | [...]                      | [...]     |
 | chr22                      | 50818468  |
