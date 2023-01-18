@@ -1,6 +1,7 @@
 """
 Naive sequence algorithms. e.g., complement, reverse or get GC content.
 """
+from typing import Iterable
 
 _comp_trans = str.maketrans('ATCGatcgNnXx', 'TAGCtagcNnXx')
 
@@ -58,3 +59,8 @@ def get_n_percent(seq: str) -> float:
     if len(seq) == 0:
         return 0
     return seq.count("N") / len(seq)
+
+
+def decode_phred33(seq: str) -> Iterable[int]:
+    for i in seq:
+        yield ord(i) - 33

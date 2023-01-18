@@ -73,11 +73,24 @@ def wc_l_io(fd: IO) -> int:
         return -1
     reti = 0
     fd.seek(0)
-    while True:
-        segment = fd.read(1024)
-        if len(segment) == 0:
-            break
-        reti += segment.count("\n") if isinstance(segment, str) else segment.count(b"\n")
+    segment = fd.read(1)
+    if len(segment) == 0:
+        return 0
+    else:
+        if isinstance(segment, str):
+            reti += segment.count("\n")
+            while True:
+                segment = fd.read(1024)
+                if len(segment) == 0:
+                    break
+                reti += segment.count("\n")
+        else:
+            while True:
+                reti += segment.count("\n")
+                segment = fd.read(1024)
+                if len(segment) == 0:
+                    break
+                reti += segment.count(b"\n")
     if fd.tell() != 0 and reti == 0:
         reti = 1  # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
