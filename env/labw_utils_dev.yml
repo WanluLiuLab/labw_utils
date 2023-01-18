@@ -61,6 +61,13 @@ dependencies:
   - pytest-html=3.1
   - coverage=6.5
 
+  # Apache Parquet
+  - pyarrow
+  - fastparquet
+
+  # HDF5
+  - pytables
+
   - pip
   - setuptools
   - wheel
