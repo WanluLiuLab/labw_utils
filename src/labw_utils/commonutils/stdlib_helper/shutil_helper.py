@@ -64,8 +64,8 @@ def wc_l_io(fd: IO) -> int:
     """
     Count lines in a file.
 
-    :param fd: An IO object.
-    :return: Line number.
+    :param fd: A finite seekable block IO object.
+    :return: Line number. -1 if not seekable.
     """
     if fd.seekable():
         curr_pos = fd.tell()
@@ -73,24 +73,25 @@ def wc_l_io(fd: IO) -> int:
         return -1
     reti = 0
     fd.seek(0)
-    segment = fd.read(1)
-    if len(segment) == 0:
+    block_size = 4096
+    block = fd.read(block_size)
+    """Assume 4k aligned filesystem"""
+    if len(block) == 0:
         return 0
     else:
-        if isinstance(segment, str):
-            reti += segment.count("\n")
+        if isinstance(block, str):
+            reti += block.count("\n")
             while True:
-                segment = fd.read(1024)
-                if len(segment) == 0:
+                block = fd.read(block_size)
+                if len(block) == 0:
                     break
-                reti += segment.count("\n")
+                reti += block.count("\n")
         else:
             while True:
-                reti += segment.count("\n")
-                segment = fd.read(1024)
-                if len(segment) == 0:
+                block = fd.read(block_size)
+                if len(block) == 0:
                     break
-                reti += segment.count(b"\n")
+                reti += block.count(b"\n")
     if fd.tell() != 0 and reti == 0:
         reti = 1  # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
@@ -101,8 +102,8 @@ def wc_c_io(fd: IO) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
-    :param fd: An IO object.
-    :return: File length.
+    :param fd: A finite seekable IO object.
+    :return: File length. -1 if not seekable.
     """
     if fd.seekable():
         curr_pos = fd.tell()
