@@ -114,7 +114,8 @@ def transcribe(
             "START",
             "END",
             "STRAND",
-            "LEN",
+            "ABSOLUTE_LENGTH",
+            "TRANSCRIBED_LENGTH",
             "GC"
         )) + "\n")
         for transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
@@ -133,6 +134,7 @@ def transcribe(
                 str(transcript_value.end),
                 transcript_value.strand,
                 str(transcript_value.end - transcript_value.start),
+                str(len(cdna_seq)),
                 str(round(get_gc_percent(cdna_seq) * 100, 2))
             )) + "\n")
             transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
