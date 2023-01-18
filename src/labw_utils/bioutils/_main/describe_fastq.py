@@ -28,7 +28,7 @@ def qc(filepath: str):
         for fastq_record in FastqIterator(filename=filepath):
             len_record = len(fastq_record)
             all_writer.write("\t".join((
-                fastq_record.seq_id,
+                "\'" + fastq_record.seq_id + "\'",
                 str(get_gc_percent(fastq_record.sequence)),
                 str(len_record),
                 str(np.mean(list(decode_phred33(fastq_record.quality))))

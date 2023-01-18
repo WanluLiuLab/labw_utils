@@ -12,6 +12,7 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
 
+
 def get_file_length(
         sam_path: str,
         modestr: str
@@ -59,7 +60,6 @@ def determine_read_quality(
                     str(read.reference_length),  # "REFERENCE_LENGTH",
                     str(read.infer_query_length()),  # "CIGAR_INFERRED_QUERY_LENGTH",
                     str(read.infer_read_length()),  # "CIGAR_INFERRED_READ_LENGTH",
-                    str(read.query_length),  # "QUERY_LENGTH",
                     str(read.mapping_quality)  # "MAPPING_QUALITY"
                 )) + "\n")
 

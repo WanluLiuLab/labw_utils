@@ -18,30 +18,30 @@ df_cat <- df %>%
         -start,
         -chr_name
     ) %>%
-    dplyr::mutate(Nt = factor(Nt,levels=c("n", "N", "SM", "normal")))
+    dplyr::mutate(Nt = factor(Nt, levels = c("n", "N", "SM", "normal")))
 
 df_gtf_intervals <- df %>%
     dplyr::group_by(chr_name) %>%
     dplyr::mutate(
-        gtf_intervals=gtf_intervals/max(gtf_intervals)*100000
+        gtf_intervals = gtf_intervals / max(gtf_intervals) * 100000
     ) %>%
     dplyr::ungroup()
 
 # "normal", "SM", "N", "n"
 p <- ggplot(df_cat) +
-    geom_area(aes(x=start, y=value, fill=Nt)) +
+    geom_area(aes(x = start, y = value, fill = Nt)) +
     geom_point(
-        data=df_gtf_intervals,
-        aes(x=start, y=gtf_intervals),
-        size=0.2
+        data = df_gtf_intervals,
+        aes(x = start, y = gtf_intervals),
+        size = 0.2
     ) +
     theme_bw() +
-    facet_grid(chr_name~.)
+    facet_grid(chr_name ~ .)
 
 ggsave(
     "1.png",
     p,
-    width=10,
-    height=50,
+    width = 10,
+    height = 50,
     limitsize = FALSE
 )
