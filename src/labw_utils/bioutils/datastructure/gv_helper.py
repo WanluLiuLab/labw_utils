@@ -119,6 +119,7 @@ def transcribe(
             "GC"
         )) + "\n")
         for transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
+            transcript_value:Transcript
             cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
             if len(cdna_seq) == 0:
                 continue
@@ -133,7 +134,7 @@ def transcribe(
                 str(transcript_value.start),
                 str(transcript_value.end),
                 transcript_value.strand,
-                str(transcript_value.end - transcript_value.start),
+                str(transcript_value.end - transcript_value.start + 1),
                 str(len(cdna_seq)),
                 str(round(get_gc_percent(cdna_seq) * 100, 2))
             )) + "\n")
