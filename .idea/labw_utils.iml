@@ -16,6 +16,8 @@
       <excludeFolder url="file://$MODULE_DIR$/pytest" />
       <excludeFolder url="file://$MODULE_DIR$/.maint" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/sonarlint" />
+      <excludeFolder url="file://$MODULE_DIR$/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/real_data" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (labw_utils)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

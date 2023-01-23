@@ -135,7 +135,7 @@ def transcribe(
                 str(transcript_value.end),
                 transcript_value.strand,
                 str(transcript_value.end - transcript_value.start + 1),
-                str(len(cdna_seq)),
+                str(transcript_value.transcribed_length),
                 str(round(get_gc_percent(cdna_seq) * 100, 2))
             )) + "\n")
             transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")

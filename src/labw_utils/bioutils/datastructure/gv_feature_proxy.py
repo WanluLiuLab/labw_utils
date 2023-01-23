@@ -5,6 +5,7 @@ gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Dat
 from __future__ import annotations
 
 import copy
+import itertools
 import math
 import uuid
 from abc import abstractmethod
@@ -27,6 +28,36 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 __all__.extend(_gve_all)
 
 lh = get_logger(__name__)
+
+
+def merge_intervals(arr:List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+    """
+    See: <https://www.geeksforgeeks.org/merging-intervals/>
+    """
+    # Sorting based on the increasing order
+    # of the start intervals
+    arr.sort(key=lambda x: x[0])
+
+    # Stores index of last element
+    # in output array (modified arr[])
+    index = 0
+
+    # Traverse all input Intervals starting from
+    # second interval
+    for i in range(1, len(arr)):
+
+        # If this is not first Interval and overlaps
+        # with the previous one, Merge previous and
+        # current Intervals
+        if arr[index][1] >= arr[i][0]:
+            arr[index][1] = max(arr[index][1], arr[i][1])
+        else:
+            index = index + 1
+            arr[index] = arr[i]
+    retl = []
+    for i in range(index+1):
+        retl.append(arr[i])
+    return retl
 
 
 def unknown_transcript_id() -> str:
@@ -413,6 +444,20 @@ class Gene(BaseFeatureProxy):
     @property
     def number_of_transcripts(self) -> int:
         return len(self._transcripts)
+
+    @property
+    def transcribed_length(self) -> int:
+        return sum(transcript.transcribed_length for transcript in self._transcripts)
+
+    @property
+    def mappable_length(self) -> int:
+        all_exons:List[Exon] = list(itertools.chain(
+            *list(transcript.iter_exons() for transcript in self._transcripts))
+        )
+        all_intervals = list((exon.start, exon.end) for exon in all_exons)
+        merged_intervals = merge_intervals(all_intervals)
+        return sum(interval[1] - interval[0] + 1 for interval in merged_intervals)
+
 
     def get_transcript(self, transcript_id: str) -> Transcript:
         return self._transcripts[self._transcript_ids.index(transcript_id)]
