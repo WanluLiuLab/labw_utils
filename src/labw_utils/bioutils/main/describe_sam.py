@@ -1,9 +1,6 @@
 import json
 import os
-import shutil
-import subprocess
-import threading
-from typing import List
+from typing import List, Optional, Union
 
 import pysam
 import tqdm
@@ -23,6 +20,12 @@ def get_file_length(
         for _ in samfile.fetch():
             file_length += 1
     return file_length
+
+
+def turn_none_to_zero(i: Optional[Union[int, float]]) -> Union[int, float]:
+    if i is None:
+        i = 0
+    return i
 
 
 def determine_read_quality(
@@ -56,11 +59,11 @@ def determine_read_quality(
                 read_stat_writer.write("\t".join((
                     read.query_name,  # "QUERY_NAME",
                     map_stat,  # "MAP_STAT",
-                    str(read.query_length),  # "QUERY_LENGTH",
-                    str(read.reference_length),  # "REFERENCE_LENGTH",
-                    str(read.infer_query_length()),  # "CIGAR_INFERRED_QUERY_LENGTH",
-                    str(read.infer_read_length()),  # "CIGAR_INFERRED_READ_LENGTH",
-                    str(read.mapping_quality)  # "MAPPING_QUALITY"
+                    str(turn_none_to_zero(read.query_length)),  # "QUERY_LENGTH",
+                    str(turn_none_to_zero(read.reference_length)),  # "REFERENCE_LENGTH",
+                    str(turn_none_to_zero(read.infer_query_length())),  # "CIGAR_INFERRED_QUERY_LENGTH",
+                    str(turn_none_to_zero(read.infer_read_length())),  # "CIGAR_INFERRED_READ_LENGTH",
+                    str(turn_none_to_zero(read.mapping_quality))  # "MAPPING_QUALITY"
                 )) + "\n")
 
 
@@ -73,46 +76,6 @@ def get_mode_str(sam_path: str) -> str:
         _lh.error(f"Sam file at %s have unknown extensions!", sam_path)
         exit(1)
     return modestr
-
-
-def determine_pileup_quality_lightweighted(
-        sam_path: str,
-        modestr: str,
-        out_dir_path: str,
-        num_all_pos: int
-):
-    _ = modestr, num_all_pos
-    del modestr, num_all_pos
-    _lh.info("Determining pileup quality...")
-    with open(os.path.join(out_dir_path, "pileup_stat.tsv.gz"), "wb") as pileup_stat_writer:
-        gz_p = subprocess.Popen(
-            [
-                "pigz",
-                "-9cf",
-                "-"
-            ],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE
-        )
-        gz_p.stdin.write(bytes("\t".join((
-            "REFERENCE_NAME",
-            "REFERENCE_POS",
-            "NUM_READS"
-        )) + "\n", encoding="utf-8"))
-        samtools_p = subprocess.Popen(
-            ["samtools", "depth", sam_path],
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE
-        )
-        t2 = threading.Thread(target=shutil.copyfileobj, args=(gz_p.stdout, pileup_stat_writer))
-        t2.start()
-        t1 = threading.Thread(target=shutil.copyfileobj, args=(samtools_p.stdout, gz_p.stdin))
-        t1.start()
-        t1.join()
-        gz_p.stdin.close()
-        t2.join()
-        samtools_p.wait()
-        gz_p.wait()
 
 
 def qc(
@@ -130,14 +93,7 @@ def qc(
         with open(os.path.join(out_dir_path, "header.json"), "w") as header_writer:
             header = samfile.header
             json.dump(header.to_dict(), header_writer)
-            num_all_pos = sum(header.lengths)
 
-    determine_pileup_quality_lightweighted(
-        sam_path=sam_path,
-        modestr=modestr,
-        out_dir_path=out_dir_path,
-        num_all_pos=num_all_pos
-    )
     file_length = get_file_length(sam_path, modestr)
     determine_read_quality(
         sam_path=sam_path,

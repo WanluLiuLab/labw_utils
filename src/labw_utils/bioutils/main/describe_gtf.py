@@ -1,6 +1,5 @@
 """Get statistics about GTF files that can be parsed into a Gene-Transcript-Exon Three-Tier Structure"""
 
-import argparse
 import statistics
 from typing import List
 
@@ -9,13 +8,6 @@ from matplotlib import pyplot as plt
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
-
-
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--gtf", required=True)
-    parser.add_argument("-o", "--out", help="Output prefix", required=True)
-    return parser.parse_args(args)
 
 
 def stat(item: List[int], fig_name: str):
@@ -33,10 +25,8 @@ def stat(item: List[int], fig_name: str):
     plt.savefig(f"{fig_name}_distribution.png")
 
 
-def main(args: List[str]):
-    args = _parse_args(args)
-    out_basename = args.out
-    gv = GeneViewFactory.from_file(args.gtf, not_save_index=True)
+def describe(input_filename: str, out_basename: str):
+    gv = GeneViewFactory.from_file(input_filename, not_save_index=True)
 
     with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
             get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \
@@ -87,3 +77,8 @@ def main(args: List[str]):
                     str(transcript.transcribed_length),
                     str(transcript.number_of_exons)
                 )) + "\n")
+
+
+def main(args: List[str]):
+    for arg in args:
+        describe(arg, arg)
