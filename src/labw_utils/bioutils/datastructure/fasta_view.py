@@ -32,7 +32,8 @@ from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
-from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog, get_logger
+from labw_utils.commonutils.shell_utils import wc_c
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
 
@@ -185,7 +186,6 @@ class _BaseFastaView(FastaViewType, ABC):
     Base class of other backends.
     """
 
-    @chronolog(display_time=True)
     def __init__(self, filename: str, full_header: bool = False):
         self.full_header = full_header
         self.filename = filename
@@ -270,21 +270,24 @@ class _MemoryAccessFastaView(_BaseFastaView):
     def get_chr_length(self, chromosome: str) -> int:
         return len(self._all_dict[chromosome])
 
-    def __init__(self, filename: str, full_header: bool = False):
+    def __init__(self, filename: str, full_header: bool = False, show_tqdm: bool = True):
         super().__init__(filename, full_header)
         self.backend = 'tetgs_in_memory'
         self._all_dict = {}  # For in-memory reader, will read in all sequences
-        self._read_into_mem()
+        self._read_into_mem(show_tqdm=show_tqdm)
 
-    @chronolog(display_time=True)
-    def _read_into_mem(self) -> None:
+    def _read_into_mem(self, show_tqdm: bool) -> None:
         """
         Read FASTA into memory
         """
         chr_name = ""
         seq = ""
         line_len = 0
-        for line in get_tqdm_line_reader(self.filename):
+        if show_tqdm:
+            it = get_tqdm_line_reader(self.filename)
+        else:
+            it = get_reader(self.filename)
+        for line in it:
             if line == "":
                 continue
             if line[0] == '>':  # FASTA header
@@ -330,7 +333,12 @@ class _DiskAccessFastaView(_BaseFastaView):
     def chr_names(self) -> List[str]:
         return list(self._fai.keys())
 
-    def __init__(self, filename: str, full_header: bool = False):
+    def __init__(
+            self,
+            filename: str,
+            full_header: bool = False,
+            show_tqdm: bool = True
+    ):
         super().__init__(filename, full_header)
         self.backend = 'tetgs'
         # If has prebuilt index file, read it
@@ -340,16 +348,16 @@ class _DiskAccessFastaView(_BaseFastaView):
                 os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
             self._fai = FastaIndexView.from_fasta(
                 filename=filename,
-                full_header=full_header
+                full_header=full_header,
+                show_tqdm=show_tqdm
             )
             try:
                 self._fai.write(index_filename)
             except FastaIndexNotWritableError as e:
                 _lh.error(f"Fasta index generated but not writable %s", e)
         else:
-            self._fai = FastaIndexView.from_fai(index_filename)
+            self._fai = FastaIndexView.from_fai(index_filename, show_tqdm=show_tqdm)
 
-    @chronolog(display_time=True)
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)
         chr_fai = self._fai[chromosome]
@@ -393,7 +401,8 @@ class FastaViewFactory:
             cls,
             filename: str,
             full_header: bool = False,
-            read_into_memory: Optional[bool] = None
+            read_into_memory: Optional[bool] = None,
+            show_tqdm: bool = True
     ) -> FastaViewType:
         """
         Initialize a _DiskFasta interface using multiple backends.
@@ -401,8 +410,19 @@ class FastaViewFactory:
         :param filename: The file you wish to open.
         :param full_header: Whether to read full headers.
         :param read_into_memory: Whether to read into memory.
+        :param show_tqdm: Whether to display a progress bar.
         """
+        if read_into_memory is None:
+            read_into_memory = wc_c(filename) > 10 * 1024 * 1024
         if read_into_memory:
-            return _MemoryAccessFastaView(filename, full_header)
+            return _MemoryAccessFastaView(
+                filename=filename,
+                full_header=full_header,
+                show_tqdm=show_tqdm
+            )
         else:
-            return _DiskAccessFastaView(filename, full_header)
+            return _DiskAccessFastaView(
+                filename=filename,
+                full_header=full_header,
+                show_tqdm=show_tqdm
+            )

@@ -87,4 +87,3 @@ def main(args: List[str]):
                     str(transcript.transcribed_length),
                     str(transcript.number_of_exons)
                 )) + "\n")
-

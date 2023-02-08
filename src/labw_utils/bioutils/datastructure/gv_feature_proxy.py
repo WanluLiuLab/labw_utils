@@ -30,7 +30,7 @@ __all__.extend(_gve_all)
 lh = get_logger(__name__)
 
 
-def merge_intervals(arr:List[Tuple[int, int]]) -> List[Tuple[int, int]]:
+def merge_intervals(arr: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     """
     See: <https://www.geeksforgeeks.org/merging-intervals/>
     """
@@ -56,7 +56,7 @@ def merge_intervals(arr:List[Tuple[int, int]]) -> List[Tuple[int, int]]:
             index = index + 1
             arr[index] = arr[i]
     retl = []
-    for i in range(index+1):
+    for i in range(index + 1):
         retl.append(arr[i])
     return retl
 
@@ -452,13 +452,12 @@ class Gene(BaseFeatureProxy):
 
     @property
     def mappable_length(self) -> int:
-        all_exons:List[Exon] = list(itertools.chain(
+        all_exons: List[Exon] = list(itertools.chain(
             *list(transcript.iter_exons() for transcript in self._transcripts))
         )
         all_intervals = list((exon.start, exon.end) for exon in all_exons)
         merged_intervals = merge_intervals(all_intervals)
         return sum(interval[1] - interval[0] + 1 for interval in merged_intervals)
-
 
     def get_transcript(self, transcript_id: str) -> Transcript:
         return self._transcripts[self._transcript_ids.index(transcript_id)]

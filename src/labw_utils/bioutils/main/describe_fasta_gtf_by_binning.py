@@ -6,7 +6,7 @@ import pandas as pd
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import QuantificationOptimizedGeneTree
-from labw_utils.bioutils.parser.gtf import GtfIterator
+from labw_utils.bioutils.parser.feature import GtfIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
 

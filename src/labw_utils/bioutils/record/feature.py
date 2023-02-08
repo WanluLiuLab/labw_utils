@@ -185,9 +185,9 @@ class Feature(FeatureType):
 
     def __eq__(self, other: Feature):
         return self.start == other.start and \
-               self.end == other.end and \
-               self.seqname == other.seqname and \
-               self.strand == other.strand
+            self.end == other.end and \
+            self.seqname == other.seqname and \
+            self.strand == other.strand
 
     def __ne__(self, other: Feature):
         return not self == other

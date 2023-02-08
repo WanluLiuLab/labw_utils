@@ -101,7 +101,8 @@ def enable_exon_superset():
 def transcribe(
         gv: GeneViewType,
         output_fasta: str,
-        fv: FastaViewType
+        fv: FastaViewType,
+        show_tqdm: bool = True
 ):
     intermediate_fasta_dir = output_fasta + ".d"
     shell_utils.mkdir_p(intermediate_fasta_dir)
@@ -118,8 +119,12 @@ def transcribe(
             "TRANSCRIBED_LENGTH",
             "GC"
         )) + "\n")
-        for transcript_value in tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF..."):
-            transcript_value:Transcript
+        if show_tqdm:
+            it = tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF...")
+        else:
+            it = gv.iter_transcripts()
+        for transcript_value in it:
+            transcript_value: Transcript
             cdna_seq = transcript_value.cdna_sequence(sequence_func=fv.sequence)
             if len(cdna_seq) == 0:
                 continue
