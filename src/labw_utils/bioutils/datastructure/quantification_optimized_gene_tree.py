@@ -39,7 +39,7 @@ class QuantificationOptimizedGeneTree:
                 staged_features.append(feature)
                 chromosome_names.add(feature.seqname)
         nie = NumpyIntervalEngine.from_interval_iterator(
-            ((_feature.seqname, _feature.strand), _feature.start - 1, _feature.end - 1) for _feature in staged_features
+            ((_feature.seqname, _feature.strand), _feature.start, _feature.end - 1) for _feature in staged_features
         )
         feature_ids = list(_feature.attribute.get(feature_attribute_name) for _feature in staged_features)
         return cls(feature_ids, nie, list(chromosome_names))

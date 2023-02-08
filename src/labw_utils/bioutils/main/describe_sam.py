@@ -3,8 +3,8 @@ import os
 from typing import List, Optional, Union
 
 import pysam
-import tqdm
 
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
@@ -46,7 +46,7 @@ def determine_read_quality(
                 "CIGAR_INFERRED_READ_LENGTH",
                 "MAPPING_QUALITY"
             )) + "\n")
-            for read in tqdm.tqdm(samfile.fetch(), total=file_length):
+            for read in tqdm(samfile.fetch(), total=file_length):
                 read: pysam.AlignedSegment
                 if read.is_unmapped:
                     map_stat = "unmapped"
