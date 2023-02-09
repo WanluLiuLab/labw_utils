@@ -4,7 +4,7 @@ import logging
 import os
 import pkgutil
 import sys
-from typing import List, Iterable, Callable
+from typing import List, Iterable, Callable, Optional
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.commonutils.stdlib_helper import pkgutil_helper
@@ -16,6 +16,7 @@ lh = logger_helper.get_logger(__name__)
 if os.environ.get('LOG_LEVEL') is None:
     logger_helper.set_level('INFO')
 
+NONE_DOC = "NONE DOC"
 
 def _get_subcommands(package_main_name: str) -> Iterable[str]:
     for spec in pkgutil.iter_modules(
@@ -24,10 +25,24 @@ def _get_subcommands(package_main_name: str) -> Iterable[str]:
             yield spec.name
 
 
+def _get_doc(
+        package_main_name: str,
+        subcommand_name: str
+) -> Optional[str]:
+    """
+    Return documentation of that module
+    """
+    importlib.import_module(f'{package_main_name}.{subcommand_name}')
+    i = pkgutil_helper.resolve_name(f'{package_main_name}.{subcommand_name}')
+    if hasattr(i, '__doc__'):
+        return i.__doc__
+    else:
+        return None
+
 def _get_main_func_from_subcommand(
         package_main_name: str,
         subcommand_name: str
-) -> Callable[[List[str]], int]:
+) -> Optional[Callable[[List[str]], int]]:
     """
     Return a subcommands' "main" function.
     """
@@ -35,14 +50,37 @@ def _get_main_func_from_subcommand(
     i = pkgutil_helper.resolve_name(f'{package_main_name}.{subcommand_name}')
     if hasattr(i, 'main') and inspect.isfunction(getattr(i, 'main')):
         return i.main
+    else:
+        return None
 
 
 def lscmd(
+        package_main_name:str,
         valid_subcommand_names: Iterable[str]
 ):
     lh.info("Listing modules...")
     for item in valid_subcommand_names:
-        print(item)
+        doc = _get_doc(package_main_name, item)
+        if doc is None:
+            doc = NONE_DOC
+        else:
+            doc_splitlines = doc.splitlines()
+            if not doc_splitlines:
+                doc = NONE_DOC
+            else:
+                while len(doc_splitlines) > 0:
+                    potential_doc = doc_splitlines[0].strip()
+                    if potential_doc == "":
+                        doc_splitlines.pop(0)
+                    else:
+                        doc = potential_doc
+                        break
+                else:
+                    doc = NONE_DOC
+        if doc.find("--") != -1:
+            doc = doc.split("--")[1].strip()
+
+        print(f"{item} -- {doc}")
     sys.exit(0)
 
 
@@ -115,7 +153,7 @@ def _act_on_args(
     parsed_args.set_verbose_level()
     valid_subcommand_names = _get_subcommands(package_main_name)
     if parsed_args.input_subcommand_name == "lscmd":
-        lscmd(valid_subcommand_names)
+        lscmd(package_main_name, valid_subcommand_names)
     elif parsed_args.input_subcommand_name == "":
         if parsed_args.have_help:
             if help_info is None:
