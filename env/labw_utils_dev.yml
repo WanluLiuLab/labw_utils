@@ -10,24 +10,24 @@ channels:
   - bioconda
   - main
   - free
-  - pytorch
 
 dependencies:
   # Core libraries
   - python=3.8
-  - matplotlib>=3.5
+  - matplotlib>=3.6
   - tk
-  - numpy=1.23
-  - pandas=1.5
-  - pysam=0.19.1
+  - numpy>=1.24
+  - pandas>=1.4
+  - pysam>=0.20
+  - joblib=>1.2
+  - scikit-learn>=1.2
+  - requests>=2.28
+  - tomli>=2.0
 
   # Recommended libraries
-  - seaborn=0.11 # A high-level plotting library over matplotlib.
-  - joblib=1.1 # An easy-to-use parallel helper.
-  - tqdm=4.64 # Progress bar.
-  - click # For CLI applications
-  - prettytable # For formatting tables
-  - tomli # For fast parsing of TOML files
+  - seaborn>=0.12 # A high-level plotting library over matplotlib.
+  - joblib>=1.2 # An easy-to-use parallel helper.
+  - tqdm>=4.64 # Progress bar.
 
   # Development Utilities
   - bash
@@ -45,7 +45,7 @@ dependencies:
 
   # Sphinx documentation
   - sphinx=5.3
-  - sphinx_rtd_theme=1.0.0
+  - sphinx_rtd_theme=1.1.1
   - sphinx-copybutton
   - myst-nb
 
@@ -55,10 +55,10 @@ dependencies:
   - numba>=0.53
 
   # Testing
-  - pytest=7.1
+  - pytest=7.2
   - pytest-cov=4.0
-  - pytest-html=3.1
-  - coverage=6.5
+  - pytest-html=3.2
+  - coverage=7.1
 
   - pip
   - setuptools
