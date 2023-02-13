@@ -6,7 +6,6 @@ import conftest
 from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
 from labw_utils.commonutils import shell_utils
 from labw_utils.commonutils.io.safe_io import get_writer
-from labw_utils.commonutils.stdlib_helper import logger_helper
 
 gene_gtf = """
 chrI	ncbiRefSeq	exon	4221	4358	.	-	.	gene_id "homt-1"; transcript_id "NM_058260.4"; exon_number "1"; exon_id "NM_058260.4.1"; gene_name "homt-1";
@@ -30,7 +29,6 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     """
     This function sets up a directory for testing
     """
-    logger_helper.set_level(logger_helper.DEBUG)
     session_test_info = initialize_session
     module_test_info = conftest.ModuleTestInfo(session_test_info.base_test_dir, __name__)
     with get_writer(os.path.join(module_test_info.path, "1.gtf")) as fh:

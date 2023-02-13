@@ -16,7 +16,7 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
 _JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
 _PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen]
-_TERMINATE_HANDLER_TYPE = Callable[[_JOB_TYPE, ...], None]
+_TERMINATE_HANDLER_TYPE = Callable[[_JOB_TYPE], None]
 _CALLBACK_TYPE = Callable[[_JOB_TYPE], None]
 
 
@@ -46,15 +46,15 @@ class Job:
         if self._callback is not None:
             self._callback(self._job_object)
 
-    def terminate(self, *args, **kwargs):
+    def terminate(self):
         if self._terminate_handler is not None:
-            self._terminate_handler(self._job_object, *args, **kwargs)
+            self._terminate_handler(self._job_object)
         if self._callback is not None:
             self._callback(self._job_object)
 
-    def terminate_without_callback(self, *args, **kwargs):
+    def terminate_without_callback(self):
         if self._terminate_handler is not None:
-            self._terminate_handler(self._job_object, *args, **kwargs)
+            self._terminate_handler(self._job_object)
 
     def __hash__(self):
         return self._job_id
@@ -68,7 +68,7 @@ class Job:
         return self._job_object
 
 
-class ParallelJobExecutor:
+class ParallelJobExecutor(threading.Thread):
     """
     This is a parallel job executor,
     for jobs in a format of :py:class:`multiprocessing.Process` or :py:class:`threading.Thread`.

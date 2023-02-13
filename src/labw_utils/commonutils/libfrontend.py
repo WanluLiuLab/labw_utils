@@ -11,10 +11,18 @@ from labw_utils.commonutils.stdlib_helper import pkgutil_helper
 
 __all__ = ['setup_frontend']
 
-lh = logger_helper.get_logger(__name__)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+stream_handler.setFormatter(logger_helper.get_formatter(stream_handler.level))
 
-if os.environ.get('LOG_LEVEL') is None:
-    logger_helper.set_level('INFO')
+logging.basicConfig(
+    handlers=[
+        stream_handler
+    ],
+    force=True,
+    level=logger_helper.TRACE
+)
+_lh = logger_helper.get_logger(__name__)
 
 NONE_DOC = "NONE DOC"
 
@@ -60,7 +68,7 @@ def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
-    lh.info("Listing modules...")
+    _lh.info("Listing modules...")
     for item in valid_subcommand_names:
         doc = _get_doc(package_main_name, item)
         if doc is None:
@@ -90,19 +98,7 @@ class _ParsedArgs:
     input_subcommand_name: str = ""
     have_help: bool = False
     have_version: bool = False
-    verbose_level: int = 0
     parsed_args: List[str] = []
-
-    def set_verbose_level(self):
-        if os.environ.get('LOG_LEVEL') is not None:
-            return
-        if self.verbose_level == 1:
-            logger_helper.set_level(logging.DEBUG, quiet=False)
-        elif self.verbose_level >= 2:
-            logger_helper.set_level(logger_helper.TRACE, quiet=False)
-        file_handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_NAME", "log.log"))
-        file_handler.setLevel(logging.DEBUG)
-        logging.root.addHandler(file_handler)
 
 
 def _parse_args(
@@ -116,10 +112,6 @@ def _parse_args(
             parsed_args.have_help = True
         elif name in ('--version', '-v'):
             parsed_args.have_version = True
-        elif name in ('--verbose', '-V'):
-            parsed_args.verbose_level += 1
-            args.pop(i)
-            i -= 1
         elif not name.startswith('-') and parsed_args.input_subcommand_name == "":
             parsed_args.input_subcommand_name = name
             args.pop(i)
@@ -132,10 +124,9 @@ def _format_help_info(package_main_name: str) -> str:
     return f"""
 This is frontend of `{package_main_name.split('.')[0].strip()}` provided by `commonutils.libfrontend`.
 
-SYNOPSYS: {sys.argv[0]} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version] [-V|--verbose]
+SYNOPSYS: {sys.argv[0]} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version]
 
 If a valid [SUBCOMMAND] is present, will execute [SUBCOMMAND] with all other arguments
-    except [-V|--verbose], which is used to increase log levels.
 
 If no valid [SUBCOMMAND] is present, will fail to errors.
 
@@ -145,8 +136,8 @@ If no [SUBCOMMAND] is present, will consider options like:
 
 ENVIRONMENT VARIABLES:
 
-    LOG_FILE_NAME: Filename of the root logger.
-    LOG_LEVEL: Targeted log level. May be DEBUG INFO WARN ERROR FATAL.
+    LOG_FILE_NAME: The sink of all loggers.
+    LOG_LEVEL: Targeted frontend log level. May be DEBUG INFO WARN ERROR FATAL.
 
 Use `lscmd` as subcommand with no options to see available subcommands.
 """
@@ -160,7 +151,14 @@ def _act_on_args(
         subcommand_help: str
 
 ):
-    parsed_args.set_verbose_level()
+    file_handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_NAME", "log.log"))
+    file_handler.setLevel(logger_helper.TRACE)
+    file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
+    logging.root.addHandler(file_handler)
+    for logger in logging.root.manager.loggerDict.values():
+        if not isinstance(logger, logging.PlaceHolder):
+            logger.addHandler(file_handler)
+
     valid_subcommand_names = _get_subcommands(package_main_name)
     if parsed_args.input_subcommand_name == "lscmd":
         lscmd(package_main_name, valid_subcommand_names)
@@ -174,7 +172,7 @@ def _act_on_args(
             print(version)
             sys.exit(0)
         else:
-            lh.exception(f"Subcommand name not set! {subcommand_help}")
+            _lh.exception(f"Subcommand name not set! {subcommand_help}")
             sys.exit(1)
     elif parsed_args.input_subcommand_name in valid_subcommand_names:
         main_fnc = _get_main_func_from_subcommand(
@@ -184,10 +182,10 @@ def _act_on_args(
         if main_fnc is not None:
             sys.exit(main_fnc(parsed_args.parsed_args))
         else:
-            lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
+            _lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
             sys.exit(1)
     else:
-        lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
+        _lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
         sys.exit(1)
 
 
@@ -198,10 +196,8 @@ def setup_frontend(
         help_info: str = None,
         subcommand_help: str = "Use 'lscmd' to list all valid subcommands."
 ):
-    if os.environ.get('LOG_LEVEL') is None:
-        logger_helper.set_level('INFO')
-    lh.info(f'{one_line_description} ver. {version}')
-    lh.info(f'Called by: {" ".join(sys.argv)}')
+    _lh.info(f'{one_line_description} ver. {version}')
+    _lh.info(f'Called by: {" ".join(sys.argv)}')
     parsed_args = _parse_args(sys.argv[1:])
     _act_on_args(
         parsed_args,
