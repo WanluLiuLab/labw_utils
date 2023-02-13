@@ -80,12 +80,10 @@ def set_level(level: Union[str, int], quiet: bool = True) -> int:
             logging.StreamHandler()
         ]
     )
-    file_handler = logging.FileHandler(filename="log.log")
-    file_handler.setLevel(logging.DEBUG)
     # logging.root.setLevel(logging.DEBUG)
     for handler in logging.root.handlers:
         handler.formatter = _get_formatter(this_level)
-    logging.root.addHandler(file_handler)
+
     return this_level
 
 

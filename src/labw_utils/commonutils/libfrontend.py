@@ -18,6 +18,7 @@ if os.environ.get('LOG_LEVEL') is None:
 
 NONE_DOC = "NONE DOC"
 
+
 def _get_subcommands(package_main_name: str) -> Iterable[str]:
     for spec in pkgutil.iter_modules(
             pkgutil_helper.resolve_name(package_main_name).__spec__.submodule_search_locations):
@@ -39,6 +40,7 @@ def _get_doc(
     else:
         return None
 
+
 def _get_main_func_from_subcommand(
         package_main_name: str,
         subcommand_name: str
@@ -55,7 +57,7 @@ def _get_main_func_from_subcommand(
 
 
 def lscmd(
-        package_main_name:str,
+        package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
     lh.info("Listing modules...")
@@ -98,6 +100,9 @@ class _ParsedArgs:
             logger_helper.set_level(logging.DEBUG, quiet=False)
         elif self.verbose_level >= 2:
             logger_helper.set_level(logger_helper.TRACE, quiet=False)
+        file_handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_NAME", "log.log"))
+        file_handler.setLevel(logging.DEBUG)
+        logging.root.addHandler(file_handler)
 
 
 def _parse_args(
@@ -137,6 +142,11 @@ If no valid [SUBCOMMAND] is present, will fail to errors.
 If no [SUBCOMMAND] is present, will consider options like:
     [-h|--help] show this help message and exit
     [-v|--version] show package version and other information
+
+ENVIRONMENT VARIABLES:
+
+    LOG_FILE_NAME: Filename of the root logger.
+    LOG_LEVEL: Targeted log level. May be DEBUG INFO WARN ERROR FATAL.
 
 Use `lscmd` as subcommand with no options to see available subcommands.
 """
