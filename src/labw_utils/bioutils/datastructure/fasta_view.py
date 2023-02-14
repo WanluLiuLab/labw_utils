@@ -300,7 +300,7 @@ class _MemoryAccessFastaView(_BaseFastaView):
                 else:
                     chr_name = line[1:].strip().split(' ')[0].split('\t')[0]
             else:
-                seq = seq + line
+                seq = seq + line.strip()
                 if line_len == 0:
                     line_len = len(seq)
         if chr_name != '':
