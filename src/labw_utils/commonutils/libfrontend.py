@@ -7,9 +7,10 @@ import sys
 from typing import List, Iterable, Callable, Optional
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
-from labw_utils.commonutils.stdlib_helper import pkgutil_helper
 
 __all__ = ['setup_frontend']
+
+from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
@@ -29,7 +30,7 @@ NONE_DOC = "NONE DOC"
 
 def _get_subcommands(package_main_name: str) -> Iterable[str]:
     for spec in pkgutil.iter_modules(
-            pkgutil_helper.resolve_name(package_main_name).__spec__.submodule_search_locations):
+            resolve_name(package_main_name).__spec__.submodule_search_locations):
         if not spec.name.startswith("_"):
             yield spec.name
 
@@ -143,21 +144,24 @@ Use `lscmd` as subcommand with no options to see available subcommands.
 """
 
 
-def _act_on_args(
-        parsed_args: _ParsedArgs,
+def setup_frontend(
         package_main_name: str,
+        one_line_description: str,
         version: str,
-        help_info: str,
-        subcommand_help: str
-
+        help_info: str = None,
+        subcommand_help: str = "Use 'lscmd' to list all valid subcommands.",
+        use_root_logger: bool = True,
+        default_log_filename: str = "log.log"
 ):
-    file_handler = logging.FileHandler(filename=os.environ.get("LOG_FILE_NAME", "log.log"))
-    file_handler.setLevel(logger_helper.TRACE)
-    file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
-    logging.root.addHandler(file_handler)
-    for logger in logging.root.manager.loggerDict.values():
-        if not isinstance(logger, logging.PlaceHolder):
-            logger.addHandler(file_handler)
+    _lh.info(f'{one_line_description} ver. {version}')
+    _lh.info(f'Called by: {" ".join(sys.argv)}')
+    parsed_args = _parse_args(sys.argv[1:])
+    if use_root_logger:
+        log_filename = os.environ.get("LOG_FILE_NAME", default_log_filename)
+        file_handler = logging.FileHandler(filename=log_filename)
+        file_handler.setLevel(logger_helper.TRACE)
+        file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
+        logging.root.addHandler(file_handler)
 
     valid_subcommand_names = _get_subcommands(package_main_name)
     if parsed_args.input_subcommand_name == "lscmd":
@@ -187,22 +191,3 @@ def _act_on_args(
     else:
         _lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
         sys.exit(1)
-
-
-def setup_frontend(
-        package_main_name: str,
-        one_line_description: str,
-        version: str,
-        help_info: str = None,
-        subcommand_help: str = "Use 'lscmd' to list all valid subcommands."
-):
-    _lh.info(f'{one_line_description} ver. {version}')
-    _lh.info(f'Called by: {" ".join(sys.argv)}')
-    parsed_args = _parse_args(sys.argv[1:])
-    _act_on_args(
-        parsed_args,
-        package_main_name,
-        version,
-        help_info,
-        subcommand_help
-    )

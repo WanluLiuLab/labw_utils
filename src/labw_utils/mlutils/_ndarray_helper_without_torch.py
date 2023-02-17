@@ -1,0 +1,106 @@
+"""
+General-purposed helpers for Numpy NDArray and Torch Tensor.
+"""
+
+__all__ = (
+    "scale_np_array",
+    "scale_torch_array",
+    "describe"
+)
+
+from typing import Union, Tuple, Optional, Any
+
+import numpy as np
+
+try:
+    import torch
+except ImportError:
+    torch = None
+
+from numpy import typing as npt
+
+_Tensor = npt.NDArray
+
+def _scale_impl(
+        x: _Tensor,
+        out_range: Tuple[Union[int, float], Union[int, float]],
+        domain: Tuple[Union[int, float], Union[int, float]]
+) -> _Tensor:
+    if domain[1] == domain[0]:
+        return x
+    y = (x - (domain[1] + domain[0]) / 2) / (domain[1] - domain[0])
+    return y * (out_range[1] - out_range[0]) + (out_range[1] + out_range[0]) / 2
+
+
+def scale_np_array(
+        x: npt.NDArray,
+        domain: Optional[Tuple[Union[int, float], Union[int, float]]] = None,
+        out_range: Tuple[Union[int, float], Union[int, float]] = (0, 1)
+) -> npt.NDArray:
+    """
+    Scale a Numpy array to specific range.
+
+    See also: :py:func:`scale_torch_array`
+
+    Example:
+
+    >>> scale_np_array(np.array([1,2,3,4,5]), out_range=(0, 1))
+    array([0.  , 0.25, 0.5 , 0.75, 1.  ])
+    """
+    if domain is None:
+        domain = np.min(x), np.max(x)
+    return _scale_impl(x, out_range, domain)
+
+
+def describe(array: _Tensor) -> str:
+    """
+    Describe the array by data type, shape, quantiles or unique values.
+
+    Example:
+
+    # FIXME: fails since int32 on Windows.
+
+    >>> describe(np.array([0, 0, 1, 1]))
+    'ndarray[int64] with shape=(4,); uniques=[0 1]'
+
+    >>> describe(np.array(np.random.uniform(0, 21, size=12000), dtype=int))
+    "ndarray[int64] with shape=(12000,); quantiles=['0.00', '5.00', '10.00', '15.00', '20.00']"
+
+    :param array: The Numpy array or pyTorch Tensor to be described.
+    :return: Description of the array.
+    """
+    q = [0, 0.25, 0.5, 0.75, 1]
+    _shape = tuple(array.shape)
+    _unique = np.unique(array)
+    if len(_unique) > 10:
+        try:
+             _quantiles = list(map(lambda _q: f"{_q:.2f}", np.quantile(array, q=q)))
+        except (IndexError, RuntimeError) as e:
+            _quantiles = f"ERROR {e}"
+        _quantiles_str = f"quantiles={_quantiles}"
+    else:
+        _quantiles_str = f"uniques={_unique}"
+    return f"{type(array).__name__}[{array.dtype}] with shape={_shape}; {_quantiles_str}"
+
+
+class DimensionMismatchException(ValueError):
+    def __init__(
+            self,
+            _arr1: _Tensor,
+            _arr2: _Tensor,
+            _arr1_name: str = "arr1",
+            _arr2_name: str = "arr2"
+    ):
+        super().__init__(
+            f"Array {_arr1_name} and {_arr2_name}  dimension mismatch!\n"
+            f"\twhere {_arr1_name} is {describe(_arr1)}\n"
+            f"\twhere {_arr2_name} is {describe(_arr2)}\n"
+        )
+
+
+class Describe:
+    def __init__(self, _: str = ""):
+        pass
+
+    def forward(self, _: Any) -> Any:
+        pass

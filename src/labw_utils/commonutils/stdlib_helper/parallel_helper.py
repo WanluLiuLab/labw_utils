@@ -10,7 +10,9 @@ import os
 import subprocess
 import threading
 import time
-from typing import Union, List, Callable, Optional
+from typing import Union, List, Optional, Callable, TypeVar, Iterable
+
+import joblib
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
@@ -18,6 +20,9 @@ _JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
 _PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen]
 _TERMINATE_HANDLER_TYPE = Callable[[_JOB_TYPE], None]
 _CALLBACK_TYPE = Callable[[_JOB_TYPE], None]
+
+_InType = TypeVar("_InType")
+_OutType = TypeVar("_OutType")
 
 
 class Job:
@@ -245,3 +250,34 @@ class TimeOutKiller(threading.Thread):
             os.kill(self._pid, 9)
         except (ProcessLookupError, PermissionError):
             pass
+
+
+def parallel_map(
+        f: Callable[[_InType], _OutType],
+        input_iterable: Iterable[_InType],
+        n_jobs: int = multiprocessing.cpu_count(),
+        backend: str = "threading",
+) -> Iterable[_OutType]:
+    """
+    The parallel version of Python :external:py:func:`map` function (or, ``apply`` function in R).
+
+    See also: :external+joblib:py:class:`joblib.Parallel`.
+
+    .. warning::
+        With inappropriate parallelization, the system would consume lots of memory with minimal speed improvement!
+
+    .. warning::
+        Use with caution if you wish to parallely assign elements to an array.
+
+    :param f: Function to be applied around an iterable.
+    :param input_iterable: Iterable where a function would be applied to.
+    :param n_jobs: Number of parallel threads. Would be max available CPU number if not set.
+    :param backend: The backend to be used. Recommended to use ``threading``.
+    :return: Generated new iterable.
+    """
+    it: Iterable[_OutType] = joblib.Parallel(
+        n_jobs=n_jobs, backend=backend
+    )(
+        joblib.delayed(f)(i) for i in input_iterable
+    )
+    return it
