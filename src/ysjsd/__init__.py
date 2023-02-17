@@ -1,7 +1,7 @@
 import platform
 import sys
 import time
-from typing import Mapping, Any
+from typing import Mapping, Any, Final
 
 import flask
 
@@ -13,6 +13,7 @@ from labw_utils.mlutils.io_helper import AbstractTOMLSerializable
 
 
 class YSJSDConfig(AbstractTOMLSerializable):
+    _title: Final[str] = "ysjsd"
     _name: str
     _description: str
     _ysjs_port: str

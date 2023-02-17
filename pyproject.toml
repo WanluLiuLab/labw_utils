@@ -33,7 +33,9 @@ classifiers = [
     "Topic :: Utilities"
 ]
 requires-python = ">=3.8"
-dynamic = ["version", "readme", "dependencies"]
+dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
+
+# FIXME: Errors in SAM & other dynamic dependencies
 
 [tool.setuptools]
 license-files = ["License.md", "Copying.md"]
@@ -42,6 +44,11 @@ license-files = ["License.md", "Copying.md"]
 version = { attr = "labw_utils.__version__" }
 readme = { file = "Readme.md" }
 dependencies = { file = "requirements.txt" }
+
+[tool.setuptools.dynamic.optional-dependencies]
+bioutils =  { file = "requirements_bioutils.txt" }
+mlutils =  { file = "requirements_mlutils.txt" }
+ysjs =  { file = "requirements_ysjs.txt" }
 
 [tool.setuptools.packages.find]
 where = ["src"]

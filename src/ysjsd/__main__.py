@@ -70,6 +70,6 @@ if __name__ == "__main__":
             "8080",
             os.path.join(os.path.abspath("."), "var"),
             os.path.abspath(args.config)
-        ).to_config(args.config)
+        ).save(args.config)
         sys.exit(0)
-    start(YSJSDConfig.from_config(args.config))
+    start(YSJSDConfig.load(args.config))
