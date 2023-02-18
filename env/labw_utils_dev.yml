@@ -60,11 +60,12 @@ dependencies:
   - pytest-html=3.2
   - coverage=7.1
 
-  # ylsjs
+  # ysjs
   - flask=2.2
   - sqlalchemy=1.4
   - prettytable=3.6
   - psutil=5.9
+  - gevent=22.10.2
 
   # mlutils
   - pytorch=1.13

@@ -2,3 +2,4 @@ flask~=2.2.3
 sqlalchemy~=1.4.46
 prettytable~=3.6.0
 psutil~=5.9.4
+gevent~=22.10.2

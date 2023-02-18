@@ -430,3 +430,5 @@ SiLiCO_Scratch/
 /pytest
 /.maint
 /real_data
+*.toml
+!pyproject.toml

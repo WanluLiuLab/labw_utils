@@ -43,7 +43,7 @@ def _get_doc(
     Return documentation of that module
     """
     importlib.import_module(f'{package_main_name}.{subcommand_name}')
-    i = pkgutil_helper.resolve_name(f'{package_main_name}.{subcommand_name}')
+    i = resolve_name(f'{package_main_name}.{subcommand_name}')
     if hasattr(i, '__doc__'):
         return i.__doc__
     else:
@@ -58,7 +58,7 @@ def _get_main_func_from_subcommand(
     Return a subcommands' "main" function.
     """
     importlib.import_module(f'{package_main_name}.{subcommand_name}')
-    i = pkgutil_helper.resolve_name(f'{package_main_name}.{subcommand_name}')
+    i = resolve_name(f'{package_main_name}.{subcommand_name}')
     if hasattr(i, 'main') and inspect.isfunction(getattr(i, 'main')):
         return i.main
     else:

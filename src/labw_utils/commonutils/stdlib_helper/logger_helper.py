@@ -18,8 +18,9 @@ which is only snake-case wrappers for those contents inside :py:mod:`logging` st
 
 import logging
 import os
+import sys
 from logging import DEBUG, WARNING, ERROR, FATAL
-from typing import Optional
+from typing import Optional, Union
 
 __all__ = (
     'TRACE',
@@ -52,7 +53,11 @@ logging.trace = trace
 _lh = logging.getLogger(__name__)
 
 
-def get_formatter(level: int) -> logging.Formatter:
+def get_formatter(level: Union[int, str]) -> logging.Formatter:
+    if isinstance(level, str):
+        level = logging.getLevelName(level)
+    if isinstance(level, str):
+        raise ValueError(f"{level} not exist!")
     if level > logging.DEBUG:
         log_format = '%(asctime)s\t[%(levelname)s] %(message)s'
     else:
@@ -124,11 +129,46 @@ def chronolog(display_time: bool = False, log_error: bool = False):
     return msg_decorator
 
 
-def get_logger(name: Optional[str] = None):
+def get_logger(
+        name: Optional[str] = None,
+        level:  Optional[Union[str, int]] = TRACE,
+        log_to_stderr: bool = False,
+        log_stderr_level: Optional[Union[str, int]] = logging.INFO,
+        log_stderr_formatter: Optional[logging.Formatter] = None,
+        log_file_name: Optional[str] = None,
+        log_file_level: Optional[Union[str, int]] = TRACE,
+        log_file_formatter: Optional[logging.Formatter] = None
+):
     """
     A Simple logging.getLogger() wrapper.
     """
     if name is None:
         return logging.getLogger()
     else:
-        return logging.getLogger(name)
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        if log_file_name is not None:
+            file_handler = logging.FileHandler(
+                filename=log_file_name
+            )
+            file_handler.setLevel(log_file_level)
+            if log_file_formatter is not None:
+                file_handler.setFormatter(log_file_formatter)
+            else:
+                file_handler.setFormatter(get_formatter(log_file_level))
+            logger.addHandler(
+                file_handler
+            )
+        if log_to_stderr:
+            serr_handler = logging.StreamHandler(
+                stream=sys.stderr
+            )
+            serr_handler.setLevel(log_stderr_level)
+            if log_stderr_formatter is not None:
+                serr_handler.setFormatter(log_stderr_formatter)
+            else:
+                serr_handler.setFormatter(get_formatter(log_stderr_level))
+            logger.addHandler(
+                serr_handler
+            )
+        return logger
