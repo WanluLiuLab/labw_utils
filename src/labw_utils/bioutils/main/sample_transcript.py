@@ -31,9 +31,12 @@ def subset_gtf_by_transcript_id(
     gv.standardize()
     final_record_num = len(gv)
     gv.to_file(out_filename)
-
     lh.info(
-        f"{input_record_num} processed with {final_record_num} ({round(final_record_num / input_record_num, 2) * 100}%) records output")
+        "%d processed with %d (%.2f%%) records output",
+        input_record_num,
+        final_record_num,
+        round(final_record_num / input_record_num * 100, 2)
+    )
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
@@ -62,3 +65,6 @@ def main(args: List[str]):
         gtf_filename=args.gtf,
         out_filename=args.out
     )
+
+if __name__ == "__main__":
+    main(["-g", "ce11_as_percent_20.gtf", "--percent", "100", "--out", "aaa.gtf"])

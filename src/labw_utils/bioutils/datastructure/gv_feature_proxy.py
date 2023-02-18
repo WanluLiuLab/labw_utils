@@ -36,6 +36,8 @@ def merge_intervals(arr: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     """
     # Sorting based on the increasing order
     # of the start intervals
+    if not arr:
+        return []
     arr = list(list(it) for it in arr)
     arr.sort(key=lambda x: x[0])
 

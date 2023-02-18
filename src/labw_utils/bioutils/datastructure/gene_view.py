@@ -362,11 +362,14 @@ class BaseGeneView(GeneViewType, ABC):
                     yield exon.get_data()
 
     def del_gene(self, gene_id: str):
-        if gene_id in self.iter_gene_ids():
+        if gene_id in self._genes.keys():
             for transcript_id in list(self.get_gene(gene_id).iter_transcript_ids()):
                 self.del_transcript(transcript_id)
         else:
             raise ValueError(f"Gene ID {gene_id} not found!")
+        if gene_id in self._genes.keys():
+            self._genes.pop(gene_id)
+
 
     def duplicate_transcript(self, transcript_id: str) -> str:
         transcript = self.get_transcript(transcript_id)
