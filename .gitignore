@@ -433,3 +433,6 @@ SiLiCO_Scratch/
 *.xml
 /doc/refs.bib.bak
 /real_data
+*.toml
+!pyproject.toml
+pypy_venv/

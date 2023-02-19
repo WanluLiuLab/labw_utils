@@ -10,7 +10,7 @@ from labw_utils.bioutils.record.feature import Feature
 class QuantificationOptimizedGeneTree:
     _feature_ids: List[str]
     _feature_boundary: NumpyIntervalEngine
-    _chromosome_names:List[str]
+    _chromosome_names: List[str]
 
     def iter_chromosome_names(self) -> Iterable[str]:
         return iter(self._chromosome_names)

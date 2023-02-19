@@ -42,7 +42,6 @@ class ModuleTestInfo:
 
 @pytest.fixture(scope="session")
 def initialize_session():
-    logger_helper.set_level(logger_helper.DEBUG)
     session_test_info = SessionTestInfo()
     yield session_test_info
     session_test_info.teardown()

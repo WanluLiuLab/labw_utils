@@ -61,12 +61,12 @@ class NumpyIntervalEngine:
 
     [[s, e], [s, e], [s, e,], ...]
     """
-    _chromosomal_split_np_index: Dict[_QueryType, npt.NDArray[int]]
+    _chromosomal_split_np_index: Dict[_QueryType, npt.NDArray]
 
     def _select_chromosome(
             self,
             query_chr: _QueryType
-    ) -> Tuple[npt.NDArray[int], npt.NDArray[int]]:
+    ) -> Tuple[npt.NDArray, npt.NDArray]:
         stored_values_of_selected_chromosome = self._chromosomal_split_np_index[query_chr]
         s = stored_values_of_selected_chromosome[:, 0]
         e = stored_values_of_selected_chromosome[:, 1]
@@ -103,7 +103,7 @@ class NumpyIntervalEngine:
         )[0].tolist():
             yield it
 
-    def __init__(self, chromosomal_split_np_index: Dict[_QueryType, npt.NDArray[int]]):
+    def __init__(self, chromosomal_split_np_index: Dict[_QueryType, npt.NDArray]):
         self._chromosomal_split_np_index = chromosomal_split_np_index
 
     @classmethod
