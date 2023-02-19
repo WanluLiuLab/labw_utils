@@ -5,7 +5,7 @@ get_transcript.py -- Filter GTF records by a specific attributes
 import argparse
 from typing import List
 
-from labw_utils.bioutils.main.sample_transcript import subset_gtf_by_transcript_id
+from labw_utils.bioutils._main.sample_transcript import subset_gtf_by_transcript_id
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
