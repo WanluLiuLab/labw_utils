@@ -1,5 +1,6 @@
 import argparse
 import base64
+import json
 import logging
 import os
 import signal
@@ -7,20 +8,23 @@ import sys
 from typing import Optional, List, Tuple, Union
 
 import flask
+from gevent import pywsgi
 from gevent.pywsgi import WSGIServer
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
-from ysjsd import YSJSDConfig, YSJSD, YSJSSubmission
+from libysjs.submission import YSJSSubmission
+from ysjsd import YSJSD, ServerSideYSJSDConfig
 
-app_dir = os.path.dirname(os.path.abspath(__file__))
-app_name = "YSJSD BACKEND"
-global_config: Optional[YSJSDConfig] = None
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+APP_NAME = "YSJSD BACKEND"
+
+global_config: Optional[ServerSideYSJSDConfig] = None
 global_ysjsd: Optional[YSJSD] = None
 global_server: WSGIServer
 
 app = flask.Flask(
-    app_name,
-    template_folder=os.path.join(app_dir, "templates")
+    APP_NAME,
+    template_folder=os.path.join(APP_DIR, "templates")
 )
 
 stream_handler = logging.StreamHandler()
@@ -42,7 +46,7 @@ _lh = logger_helper.get_logger("YSJSD BACKEND")
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--generate_default_config',
+        "-g", '--generate_default_config',
         required=False, help="Generate default config and exit",
         action="store_true"
     )
@@ -62,6 +66,34 @@ def serve_config() -> ResponseType:
     return flask.jsonify(**global_config.to_dict()), 200
 
 
+@app.route('/ysjsd/api/v1.0/load', methods=['GET'])
+def serve_load() -> ResponseType:
+    if global_ysjsd is None:
+        raise ValueError
+    return flask.jsonify(**global_ysjsd.get_real_load().to_dict()), 200
+
+
+@app.route('/ysjsd/api/v1.0/queue_names', methods=['GET'])
+def serve_queue_names() -> ResponseType:
+    ...
+
+
+@app.route('/ysjsd/api/v1.0/queue/<queue_name>', methods=['GET'])
+def serve_queue(queue_name: str) -> ResponseType:
+    ...
+
+
+@app.route('/ysjsd/api/v1.0/job_ids', methods=['GET'])
+def serve_job_ids() -> ResponseType:
+    ...
+
+
+@app.route('/ysjsd/api/v1.0/submission/<job_id>', methods=['GET'])
+def serve_submission(job_id: str) -> ResponseType:
+    ...
+
+
+
 @app.route('/ysjsd/api/v1.0/stop', methods=['POST'])
 def stop() -> ResponseType:
     global global_server, global_ysjsd
@@ -72,18 +104,18 @@ def stop() -> ResponseType:
 
 
 @app.route('/ysjsd/api/v1.0/job/submit', methods=['POST'])
-def submit_job() -> ResponseType:
+def receive_submission() -> ResponseType:
     global global_ysjsd
     data = flask.request.get_data()
     try:
-        submission = YSJSSubmission.from_json(
-            str(data, encoding="UTF8")
+        submission = YSJSSubmission.from_dict(
+            json.loads(str(data, encoding="UTF8"))
         )
     except Exception as e:
         err_message = f"{str(e)} when parse submission {str(base64.b64encode(data), encoding='UTF8')}"
         return err_message, 500
     try:
-        global_ysjsd.add_job(submission)
+        global_ysjsd.receive_submission(submission)
         return f"added job_id {submission.job_id}", 200
     except ValueError as e:
         err_message = f"{str(e)} when parse submission {str(base64.b64encode(data), encoding='UTF8')}"
@@ -95,7 +127,7 @@ def serve_frontend() -> ResponseType:
     return flask.render_template("frontpage.html"), 200
 
 
-def start(config: YSJSDConfig):
+def start(config: ServerSideYSJSDConfig):
     global global_config, global_ysjsd, global_server
     global_config = config
     global_ysjsd = YSJSD(global_config)
@@ -111,16 +143,20 @@ def start(config: YSJSDConfig):
     signal.signal(signal.SIGINT, lambda x, y: stop())
     signal.signal(signal.SIGTERM, lambda x, y: stop())
     signal.signal(signal.SIGHUP, lambda x, y: stop())
-    global_server = WSGIServer(("0.0.0.0", int(global_config.ysjs_port)), app)
+    global_server = pywsgi.WSGIServer(
+        ("0.0.0.0", int(global_config.ysjs_port)),
+        application=app,
+        log=pywsgi.LoggingLogAdapter(app.logger)
+    )
     global_server.serve_forever()
 
 
 if __name__ == "__main__":
     args = _parse_args(sys.argv[1:])
     if args.generate_default_config:
-        YSJSDConfig.new(
+        ServerSideYSJSDConfig.new(
             args.config
         ).save(args.config)
         _lh.info("Configure file generated at %s", args.config)
         sys.exit(0)
-    start(YSJSDConfig.load(args.config))
+    start(ServerSideYSJSDConfig.load(args.config))
