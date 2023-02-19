@@ -16,7 +16,7 @@ class TableAppenderConfig:
         self.buffer_size = buffer_size
 
 
-class BaseTableAppender:
+class BaseTableAppender(ABC):
     filename: str
     header: List[str]
     _real_filename: str

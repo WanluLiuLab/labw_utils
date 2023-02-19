@@ -10,8 +10,8 @@ from typing import List
 
 import pysam
 
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import merge_intervals
 from labw_utils.bioutils._main.describe_sam import get_mode_str, get_file_length, turn_none_to_zero
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import merge_intervals
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger

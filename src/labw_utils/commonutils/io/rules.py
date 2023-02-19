@@ -1,5 +1,5 @@
 import io
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import IO, Union, List, Callable
 
 from labw_utils.commonutils.typing import PathType
@@ -17,7 +17,7 @@ except TypeError:
     _OpenerType = Callable[..., Union[IO, io.IOBase]]
 
 
-class FileRuleType:
+class FileRuleType(ABC):
     _rule: _RuleType
     _opener: _OpenerType
     rule_name: str

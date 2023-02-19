@@ -371,8 +371,8 @@ class Transcript(BaseFeatureProxy):
                         f"cdna ({len(_seq)}) != exon ({_exon.transcribed_length})" +
                         f"({_exon.get_data()})"
                     )
-            except FastaViewInvalidRegionError:  # FIXME: add ?
-                lh.warn(f"{self.transcript_id}: Failed to get cDNA sequence at exon {_exon}")
+            except FastaViewInvalidRegionError:
+                lh.warning(f"{self.transcript_id}: Failed to get cDNA sequence at exon {_exon}")
                 _seq = ""
             return _seq
 

@@ -2,8 +2,8 @@ import argparse
 import base64
 import logging
 import os
-import sys
 import signal
+import sys
 from typing import Optional, List, Tuple, Union
 
 import flask
@@ -37,6 +37,7 @@ logging.basicConfig(
     level=logger_helper.TRACE
 )
 _lh = logger_helper.get_logger("YSJSD BACKEND")
+
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -112,7 +113,6 @@ def start(config: YSJSDConfig):
     signal.signal(signal.SIGHUP, lambda x, y: stop())
     global_server = WSGIServer(("0.0.0.0", int(global_config.ysjs_port)), app)
     global_server.serve_forever()
-
 
 
 if __name__ == "__main__":

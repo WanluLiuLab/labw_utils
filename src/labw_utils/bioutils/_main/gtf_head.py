@@ -8,7 +8,6 @@ from typing import List
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfWriter
-
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)

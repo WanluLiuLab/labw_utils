@@ -20,7 +20,8 @@ from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.commonutils.serializer.toml import AbstractTOMLSerializable
 
-AVAILABLE_SCHEDULING_METHOD=("FIFO", "AGGRESSIVE")
+AVAILABLE_SCHEDULING_METHOD = ("FIFO", "AGGRESSIVE")
+
 
 class YSJSDConfig(AbstractTOMLSerializable):
     _title: Final[str] = "ysjsd"

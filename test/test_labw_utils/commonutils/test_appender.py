@@ -7,7 +7,7 @@ from labw_utils.commonutils.appender.typing import TableAppenderConfig, BaseTabl
 
 
 def assert_appender(
-        appender:BaseTableAppender,
+        appender: BaseTableAppender,
         lines_to_append: int
 ):
     for i in range(lines_to_append):
@@ -21,7 +21,7 @@ def assert_appender(
     argvalues=AVAILABLE_TABLE_APPENDERS,
     ids=["test_" + appender_name for appender_name in AVAILABLE_TABLE_APPENDERS]
 )
-def test_appender(name:str):
+def test_appender(name: str):
     for lines_to_append in (1, 4, 5, 6, 9, 10, 11, 1024):
         appender = load_table_appender_class(name)(
             filename="test",

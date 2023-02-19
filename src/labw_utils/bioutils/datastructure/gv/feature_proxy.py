@@ -11,7 +11,8 @@ __all__ = [
 from typing import Optional, Iterable, TypeVar, Union
 
 from labw_utils.bioutils.datastructure.gv import CanCheckInterface
-from labw_utils.bioutils.record.feature import Feature, FeatureType, GtfAttributeValueType, FeatureInterface
+from labw_utils.bioutils.record.feature import Feature, FeatureType, GtfAttributeValueType, FeatureInterface, \
+    BiologicalIntervalInterface
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 lh = get_logger(__name__)
@@ -131,3 +132,6 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
 
     def get_data(self) -> Feature:
         return self._data
+
+    def regional_equiv(self, other: BiologicalIntervalInterface):
+        return self._data.regional_equiv(other)

@@ -57,5 +57,3 @@ if torch is not None:
         """Writer of compressed Torch serialization format"""
         with lzma.open(path, "wb", preset=9) as writer:
             torch.save(array, writer)
-
-

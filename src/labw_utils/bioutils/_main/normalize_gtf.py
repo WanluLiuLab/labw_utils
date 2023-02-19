@@ -9,7 +9,6 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneVie
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
     VALID_SORT_EXON_EXON_STRAND_POLICY
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator, GtfWriter
-
 from labw_utils.bioutils.record.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 

@@ -172,7 +172,7 @@ class Gff3Tree:
         return self.get(gff3_id).parent_id
 
     def get_backtrack_feature(self, gff3_id: str, parent_feature_name: str) -> str:
-        while True:  # FIXME
+        while gff3_id != GFF3_TOPLEVEL_NAME:
             gff3_id = self.get_parent_id(gff3_id)
             if self.get(gff3_id).feature == parent_feature_name:
                 return gff3_id

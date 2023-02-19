@@ -3,10 +3,9 @@
 import statistics
 from typing import List
 
-from labw_utils.bioutils.datastructure.gene_tree import GeneTree
-
 from matplotlib import pyplot as plt
 
+from labw_utils.bioutils.datastructure.gene_tree import GeneTree
 from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer

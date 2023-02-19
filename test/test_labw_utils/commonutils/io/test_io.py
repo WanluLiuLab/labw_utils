@@ -43,7 +43,6 @@ def assess_binary_archive_io(filename: str):
 
 
 def assess_text_archive_io(filename: str):
-    # FIXME: Bugs here
     available_chars = string.printable
 
     contents = "".join((random.choice(available_chars) for _ in range(CONTENT_SIZE))).replace('\r', '')

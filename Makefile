@@ -25,7 +25,7 @@ serve-doc:
 
 .PHONY: test
 test:
-	PYTHONPATH=src pytest .
+	PYTHONPATH=src:test pytest .
 	rm -f .coverage.*
 
 .PHONY: pytype

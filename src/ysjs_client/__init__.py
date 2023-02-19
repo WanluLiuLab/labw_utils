@@ -1,4 +1,3 @@
-import subprocess
 import threading
 
 
@@ -11,10 +10,8 @@ class YSJSJob(threading.Thread):
 
     def get_status(self):
         ...
-    
+
 
 class YSJSCluster:
     def submit_job(self):
         ...
-
-

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Callable
 
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
@@ -30,7 +30,7 @@ class GVPError(ValueError):
     pass
 
 
-class CanTranscribeInterface:
+class CanTranscribeInterface(ABC):
     __slots__ = []
 
     @abstractmethod

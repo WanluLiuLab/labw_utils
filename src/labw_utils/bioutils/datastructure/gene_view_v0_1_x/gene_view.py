@@ -338,7 +338,6 @@ class BaseGeneView(GeneViewType, ABC):
             if gene.number_of_transcripts == 0:
                 gene_id_to_del.append(gene.gene_id)
                 continue
-            # FIXME: This may induce bugs.
             if gene.feature != "gene":
                 gene.copy_data()
                 transcript_s_min = math.inf

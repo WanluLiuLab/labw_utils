@@ -7,7 +7,7 @@ This module includes GTF/GFF3/BED record datastructure and their one-line parser
 from __future__ import annotations
 
 import enum
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from functools import total_ordering
 from typing import Union, Optional, Dict, Iterable, List
 
@@ -20,7 +20,7 @@ GtfAttributeValueType = Union[
     List[str], List[int], List[float], List[bool], List[None]
 ]
 
-GTFAttributeType = Dict[str, GtfAttributeValueType]
+GtfAttributeType = Dict[str, GtfAttributeValueType]
 """Type of GTF/GFF fields"""
 
 VALID_GTF_QUOTE_OPTIONS = (
@@ -114,7 +114,7 @@ _raw_feature_type_translator = {
 }
 
 
-class BiologicalIntervalInterface:
+class BiologicalIntervalInterface(ABC):
 
     @property
     @abstractmethod
@@ -255,7 +255,7 @@ class Feature(FeatureInterface):
     _score: Optional[Union[int, float]]
     _strand: Optional[bool]
     _frame: Optional[int]
-    _attribute: GTFAttributeType
+    _attribute: GtfAttributeType
 
     @property
     def seqname(self) -> str:
@@ -348,7 +348,7 @@ class Feature(FeatureInterface):
             score: Union[Optional[Union[int, float]], _NotSet] = _notset,
             strand: Union[Optional[bool], _NotSet] = _notset,
             frame: Union[Optional[int], _NotSet] = _notset,
-            attribute: Union[GTFAttributeType, _NotSet] = _notset
+            attribute: Union[GtfAttributeType, _NotSet] = _notset
     ) -> Feature:
         return Feature(
             seqname=self._seqname if seqname is _notset else seqname,
@@ -417,7 +417,7 @@ class Feature(FeatureInterface):
             score: Optional[Union[int, float]],
             strand: Optional[bool],
             frame: Optional[int],
-            attribute: Optional[GTFAttributeType] = None
+            attribute: Optional[GtfAttributeType] = None
     ):
         """
         The filenames are named after Ensembl specifications.
@@ -446,21 +446,21 @@ class Feature(FeatureInterface):
 
     def __eq__(self, other: Feature):
         return self.seqname == other.seqname and \
-               self.source == other.source and \
-               self.feature == other.feature and \
-               self.start == other.start and \
-               self.end == other.end and \
-               self.score == other.score and \
-               self.strand == other.strand and \
-               self.frame == other.frame and \
-               list(self.attribute_keys) == list(other.attribute_keys) and \
-               list(self.attribute_values) == list(other.attribute_values)
+            self.source == other.source and \
+            self.feature == other.feature and \
+            self.start == other.start and \
+            self.end == other.end and \
+            self.score == other.score and \
+            self.strand == other.strand and \
+            self.frame == other.frame and \
+            list(self.attribute_keys) == list(other.attribute_keys) and \
+            list(self.attribute_values) == list(other.attribute_values)
 
-    def regional_equiv(self, other: Feature):
+    def regional_equiv(self, other: BiologicalIntervalInterface):
         return self._start == other.start and \
-               self._end == other.end and \
-               self._seqname == other.seqname and \
-               self._strand == other.strand
+            self._end == other.end and \
+            self._seqname == other.seqname and \
+            self._strand == other.strand
 
     def __gt__(self, other: Feature):
         if not self.seqname == other.seqname:
@@ -472,7 +472,7 @@ class Feature(FeatureInterface):
         if not self.end == other.end:
             return self.end > other.end
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> Dict[str, Union[str, GtfAttributeType]]:
         return {
             "seqname": self.seqname,
             "source": self.source,
@@ -487,4 +487,3 @@ class Feature(FeatureInterface):
 
     def __repr__(self):
         return str(self.to_dict())
-

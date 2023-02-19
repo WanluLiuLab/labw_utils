@@ -34,8 +34,8 @@ from labw_utils.bioutils.parser.fasta import extract_fasta_name
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
-from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 
 _lh = get_logger(__name__)
 

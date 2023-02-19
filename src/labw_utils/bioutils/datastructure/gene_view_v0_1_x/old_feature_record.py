@@ -7,7 +7,7 @@ This module includes GTF/GFF3/BED record datastructure and their one-line parser
 from __future__ import annotations
 
 import uuid
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Union, Optional, Dict
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -48,7 +48,7 @@ class RegionError(FeatureParserError):
         super(RegionError, self).__init__(*args)
 
 
-class FeatureType(object):
+class FeatureType(ABC):
     """
     Abstract type of general GTF/GFF/BED Record.
     """

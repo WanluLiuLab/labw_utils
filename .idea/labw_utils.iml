@@ -24,6 +24,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/assess_appender_engine" />
       <excludeFolder url="file://$MODULE_DIR$/src/labw_utils.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/var" />
+      <excludeFolder url="file://$MODULE_DIR$/.pytype" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.8 (labw_utils)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
