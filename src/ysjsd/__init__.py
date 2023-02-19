@@ -17,10 +17,8 @@ import labw_utils
 __version__ = "0.1.0"
 
 from labw_utils.commonutils.io.safe_io import get_writer
-
 from labw_utils.commonutils.stdlib_helper import logger_helper
-
-from labw_utils.mlutils.io_helper import AbstractTOMLSerializable
+from labw_utils.commonutils.serializer.toml import AbstractTOMLSerializable
 
 AVAILABLE_SCHEDULING_METHOD=("FIFO", "AGGRESSIVE")
 
@@ -37,7 +35,24 @@ class YSJSDConfig(AbstractTOMLSerializable):
 
     @staticmethod
     def _validate_versions(versions: Mapping[str, Any]) -> None:
-        pass
+        _lh = logger_helper.get_logger("YSJSD - LOADING CONFIG")
+        compile_time_version_dict = dict(versions)
+        run_time_version_dict = YSJSDConfig._dump_versions()
+        for version_key, run_time_version_value in run_time_version_dict.items():
+            try:
+                compile_time_version_value = compile_time_version_dict.pop(version_key)
+            except KeyError:
+                compile_time_version_value = None
+            if compile_time_version_value != run_time_version_value:
+                _lh.warning(
+                    "Package %s have different version information: Compile (%s) != Run (%s)",
+                    version_key, compile_time_version_value, run_time_version_value
+                )
+        for remaining_compile_time_version_key, remaining_compile_time_version_value in compile_time_version_dict.items():
+            _lh.warning(
+                "Package %s have different version information: Compile (%s) != Run (%s)",
+                remaining_compile_time_version_key, remaining_compile_time_version_value, None
+            )
 
     @staticmethod
     def _dump_versions() -> Mapping[str, Any]:
