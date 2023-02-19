@@ -370,7 +370,6 @@ class BaseGeneView(GeneViewType, ABC):
         if gene_id in self._genes.keys():
             self._genes.pop(gene_id)
 
-
     def duplicate_transcript(self, transcript_id: str) -> str:
         transcript = self.get_transcript(transcript_id)
         new_transcript = copy.deepcopy(transcript)

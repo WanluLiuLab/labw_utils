@@ -131,7 +131,7 @@ def chronolog(display_time: bool = False, log_error: bool = False):
 
 def get_logger(
         name: Optional[str] = None,
-        level:  Optional[Union[str, int]] = TRACE,
+        level: Optional[Union[str, int]] = TRACE,
         log_to_stderr: bool = False,
         log_stderr_level: Optional[Union[str, int]] = logging.INFO,
         log_stderr_formatter: Optional[logging.Formatter] = None,

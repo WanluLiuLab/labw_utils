@@ -66,5 +66,6 @@ def main(args: List[str]):
         out_filename=args.out
     )
 
+
 if __name__ == "__main__":
     main(["-g", "ce11_as_percent_20.gtf", "--percent", "100", "--out", "aaa.gtf"])

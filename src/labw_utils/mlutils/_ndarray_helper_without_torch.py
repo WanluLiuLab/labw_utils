@@ -21,6 +21,7 @@ from numpy import typing as npt
 
 _Tensor = npt.NDArray
 
+
 def _scale_impl(
         x: _Tensor,
         out_range: Tuple[Union[int, float], Union[int, float]],
@@ -74,7 +75,7 @@ def describe(array: _Tensor) -> str:
     _unique = np.unique(array)
     if len(_unique) > 10:
         try:
-             _quantiles = list(map(lambda _q: f"{_q:.2f}", np.quantile(array, q=q)))
+            _quantiles = list(map(lambda _q: f"{_q:.2f}", np.quantile(array, q=q)))
         except (IndexError, RuntimeError) as e:
             _quantiles = f"ERROR {e}"
         _quantiles_str = f"quantiles={_quantiles}"
