@@ -128,7 +128,7 @@ class DimensionMismatchException(ValueError):
         )
 
 
-class Describe(torch.nn):
+class Describe(torch.nn.Module):
     """
     The Describe Layer of PyTorch Module.
 

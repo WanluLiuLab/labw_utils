@@ -3,13 +3,9 @@
 import statistics
 from typing import List
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
-<<<<<<<< HEAD:src/labw_utils/bioutils/_main/get_gtf_statistics.py
-from labw_utils.bioutils.parser.feature import GtfWriter
 from matplotlib import pyplot as plt
 
-========
->>>>>>>> origin/0.1.X-dev:src/labw_utils/bioutils/_main/describe_gtf.py
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 

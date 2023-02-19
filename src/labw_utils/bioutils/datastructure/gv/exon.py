@@ -52,11 +52,11 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
             try:
                 self._cdna = sequence_func(self.seqname, self.start0b, self.end0b)
                 if len(self._cdna) != self.transcribed_length:
-                    lh.warn(
+                    lh.warning(
                         f"{self.transcript_id}: Different exon length at {self}: " +
                         f"cdna ({len(self._cdna)}) != exon ({self.transcribed_length})"
                     )
             except Exception as e:  # TODO
-                lh.warn(f"{self.transcript_id}: Failed to get cDNA sequence at exon ({self.start, self.end}) {e}")
+                lh.warning(f"{self.transcript_id}: Failed to get cDNA sequence at exon ({self.start, self.end}) {e}")
                 self._cdna = ""
         return self._cdna

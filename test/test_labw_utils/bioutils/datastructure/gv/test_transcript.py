@@ -4,7 +4,7 @@ import os
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
-from labw_utils.bioutils.record.gtf import parse_record
+from labw_utils.bioutils.record.gtf import parse_record, format_string
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from test_labw_utils.bioutils import TEST_DATA_DIR
 from test_labw_utils.bioutils.datastructure.gv import exons, exon_kwargs

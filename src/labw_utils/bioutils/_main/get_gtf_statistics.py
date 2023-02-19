@@ -3,13 +3,11 @@
 import statistics
 from typing import List
 
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
-<<<<<<<< HEAD:src/labw_utils/bioutils/_main/get_gtf_statistics.py
-from labw_utils.bioutils.parser.feature import GtfWriter
+from labw_utils.bioutils.datastructure.gene_tree import GeneTree
+
 from matplotlib import pyplot as plt
 
-========
->>>>>>>> origin/0.1.X-dev:src/labw_utils/bioutils/_main/describe_gtf.py
+from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 
@@ -30,7 +28,9 @@ def stat(item: List[int], fig_name: str):
 
 
 def describe(input_filename: str, out_basename: str):
-    gv = GeneViewFactory.from_file(input_filename, not_save_index=True)
+    gv = GeneTree.from_feature_iterator(
+        GtfIterator(input_filename)
+    )
 
     with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
             get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \

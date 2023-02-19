@@ -453,8 +453,8 @@ class Feature(FeatureInterface):
                self.score == other.score and \
                self.strand == other.strand and \
                self.frame == other.frame and \
-               self.attribute_keys == other.attribute_keys and \
-               self.attribute_values == other.attribute_values
+               list(self.attribute_keys) == list(other.attribute_keys) and \
+               list(self.attribute_values) == list(other.attribute_values)
 
     def regional_equiv(self, other: Feature):
         return self._start == other.start and \
@@ -472,6 +472,19 @@ class Feature(FeatureInterface):
         if not self.end == other.end:
             return self.end > other.end
 
-    @abstractmethod
+    def to_dict(self) -> Dict[str, str]:
+        return {
+            "seqname": self.seqname,
+            "source": self.source,
+            "feature": self.feature,
+            "start": str(self.start),
+            "end": str(self.end),
+            "score": str(self.score),
+            "strand": str(self.strand),
+            "frame": str(self.frame),
+            "attribute": self._attribute
+        }
+
     def __repr__(self):
-        raise NotImplementedError
+        return str(self.to_dict())
+
