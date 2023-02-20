@@ -12,9 +12,9 @@ from gevent import pywsgi
 from gevent.pywsgi import WSGIServer
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
-from libysjs.submission import YSJSSubmission
-from ysjsd.config import ServerSideYSJSDConfig
-from ysjsd.cluster import YSJSD
+from libysjs.ds.ysjs_submission import YSJSSubmission
+from ysjsd.ds.ysjsd_config import ServerSideYSJSDConfig
+from ysjsd.operation import YSJSD
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = "YSJSD BACKEND"
@@ -105,8 +105,8 @@ def receive_submission() -> ResponseType:
         err_message = f"{str(e)} when parse submission {str(base64.b64encode(data), encoding='UTF8')}"
         return err_message, 500
     try:
-        global_ysjsd.receive_submission(submission)
-        return f"added submission {submission.submission_name}", 200
+        ret_jid = global_ysjsd.receive_submission(submission)
+        return str(ret_jid), 200
     except ValueError as e:
         err_message = f"{str(e)} when parse submission {str(base64.b64encode(data), encoding='UTF8')}"
         return err_message, 500

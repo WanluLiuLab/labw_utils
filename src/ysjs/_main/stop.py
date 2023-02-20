@@ -2,8 +2,7 @@ import argparse
 from typing import List
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from libysjs.cluster import YSJSCluster
-from libysjs.utils import scale_si
+from libysjs.operation import YSJSCluster
 
 _lh = get_logger(__name__)
 
@@ -24,7 +23,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 def main(args: List[str]):
     args = _parse_args(args)
-    cl = YSJSCluster(conn= args.connection)
+    cl = YSJSCluster(conn=args.connection)
     _lh.info(
         "YSJS %s Cluster %s -- %s",
         cl.config.schedule_method, cl.config.name, cl.config.description
