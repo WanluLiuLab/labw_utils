@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import json
-from typing import Iterable, Mapping, Union, Final, Any, List
+from typing import Mapping, Union, Final, Any
 
 import requests
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from libysjs.queue import YSJSDQueueConfig
+from libysjs.submission import YSJSSubmission
 
 _lh = get_logger(__name__)
 
@@ -29,7 +29,16 @@ class YSJSCluster:
         _lh.debug("Successfully GET YSJSD configuration")
         self._conn = conn
 
-    def job_submit(self):
+    def submit(self, submission: YSJSSubmission):
+        resp = requests.post(
+            f"{self._conn}/ysjsd/api/v1.0/submit",
+            data=json.dumps(submission.to_dict())
+        )
+        if resp.status_code != 200:
+            exit(1)
+        _lh.debug("Successfully POST submission %s", submission.submission_name)
+
+    def stop(self):
         ...
 
     def job_send_signal(self):
@@ -45,28 +54,6 @@ class YSJSCluster:
         ...
 
     def job_cancel(self):
-        ...
-
-    def queue_add(self):
-        ...
-
-    def queue_remove(self):
-        ...
-
-    def queue_pause(self):
-        ...
-
-    def queue_resume(self):
-        ...
-
-    def queue_kill(self):
-        ...
-
-    def queue_cancel(self):
-        ...
-
-    @property
-    def queue_names(self) -> Iterable[str]:
         ...
 
     @property
@@ -144,7 +131,8 @@ class CoreYSJSDConfig:
     _total_cpu: Union[int, float]
     _total_mem: Union[int, float]
     _schedule_method: str
-    _queue_conf: List[YSJSDQueueConfig]
+    _max_concurrent_jobs: int
+    _kill_timeout: float
 
     def __init__(
             self,
@@ -156,8 +144,9 @@ class CoreYSJSDConfig:
             total_cpu: Union[int, float],
             total_mem: Union[int, float],
             schedule_method: str,
-            queue_conf: List[YSJSDQueueConfig]
-    ):
+            max_concurrent_jobs: int,
+            kill_timeout: float
+        ):
         self._name = name
         self._description = description
         self._ysjs_port = ysjs_port
@@ -166,8 +155,16 @@ class CoreYSJSDConfig:
         self._total_cpu = total_cpu
         self._total_mem = total_mem
         self._schedule_method = schedule_method
-        self._queue_conf = queue_conf
+        self._max_concurrent_jobs = max_concurrent_jobs
+        self._kill_timeout = kill_timeout
 
+
+    @property
+    def max_concurrent_jobs(self) -> int:
+        return self._max_concurrent_jobs
+    @property
+    def kill_timeout(self) -> float:
+        return self._kill_timeout
     @property
     def name(self) -> str:
         return self._name
@@ -206,12 +203,11 @@ class CoreYSJSDConfig:
             "total_cpu": self._total_cpu,
             "total_mem": self._total_mem,
             "schedule_method": self._schedule_method,
-            "queue_conf": list(map(YSJSDQueueConfig.to_dict, self._queue_conf))
+            "max_concurrent_jobs": self._max_concurrent_jobs,
+            "kill_timeout": self._kill_timeout
         }
 
     @classmethod
     def from_dict(cls, in_dict: Mapping[str, Any]):
-        in_dict = dict(in_dict)
-        queue_conf = list(map(lambda _in_dict: YSJSDQueueConfig.from_dict(**_in_dict), in_dict.pop("queue_conf")))
-        return cls(**in_dict, queue_conf=queue_conf)
+        return cls(**in_dict)
 

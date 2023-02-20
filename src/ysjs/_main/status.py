@@ -1,7 +1,3 @@
-"""
-get_transcript.py -- Filter GTF records by a specific attributes
-"""
-
 import argparse
 from typing import List
 
@@ -63,3 +59,4 @@ def main(args: List[str]):
             "Real Available Resources: CPU %.2f, Memory %.2f %sB (%.2f)",
             current_load.real_avail_cpu, real_avail_mem_si, real_avail_mem_prefix, current_load.real_avail_mem
         )
+

@@ -4,18 +4,23 @@ import os
 import shutil
 import time
 import uuid
-from typing import Union, Mapping, Optional, Any
+from typing import Union, Mapping, Optional, Any, List, Iterable
+
+DEFAULT_SUBMISSION_NAME = "Unnamed"
+DEFAULT_SUBMISSION_DESCRIPTION = "No description"
+DEFAULT_SUBMISSION_MEM = 1024 * 1024
+DEFAULT_SUBMISSION_CPU = 1
 
 
 class YSJSSubmission:
     _submission_id: str
     _submission_name: str
     _submission_description: str
-    _queue_name: str
     _cpu: Union[int, float]
     _mem: Union[int, float]
     _submission_time: float
     _cwd: str
+    _tags: List[str]
     _env: Mapping[str, str]
     _stdin: Optional[str]
     _stdout: Optional[str]
@@ -28,7 +33,6 @@ class YSJSSubmission:
             submission_id: str,
             submission_name: str,
             submission_description: str,
-            queue_name: str,
             cpu: Union[int, float],
             mem: Union[int, float],
             submission_time: float,
@@ -38,14 +42,14 @@ class YSJSSubmission:
             stdout: Optional[str],
             stderr: Optional[str],
             script_path: str,
-            shell_path: str
+            shell_path: str,
+            tags: List[str]
     ):
         self._submission_id = submission_id
         self._submission_name = submission_name
         self._cpu = cpu
         self._mem = mem
         self._submission_description = submission_description
-        self._queue_name = queue_name
         self._submission_time = submission_time
         self._cwd = cwd
         self._env = env
@@ -54,23 +58,26 @@ class YSJSSubmission:
         self._stderr = stderr
         self._shell_path = shell_path
         self._script_path = script_path
+        self._tags = tags
 
     @classmethod
     def new(
             cls,
             script_path: str,
-            cpu: Union[int, float] = 1,
-            mem: Union[int, float] = 1024 * 1024,
-            submission_name: str = "Unnamed",
-            submission_description: str = "No description",
-            queue_name: str = "root",
+            cpu: Union[int, float] = DEFAULT_SUBMISSION_CPU,
+            mem: Union[int, float] = DEFAULT_SUBMISSION_MEM,
+            submission_name: str = DEFAULT_SUBMISSION_NAME,
+            submission_description: str = DEFAULT_SUBMISSION_DESCRIPTION,
             cwd: Optional[str] = None,
             env: Optional[Mapping[str, str]] = None,
             stdin: Optional[str] = None,
             stdout: Optional[str] = None,
             stderr: Optional[str] = None,
-            shell_path: Optional[str] = None
+            shell_path: Optional[str] = None,
+            tags: Optional[List[str]] = None
     ):
+        if tags is None:
+            tags = []
         if cwd is None:
             cwd = os.getcwd()
         if env is None:
@@ -87,12 +94,20 @@ class YSJSSubmission:
             raise ValueError(
                 f"Cannot find suitable Shell; tried bash, dash, ash, sh"
             )
+        script_path = os.path.abspath(script_path)
+        cwd = os.path.abspath(cwd)
+        if isinstance(stdin, str):
+            stdin = os.path.abspath(stdin)
+        if isinstance(stdout, str):
+            stdout = os.path.abspath(stdout)
+        if isinstance(stderr, str):
+            stderr = os.path.abspath(stderr)
+
         return cls(
             submission_id=str(uuid.uuid4()),
             submission_name=submission_name,
             cpu=cpu,
             mem=mem,
-            queue_name=queue_name,
             submission_description=submission_description,
             submission_time=time.time(),
             cwd=cwd,
@@ -101,7 +116,8 @@ class YSJSSubmission:
             stdout=stdout,
             stderr=stderr,
             script_path=script_path,
-            shell_path=shell_path
+            shell_path=shell_path,
+            tags=tags
         )
 
     def to_dict(self) -> Mapping[str, Any]:
@@ -110,7 +126,6 @@ class YSJSSubmission:
             "submission_name": self._submission_name,
             "cpu": self._cpu,
             "mem": self._mem,
-            "queue_name": self._queue_name,
             "submission_description": self._submission_description,
             "submission_time": self._submission_time,
             "cwd": self._cwd,
@@ -119,8 +134,16 @@ class YSJSSubmission:
             "stdout": self._stdout,
             "stderr": self._stderr,
             "shell_path": self._shell_path,
-            "script_path": self._script_path
+            "script_path": self._script_path,
+            "tags": self._tags
         }
+
+    def have_tag(self, tag: str) -> bool:
+        return tag in self._tags
+
+    @property
+    def tags(self) -> Iterable[str]:
+        return iter(self._tags)
 
     @property
     def submission_time(self) -> float:
@@ -171,6 +194,5 @@ class YSJSSubmission:
         return self._mem
 
     @property
-    def queue_name(self) -> str:
-        return self._queue_name
-
+    def submission_name(self):
+        return self._submission_name

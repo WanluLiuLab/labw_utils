@@ -13,7 +13,8 @@ from gevent.pywsgi import WSGIServer
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from libysjs.submission import YSJSSubmission
-from ysjsd import YSJSD, ServerSideYSJSDConfig
+from ysjsd.config import ServerSideYSJSDConfig
+from ysjsd.cluster import YSJSD
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = "YSJSD BACKEND"
@@ -70,17 +71,7 @@ def serve_config() -> ResponseType:
 def serve_load() -> ResponseType:
     if global_ysjsd is None:
         raise ValueError
-    return flask.jsonify(**global_ysjsd.get_real_load().to_dict()), 200
-
-
-@app.route('/ysjsd/api/v1.0/queue_names', methods=['GET'])
-def serve_queue_names() -> ResponseType:
-    ...
-
-
-@app.route('/ysjsd/api/v1.0/queue/<queue_name>', methods=['GET'])
-def serve_queue(queue_name: str) -> ResponseType:
-    ...
+    return flask.jsonify(**global_ysjsd.real_load.to_dict()), 200
 
 
 @app.route('/ysjsd/api/v1.0/job_ids', methods=['GET'])
@@ -93,7 +84,6 @@ def serve_submission(job_id: str) -> ResponseType:
     ...
 
 
-
 @app.route('/ysjsd/api/v1.0/stop', methods=['POST'])
 def stop() -> ResponseType:
     global global_server, global_ysjsd
@@ -103,7 +93,7 @@ def stop() -> ResponseType:
     return "STOPPED/n", 200
 
 
-@app.route('/ysjsd/api/v1.0/job/submit', methods=['POST'])
+@app.route('/ysjsd/api/v1.0/submit', methods=['POST'])
 def receive_submission() -> ResponseType:
     global global_ysjsd
     data = flask.request.get_data()
@@ -116,7 +106,7 @@ def receive_submission() -> ResponseType:
         return err_message, 500
     try:
         global_ysjsd.receive_submission(submission)
-        return f"added job_id {submission.job_id}", 200
+        return f"added submission {submission.submission_name}", 200
     except ValueError as e:
         err_message = f"{str(e)} when parse submission {str(base64.b64encode(data), encoding='UTF8')}"
         return err_message, 500
@@ -146,7 +136,8 @@ def start(config: ServerSideYSJSDConfig):
     global_server = pywsgi.WSGIServer(
         ("0.0.0.0", int(global_config.ysjs_port)),
         application=app,
-        log=pywsgi.LoggingLogAdapter(app.logger)
+        log=pywsgi.LoggingLogAdapter(app.logger),
+        error_log=None
     )
     global_server.serve_forever()
 
