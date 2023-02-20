@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 from abc import abstractmethod, ABC
+from multiprocessing import synchronize
 from typing import List, Any, Dict
 
 import pandas as pd
@@ -74,8 +75,8 @@ class BaseTableAppender(ABC):
 class DictBufferAppender(BaseTableAppender, ABC):
     _h0: str
     _buff: Dict[str, List[Any]]
-    _write_mutex: multiprocessing.Lock
-    _buff_mutex: multiprocessing.Lock
+    _write_mutex: synchronize.Lock
+    _buff_mutex: synchronize.Lock
 
     def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
         super().__init__(filename, header, tac)
