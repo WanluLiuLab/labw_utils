@@ -15,10 +15,10 @@ import labw_utils
 from labw_utils.commonutils.serializer.toml import AbstractTOMLSerializable
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from libysjs import __version__
-from libysjs.cluster import CoreYSJSDConfig, AVAILABLE_SCHEDULING_METHOD
+from libysjs.ds.ysjsd_config import AVAILABLE_SCHEDULING_METHOD, YSJSDConfig
 
 
-class ServerSideYSJSDConfig(CoreYSJSDConfig, AbstractTOMLSerializable):
+class ServerSideYSJSDConfig(YSJSDConfig, AbstractTOMLSerializable):
     @staticmethod
     def _validate_versions(versions: Mapping[str, Any]) -> None:
         _lh = logger_helper.get_logger("YSJSD - LOADING CONFIG")
@@ -75,7 +75,7 @@ class ServerSideYSJSDConfig(CoreYSJSDConfig, AbstractTOMLSerializable):
             name="ylsjs_cluster",
             description="No description",
             ysjs_port="8080",
-            var_directory=os.path.join(os.path.abspath("."), "var"),
+            var_directory=os.path.join(os.path.abspath(".."), "var"),
             config_file_path=os.path.abspath(config_file_path),
             total_cpu=multiprocessing.cpu_count(),
             total_mem=(psutil.virtual_memory().total + psutil.swap_memory().total) * 0.8,

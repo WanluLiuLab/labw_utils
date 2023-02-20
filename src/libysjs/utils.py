@@ -1,5 +1,6 @@
 from typing import Union, Tuple
 
+
 def scale_si(num: Union[int, float]) -> Tuple[Union[float, int], str]:
     prefix = ""
     if num > 1024:

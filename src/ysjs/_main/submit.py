@@ -4,8 +4,9 @@ import os
 from typing import List, Union
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from libysjs.cluster import YSJSCluster
-from libysjs.submission import YSJSSubmission, DEFAULT_SUBMISSION_NAME, DEFAULT_SUBMISSION_DESCRIPTION, DEFAULT_SUBMISSION_CPU, DEFAULT_SUBMISSION_MEM
+from libysjs.ds.ysjs_submission import YSJSSubmission, DEFAULT_SUBMISSION_NAME, DEFAULT_SUBMISSION_DESCRIPTION, \
+    DEFAULT_SUBMISSION_CPU, DEFAULT_SUBMISSION_MEM
+from libysjs.operation import YSJSCluster
 
 _lh = get_logger(__name__)
 
@@ -136,7 +137,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 def main(args: List[str]):
     args = _parse_args(args)
-    cl = YSJSCluster(conn= args.connection)
+    cl = YSJSCluster(conn=args.connection)
     _lh.info(
         "YSJS %s Cluster %s -- %s",
         cl.config.schedule_method, cl.config.name, cl.config.description
@@ -155,7 +156,7 @@ def main(args: List[str]):
         submission_name=args.name,
         submission_description=args.description,
         cpu=args.cpu,
-        mem=1024 * 1024, # TODO
+        mem=1024 * 1024,  # TODO
         cwd=args.cwd,
         stdin=args.stdin,
         stdout=args.stdout,
@@ -165,11 +166,12 @@ def main(args: List[str]):
         env=env,
         tags=args.tags
     )
-    cl.submit(submission)
+    job_id = cl.submit(submission)
 
     _lh.info(
-        "Submission %s (id: %s, time: %s) success",
+        "Submission %s (id: %s, time: %s) success -> job_id %d",
         submission.submission_name,
         submission.submission_id,
-        str(datetime.datetime.fromtimestamp(submission.submission_time))
+        str(datetime.datetime.fromtimestamp(submission.submission_time)),
+        job_id
     )
