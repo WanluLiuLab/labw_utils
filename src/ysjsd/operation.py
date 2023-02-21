@@ -6,6 +6,7 @@ import multiprocessing
 import os
 import sys
 import threading
+import time
 from typing import Union, Optional, Dict, Iterable
 
 import psutil
@@ -167,6 +168,8 @@ class YSJSD(threading.Thread):
                 session.commit()
         with self._job_queue_lock:
             new_job = ServerSideYSJSJob.new(
+                dbe= self._dbe,
+                db_write_lock=self._db_write_lock,
                 submission=submission,
                 job_id=self._latest_job_id
             )
@@ -182,9 +185,12 @@ class YSJSD(threading.Thread):
             return None
         with self._job_queue_lock:
             if self._config.schedule_method == "FIFO":
-                job = self._job_queue_pending[0]
-                if job.submission.cpu < avail_cpu and job.submission.mem < avail_mem:
-                    return self._job_queue_pending.pop(0)
+                try:
+                    job = self._job_queue_pending[0]
+                    if job.submission.cpu < avail_cpu and job.submission.mem < avail_mem:
+                        return self._job_queue_pending.pop(0)
+                except KeyError:
+                    return None
             elif self._config.schedule_method == "AGGRESSIVE":
                 for i in range(len(self._job_queue_pending)):
                     job = self._job_queue_pending[i]
@@ -201,25 +207,22 @@ class YSJSD(threading.Thread):
             except KeyError as e:
                 raise JobNotExistException from e
         job_to_cancel.cancel()
-        # TODO: Code that put job into canceled database
 
     def job_send_signal(self, job_id: int, _signal: int):
         if self._state == "starting":
             raise NotAvailableException
-        with self._job_queue_lock:
-            try:
-                self._job_queue_running[job_id].send_signal(_signal)
-            except KeyError as e:
-                raise JobNotExistException from e
+        try:
+            self._job_queue_running[job_id].send_signal(_signal)
+        except KeyError as e:
+            raise JobNotExistException from e
 
     def job_kill(self, job_id: int):
         if self._state == "starting":
             raise NotAvailableException
-        with self._job_queue_lock:
-            try:
-                self._job_queue_running[job_id].kill(self._config.kill_timeout)
-            except KeyError as e:
-                raise JobNotExistException from e
+        try:
+            self._job_queue_running[job_id].kill(self._config.kill_timeout)
+        except KeyError as e:
+            raise JobNotExistException from e
 
     def query(self, ) -> Iterable[int]:
         ...
@@ -255,8 +258,10 @@ class YSJSD(threading.Thread):
             for job_id in list(self._job_queue_running.keys()):
                 job = self._job_queue_running[job_id]
                 if job.status == "finished":
-                    ...  # TODO: Add to database
-                    _ = self._job_queue_running.pop(job_id)
+                    self._job_queue_running.pop(job_id)
+                    self._current_cpu += job.submission.cpu
+                    self._current_mem += job.submission.mem
+            time.sleep(0.1)
 
         self._lh.info("Terminating")
         self.apply(

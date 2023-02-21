@@ -123,9 +123,10 @@ def start(config: ServerSideYSJSDConfig):
     global_ysjsd = YSJSD(global_config)
     global_ysjsd.start()
     # Update the logger
+    app.logger.handlers.clear()
     app.logger.setLevel(logger_helper.TRACE)
     frontend_logger_file_handler = logging.FileHandler(
-        os.path.join(global_config.var_directory, "ysjsd_backend.log")
+        os.path.join(global_config.var_directory, "ysjsd_pywsgi.log")
     )
     frontend_logger_file_handler.setLevel(logger_helper.TRACE)
     frontend_logger_file_handler.setFormatter(logger_helper.get_formatter(frontend_logger_file_handler.level))
@@ -136,7 +137,7 @@ def start(config: ServerSideYSJSDConfig):
     global_server = pywsgi.WSGIServer(
         ("0.0.0.0", int(global_config.ysjs_port)),
         application=app,
-        log=pywsgi.LoggingLogAdapter(app.logger),
+        log=pywsgi.LoggingLogAdapter(app.logger, level=logging.DEBUG),
         error_log=None
     )
     global_server.serve_forever()

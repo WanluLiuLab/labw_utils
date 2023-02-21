@@ -4,27 +4,49 @@ import signal
 import subprocess
 import threading
 import time
-from typing import Optional
+from typing import Optional, Any, Mapping
 
 import psutil
+import sqlalchemy.engine
+from sqlalchemy.orm import sessionmaker
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from libysjs.ds.ysjs_job import YSJSJob
+from ysjsd.orm.ysjs_job_table import YSJSJobTable
 
 _lh = get_logger("YSJSD")
 
 
 class ServerSideYSJSJob(threading.Thread, YSJSJob):
     _p: Optional[subprocess.Popen]
+    _dbe: sqlalchemy.engine.Engine
+    _db_write_lock: threading.Lock
 
-    def __init__(self, **kwargs):
+    def __init__(self, dbe: sqlalchemy.engine.Engine, db_write_lock: threading.Lock, **kwargs):
         threading.Thread.__init__(self)
         YSJSJob.__init__(self, **kwargs)
         self._p = None
+        self._dbe = dbe
+        self._db_write_lock = db_write_lock
+        with self._db_write_lock:
+            with sessionmaker(bind=self._dbe)() as session:
+                session.add(
+                    YSJSJobTable.from_job(self)
+                )
+                session.commit()
+
+    def _db_update(self, update_dict: Mapping[str, Any]):
+        with sessionmaker(bind=self._dbe)() as session:
+            session.query(YSJSJobTable).filter(YSJSJobTable.job_id == self.job_id).update(update_dict)
+            session.commit()
+
+    @classmethod
+    def new(cls, dbe: sqlalchemy.engine.Engine, db_write_lock: threading.Lock, **kwargs):
+        return cls(dbe=dbe, db_write_lock=db_write_lock, **YSJSJob.new(**kwargs).to_dict())
 
     def run(self):
         _lh.info("Job %d starting", self._job_id)
-        self._status = "starting"
+        self._db_update({"status": self._status})
         if self._submission.stdin is None:
             stdin = subprocess.DEVNULL
         else:
@@ -54,10 +76,20 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
         self._start_time = time.time()
         _lh.info("Job %d running", self._job_id)
         self._status = "running"
+        self._db_update({
+            "status": self._status,
+            "pid": self._pid,
+            "start_time": self.start_time
+        })
         self._retv = self._p.wait()
         self._status = "finished"
-        _lh.info("Job %d finished with exit value %d", self._job_id, self._retv)
         self._terminate_time = time.time()
+        self._db_update({
+            "status": self._status,
+            "retv": self._retv,
+            "terminate_time": self._terminate_time
+        })
+        _lh.info("Job %d finished with exit value %d", self._job_id, self._retv)
 
     def send_signal(self, _signal: int):
         self._p.send_signal(_signal)
@@ -71,6 +103,9 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
 
     def cancel(self):
         self._status = "canceled"
+        self._db_update({
+            "status": self._status
+        })
 
     def kill(self, timeout: float):
         """

@@ -9,7 +9,7 @@ from libysjs.ds.ysjs_job import YSJSJob
 from ysjsd.orm import SQLAlchemyDeclarativeBase
 
 
-class YSJYSJSJobTable(SQLAlchemyDeclarativeBase):
+class YSJSJobTable(SQLAlchemyDeclarativeBase):
     __tablename__: Final[str] = "ysjs_job"
     job_id = Column(sqlalchemy.Integer, primary_key=True, nullable=False)
     submission_id = Column(sqlalchemy.String(32), nullable=False)
