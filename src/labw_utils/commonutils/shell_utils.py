@@ -152,13 +152,14 @@ def rm_rf(path: str):
     :param path: The path you wish to remove
     """
     dbg_head = "rm(path='" + path + "')"
-    if os.path.isdir(path) and not os.path.islink(path):
-        lh.debug(f"{dbg_head} is a directory")
-        shutil.rmtree(path)
-    elif os.path.exists(path):
-        lh.debug(f"{dbg_head} is a file")
-        os.remove(path)
-    else:
+    try:
+        if os.path.isdir(path) and not os.path.islink(path):
+            lh.debug(f"{dbg_head} is a directory")
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            lh.debug(f"{dbg_head} is a file")
+            os.remove(path)
+    except FileNotFoundError:
         lh.debug(f"{dbg_head} not exist")
 
 

@@ -4,6 +4,7 @@ import json
 import logging
 import multiprocessing
 import os
+import sys
 import threading
 from typing import Union, Optional, Dict, Iterable
 
@@ -11,7 +12,8 @@ import psutil
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
-from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.io.safe_io import get_writer, get_reader
+from labw_utils.commonutils.shell_utils import rm_rf
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from libysjs.ds.ysjs_submission import YSJSSubmission
 from libysjs.operation import YSJSDLoad
@@ -56,15 +58,18 @@ class YSJSD(threading.Thread):
     _job_queue_pending: Dict[int, ServerSideYSJSJob]
     _job_queue_running: Dict[int, ServerSideYSJSJob]
     _latest_job_id: int
+    _last_job_id_filename: str
+    _lock_filename: str
 
     def __init__(self, config: ServerSideYSJSDConfig):
         super().__init__()
         self._job_queue_lock = threading.Lock()
         self._db_write_lock = threading.Lock()
         self._config = config
+
+        # Create log
         os.makedirs(self._config.var_directory, exist_ok=True)
         os.makedirs(os.path.join(self._config.var_directory, "submission"), exist_ok=True)
-
         log_file_path = os.path.join(self._config.var_directory, "ysjsd.log")
         self._lh = logger_helper.get_logger(
             name="YSJSD",
@@ -73,6 +78,33 @@ class YSJSD(threading.Thread):
             log_file_level=logger_helper.TRACE
         )
         self._lh.info("Logger set up at %s", log_file_path)
+
+        # Process PID lock
+        self._lock_filename = os.path.join(self._config.var_directory, "pid.lock")
+        try:
+            with get_reader(self._lock_filename) as last_job_id_reader:
+                prev_pid = int(last_job_id_reader.read())
+                if psutil.pid_exists(prev_pid):
+                    self._lh.error(
+                        "Previous lock %s (pid=%d) still running!",
+                        self._lock_filename,
+                        prev_pid
+                    )
+                    sys.exit(1)
+                else:
+                    self._lh.warning(
+                        "Previous lock %s (pid=%d) invalid; will be removed",
+                        self._lock_filename,
+                        prev_pid
+                    )
+                    rm_rf(self._lock_filename)
+        except (ValueError, FileNotFoundError):
+            self._lh.warning("Previous lock %s invalid; will be removed", self._lock_filename)
+            rm_rf(self._lock_filename)
+        with get_writer(self._lock_filename) as lock_writer:
+            lock_writer.write(f"{os.getpid()}\n")
+
+        # Other configs
         self._config.validate()
         self._state = "starting"
         self._current_cpu = self._config.total_cpu
@@ -80,7 +112,8 @@ class YSJSD(threading.Thread):
         self._schedule_method = self._config.schedule_method
         self._job_queue_pending = {}
         self._job_queue_running = {}
-        self._latest_job_id = 0  # TODO: Load from Database
+
+        # Connect to DB
         dburl = f"sqlite:///{self._config.var_directory}/foo.db"
         with self._db_write_lock:
             self._dbe = sqlalchemy.engine.create_engine(
@@ -99,6 +132,19 @@ class YSJSD(threading.Thread):
                     session.add(YSJSDVersionTable(name=name, version=version))
                 session.commit()
         self._lh.info("Initialized database %s", dburl)
+
+        # Load last job_id
+        self._latest_job_id = 0
+        self._last_job_id_filename = os.path.join(self._config.var_directory, "last_job.txt")
+        try:
+            with get_reader(self._last_job_id_filename) as last_job_id_reader:
+                self._latest_job_id = int(last_job_id_reader.read())
+        except (ValueError, FileNotFoundError):
+            self._lh.warning("Previous last_job_id file %s invalid; will be removed", self._last_job_id_filename)
+            rm_rf(self._last_job_id_filename)
+        # TODO: Load from Database
+
+        # Finished
         self._lh.info("Initialization Finished")
 
     def receive_submission(self, submission: YSJSSubmission) -> int:
@@ -127,6 +173,8 @@ class YSJSD(threading.Thread):
             self._job_queue_pending[self._latest_job_id] = new_job
             reti = self._latest_job_id
             self._latest_job_id += 1
+            with get_writer(self._last_job_id_filename) as last_job_id_writer:
+                last_job_id_writer.write(f"{self._latest_job_id}\n")
         return reti
 
     def _fetch_pending_job(self, avail_cpu: float, avail_mem: float) -> Optional[ServerSideYSJSJob]:
@@ -219,6 +267,7 @@ class YSJSD(threading.Thread):
             self._job_queue_running.keys(),
             operation="kill"
         )
+        rm_rf(self._lock_filename)
         self._lh.info("Terminated")
 
     def terminate(self):
