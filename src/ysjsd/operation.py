@@ -180,25 +180,27 @@ class YSJSD(threading.Thread):
                 last_job_id_writer.write(f"{self._latest_job_id}\n")
         return reti
 
-    def _fetch_pending_job(self, avail_cpu: float, avail_mem: float) -> Optional[ServerSideYSJSJob]:
+    def _fetch_pending_job(self) -> Optional[ServerSideYSJSJob]:
         if not self._job_queue_pending or self._state != "running":
             return None
         with self._job_queue_lock:
             if self._config.schedule_method == "FIFO":
                 try:
-                    job = self._job_queue_pending[0]
-                    if job.submission.cpu < avail_cpu and job.submission.mem < avail_mem:
-                        return self._job_queue_pending.pop(0)
-                except KeyError:
+                    smallest_jid = min(*self._job_queue_pending.keys())
+                except TypeError:
                     return None
+                job = self._job_queue_pending[smallest_jid]
+                if job.submission.cpu < self._current_cpu and job.submission.mem < self._current_mem:
+                    return self._job_queue_pending.pop(smallest_jid)
             elif self._config.schedule_method == "AGGRESSIVE":
-                for i in range(len(self._job_queue_pending)):
+                for i in list(self._job_queue_pending.keys()):
                     job = self._job_queue_pending[i]
-                    if job.submission.cpu < avail_cpu and job.submission.mem < avail_mem:
+                    if job.submission.cpu < self._current_cpu and job.submission.mem < self._current_mem:
                         return self._job_queue_pending.pop(i)
         return None
 
     def job_cancel(self, job_id: int):
+        self._lh.debug("Cancel %d", job_id)
         if self._state == "starting":
             raise NotAvailableException
         with self._job_queue_lock:
@@ -209,6 +211,7 @@ class YSJSD(threading.Thread):
         job_to_cancel.cancel()
 
     def job_send_signal(self, job_id: int, _signal: int):
+        self._lh.debug("Kill -%d %d", _signal, job_id)
         if self._state == "starting":
             raise NotAvailableException
         try:
@@ -217,6 +220,7 @@ class YSJSD(threading.Thread):
             raise JobNotExistException from e
 
     def job_kill(self, job_id: int):
+        self._lh.debug("Kill %d", job_id)
         if self._state == "starting":
             raise NotAvailableException
         try:
@@ -233,14 +237,18 @@ class YSJSD(threading.Thread):
             operation: str,
             **extra_params
     ):
+        job_ids=list(job_ids)
         if self._state == "starting":
             raise NotAvailableException
         if operation == "cancel":
-            map(self.job_cancel, job_ids)
+            for job_id in job_ids:
+                self.job_cancel(job_id)
         elif operation == "kill":
-            map(self.job_kill, job_ids)
+            for job_id in job_ids:
+                self.job_kill(job_id)
         elif operation == "send_signal":
-            map(lambda job_id: self.job_send_signal(job_id=job_id, **extra_params), job_ids)
+            for job_id in job_ids:
+                self.job_send_signal(job_id, **extra_params)
         else:
             raise IllegalOperationException
 
@@ -249,7 +257,7 @@ class YSJSD(threading.Thread):
         self._state = "running"
         while self._state != "terminating":
             if len(self._job_queue_running) < self._config.max_concurrent_jobs:
-                job_fetched = self._fetch_pending_job(avail_cpu=self._current_cpu, avail_mem=self._current_mem)
+                job_fetched = self._fetch_pending_job()
                 if job_fetched is not None:
                     self._current_cpu -= job_fetched.submission.cpu
                     self._current_mem -= job_fetched.submission.mem
