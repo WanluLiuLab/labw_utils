@@ -1,6 +1,5 @@
-import pandas as pd
-
 from labw_utils.commonutils.appender.typing import DictBufferAppender
+from labw_utils.commonutils.shell_utils import wc_l
 
 
 class TSVTableAppender(DictBufferAppender):
@@ -23,4 +22,4 @@ class TSVTableAppender(DictBufferAppender):
             writer.write(df)
 
     def _get_n_lines_actually_written_hook(self) -> int:
-        return pd.read_table(self._real_filename, sep="\t", engine="pyarrow").shape[0]
+        return wc_l(self._real_filename) - 1

@@ -1,8 +1,13 @@
 import sqlite3
 
-import pandas as pd
+from labw_utils import UnmetDependenciesError
 
-from labw_utils.commonutils.appender.typing import PandasDictBufferAppender
+try:
+    import pandas as pd
+except ImportError:
+    raise UnmetDependenciesError("pandas")
+
+from labw_utils.commonutils.appender._pandas_table_appender import PandasDictBufferAppender
 
 
 class SQLite3TableAppender(PandasDictBufferAppender):

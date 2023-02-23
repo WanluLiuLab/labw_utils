@@ -1,6 +1,7 @@
 """
 test_tetgs.py -- Unit test of corresponding module.
 """
+import locale
 import os
 import tempfile
 
@@ -46,3 +47,6 @@ def initialize_session():
     session_test_info = SessionTestInfo()
     yield session_test_info
     session_test_info.teardown()
+
+
+locale.setlocale(locale.LC_ALL, 'C')

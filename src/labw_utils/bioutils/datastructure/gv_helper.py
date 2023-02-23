@@ -34,13 +34,13 @@ def get_duplicated_transcript_ids(
         for transcript in transcripts:
             this_splice_site = list(transcript.splice_sites)
             if assert_splice_site_existence(this_splice_site, all_splice_sites):
-                lh.warn(f"Will remove {transcript.transcript_id}")
+                lh.warning(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
     else:
         for transcript in transcripts:
             this_splice_site = list(transcript.exon_boundaries)
             if assert_splice_site_existence(this_splice_site, all_splice_sites):
-                lh.warn(f"Will remove {transcript.transcript_id}")
+                lh.warning(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
 
 

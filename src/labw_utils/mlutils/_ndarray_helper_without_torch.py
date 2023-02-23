@@ -4,7 +4,6 @@ General-purposed helpers for Numpy NDArray and Torch Tensor.
 
 __all__ = (
     "scale_np_array",
-    "scale_torch_array",
     "describe"
 )
 
@@ -59,7 +58,10 @@ def describe(array: _Tensor) -> str:
 
     Example:
 
-    # FIXME: fails since int32 on Windows.
+    >>> import sys, pytest
+    >>> if sys.platform.startswith('win'):
+    ...     pytest.skip('this doctest does not work on Windows')
+    ...
 
     >>> describe(np.array([0, 0, 1, 1]))
     'ndarray[int64] with shape=(4,); uniques=[0 1]'

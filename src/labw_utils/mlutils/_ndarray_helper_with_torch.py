@@ -81,7 +81,10 @@ def describe(array: _Tensor) -> str:
 
     Example:
 
-    # FIXME: fails since int32 on Windows.
+    >>> import sys, pytest
+    >>> if sys.platform.startswith('win'):
+    ...     pytest.skip('this doctest does not work on Windows')
+    ...
 
     >>> describe(np.array([0, 0, 1, 1]))
     'ndarray[int64] with shape=(4,); uniques=[0 1]'
@@ -128,7 +131,7 @@ class DimensionMismatchException(ValueError):
         )
 
 
-class Describe(torch.nn):
+class Describe(torch.nn.Module):
     """
     The Describe Layer of PyTorch Module.
 

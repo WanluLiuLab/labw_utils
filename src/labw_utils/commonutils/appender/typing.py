@@ -3,8 +3,6 @@ import os
 from abc import abstractmethod, ABC
 from typing import List, Any, Dict
 
-import pandas as pd
-
 
 class TableAppenderConfig:
     buffer_size: int
@@ -16,7 +14,7 @@ class TableAppenderConfig:
         self.buffer_size = buffer_size
 
 
-class BaseTableAppender:
+class BaseTableAppender(ABC):
     filename: str
     header: List[str]
     _real_filename: str
@@ -37,7 +35,7 @@ class BaseTableAppender:
 
     @abstractmethod
     def _get_n_lines_actually_written_hook(self) -> int:
-        pass
+        raise NotImplementedError
 
     def validate_lines(self, required_number_of_lines: int) -> None:
         actual_number_of_lines = self._get_n_lines_actually_written_hook()
@@ -50,19 +48,19 @@ class BaseTableAppender:
 
     @abstractmethod
     def _get_real_filename_hook(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _create_file_hook(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def append(self, body: List[Any]):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def close(self):
-        pass
+        raise NotImplementedError
 
     def __enter__(self):
         return self
@@ -99,11 +97,11 @@ class DictBufferAppender(BaseTableAppender, ABC):
 
     @abstractmethod
     def _write_hook(self, df: Any):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def flush(self) -> Any:
-        pass
+        raise NotImplementedError
 
     def __len__(self):
         if self._buff == {}:
@@ -119,12 +117,3 @@ class DictBufferAppender(BaseTableAppender, ABC):
             self._write_hook(df)
 
 
-class PandasDictBufferAppender(DictBufferAppender, ABC):
-
-    def flush(self) -> pd.DataFrame:
-        df = pd.DataFrame.from_dict(data=self._buff)
-        return df
-
-    @abstractmethod
-    def _write_hook(self, df: pd.DataFrame):
-        pass

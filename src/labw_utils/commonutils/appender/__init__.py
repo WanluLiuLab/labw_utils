@@ -1,6 +1,7 @@
 import importlib
 from typing import Type, Iterator, Tuple
 
+from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.appender.typing import BaseTableAppender
 
 POSSIBLE_APPENDER_PATHS = (
@@ -27,6 +28,8 @@ AVAILABLE_TABLE_APPENDERS = {
 def load_table_appender_class(name: str) -> Type[BaseTableAppender]:
     """
     Return a known tracer.
+
+    :raise UnmetDependenciesError: If dependencies are unmet
     """
     for possible_path in POSSIBLE_APPENDER_PATHS:
         try:
@@ -48,5 +51,5 @@ def list_table_appender() -> Iterator[Tuple[str, str]]:
                         yield k, v.__doc__.strip().splitlines()[0]
                     except AttributeError:
                         yield k, "No docs available"
-        except ModuleNotFoundError:
+        except (ModuleNotFoundError, UnmetDependenciesError):
             continue
