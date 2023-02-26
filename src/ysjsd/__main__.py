@@ -13,11 +13,9 @@ from gevent.pywsgi import WSGIServer
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from libysjs.ds.ysjs_submission import YSJSSubmission
+from ysjsd import APP_DIR, APP_NAME, NOT_READY
 from ysjsd.ds.ysjsd_config import ServerSideYSJSDConfig
-from ysjsd.operation import YSJSD
-
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-APP_NAME = "YSJSD BACKEND"
+from ysjsd.operation import YSJSD, JobNotExistException
 
 global_config: Optional[ServerSideYSJSDConfig] = None
 global_ysjsd: Optional[YSJSD] = None
@@ -62,26 +60,72 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 @app.route('/ysjsd/api/v1.0/config', methods=['GET'])
 def serve_config() -> ResponseType:
+    global global_config
     if global_config is None:
-        raise ValueError
+        return NOT_READY
     return flask.jsonify(**global_config.to_dict()), 200
 
 
 @app.route('/ysjsd/api/v1.0/load', methods=['GET'])
 def serve_load() -> ResponseType:
+    global global_ysjsd
     if global_ysjsd is None:
-        raise ValueError
+        return NOT_READY
     return flask.jsonify(**global_ysjsd.real_load.to_dict()), 200
 
 
-@app.route('/ysjsd/api/v1.0/job_ids', methods=['GET'])
-def serve_job_ids() -> ResponseType:
+@app.route('/ysjsd/api/v1.0/status', methods=['GET'])
+def serve_status() -> ResponseType:
+    global global_ysjsd
+    if global_ysjsd is None:
+        return NOT_READY
+    return flask.jsonify(**global_ysjsd.status.to_dict()), 200
+
+
+@app.route('/ysjsd/api/v1.0/submission/<submission_id>', methods=['GET'])
+def serve_submission(submission_id: str) -> ResponseType:
     ...
 
 
-@app.route('/ysjsd/api/v1.0/submission/<job_id>', methods=['GET'])
-def serve_submission(job_id: str) -> ResponseType:
+@app.route('/ysjsd/api/v1.0/job/<int:job_id>', methods=['GET'])
+def serve_job(job_id: int) -> ResponseType:
     ...
+
+
+@app.route('/ysjsd/api/v1.0/job/<int:job_id>/cancel', methods=['POST'])
+def cancel(job_id: int) -> ResponseType:
+    global global_ysjsd
+    if global_ysjsd is None:
+        return NOT_READY
+    try:
+        global_ysjsd.job_cancel(job_id)
+        return f"Cancel {job_id}\n", 200
+    except JobNotExistException:
+        return f"Cancel {job_id} Failure -- Job not exist\n", 500
+
+
+@app.route('/ysjsd/api/v1.0/job/<int:job_id>/send_signal/<int:_signal>', methods=['POST'])
+def send_signal(job_id: int, _signal: int) -> ResponseType:
+    global global_ysjsd
+    if global_ysjsd is None:
+        return NOT_READY
+    try:
+        global_ysjsd.job_send_signal(job_id, _signal)
+        return f"Send signal {_signal} to {job_id}\n", 200
+    except JobNotExistException:
+        return f"Send signal {_signal} to {job_id} Failure -- Job not exist\n", 500
+
+
+@app.route('/ysjsd/api/v1.0/job/<int:job_id>/kill', methods=['POST'])
+def kill(job_id: int) -> ResponseType:
+    global global_ysjsd
+    if global_ysjsd is None:
+        return NOT_READY
+    try:
+        global_ysjsd.job_kill(job_id)
+        return f"Kill {job_id}\n", 200
+    except JobNotExistException:
+        return f"Kill {job_id} Failure -- Job not exist\n", 500
 
 
 @app.route('/ysjsd/api/v1.0/stop', methods=['POST'])
@@ -126,7 +170,7 @@ def start(config: ServerSideYSJSDConfig):
     app.logger.handlers.clear()
     app.logger.setLevel(logger_helper.TRACE)
     frontend_logger_file_handler = logging.FileHandler(
-        os.path.join(global_config.var_directory, "ysjsd_pywsgi.log")
+        os.path.join(global_config.var_directory_path, "ysjsd_pywsgi.log")
     )
     frontend_logger_file_handler.setLevel(logger_helper.TRACE)
     frontend_logger_file_handler.setFormatter(logger_helper.get_formatter(frontend_logger_file_handler.level))
@@ -146,9 +190,7 @@ def start(config: ServerSideYSJSDConfig):
 if __name__ == "__main__":
     args = _parse_args(sys.argv[1:])
     if args.generate_default_config:
-        ServerSideYSJSDConfig.new(
-            args.config
-        ).save(args.config)
+        ServerSideYSJSDConfig.new(args.config).save(args.config)
         _lh.info("Configure file generated at %s", args.config)
         sys.exit(0)
     start(ServerSideYSJSDConfig.load(args.config))

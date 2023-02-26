@@ -10,7 +10,7 @@ class YSJSDConfig:
     _name: str
     _description: str
     _ysjs_port: str
-    _var_directory: str
+    _var_directory_path: str
     _config_file_path: str
     _total_cpu: Union[int, float]
     _total_mem: Union[int, float]
@@ -23,7 +23,7 @@ class YSJSDConfig:
             name: str,
             description: str,
             ysjs_port: str,
-            var_directory: str,
+            var_directory_path: str,
             config_file_path: str,
             total_cpu: Union[int, float],
             total_mem: Union[int, float],
@@ -34,7 +34,7 @@ class YSJSDConfig:
         self._name = name
         self._description = description
         self._ysjs_port = ysjs_port
-        self._var_directory = var_directory
+        self._var_directory_path = var_directory_path
         self._config_file_path = config_file_path
         self._total_cpu = total_cpu
         self._total_mem = total_mem
@@ -75,15 +75,15 @@ class YSJSDConfig:
         return self._schedule_method
 
     @property
-    def var_directory(self) -> str:
-        return self._var_directory
+    def var_directory_path(self) -> str:
+        return self._var_directory_path
 
     def to_dict(self) -> Mapping[str, Any]:
         return {
             "name": self._name,
             "description": self._description,
             "ysjs_port": self._ysjs_port,
-            "var_directory": self._var_directory,
+            "var_directory_path": self._var_directory_path,
             "config_file_path": self._config_file_path,
             "total_cpu": self._total_cpu,
             "total_mem": self._total_mem,

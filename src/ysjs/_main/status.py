@@ -31,6 +31,12 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         help="Show real cluster load",
         action='store_true'
     )
+    parser.add_argument(
+        "--show_status",
+        required=False,
+        help="Show real cluster status",
+        action='store_true'
+    )
     return parser.parse_args(args)
 
 
@@ -59,3 +65,6 @@ def main(args: List[str]):
             "Real Available Resources: CPU %.2f, Memory %.2f %sB (%.2f)",
             current_load.real_avail_cpu, real_avail_mem_si, real_avail_mem_prefix, current_load.real_avail_mem
         )
+    if args.show_status:
+        current_status = cl.cluster_status
+        

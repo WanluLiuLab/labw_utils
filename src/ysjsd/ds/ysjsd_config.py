@@ -70,18 +70,30 @@ class ServerSideYSJSDConfig(YSJSDConfig, AbstractTOMLSerializable):
         }
 
     @classmethod
-    def new(cls, config_file_path: str):
+    def new(
+            cls,
+            config_file_path: str,
+            name: str = "ylsjs_cluster",
+            description: str = "No description",
+            ysjs_port: str = "8080",
+            var_directory_path: str = os.path.join(os.path.abspath(".."), "var"),
+            total_cpu: float = multiprocessing.cpu_count(),
+            total_mem: float = psutil.virtual_memory().total * 0.8,
+            schedule_method: str = "FIFO",
+            max_concurrent_jobs: int = 4096,
+            kill_timeout: float = 3
+    ):
         return cls(
-            name="ylsjs_cluster",
-            description="No description",
-            ysjs_port="8080",
-            var_directory=os.path.join(os.path.abspath(".."), "var"),
+            name=name,
+            description=description,
+            ysjs_port=ysjs_port,
+            var_directory_path=var_directory_path,
             config_file_path=os.path.abspath(config_file_path),
-            total_cpu=multiprocessing.cpu_count(),
-            total_mem=(psutil.virtual_memory().total + psutil.swap_memory().total) * 0.8,
-            schedule_method="FIFO",
-            max_concurrent_jobs=4096,
-            kill_timeout=3
+            total_cpu=total_cpu,
+            total_mem=total_mem,
+            schedule_method=schedule_method,
+            max_concurrent_jobs=max_concurrent_jobs,
+            kill_timeout=kill_timeout
         )
 
     def validate(self):

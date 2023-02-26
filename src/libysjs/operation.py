@@ -8,6 +8,7 @@ import requests
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from libysjs.ds.ysjs_submission import YSJSSubmission
 from libysjs.ds.ysjsd_config import YSJSDConfig
+from libysjs.ds.ysjsd_status import YSJSDStatus
 
 _lh = get_logger(__name__)
 
@@ -100,6 +101,22 @@ class YSJSCluster:
             except json.JSONDecodeError as e:
                 raise MalformedResponseException from e
         _lh.debug("Successfully GET YSJSD load")
+        return load
+    
+    @property
+    def cluster_status(self) -> YSJSDStatus:
+        try:
+            resp = requests.get(f"{self._conn}/ysjsd/api/v1.0/status")
+        except requests.RequestException as e:
+            raise ClusterNotUpException from e
+        if resp.status_code != 200:
+            raise MalformedResponseException
+        else:
+            try:
+                load = YSJSDStatus.from_dict(json.loads(resp.text))
+            except json.JSONDecodeError as e:
+                raise MalformedResponseException from e
+        _lh.debug("Successfully GET YSJSD status")
         return load
 
     @property
