@@ -8,10 +8,10 @@ except ImportError:
     raise UnmetDependenciesError("pandas")
 
 
-from labw_utils.commonutils.appender.typing import DictBufferAppender
+from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
 
 
-class PandasDictBufferAppender(DictBufferAppender, ABC):
+class PandasDictBufferAppender(BaseDictBufferAppender, ABC):
 
     def flush(self) -> pd.DataFrame:
         df = pd.DataFrame.from_dict(data=self._buff)

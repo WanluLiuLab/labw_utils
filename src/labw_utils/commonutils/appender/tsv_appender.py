@@ -1,8 +1,8 @@
-from labw_utils.commonutils.appender.typing import DictBufferAppender
+from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
 from labw_utils.commonutils.shell_utils import wc_l
 
 
-class TSVTableAppender(DictBufferAppender):
+class TSVTableAppender(BaseDictBufferAppender):
 
     def _get_real_filename_hook(self):
         self._real_filename = ".".join((self.filename, "tsv"))

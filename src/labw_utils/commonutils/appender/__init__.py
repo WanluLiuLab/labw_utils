@@ -46,7 +46,7 @@ def list_table_appender() -> Iterator[Tuple[str, str]]:
             mod = importlib.import_module(possible_path)
 
             for k, v in mod.__dict__.items():
-                if k.__contains__("Appender") and not k.__contains__("Base"):
+                if k.__contains__("Appender") and not k.__contains__("Base") and not k.__contains__("Config"):
                     try:
                         yield k, v.__doc__.strip().splitlines()[0]
                     except AttributeError:
