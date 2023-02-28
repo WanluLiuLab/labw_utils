@@ -336,7 +336,7 @@ class GtfRecord(Feature):
     'hg38_rmsk'
     >>> gtf_from_line.feature
     'exon'
-    >>> gtf_from_line.start
+import ysjsd.server    >>> ysjsd.server.start
     50331337
     >>> gtf_from_line.end
     50332274

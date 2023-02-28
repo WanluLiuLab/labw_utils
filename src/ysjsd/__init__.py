@@ -1,5 +1,3 @@
-import os
-
 from labw_utils import UnmetDependenciesError
 
 try:
@@ -31,6 +29,3 @@ try:
     import tomli_w
 except ImportError:
     raise UnmetDependenciesError("tomli_w")
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-APP_NAME = "YSJSD BACKEND"
-NOT_READY = ("Not ready\n", 500)
