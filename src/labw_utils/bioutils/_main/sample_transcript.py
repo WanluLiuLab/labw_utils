@@ -60,7 +60,7 @@ def main(args: List[str]):
     transcript_ids = random.sample(list(transcript_ids), len(transcript_ids) * args.percent // 100)
 
     subset_gtf_by_transcript_id(
-        possible_values=transcript_ids,
+        possible_values=iter(transcript_ids),
         field_name="transcript_id",
         gtf_filename=args.gtf,
         out_filename=args.out

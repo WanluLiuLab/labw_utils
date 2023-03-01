@@ -8,7 +8,7 @@ like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.shell_utils`.
 import os
 import stat
 
-from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog
+from labw_utils.devutils.decorators import chronolog
 
 __all__ = (
     "get_abspath",

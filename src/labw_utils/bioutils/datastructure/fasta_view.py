@@ -211,9 +211,6 @@ class _BaseFastaView(FastaViewType, ABC):
         except AttributeError:
             return "Fasta being constructed"
 
-    def close(self):
-        pass
-
     def __del__(self):
         self.close()
 
@@ -269,6 +266,10 @@ class _MemoryAccessFastaView(_BaseFastaView):
 
     def get_chr_length(self, chromosome: str) -> int:
         return len(self._all_dict[chromosome])
+
+    def close(self):
+        """Nothing to close as is in memory"""
+        pass
 
     def __init__(self, filename: str, full_header: bool = False, show_tqdm: bool = True):
         super().__init__(filename, full_header)
@@ -354,7 +355,7 @@ class _DiskAccessFastaView(_BaseFastaView):
             try:
                 self._fai.write(index_filename)
             except FastaIndexNotWritableError as e:
-                _lh.error(f"Fasta index generated but not writable %s", e)
+                _lh.error("Fasta index generated but not writable %s", e)
         else:
             self._fai = FastaIndexView.from_fai(index_filename, show_tqdm=show_tqdm)
 

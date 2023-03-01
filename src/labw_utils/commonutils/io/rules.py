@@ -51,8 +51,7 @@ class BaseFileRule(FileRuleType):
             for extension in extensions:
                 if path.endswith(extension):
                     return True
-            else:
-                return False
+            return False
 
         new_instance = cls(extension_rule, opener=opener, rule_name=rule_name)
         return new_instance

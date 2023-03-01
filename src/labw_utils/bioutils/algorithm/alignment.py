@@ -114,7 +114,6 @@ class SmithWatermanAligner:
                 if not self.is_global:
                     score = max(score, 0)
                 self._sw_matrix[i][j] = score
-        self._sw_matrix = self._sw_matrix
 
     def get_backtrack(
             self,

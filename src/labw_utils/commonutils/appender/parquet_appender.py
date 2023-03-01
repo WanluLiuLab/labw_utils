@@ -24,6 +24,7 @@ class ParquetTableAppender(PandasDictBufferAppender):
         self._real_filename = ".".join((self.filename, "parquet"))
 
     def _create_file_hook(self):
+        """Function not needed"""
         pass
 
     def _write_hook(self, df: pd.DataFrame):

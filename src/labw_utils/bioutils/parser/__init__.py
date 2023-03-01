@@ -24,7 +24,7 @@ class _BaseFileIO:
     _filename: str
     _fd: Optional[IO]
 
-    filetype: str = None
+    filetype: str
     """File type indicator, should be class variable."""
 
     @property
@@ -40,7 +40,7 @@ class _BaseFileIO:
         The subclass should have ``filetype`` attribute.
         """
         _new_instance = super().__new__(cls)
-        if _new_instance.filetype is None:
+        if not hasattr(_new_instance, "filetype"):
             raise FileTypeNotFoundError(cls.__name__)
         return _new_instance
 
@@ -55,7 +55,6 @@ class _BaseFileIO:
 
     def __exit__(self, *args, **kwargs):
         self.close()
-        return
 
     def tell(self) -> int:
         try:

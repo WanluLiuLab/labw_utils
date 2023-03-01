@@ -189,9 +189,6 @@ class Feature(FeatureType):
             self.seqname == other.seqname and \
             self.strand == other.strand
 
-    def __ne__(self, other: Feature):
-        return not self == other
-
     def overlaps(self, other: Feature) -> bool:
         if self.seqname != other.seqname:
             return False
@@ -336,7 +333,7 @@ class GtfRecord(Feature):
     'hg38_rmsk'
     >>> gtf_from_line.feature
     'exon'
-import ysjsd.server    >>> ysjsd.server.start
+    >>> gtf_from_line.start
     50331337
     >>> gtf_from_line.end
     50332274

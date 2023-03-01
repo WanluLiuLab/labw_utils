@@ -98,7 +98,7 @@ class YSJSSubmission:
             shell_path = shutil.which("sh")
         if shell_path is None:
             raise ValueError(
-                f"Cannot find suitable Shell; tried bash, dash, ash, sh"
+                "Cannot find suitable Shell; tried bash, dash, ash, sh"
             )
         script_path = os.path.abspath(script_path)
         cwd = os.path.abspath(cwd)

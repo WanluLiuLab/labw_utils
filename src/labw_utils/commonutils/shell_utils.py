@@ -11,7 +11,8 @@ from typing import IO, Callable
 
 from labw_utils.commonutils.io import get_reader
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
-from labw_utils.commonutils.stdlib_helper.logger_helper import chronolog, get_logger
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.devutils.decorators import chronolog
 
 lh = get_logger(__name__)
 

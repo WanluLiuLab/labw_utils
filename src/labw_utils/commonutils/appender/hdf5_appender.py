@@ -28,6 +28,7 @@ class HDF5TableAppender(PandasDictBufferAppender):
         self._real_filename = ".".join((self.filename, "hdf5"))
 
     def _create_file_hook(self):
+        """Function not required"""
         pass
 
     def _write_hook(self, df: pd.DataFrame):

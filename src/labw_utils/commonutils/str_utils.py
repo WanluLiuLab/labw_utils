@@ -166,7 +166,7 @@ def to_dict(
         if first_field_sep_pos == -1:
             continue
         record_key = record[0:first_field_sep_pos].rstrip()
-        while not first_field_sep_pos == lr:
+        while first_field_sep_pos != lr:
             if record[first_field_sep_pos] == field_sep:
                 first_field_sep_pos += 1
             else:

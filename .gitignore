@@ -433,3 +433,4 @@ SiLiCO_Scratch/
 *.toml
 !pyproject.toml
 .idea/dataSources.xml
+*.bak

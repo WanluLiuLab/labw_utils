@@ -32,7 +32,7 @@ def main(args: List[str]):
         possible_values.append(line)
     lh.info(f"{len(possible_values)} values loaded")
     subset_gtf_by_transcript_id(
-        possible_values=possible_values,
+        possible_values=iter(possible_values),
         field_name=args.field_name,
         gtf_filename=args.gtf,
         out_filename=args.out

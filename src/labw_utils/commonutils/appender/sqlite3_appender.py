@@ -20,6 +20,7 @@ class SQLite3TableAppender(PandasDictBufferAppender):
         self._real_filename = ".".join((self.filename, "sqlite3"))
 
     def _create_file_hook(self):
+        """Not needed"""
         pass
 
     def _write_hook(self, df: pd.DataFrame):

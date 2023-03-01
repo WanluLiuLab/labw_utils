@@ -82,7 +82,7 @@ def get_mode_str(sam_path: str) -> str:
     elif sam_path.endswith(".bam"):
         modestr = "rb"
     else:
-        _lh.error(f"Sam file at %s have unknown extensions!", sam_path)
+        _lh.error("Sam file at %s have unknown extensions!", sam_path)
         exit(1)
     return modestr
 

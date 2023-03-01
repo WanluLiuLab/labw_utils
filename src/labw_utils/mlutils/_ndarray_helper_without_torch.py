@@ -99,11 +99,3 @@ class DimensionMismatchException(ValueError):
             f"\twhere {_arr1_name} is {describe(_arr1)}\n"
             f"\twhere {_arr2_name} is {describe(_arr2)}\n"
         )
-
-
-class Describe:
-    def __init__(self, _: str = ""):
-        pass
-
-    def forward(self, _: Any) -> Any:
-        pass

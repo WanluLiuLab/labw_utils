@@ -370,7 +370,7 @@ class Transcript(BaseFeatureProxy):
                         f"cdna ({len(_seq)}) != exon ({_exon.transcribed_length})" +
                         f"({_exon.get_data()})"
                     )
-            except FastaViewInvalidRegionError:  # FIXME: add ?
+            except FastaViewInvalidRegionError:
                 lh.warn(f"{self.transcript_id}: Failed to get cDNA sequence at exon {_exon}")
                 _seq = ""
             return _seq
@@ -395,7 +395,7 @@ class Transcript(BaseFeatureProxy):
 
     def __eq__(self, other: Transcript):
         for exon_s, exon_o in zip(self._exons, other._exons):
-            if not exon_s == exon_o:
+            if exon_s != exon_o:
                 return False
         return True
 
@@ -409,9 +409,6 @@ class Transcript(BaseFeatureProxy):
         le = len(self._exons)
         for i in range(le - 1):
             yield self._exons[i].end, self._exons[i + 1].start
-
-    def __ne__(self, other):
-        return not self == other
 
     def __repr__(self):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
