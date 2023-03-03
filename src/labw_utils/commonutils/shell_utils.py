@@ -7,7 +7,7 @@ More shell-like utilities.
 import gzip
 import os
 import shutil
-from typing import IO, Callable
+from typing import IO, Callable, Optional
 
 from labw_utils.commonutils.io import get_reader
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
@@ -36,7 +36,7 @@ def readlink_f(path: str) -> str:
 
 
 @chronolog(display_time=True)
-def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
+def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     """
     Count lines in a file.
 
@@ -52,7 +52,7 @@ def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
 
 
 @chronolog(display_time=True)
-def wc_c(filename: str, opener: Callable[[str], IO] = None) -> int:
+def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 

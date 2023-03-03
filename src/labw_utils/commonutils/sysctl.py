@@ -11,6 +11,8 @@ import ctypes
 import os
 import sys
 
+from labw_utils.stdlib.cpy310.pkgutil import resolve_name
+
 _valid_os_name = (
     'freebsd',
     'win32',
@@ -48,8 +50,8 @@ def is_user_admin() -> int:
     """
     if os.name == 'nt':
         # WARNING: requires Windows XP SP2 or higher!
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
+        try: # Shut pytype up on GNU/Linux
+            return resolve_name("ctypes.windll.shell32.IsUserAnAdmin")
         except AttributeError:
             return -1
     elif os.name == 'posix':

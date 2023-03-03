@@ -258,7 +258,7 @@ class YSJSD(threading.Thread):
             raise JobNotExistException from e
 
     def query(self, ) -> Iterable[int]:
-        ...
+        raise NotImplementedError
 
     def apply(
             self,

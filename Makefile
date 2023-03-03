@@ -22,4 +22,4 @@ test:
 
 .PHONY: pytype
 pytype:
-	 pytype --config=pytype.cfg src/BIA_G8
+	 pytype --config=pytype.cfg src

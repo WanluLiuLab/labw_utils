@@ -74,30 +74,6 @@ def gv_dedup(
     lh.info("Removing transcript duplicate(s) in gv FIN")
 
 
-def enable_exon_superset():
-    Gene.register_new_attribute("_exon_superset")
-
-    def generate_exon_superset(self: Gene):
-        def add_exon(_all_exons: List[Exon], new_exon: Exon):
-            for _exon in _all_exons:
-                if new_exon == _exon:
-                    return
-            _all_exons.append(new_exon)
-
-        if self._exon_superset is not None:
-            return
-        self._exon_superset: List[Exon] = []
-        for transcript in self.iter_transcripts():
-            for exon in transcript.iter_exons():
-                add_exon(self._exon_superset, exon)
-
-    def get_exon_superset(self: Gene):
-        return self._exon_superset
-
-    Gene.register_new_hook(generate_exon_superset)
-    Gene.register_new_hook(get_exon_superset)
-
-
 def transcribe(
         gv: GeneViewType,
         output_fasta: str,

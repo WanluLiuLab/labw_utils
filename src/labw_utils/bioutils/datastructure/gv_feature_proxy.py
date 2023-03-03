@@ -15,7 +15,6 @@ from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure._gv_errors import _all as _gve_all
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
 from labw_utils.bioutils.record.feature import GtfRecord, Feature, FeatureType, GTFAttributeType, Gff3Record
-from labw_utils.commonutils.dynamic.hook_helper import hookable_decorator
 
 __all__ = [
     'VALID_SORT_EXON_EXON_STRAND_POLICY',
@@ -77,7 +76,6 @@ VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
 
 
-@hookable_decorator
 class BaseFeatureProxy(FeatureType):
     """
     Base class of Feature Proxy.

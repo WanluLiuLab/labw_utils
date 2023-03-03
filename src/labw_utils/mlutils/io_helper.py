@@ -53,7 +53,7 @@ if torch is not None:
             return torch.load(reader)
 
 
-    def write_tensor_xz(array: Union[torch.Tensor, Mapping[str, Any], nn.Module], path: str) -> None:
+    def write_tensor_xz(array: Union[torch.Tensor, Mapping[str, Any], torch.nn.Module], path: str) -> None:
         """Writer of compressed Torch serialization format"""
         with lzma.open(path, "wb", preset=9) as writer:
             torch.save(array, writer)

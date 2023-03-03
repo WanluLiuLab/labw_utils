@@ -7,7 +7,7 @@ This module includes GTF/GFF3/BED record datastructure and their one-line parser
 from __future__ import annotations
 
 import uuid
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Union, Optional, Dict
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -48,7 +48,7 @@ class RegionError(FeatureParserError):
         super(RegionError, self).__init__(*args)
 
 
-class FeatureType(object):
+class FeatureType(ABC):
     """
     Abstract type of general GTF/GFF/BED Record.
     """
@@ -102,10 +102,6 @@ class FeatureType(object):
         pass
 
     @abstractmethod
-    def __ne__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
     def overlaps(self, other: FeatureType) -> bool:
         pass
 
@@ -127,7 +123,7 @@ class FeatureType(object):
 
     @abstractmethod
     def format_string(self, **kwargs) -> str:
-        pass
+        raise ValueError
 
 
 class Feature(FeatureType):
@@ -226,10 +222,6 @@ class Feature(FeatureType):
         """
         pass
 
-    @abstractmethod
-    def format_string(self, **kwargs) -> str:
-        pass
-
     def __repr__(self):
         return self.format_string()
 
@@ -271,8 +263,14 @@ class Gff3Record(Feature):
             frame=frame,
             attribute=attribute
         )
-        self.id = attribute.get("ID", uuid.uuid4())
-        self.parent_id = attribute.get("Parent", GFF3_TOPLEVEL_NAME)
+        _id = attribute.get("ID", uuid.uuid4())
+        _parent_id = attribute.get("Parent", GFF3_TOPLEVEL_NAME)
+        if not isinstance(_id, str):
+            raise TypeError
+        if not isinstance(_parent_id, str):
+            raise TypeError
+        self.id = _id
+        self._parent_id = _parent_id
 
     @classmethod
     def from_string(cls, in_str: str):
@@ -349,9 +347,7 @@ class GtfRecord(Feature):
 
     @classmethod
     def from_string(cls, in_str: str):
-        global lh
         in_str = in_str.rstrip('\n\r')
-        lh.trace(f'Adding {in_str}')
         line_split = in_str.split('\t')
 
         required_fields = line_split[0:-1]

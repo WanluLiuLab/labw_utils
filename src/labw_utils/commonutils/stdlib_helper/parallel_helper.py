@@ -28,8 +28,8 @@ _OutType = TypeVar("_OutType")
 class Job:
     _job_id: int
     _job_object: _JOB_TYPE
-    _terminate_handler: _TERMINATE_HANDLER_TYPE
-    _callback: _CALLBACK_TYPE
+    _terminate_handler: Optional[_TERMINATE_HANDLER_TYPE]
+    _callback: Optional[_CALLBACK_TYPE]
 
     def __init__(
             self,
