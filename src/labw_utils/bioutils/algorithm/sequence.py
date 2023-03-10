@@ -60,10 +60,9 @@ AA_NAMES = {
     "*": "Stop"
 }
 
+TRANSL_TABLES_NT = list(map("".join, itertools.product(*["TCAG"] * 3)))
+
 TRANSL_TABLES = {
-    0: {
-        "NT": list(map("".join, itertools.product(*["TCAG"] * 3)))
-    },
     1: {
         "AA": "FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
         "NAME": "The Standard Code"
@@ -215,7 +214,7 @@ def find_orf(
     raise NotImplementedError
 
 
-def translate_rna(
+def translate_cdna(
         seq: str,
         transl_table: int = 1
 ) -> str:
@@ -225,16 +224,17 @@ def translate_rna(
         See <https://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=cgencodes> for more details.
 
     Translate RNA to AA.
+    >>> translate_cdna("TACCGGGTTAATAGGAAACTGACATTTGGAGCCAACACTAGAGGAATCATGAAACTC")
+    'YRVNRKLTFGANTRGIMKL'
     """
     if len(seq) < 3:
         raise MalformedMRNAError(f"seq ('{seq}') too short")
     if len(seq) % 3 != 0:
         raise MalformedMRNAError(f"Length of seq ('{len(seq)}') should be a multiple of 3")
     seq = seq.upper()
-    nt_seq = TRANSL_TABLES[0]["NT"]
     aa_table = TRANSL_TABLES[transl_table]["AA"]
     return "".join(
-        aa_table[nt_seq.index(seq[i:i + 3])]
+        aa_table[TRANSL_TABLES_NT.index(seq[i:i + 3])]
         for i in range(0, len(seq), 3)
     )
 
