@@ -259,10 +259,10 @@ class BaseGeneView(GeneViewType, ABC):
         pickle_helper.dump((GVPKL_VERSION, self._genes, self._transcripts), index_filename)
 
     def iter_transcripts(self):
-        return self._transcripts.values()
+        return iter(self._transcripts.values())
 
     def iter_transcript_ids(self):
-        return self._transcripts.keys()
+        return iter(self._transcripts.keys())
 
     def get_transcript(self, transcript_id: str) -> Transcript:
         return self._transcripts[transcript_id]
@@ -272,10 +272,10 @@ class BaseGeneView(GeneViewType, ABC):
         return len(self._transcripts)
 
     def iter_genes(self):
-        return self._genes.values()
+        return iter(self._genes.values())
 
     def iter_gene_ids(self):
-        return self._genes.keys()
+        return iter(self._genes.keys())
 
     def get_gene(self, gene_id: str) -> Gene:
         return self._genes[gene_id]

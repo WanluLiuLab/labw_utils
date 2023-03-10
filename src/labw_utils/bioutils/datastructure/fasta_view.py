@@ -305,6 +305,8 @@ class _MemoryAccessFastaView(_BaseFastaView):
                 if line_len == 0:
                     line_len = len(seq)
         if chr_name != '':
+            if chr_name in self._all_dict:
+                raise DuplicatedChromosomeNameError(chr_name)
             self._all_dict[chr_name] = seq
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1):

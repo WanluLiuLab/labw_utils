@@ -310,7 +310,7 @@ class Transcript(BaseFeatureProxy):
 
     def iter_exons(self) -> Iterable[Exon]:
         """Get Exon Iterator"""
-        return self._exons
+        return iter(self._exons)
 
     def get_nth_exon(self, exon_id: int) -> Exon:
         return self._exons[exon_id]
@@ -460,10 +460,10 @@ class Gene(BaseFeatureProxy):
         return self._transcripts[self._transcript_ids.index(transcript_id)]
 
     def iter_transcripts(self) -> Iterable[Transcript]:
-        return self._transcripts
+        return iter(self._transcripts)
 
     def iter_transcript_ids(self) -> Iterable[str]:
-        return self._transcript_ids
+        return iter(self._transcript_ids)
 
     def _setup(self):
         self._transcripts = []
