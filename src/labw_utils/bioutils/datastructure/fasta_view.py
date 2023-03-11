@@ -429,3 +429,13 @@ class FastaViewFactory:
                 full_header=full_header,
                 show_tqdm=show_tqdm
             )
+
+def split_fasta(fav: FastaViewType):
+    out_basename = fav.filename + ".d"
+    os.makedirs(out_basename, exist_ok=True)
+
+    for seqname in fav.chr_names:
+        seqname = seqname.replace(" ", "_").replace("\t", "_")
+        transcript_output_fasta = os.path.join(out_basename, f"{seqname}.fa")
+        with get_writer(transcript_output_fasta) as single_transcript_writer:
+            single_transcript_writer.write(f">{seqname}\n{fav.sequence(seqname)}\n")
