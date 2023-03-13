@@ -96,7 +96,7 @@ def transcribe(
             "GC"
         )) + "\n")
         if show_tqdm:
-            it = tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF...")
+            it = tqdm(iterable=list(gv.iter_transcripts()), desc="Transcribing GTF...")
         else:
             it = gv.iter_transcripts()
         for transcript_value in it:
