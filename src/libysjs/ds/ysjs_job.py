@@ -86,3 +86,6 @@ class YSJSJob:
     @property
     def start_time(self) -> Optional[float]:
         return self._start_time
+
+    def __repr__(self):
+        return f"job (id={self._job_id}, status={self._status})"

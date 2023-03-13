@@ -27,12 +27,18 @@ class IOProxy(IOProxyType):
         self._fd = fd
 
     @property
-    def mode(self) -> str:
-        return self._fd.mode
+    def mode(self) -> Optional[str]:
+        if hasattr(self._fd, 'mode'):
+            return self._fd.mode
+        else:
+            return None
 
     @property
-    def name(self) -> str:
-        return self._fd.name
+    def name(self) -> Optional[str]:
+        if hasattr(self._fd, 'name'):
+            return self._fd.name
+        else:
+            return None
 
     @property
     def closed(self) -> bool:

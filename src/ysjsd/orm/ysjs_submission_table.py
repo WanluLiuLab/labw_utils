@@ -24,3 +24,4 @@ class YSJSSubmissionTable(SQLAlchemyDeclarativeBase):
     stderr = Column(sqlalchemy.String(256), nullable=True)
     script_path = Column(sqlalchemy.String(256), nullable=False)
     shell_path = Column(sqlalchemy.String(256), nullable=False)
+    depends = Column(sqlalchemy.JSON, nullable=False)

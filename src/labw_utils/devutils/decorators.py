@@ -97,7 +97,7 @@ def chronolog(display_time: bool = False, log_error: bool = False):
                     lh.exception("%s exception inside func: %s", call_id, str(e), stack_info=True, exc_info=True)
                 raise e
             finally:
-                lh.debug("%s returns %s", repr(res), )
+                lh.debug("%s returns %s", f.__name__, repr(res))
             return res
 
         return inner_dec

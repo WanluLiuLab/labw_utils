@@ -3,8 +3,8 @@ parser -- Basic bioinformatics database parsers
 
 Here contains codes of parsers for basic bioinformatics databases
 """
-from abc import abstractmethod
-from typing import Iterable, Optional, IO, Iterator, TypeVar
+from abc import abstractmethod, ABC
+from typing import Iterable, Optional, IO, Iterator, TypeVar, Generic
 
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 
@@ -20,11 +20,11 @@ class FileTypeNotFoundError(NameError):
         super().__init__(f"filetype of class {class_name} was set to None. Please report the bug to developer.")
 
 
-class _BaseFileIO:
+class _BaseFileIO(ABC):
     _filename: str
-    _fd: Optional[IO]
+    _fd: IO
 
-    filetype: str = None
+    filetype: str
     """File type indicator, should be class variable."""
 
     @property
@@ -40,7 +40,7 @@ class _BaseFileIO:
         The subclass should have ``filetype`` attribute.
         """
         _new_instance = super().__new__(cls)
-        if _new_instance.filetype is None:
+        if not hasattr(_new_instance, "filetype"):
             raise FileTypeNotFoundError(cls.__name__)
         return _new_instance
 
@@ -55,7 +55,6 @@ class _BaseFileIO:
 
     def __exit__(self, *args, **kwargs):
         self.close()
-        return
 
     def tell(self) -> int:
         try:
@@ -70,14 +69,14 @@ class _BaseFileIO:
             pass
 
 
-class BaseFileIterator(_BaseFileIO, Iterable[_RecordType]):
+class BaseFileIterator(_BaseFileIO, Generic[_RecordType]):
     """
     Iterate something from a file.
     """
 
     @abstractmethod
     def __iter__(self) -> Iterator[_RecordType]:
-        pass
+        raise NotImplementedError
 
     def __init__(self, filename: str, show_tqdm: bool = True, **kwargs):
         _ = kwargs
@@ -85,7 +84,7 @@ class BaseFileIterator(_BaseFileIO, Iterable[_RecordType]):
         self._show_tqdm = show_tqdm
 
 
-class BaseIteratorWriter(_BaseFileIO):
+class BaseIteratorWriter(_BaseFileIO, Generic[_RecordType]):
 
     @staticmethod
     @abstractmethod
@@ -94,7 +93,7 @@ class BaseIteratorWriter(_BaseFileIO):
             filename: str,
             **kwargs
     ):
-        pass
+        raise NotImplementedError
 
     def __init__(self, filename: str, **kwargs):
         _ = kwargs
@@ -102,7 +101,7 @@ class BaseIteratorWriter(_BaseFileIO):
 
     @abstractmethod
     def write(self, record: _RecordType) -> None:
-        pass
+        raise NotImplementedError
 
     def destroy_file(self):
         self.close()

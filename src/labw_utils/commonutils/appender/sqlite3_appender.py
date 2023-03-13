@@ -1,8 +1,13 @@
 import sqlite3
 
-import pandas as pd
+from labw_utils import UnmetDependenciesError
 
-from labw_utils.commonutils.appender.typing import PandasDictBufferAppender
+try:
+    import pandas as pd
+except ImportError:
+    raise UnmetDependenciesError("pandas")
+
+from labw_utils.commonutils.appender._pandas_table_appender import PandasDictBufferAppender
 
 
 class SQLite3TableAppender(PandasDictBufferAppender):
@@ -15,6 +20,7 @@ class SQLite3TableAppender(PandasDictBufferAppender):
         self._real_filename = ".".join((self.filename, "sqlite3"))
 
     def _create_file_hook(self):
+        """Not needed"""
         pass
 
     def _write_hook(self, df: pd.DataFrame):

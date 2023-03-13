@@ -8,7 +8,16 @@ import os
 from collections import defaultdict
 from typing import List
 
-import pysam
+from labw_utils import UnmetDependenciesError
+
+try:
+    import pytest
+    pysam = pytest.importorskip("pysam")
+except ImportError:
+    try:
+        import pysam
+    except ImportError:
+        raise UnmetDependenciesError("pysam")
 
 from labw_utils.bioutils._main.describe_sam import get_mode_str, get_file_length, turn_none_to_zero
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import merge_intervals

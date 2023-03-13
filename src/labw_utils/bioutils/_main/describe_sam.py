@@ -2,7 +2,16 @@ import json
 import os
 from typing import List, Optional, Union
 
-import pysam
+from labw_utils import UnmetDependenciesError
+
+try:
+    import pytest
+    pysam = pytest.importorskip("pysam")
+except ImportError:
+    try:
+        import pysam
+    except ImportError:
+        raise UnmetDependenciesError("pysam")
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -73,7 +82,7 @@ def get_mode_str(sam_path: str) -> str:
     elif sam_path.endswith(".bam"):
         modestr = "rb"
     else:
-        _lh.error(f"Sam file at %s have unknown extensions!", sam_path)
+        _lh.error("Sam file at %s have unknown extensions!", sam_path)
         exit(1)
     return modestr
 

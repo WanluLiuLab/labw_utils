@@ -126,6 +126,13 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         action='store'
     )
     parser.add_argument(
+        "--depends",
+        required=False,
+        help="Depend on the finish of which submission id",
+        nargs='*',
+        action='store'
+    )
+    parser.add_argument(
         "--tags",
         required=False,
         help="Tags used in filtering, etc.",
@@ -164,7 +171,8 @@ def main(args: List[str]):
         script_path=args.script_path,
         shell_path=args.shell_path,
         env=env,
-        tags=args.tags
+        tags=args.tags,
+        depends=args.depends
     )
     job_id = cl.submit(submission)
 

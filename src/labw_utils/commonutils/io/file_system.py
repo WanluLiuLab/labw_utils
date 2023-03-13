@@ -8,6 +8,7 @@ like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.shell_utils`.
 import os
 import stat
 
+
 __all__ = (
     "get_abspath",
     "file_exists",

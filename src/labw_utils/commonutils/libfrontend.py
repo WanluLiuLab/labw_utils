@@ -148,7 +148,7 @@ def setup_frontend(
         package_main_name: str,
         one_line_description: str,
         version: str,
-        help_info: str = None,
+        help_info: Optional[str] = None,
         subcommand_help: str = "Use 'lscmd' to list all valid subcommands.",
         use_root_logger: bool = True,
         default_log_filename: str = "log.log"

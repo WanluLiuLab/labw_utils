@@ -16,7 +16,6 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionE
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_errors import _all as _gve_all
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord, Feature, FeatureType, \
     GTFAttributeType, Gff3Record
-from labw_utils.commonutils.dynamic.hook_helper import hookable_decorator
 
 __all__ = [
     'VALID_SORT_EXON_EXON_STRAND_POLICY',
@@ -78,7 +77,6 @@ VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
 
 
-@hookable_decorator
 class BaseFeatureProxy(FeatureType):
     """
     Base class of Feature Proxy.
@@ -313,7 +311,7 @@ class Transcript(BaseFeatureProxy):
 
     def iter_exons(self) -> Iterable[Exon]:
         """Get Exon Iterator"""
-        return self._exons
+        return iter(self._exons)
 
     def get_nth_exon(self, exon_id: int) -> Exon:
         return self._exons[exon_id]
@@ -396,7 +394,7 @@ class Transcript(BaseFeatureProxy):
 
     def __eq__(self, other: Transcript):
         for exon_s, exon_o in zip(self._exons, other._exons):
-            if not exon_s == exon_o:
+            if exon_s != exon_o:
                 return False
         return True
 
@@ -410,9 +408,6 @@ class Transcript(BaseFeatureProxy):
         le = len(self._exons)
         for i in range(le - 1):
             yield self._exons[i].end, self._exons[i + 1].start
-
-    def __ne__(self, other):
-        return not self == other
 
     def __repr__(self):
         return f"Transcript {self.transcript_id} of {self.gene_id}"
@@ -466,10 +461,10 @@ class Gene(BaseFeatureProxy):
         return self._transcripts[self._transcript_ids.index(transcript_id)]
 
     def iter_transcripts(self) -> Iterable[Transcript]:
-        return self._transcripts
+        return iter(self._transcripts)
 
     def iter_transcript_ids(self) -> Iterable[str]:
-        return self._transcript_ids
+        return iter(self._transcript_ids)
 
     def _setup(self):
         self._transcripts = []

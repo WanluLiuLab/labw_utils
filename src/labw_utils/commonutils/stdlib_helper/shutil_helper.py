@@ -7,10 +7,14 @@ More shell-like utilities.
 import gzip
 import os
 import shutil
-from typing import IO, Callable
+from typing import IO, Callable, Optional
 
 from labw_utils.commonutils.io import get_reader
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.devutils.decorators import chronolog
+
+lh = get_logger(__name__)
 
 
 def readlink_f(path: str) -> str:
@@ -30,7 +34,8 @@ def readlink_f(path: str) -> str:
     return path
 
 
-def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
+@chronolog(display_time=True)
+def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     """
     Count lines in a file.
 
@@ -45,7 +50,8 @@ def wc_l(filename: str, opener: Callable[[str], IO] = None) -> int:
     return wc_l_io(fd)
 
 
-def wc_c(filename: str, opener: Callable[[str], IO] = None) -> int:
+@chronolog(display_time=True)
+def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
@@ -141,10 +147,16 @@ def rm_rf(path: str) -> None:
 
     Compare with :py:func:`shutil.rmtree`, this function can remove files.
     """
-    if os.path.isdir(path) and not os.path.islink(path):
-        shutil.rmtree(path)
-    elif os.path.exists(path):
-        os.remove(path)
+    dbg_head = "rm(path='" + path + "')"
+    try:
+        if os.path.isdir(path) and not os.path.islink(path):
+            lh.debug(f"{dbg_head} is a directory")
+            shutil.rmtree(path)
+        elif os.path.exists(path):
+            lh.debug(f"{dbg_head} is a file")
+            os.remove(path)
+    except FileNotFoundError:
+        lh.debug(f"{dbg_head} not exist")
 
 
 def gz_compress(in_file: str, out_file: str, keep_in_file: bool = False, compresslevel: int = 9) -> None:

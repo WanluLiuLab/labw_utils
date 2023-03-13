@@ -6,11 +6,64 @@ with other utilities like edit distance
 """
 
 import functools
+import glob
 import math
-from typing import Optional, List, Tuple
+import os.path
+from typing import Optional, List, Tuple, Dict, Iterable
 
 import numpy as np
 import numpy.typing as npt
+
+from labw_utils.commonutils.io.safe_io import get_reader
+
+
+class SubstMatrix:
+    _real_mtx: Dict[str, Dict[str, int]]
+
+    def __init__(self, real_mtx: Dict[str, Dict[str, int]]):
+        self._real_mtx = real_mtx
+
+    def get(self, seq1: str, seq2: str) -> int:
+        return self._real_mtx[seq1][seq2]
+
+    @classmethod
+    def parse(cls, mat_file_path: str):
+        real_mtx = {}
+        header = []
+        with get_reader(mat_file_path) as reader:
+            for line in reader:
+                line = line.strip()
+                if line.startswith("#") or line == "":
+                    continue
+                else:
+                    if not header:
+                        header = line.split(" ")
+                        while "" in header:
+                            header.remove("")
+                    else:
+                        contents = line.split(" ")
+                        while "" in contents:
+                            contents.remove("")
+                        h1 = contents.pop(0)
+                        real_mtx[h1] = {h2: v for h2, v in zip(header, map(int, contents))}
+        return cls(real_mtx)
+
+
+_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+_SUBST_MTX_PATHS = {
+    os.path.basename(fn).split(".")[0]: fn
+    for fn in glob.glob(os.path.join(_FILE_DIR, "scoring_mtx", "*.mat"))
+}
+
+
+def get_subst_mtx_names() -> Iterable[str]:
+    return iter(_SUBST_MTX_PATHS.keys())
+
+
+@functools.lru_cache()
+def get_subst_mtx(mtx_name: str) -> SubstMatrix:
+    return SubstMatrix.parse(_SUBST_MTX_PATHS[mtx_name])
 
 
 class SmithWatermanAligner:
@@ -58,6 +111,9 @@ class SmithWatermanAligner:
     _backtrack: Optional[List[str]]
     """Final Smith-Waterman backtrack"""
 
+    _subst_mtx: Optional[SubstMatrix]
+    """Substitution Matrix"""
+
     def __init__(
             self,
             seq1: str,
@@ -65,6 +121,7 @@ class SmithWatermanAligner:
             match_score: int = 5,
             mismatch_score: int = -4,
             indel_score: int = -4,
+            subst_mtx: Optional[SubstMatrix] = None,
             is_global: bool = True
     ):
         self.seq1 = seq1
@@ -76,6 +133,7 @@ class SmithWatermanAligner:
         self._sw_matrix = None
         self._score = None
         self._backtrack = None
+        self._subst_mtx = subst_mtx
 
     def alignment(self) -> int:
         """
@@ -97,24 +155,35 @@ class SmithWatermanAligner:
         else:
             return self._score
 
+    def _get_score(self, s1: str, s2: str) -> int:
+        if self._subst_mtx is not None:
+            try:
+                return self._subst_mtx.get(s1, s2)
+            except KeyError:
+                pass
+        if s1 == s2:
+            return self.match_score
+        elif s1 != s2:
+            return self.mismatch_score
+
     def _build_smith_waterman_matrix(self):
         l1 = len(self.seq1) + 1
         l2 = len(self.seq2) + 1
         self._sw_matrix = np.zeros((l1, l2), dtype=int)
         for i in range(1, l1):
             for j in range(1, l2):
+                this_score = self._get_score(self.seq1[i - 1], self.seq2[j - 1])
                 if self.seq1[i - 1] == self.seq2[j - 1]:
-                    score = self._sw_matrix[i - 1][j - 1] + self.match_score
+                    score = self._sw_matrix[i - 1][j - 1] + this_score
                 else:
                     score = max(
                         self._sw_matrix[i - 1][j] + self.indel_score,
                         self._sw_matrix[i][j - 1] + self.indel_score,
-                        self._sw_matrix[i - 1][j - 1] + self.mismatch_score
+                        self._sw_matrix[i - 1][j - 1] + this_score
                     )
                 if not self.is_global:
                     score = max(score, 0)
                 self._sw_matrix[i][j] = score
-        self._sw_matrix = self._sw_matrix
 
     def get_backtrack(
             self,

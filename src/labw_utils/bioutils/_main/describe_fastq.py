@@ -24,7 +24,6 @@ def qc(filepath: str):
             "MEANQUAL"
         )) + "\n")
         max_read_length = 0
-        num_records = 0
         for fastq_record in FastqIterator(filename=filepath):
             len_record = len(fastq_record)
             all_writer.write("\t".join((
@@ -34,7 +33,6 @@ def qc(filepath: str):
                 str(np.mean(list(decode_phred33(fastq_record.quality))))
             )) + "\n")
             max_read_length = max(max_read_length, len_record)
-            num_records += 1
     quality_sum = np.zeros(max_read_length, dtype=np.double)
     quality_cnt = np.zeros(max_read_length, dtype=np.double)
     for fastq_record in FastqIterator(filename=filepath):

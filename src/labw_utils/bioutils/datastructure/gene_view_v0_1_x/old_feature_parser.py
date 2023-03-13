@@ -28,7 +28,7 @@ See :py:class:`bioutils.datastructure.gene_view.GeneView` for this feature.
 """
 from abc import ABC
 from collections import defaultdict
-from typing import Dict, Iterator, Union, Optional, List, TextIO, Iterable
+from typing import Dict, Iterator, Union, Optional, List, TextIO, Iterable, Final
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import FeatureType, GFF3_TOPLEVEL_NAME, \
     Gff3Record, GtfRecord
@@ -38,14 +38,8 @@ from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
 
-class FeatureIterator(BaseFileIterator, Iterable[FeatureType], ABC):
-    filetype: str = "FeatureType"
-    record_type = FeatureType
-    pass
-
-
-class GtfIterator(FeatureIterator, Iterable[GtfRecord]):
-    filetype: str = "GTF"
+class GtfIterator(BaseFileIterator):
+    filetype: Final[str] = "GTF"
     record_type = GtfRecord
 
     def __iter__(self) -> Iterator[GtfRecord]:
@@ -55,8 +49,8 @@ class GtfIterator(FeatureIterator, Iterable[GtfRecord]):
             yield GtfRecord.from_string(line)
 
 
-class Gff3Iterator(FeatureIterator, Iterable[Gff3Record]):
-    filetype: str = "GFF3"
+class Gff3Iterator(BaseFileIterator):
+    filetype: Final[str] = "GFF3"
     record_type = Gff3Record
 
     def __iter__(self) -> Iterator[Gff3Record]:

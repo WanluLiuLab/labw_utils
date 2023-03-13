@@ -27,6 +27,7 @@ class YSJSSubmission:
     _stderr: Optional[str]
     _script_path: str
     _shell_path: str
+    _depends: List[str]
 
     def __init__(
             self,
@@ -43,7 +44,8 @@ class YSJSSubmission:
             stderr: Optional[str],
             script_path: str,
             shell_path: str,
-            tags: List[str]
+            tags: List[str],
+            depends: List[str]
     ):
         self._submission_id = submission_id
         self._submission_name = submission_name
@@ -59,6 +61,7 @@ class YSJSSubmission:
         self._shell_path = shell_path
         self._script_path = script_path
         self._tags = tags
+        self._depends = depends
 
     @classmethod
     def new(
@@ -74,12 +77,15 @@ class YSJSSubmission:
             stdout: Optional[str] = None,
             stderr: Optional[str] = None,
             shell_path: Optional[str] = None,
-            tags: Optional[List[str]] = None
+            tags: Optional[List[str]] = None,
+            depends: Optional[List[str]] = None
     ):
         if tags is None:
             tags = []
         if cwd is None:
             cwd = os.getcwd()
+        if depends is None:
+            depends = []
         if env is None:
             env = dict(os.environ)
         if shell_path is None:
@@ -92,7 +98,7 @@ class YSJSSubmission:
             shell_path = shutil.which("sh")
         if shell_path is None:
             raise ValueError(
-                f"Cannot find suitable Shell; tried bash, dash, ash, sh"
+                "Cannot find suitable Shell; tried bash, dash, ash, sh"
             )
         script_path = os.path.abspath(script_path)
         cwd = os.path.abspath(cwd)
@@ -117,7 +123,8 @@ class YSJSSubmission:
             stderr=stderr,
             script_path=script_path,
             shell_path=shell_path,
-            tags=tags
+            tags=tags,
+            depends=depends
         )
 
     def to_dict(self) -> Mapping[str, Any]:
@@ -135,7 +142,8 @@ class YSJSSubmission:
             "stderr": self._stderr,
             "shell_path": self._shell_path,
             "script_path": self._script_path,
-            "tags": self._tags
+            "tags": self._tags,
+            "depends": self._depends
         }
 
     def have_tag(self, tag: str) -> bool:
@@ -194,5 +202,9 @@ class YSJSSubmission:
         return self._mem
 
     @property
-    def submission_name(self):
+    def submission_name(self) -> str:
         return self._submission_name
+    
+    @property
+    def depends(self) -> List[str]:
+        return self._depends

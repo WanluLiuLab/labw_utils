@@ -30,10 +30,9 @@ from typing import List, Union, Tuple, Dict, Optional, IO, Iterable
 
 from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
-from labw_utils.bioutils.parser.fasta import extract_fasta_name
+from labw_utils.bioutils.parser.fasta import FastaIterator
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 
@@ -207,9 +206,6 @@ class _BaseFastaView(FastaViewType, ABC):
         except AttributeError:
             return "Fasta being constructed"
 
-    def close(self):
-        pass
-
     def __del__(self):
         self.close()
 
@@ -266,6 +262,10 @@ class _MemoryAccessFastaView(_BaseFastaView):
     def get_chr_length(self, chromosome: str) -> int:
         return len(self._all_dict[chromosome])
 
+    def close(self):
+        """Nothing to close as is in memory"""
+        pass
+
     def __init__(self, filename: str, full_header: bool = False, show_tqdm: bool = True):
         super().__init__(filename, full_header)
         self._all_dict = {}  # For in-memory reader, will read in all sequences
@@ -275,28 +275,14 @@ class _MemoryAccessFastaView(_BaseFastaView):
         """
         Read FASTA into memory
         """
-        chr_name = ""
-        seq = ""
-        line_len = 0
-        if show_tqdm:
-            it = get_tqdm_line_reader(self.filename)
-        else:
-            it = get_reader(self.filename)
-        for line in it:
-            if line == "":
-                continue
-            if line[0] == '>':  # FASTA header
-                if chr_name != '':
-                    self._all_dict[chr_name] = seq
-                    seq = ''
-                    line_len = 0
-                chr_name = extract_fasta_name(line, self.full_header)
-            else:
-                seq = seq + line.strip()
-                if line_len == 0:
-                    line_len = len(seq)
-        if chr_name != '':
-            self._all_dict[chr_name] = seq
+        for fasta_record in FastaIterator(
+                show_tqdm=show_tqdm,
+                filename=self.filename,
+                full_header=self.full_header
+        ):
+            if fasta_record.seq_id in self._all_dict:
+                raise DuplicatedChromosomeNameError(fasta_record.seq_id)
+            self._all_dict[fasta_record.seq_id] = fasta_record.sequence
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1):
         self.is_valid_region(chromosome, from_pos, to_pos)
@@ -335,19 +321,23 @@ class _DiskAccessFastaView(_BaseFastaView):
         # If has prebuilt index file, read it
         self._fd = get_reader(self.filename)
         index_filename = self.filename + ".fai"
-        if not file_exists(index_filename) or \
-                os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
-            self._fai = FastaIndexView.from_fasta(
-                filename=filename,
-                full_header=full_header,
-                show_tqdm=show_tqdm
-            )
-            try:
-                self._fai.write(index_filename)
-            except FastaIndexNotWritableError as e:
-                _lh.error(f"Fasta index generated but not writable %s", e)
+        if file_exists(index_filename):
+            if os.path.getmtime(index_filename) - os.path.getmtime(filename) < 0:
+                _lh.warning("Index filename %s older than %s, will be rebuilt", index_filename, filename)
+            else:
+                self._fai = FastaIndexView.from_fai(index_filename, show_tqdm=show_tqdm)
+                return
         else:
-            self._fai = FastaIndexView.from_fai(index_filename, show_tqdm=show_tqdm)
+            _lh.warning("Index filename %s not exist", index_filename)
+        self._fai = FastaIndexView.from_fasta(
+            filename=filename,
+            full_header=full_header,
+            show_tqdm=show_tqdm
+        )
+        try:
+            self._fai.write(index_filename)
+        except FastaIndexNotWritableError as e:
+            _lh.error("Fasta index generated but not writable %s", e)
 
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         self.is_valid_region(chromosome, from_pos, to_pos)
@@ -417,3 +407,14 @@ class FastaViewFactory:
                 full_header=full_header,
                 show_tqdm=show_tqdm
             )
+
+
+def split_fasta(fav: FastaViewType):
+    out_basename = fav.filename + ".d"
+    os.makedirs(out_basename, exist_ok=True)
+
+    for seqname in fav.chr_names:
+        seqname = seqname.replace(" ", "_").replace("\t", "_")
+        transcript_output_fasta = os.path.join(out_basename, f"{seqname}.fa")
+        with get_writer(transcript_output_fasta) as single_transcript_writer:
+            single_transcript_writer.write(f">{seqname}\n{fav.sequence(seqname)}\n")

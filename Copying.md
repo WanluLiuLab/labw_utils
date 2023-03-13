@@ -23,3 +23,13 @@ Affected files:
 * `labw_utils/src/labw_utils/stdlib/cpy310/pkgutil.py`
 
 with Python license.
+
+## FASTA36 Project
+
+Available from <https://github.com/wrpearson/fasta36>
+
+Affected files:
+
+* `/src/labw_utils/bioutils/algorithm/scoring_mtx/*`
+
+With Apache 2 License.

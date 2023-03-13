@@ -1,9 +1,8 @@
-import pandas as pd
+from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
+from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_l
 
-from labw_utils.commonutils.appender.typing import DictBufferAppender
 
-
-class TSVTableAppender(DictBufferAppender):
+class TSVTableAppender(BaseDictBufferAppender):
 
     def _get_real_filename_hook(self):
         self._real_filename = ".".join((self.filename, "tsv"))
@@ -23,4 +22,4 @@ class TSVTableAppender(DictBufferAppender):
             writer.write(df)
 
     def _get_n_lines_actually_written_hook(self) -> int:
-        return pd.read_table(self._real_filename, sep="\t", engine="pyarrow").shape[0]
+        return wc_l(self._real_filename) - 1

@@ -2,11 +2,18 @@ import argparse
 from collections import defaultdict
 from typing import List
 
-import pysam
+from labw_utils import UnmetDependenciesError
+
+try:
+    import pytest
+    pysam = pytest.importorskip("pysam")
+except ImportError:
+    try:
+        import pysam
+    except ImportError:
+        raise UnmetDependenciesError("pysam")
 
 from labw_utils.bioutils.datastructure.fastq_view import FastqView
-
-__version__ = 0.1
 
 from labw_utils.bioutils.parser.fastq import FastqWriter
 
@@ -22,8 +29,6 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
                         type=str, action='store')
     parser.add_argument('-o', '--out', required=True, help="Output alignment file", nargs='?',
                         type=str, action='store')
-    parser.add_argument('-v', '--version', help="Print version information", action='version',
-                        version='%(prog)s ' + str(__version__))
     return parser.parse_args(args)
 
 

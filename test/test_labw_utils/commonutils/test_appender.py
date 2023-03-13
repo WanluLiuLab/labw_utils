@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import pytest
 
@@ -22,12 +23,13 @@ def assert_appender(
     ids=["test_" + appender_name for appender_name in AVAILABLE_TABLE_APPENDERS]
 )
 def test_appender(name: str):
-    for lines_to_append in (1, 4, 5, 6, 9, 10, 11, 1024):
-        appender = load_table_appender_class(name)(
-            filename="test",
-            header=["1", "2", "3"],
-            tac=TableAppenderConfig(buffer_size=5)
-        )
-        assert_appender(appender, lines_to_append)
-        if appender.real_filename != '':
-            os.remove(appender.real_filename)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        for lines_to_append in (1, 4, 5, 6, 9, 10, 11, 1024):
+            appender = load_table_appender_class(name)(
+                filename=os.path.join(tmpdir, "test"),
+                header=["1", "2", "3"],
+                tac=TableAppenderConfig(buffer_size=5)
+            )
+            assert_appender(appender, lines_to_append)
+            if appender.real_filename != '':
+                os.remove(appender.real_filename)

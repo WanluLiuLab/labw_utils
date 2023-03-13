@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 import pytest
 
@@ -100,32 +101,30 @@ gene_gtf_for_exon_supersets = """
 """
 
 
-@pytest.fixture(scope="module", autouse=True)
-def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
+@pytest.fixture(scope="module", autouse=False)
+def initialize_module() -> str:
     """
     This function sets up a directory for testing
     """
-    session_test_info = initialize_session
-    module_test_info = conftest.ModuleTestInfo(session_test_info.base_test_dir, __name__)
-    with get_writer(os.path.join(module_test_info.path, "1.gtf.gz")) as fh:
-        fh.write(gene_gtf)
-    with get_writer(os.path.join(
-            module_test_info.path,
-            "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
-    )) as fh:
-        fh.write(gene_gtf_with_duplicated_transcripts_in_one_gene)
-    with get_writer(os.path.join(
-            module_test_info.path,
-            "gene_gtf_for_exon_supersets.gtf"
-    )) as fh:
-        fh.write(gene_gtf_for_exon_supersets)
-    yield module_test_info
-    module_test_info.teardown()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with get_writer(os.path.join(tmpdir, "1.gtf.gz")) as fh:
+            fh.write(gene_gtf)
+        with get_writer(os.path.join(
+                tmpdir,
+                "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
+        )) as fh:
+            fh.write(gene_gtf_with_duplicated_transcripts_in_one_gene)
+        with get_writer(os.path.join(
+                tmpdir,
+                "gene_gtf_for_exon_supersets.gtf"
+        )) as fh:
+            fh.write(gene_gtf_for_exon_supersets)
+        yield tmpdir
 
 
 def test_gene_gtf_with_duplicated_transcripts_in_one_gene(initialize_module):
     file_name = os.path.join(
-        initialize_module.path,
+        initialize_module,
         "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
     )
     gv = GeneViewFactory.from_file(file_name)
@@ -135,22 +134,10 @@ def test_gene_gtf_with_duplicated_transcripts_in_one_gene(initialize_module):
 
 def test_gene_gtf_with_duplicated_transcripts_in_one_gene_by_splice_sites(initialize_module):
     file_name = os.path.join(
-        initialize_module.path,
+        initialize_module,
         "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
     )
     gv = GeneViewFactory.from_file(file_name)
     gvh.gv_dedup(gv, by_splice_site=False, assume_no_cross_gene_duplication=True)
     assert gv.number_of_transcripts == 3
 
-
-def test_exon_superset(initialize_module) -> None:
-    file_name = os.path.join(
-        initialize_module.path,
-        "gene_gtf_for_exon_supersets.gtf"
-    )
-    gvh.enable_exon_superset()
-    gv = GeneViewFactory.from_file(file_name)
-    gv.standardize()
-    STRG_3 = gv.get_gene("STRG.3")
-    STRG_3.generate_exon_superset()
-    assert len(STRG_3.get_exon_superset()) == 11

@@ -10,16 +10,11 @@ __all__ = (
 
 from typing import Union, Tuple, Optional
 
-import numpy as np
-
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
-try:
-    import torch
-except ImportError:
-    torch = None
-
+import numpy as np
 from numpy import typing as npt
+import torch
 
 _Tensor = Union[npt.NDArray, torch.Tensor]
 
@@ -81,7 +76,10 @@ def describe(array: _Tensor) -> str:
 
     Example:
 
-    # FIXME: fails since int32 on Windows.
+    >>> import sys, pytest
+    >>> if sys.platform.startswith('win'):
+    ...     pytest.skip('this doctest does not work on Windows')
+    ...
 
     >>> describe(np.array([0, 0, 1, 1]))
     'ndarray[int64] with shape=(4,); uniques=[0 1]'

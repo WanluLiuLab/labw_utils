@@ -10,6 +10,7 @@ class DumbTableAppender(BaseTableAppender):
         return 0
 
     def validate_lines(self, required_number_of_lines: int) -> None:
+        """Not needed"""
         pass
 
     def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
@@ -19,10 +20,13 @@ class DumbTableAppender(BaseTableAppender):
         self._real_filename = ""
 
     def _create_file_hook(self):
+        """Not needed"""
         pass
 
     def append(self, body: List[Any]):
+        """Not needed"""
         pass
 
     def close(self):
+        """Not needed"""
         pass

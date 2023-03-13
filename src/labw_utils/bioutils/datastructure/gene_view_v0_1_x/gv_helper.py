@@ -39,7 +39,7 @@ def get_duplicated_transcript_ids(
         for transcript in transcripts:
             this_splice_site = list(transcript.exon_boundaries)
             if assert_splice_site_existence(this_splice_site, all_splice_sites):
-                lh.warn(f"Will remove {transcript.transcript_id}")
+                lh.warning(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
 
 
@@ -73,30 +73,6 @@ def gv_dedup(
     lh.info("Removing transcript duplicate(s) in gv FIN")
 
 
-def enable_exon_superset():
-    Gene.register_new_attribute("_exon_superset")
-
-    def generate_exon_superset(self: Gene):
-        def add_exon(_all_exons: List[Exon], new_exon: Exon):
-            for _exon in _all_exons:
-                if new_exon == _exon:
-                    return
-            _all_exons.append(new_exon)
-
-        if self._exon_superset is not None:
-            return
-        self._exon_superset: List[Exon] = []
-        for transcript in self.iter_transcripts():
-            for exon in transcript.iter_exons():
-                add_exon(self._exon_superset, exon)
-
-    def get_exon_superset(self: Gene):
-        return self._exon_superset
-
-    Gene.register_new_hook(generate_exon_superset)
-    Gene.register_new_hook(get_exon_superset)
-
-
 def transcribe(
         gv: GeneViewType,
         output_fasta: str,
@@ -119,7 +95,7 @@ def transcribe(
             "GC"
         )) + "\n")
         if show_tqdm:
-            it = tqdm(iterable=gv.iter_transcripts(), desc="Transcribing GTF...")
+            it = tqdm(iterable=list(gv.iter_transcripts()), desc="Transcribing GTF...")
         else:
             it = gv.iter_transcripts()
         for transcript_value in it:
