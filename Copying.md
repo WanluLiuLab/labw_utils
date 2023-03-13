@@ -13,3 +13,13 @@ Affected files:
 * `/.gitignore`
 
 With CC0 1.0 Universal License.
+
+## FASTA36 Project
+
+Available from <https://github.com/wrpearson/fasta36>
+
+Affected files:
+
+* `/src/labw_utils/bioutils/algorithm/scoring_mtx/*`
+
+With Apache 2 License.
