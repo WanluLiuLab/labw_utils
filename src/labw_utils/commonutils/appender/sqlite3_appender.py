@@ -7,17 +7,13 @@ try:
 except ImportError:
     raise UnmetDependenciesError("pandas")
 
-from labw_utils.commonutils.appender._pandas_table_appender import PandasDictBufferAppender
+from labw_utils.commonutils.appender._pandas_table_appender import BasePandasDictBufferAppender
 
 
-class SQLite3TableAppender(PandasDictBufferAppender):
+class SQLite3TableAppender(BasePandasDictBufferAppender):
 
-    def _get_n_lines_actually_written_hook(self) -> int:
-        with sqlite3.connect(self._real_filename) as con:
-            return pd.read_sql_query("SELECT * FROM db", con=con).shape[0]
-
-    def _get_real_filename_hook(self):
-        self._real_filename = ".".join((self.filename, "sqlite3"))
+    def _get_real_filename_hook(self) -> str:
+        return ".".join((self.filename, "sqlite3"))
 
     def _create_file_hook(self):
         """Not needed"""

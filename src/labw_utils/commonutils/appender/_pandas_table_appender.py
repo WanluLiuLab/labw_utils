@@ -11,8 +11,8 @@ except ImportError:
 from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
 
 
-class PandasDictBufferAppender(BaseDictBufferAppender, ABC):
+class BasePandasDictBufferAppender(BaseDictBufferAppender, ABC):
 
-    def flush(self) -> pd.DataFrame:
+    def _flush(self) -> pd.DataFrame:
         df = pd.DataFrame.from_dict(data=self._buff)
         return df

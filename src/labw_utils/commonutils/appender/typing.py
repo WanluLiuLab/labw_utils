@@ -6,61 +6,64 @@ from typing import List, Any, Dict
 
 
 class TableAppenderConfig:
-    buffer_size: int
+    _buffer_size: int
     """
     Buffering strategy. 1 for no buffering.
     """
 
     def __init__(self, buffer_size: int = 1):
-        self.buffer_size = buffer_size
+        self._buffer_size = buffer_size
+
+    @property
+    def buffer_size(self) -> int:
+        return self._buffer_size
 
 
 class BaseTableAppender(ABC):
-    filename: str
-    header: List[str]
+    _filename: str
+    _header: List[str]
     _real_filename: str
     _tac: TableAppenderConfig
+
+    @property
+    def filename(self) -> str:
+        return self._filename
+
+    @property
+    def header(self) -> List[str]:
+        return self._header
 
     @property
     def real_filename(self) -> str:
         return self._real_filename
 
     def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
-        self.filename = filename
-        self.header = header
-        self._get_real_filename_hook()
+        self._filename = filename
+        self._header = header
+        self._real_filename = self._get_real_filename_hook()
         self._tac = tac
         if os.path.exists(self._real_filename):
             os.remove(self._real_filename)
         self._create_file_hook()
 
     @abstractmethod
-    def _get_n_lines_actually_written_hook(self) -> int:
-        raise NotImplementedError
-
-    def validate_lines(self, required_number_of_lines: int) -> None:
-        actual_number_of_lines = self._get_n_lines_actually_written_hook()
-        if actual_number_of_lines != required_number_of_lines:
-            raise AssertionError(
-                f"{self._real_filename}, "
-                f"Required: {required_number_of_lines} "
-                f"Actual: {actual_number_of_lines}"
-            )
-
-    @abstractmethod
-    def _get_real_filename_hook(self):
+    def _get_real_filename_hook(self) -> str:
         raise NotImplementedError
 
     @abstractmethod
-    def _create_file_hook(self):
+    def _create_file_hook(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def append(self, body: List[Any]):
+    def flush(self) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def close(self):
+    def append(self, body: List[Any]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def close(self) -> None:
         raise NotImplementedError
 
     def __enter__(self):
@@ -91,7 +94,7 @@ class BaseDictBufferAppender(BaseTableAppender, ABC):
                 for header_item, body_item in zip(self.header, body):
                     self._buff[header_item].append(body_item)
             if len(self) == self._tac.buffer_size:
-                df = self.flush()
+                df = self._flush()
                 self._buff = {}
                 with self._write_mutex:
                     self._write_hook(df)
@@ -101,7 +104,7 @@ class BaseDictBufferAppender(BaseTableAppender, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def flush(self) -> Any:
+    def _flush(self) -> Any:
         raise NotImplementedError
 
     def __len__(self):
@@ -109,12 +112,13 @@ class BaseDictBufferAppender(BaseTableAppender, ABC):
             return 0
         return len(self._buff[self._h0])
 
-    def close(self):
+    def flush(self):
         if len(self) == 0:
             return
-        df = self.flush()
+        df = self._flush()
         self._buff = {}
         with self._write_mutex:
             self._write_hook(df)
 
-
+    def close(self):
+        self.flush()

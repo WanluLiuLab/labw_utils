@@ -66,11 +66,12 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     return wc_c_io(fd)
 
 
-def wc_l_io(fd: IO) -> int:
+def wc_l_io(fd: IO, block_size: int=4096) -> int:
     """
     Count lines in a file.
 
     :param fd: A finite seekable block IO object.
+    :param block_size: Number of bytes to read at once.
     :return: Line number. -1 if not seekable.
     """
     if fd.seekable():
@@ -79,7 +80,6 @@ def wc_l_io(fd: IO) -> int:
         return -1
     reti = 0
     fd.seek(0)
-    block_size = 4096
     block = fd.read(block_size)
     """Assume 4k aligned filesystem"""
     if len(block) == 0:
@@ -93,6 +93,7 @@ def wc_l_io(fd: IO) -> int:
                     break
                 reti += block.count("\n")
         else:
+            reti += block.count(b"\n")
             while True:
                 block = fd.read(block_size)
                 if len(block) == 0:

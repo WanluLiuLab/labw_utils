@@ -1,10 +1,35 @@
+import fileinput
 import os
+import sqlite3
 import tempfile
 
+import pandas as pd
 import pytest
 
 from labw_utils.commonutils.appender import load_table_appender_class, AVAILABLE_TABLE_APPENDERS
 from labw_utils.commonutils.appender.typing import TableAppenderConfig, BaseTableAppender
+from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_l
+
+
+def validate_lines(appender: BaseTableAppender, required_number_of_lines: int) -> None:
+    actual_number_of_lines = 0
+    if appender.real_filename == "":
+        return
+    elif appender.real_filename.endswith("hdf5"):
+        actual_number_of_lines = pd.read_hdf(appender.real_filename, key="df").shape[0]
+    elif "tsv" in appender.real_filename:
+        actual_number_of_lines = wc_l(appender.real_filename) - 1
+    elif appender.real_filename.endswith("parquet"):
+        actual_number_of_lines = pd.read_parquet(appender.real_filename).shape[0]
+    elif appender.real_filename.endswith("sqlite3"):
+        with sqlite3.connect(appender.real_filename) as con:
+            actual_number_of_lines = pd.read_sql_query("SELECT * FROM db", con=con).shape[0]
+    if actual_number_of_lines != required_number_of_lines:
+        raise AssertionError(
+            f"{appender.real_filename}, "
+            f"Required: {required_number_of_lines} "
+            f"Actual: {actual_number_of_lines}"
+        )
 
 
 def assert_appender(
@@ -14,7 +39,7 @@ def assert_appender(
     for i in range(lines_to_append):
         appender.append([i, "2", "3"])
     appender.close()
-    appender.validate_lines(lines_to_append)
+    validate_lines(appender, lines_to_append)
 
 
 @pytest.mark.parametrize(

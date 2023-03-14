@@ -5,8 +5,8 @@ from labw_utils.commonutils.appender.tsv_appender import TSVTableAppender
 
 class LZ77TSVTableAppender(TSVTableAppender):
 
-    def _get_real_filename_hook(self):
-        self._real_filename = ".".join((self.filename, "tsv", "gz"))
+    def _get_real_filename_hook(self) -> str:
+        return ".".join((self.filename, "tsv", "gz"))
 
     def _create_file_hook(self):
         with gzip.open(self._real_filename, mode="wt") as writer:

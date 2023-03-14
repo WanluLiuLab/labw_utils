@@ -1,13 +1,12 @@
 from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
-from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_l
 
 
 class TSVTableAppender(BaseDictBufferAppender):
 
-    def _get_real_filename_hook(self):
-        self._real_filename = ".".join((self.filename, "tsv"))
+    def _get_real_filename_hook(self) -> str:
+        return ".".join((self.filename, "tsv"))
 
-    def flush(self) -> str:
+    def _flush(self) -> str:
         return "\n".join(map(
             lambda x: "\t".join(map(repr, x)),  # x is [COLUMN]
             zip(*self._buff.values())
@@ -20,6 +19,3 @@ class TSVTableAppender(BaseDictBufferAppender):
     def _write_hook(self, df: str):
         with open(self._real_filename, mode="at") as writer:
             writer.write(df)
-
-    def _get_n_lines_actually_written_hook(self) -> int:
-        return wc_l(self._real_filename) - 1
