@@ -68,12 +68,13 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
 
 
 @chronolog(display_time=True)
-def wc_l_io(fd: IO) -> int:
+def wc_l_io(fd: IO, block_size: int=4096) -> int:
     """
     Count lines in a file.
 
-    :param fd: An IO object.
-    :return: Line number.
+    :param fd: A finite seekable block IO object.
+    :param block_size: Number of bytes to read at once.
+    :return: Line number. -1 if not seekable.
     """
     if fd.seekable():
         curr_pos = fd.tell()
@@ -81,16 +82,29 @@ def wc_l_io(fd: IO) -> int:
         return -1
     reti = 0
     fd.seek(0)
-    while True:
-        segment = fd.read(1024)
-        if len(segment) == 0:
-            break
-        reti += segment.count("\n") if isinstance(segment, str) else segment.count(b"\n")
+    block = fd.read(block_size)
+    """Assume 4k aligned filesystem"""
+    if len(block) == 0:
+        return 0
+    else:
+        if isinstance(block, str):
+            reti += block.count("\n")
+            while True:
+                block = fd.read(block_size)
+                if len(block) == 0:
+                    break
+                reti += block.count("\n")
+        else:
+            reti += block.count(b"\n")
+            while True:
+                block = fd.read(block_size)
+                if len(block) == 0:
+                    break
+                reti += block.count(b"\n")
     if fd.tell() != 0 and reti == 0:
         reti = 1  # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
     return reti
-
 
 @chronolog(display_time=True)
 def wc_c_io(fd: IO) -> int:
