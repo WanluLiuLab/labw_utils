@@ -68,7 +68,7 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
 
 
 @chronolog(display_time=True)
-def wc_l_io(fd: IO, block_size: int=4096) -> int:
+def wc_l_io(fd: IO, block_size: int = 4096) -> int:
     """
     Count lines in a file.
 
@@ -105,6 +105,7 @@ def wc_l_io(fd: IO, block_size: int=4096) -> int:
         reti = 1  # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
     return reti
+
 
 @chronolog(display_time=True)
 def wc_c_io(fd: IO) -> int:
