@@ -4,6 +4,8 @@ import types
 import uuid
 from typing import Callable, Any
 
+from labw_utils.stdlib.cpy310.pkgutil import resolve_name
+
 
 def copy_doc(source: Any) -> Callable:
     """
@@ -39,6 +41,8 @@ def copy_doc(source: Any) -> Callable:
     ...     def foo(self) -> None:
     ...         self._A.foo()
     """
+    if isinstance(source, str):
+        source = resolve_name(source)
 
     def wrapper(func: Any) -> Callable:
         func.__doc__ = source.__doc__

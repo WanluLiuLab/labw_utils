@@ -185,7 +185,8 @@ def is_valid_chrname(chr_name: str) -> bool:
                 chr_name.startswith("chrUn") or
                 chr_name.endswith("_random") or
                 chr_name.endswith("_alt") or
-                chr_name.endswith("_decoy")
+                chr_name.endswith("_decoy") or
+                chr_name.endswith("_fix")
         ):
             return False
     else:
