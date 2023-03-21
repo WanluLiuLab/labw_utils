@@ -1,4 +1,6 @@
 # Common file suffixes.
+import itertools
+
 common_suffixes = {
     "GTF": ('.gtf', '.gff'),
     "GFF3": ('.gff3',),
@@ -28,14 +30,13 @@ def get_file_type_from_suffix(filename: str) -> str:
     archive_suffix_all_removed = False
     while not archive_suffix_all_removed:
         archive_suffix_all_removed = True
-        for real_suffixes in archive_suffixes.values():
-            for real_suffix in real_suffixes:
-                if filename.endswith(real_suffix):
-                    filename = filename.rstrip(real_suffix)
-                    archive_suffix_all_removed = False
+        for archive_suffix in itertools.chain(*archive_suffixes.values()):
+            if filename.endswith(archive_suffix):
+                filename = filename.rstrip(archive_suffix)
+                archive_suffix_all_removed = False
 
-    for standard_suffix, real_suffixes in common_suffixes.items():
+    for file_type, real_suffixes in common_suffixes.items():
         for real_suffix in real_suffixes:
             if filename.endswith(real_suffix):
-                return standard_suffix
+                return file_type
     return 'UNKNOWN'

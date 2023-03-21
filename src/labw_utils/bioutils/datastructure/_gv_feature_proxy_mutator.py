@@ -96,8 +96,8 @@ class GeneMutator:
             transcript: Transcript,
             **kwargs
     ):
-        gene.del_transcript(transcript.transcript_id)
-        gene.add_transcript(transcript, **kwargs)
+        GeneMutator.del_transcript(gene, transcript.transcript_id)
+        GeneMutator.add_transcript(gene, transcript, **kwargs)
 
     @staticmethod
     def fast_add_transcript(

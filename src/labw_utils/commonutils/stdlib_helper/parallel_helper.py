@@ -229,7 +229,7 @@ class ParallelJobExecutor(threading.Thread):
             yield job.job_object
 
     def iter_pending_jobs(self) -> Iterable[_JOB_TYPE]:
-        for job in self._running_job_queue:
+        for job in self._pending_job_queue:
             yield job.job_object
 
     def iter_finished_jobs(self) -> Iterable[_JOB_TYPE]:

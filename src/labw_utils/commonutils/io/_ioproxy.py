@@ -152,6 +152,7 @@ class RuleBasedIOProxy(IOProxy):
         else:
             raise TypeError(f"Type {type(path_or_fd)} not supported!")
 
+_illegal_in_readonly_io = OSError("Illegal operation on Sequential Read-Only IO")
 
 class SequentialReader(RuleBasedIOProxy):
     """
@@ -162,7 +163,7 @@ class SequentialReader(RuleBasedIOProxy):
 
     def seek(self, *args, **kwargs) -> int:
         """This function is disabled, will raise :py:class:`OSError`"""
-        raise OSError("Illegal operation on Sequential Read-Only IO")
+        raise _illegal_in_readonly_io
 
     def seekable(self) -> bool:
         """False"""
@@ -170,7 +171,7 @@ class SequentialReader(RuleBasedIOProxy):
 
     def truncate(self, *args, **kwargs) -> int:
         """This function is disabled, will raise :py:class:`OSError`"""
-        raise OSError("Illegal operation on Sequential Read-Only IO")
+        raise _illegal_in_readonly_io
 
     def writable(self) -> bool:
         """False"""
@@ -178,8 +179,8 @@ class SequentialReader(RuleBasedIOProxy):
 
     def write(self, *args, **kwargs) -> int:
         """This function is disabled, will raise :py:class:`OSError`"""
-        raise OSError("Illegal operation on Sequential Read-Only IO")
+        raise _illegal_in_readonly_io
 
     def writelines(self, *args, **kwargs) -> None:
         """This function is disabled, will raise :py:class:`OSError`"""
-        raise OSError("Illegal operation on Sequential Read-Only IO")
+        raise _illegal_in_readonly_io

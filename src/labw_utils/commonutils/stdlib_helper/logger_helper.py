@@ -28,7 +28,6 @@ __all__ = (
     'WARNING',
     'ERROR',
     'FATAL',
-    'chronolog',
     'get_logger'
 )
 

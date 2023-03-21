@@ -54,7 +54,7 @@ ysjs =  { file = "requirements_ysjs.txt" }
 where = ["src"]
 
 [tool.pytest.ini_options]
-addopts = " --doctest-modules -vv --continue-on-collection-errors --junitxml=pytest/junit.xml --cov --cov-report=html --html=pytest/pytest_report.html --self-contained-html --ignore-glob='*.ipynb.py'"
+addopts = " --doctest-modules -vv --continue-on-collection-errors --junitxml=pytest/junit.xml --cov --cov-report=html --cov-report=xml --html=pytest/pytest_report.html --self-contained-html --ignore-glob='*.ipynb.py'"
 norecursedirs = "explore"
 testpaths = ["test", "src"]
 log_level = 8
@@ -75,6 +75,9 @@ omit = [
 
 [tool.coverage.report]
 skip_empty = true
+
+[tool.coverage.xml]
+output = "pytest/cov.xml"
 
 [tool.coverage.html]
 directory = "pytest/cov_html"

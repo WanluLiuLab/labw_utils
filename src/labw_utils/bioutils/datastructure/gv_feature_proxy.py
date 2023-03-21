@@ -332,10 +332,6 @@ class Transcript(BaseFeatureProxy):
         if intron_index == -1 or intron_index == self.number_of_exons:
             return math.inf
         _len = self._exons[intron_index + 1].start - self._exons[intron_index].end + 1
-        # if _len < 0:
-        #     raise ValueError(
-        #         f"{self._exons[intron_index + 1]._data}\n{self._exons[intron_index]._data}"
-        #     )
         return _len
 
     @property
@@ -425,7 +421,7 @@ class Gene(BaseFeatureProxy):
 
     def check_whether_one_transcript_duplicates_with_others(self, transcript_id: str) -> Optional[str]:
         transcript = self.get_transcript(transcript_id)
-        for other_transcript in self.iter_transcripts():
+        for other_transcript in self._transcripts:
             if other_transcript == transcript and \
                     other_transcript.transcript_id != transcript.transcript_id:
                 return other_transcript.transcript_id
@@ -438,6 +434,9 @@ class Gene(BaseFeatureProxy):
     @gene_id.setter
     def gene_id(self, value: str):
         self._data.attribute["gene_id"] = value
+
+    def have_transcript_id(self, transcript_id: str) -> bool:
+        return transcript_id in self._transcript_ids
 
     @property
     def number_of_transcripts(self) -> int:

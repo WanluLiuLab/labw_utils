@@ -18,7 +18,6 @@ serve-doc:
 .PHONY: test
 test:
 	sh -c "PYTHONPATH=$(CURDIR)/src:$(CURDIR)/test pytest ."
-	rm -f .coverage.*
 
 .PHONY: pytype
 pytype:

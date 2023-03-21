@@ -1,4 +1,3 @@
-# import mmap
 import io
 from io import StringIO
 from os import PathLike
