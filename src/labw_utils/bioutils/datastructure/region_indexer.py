@@ -7,7 +7,7 @@ __all__ = (
 
 import functools
 from collections import defaultdict
-from typing import Iterable, Dict, Tuple, TypeVar
+from typing import Iterable, Dict, Tuple, Optional
 from typing import List
 
 import numpy as np
@@ -18,7 +18,7 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
 
-IntervalType = Tuple[str, int, int]
+IntervalType = Tuple[Tuple[str, Optional[bool]], int, int]
 
 
 def create_pandas_dataframe_from_input_file(
@@ -59,11 +59,11 @@ class NumpyIntervalEngine:
 
     [[s, e], [s, e], [s, e,], ...]
     """
-    _chromosomal_split_np_index: Dict[str, npt.NDArray]
+    _chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]
 
     def _select_chromosome(
             self,
-            query_chr: str
+            query_chr: Tuple[str, Optional[bool]]
     ) -> Tuple[npt.NDArray, npt.NDArray]:
         stored_values_of_selected_chromosome = self._chromosomal_split_np_index[query_chr]
         s = stored_values_of_selected_chromosome[:, 0]
@@ -101,7 +101,7 @@ class NumpyIntervalEngine:
         )[0].tolist():
             yield it
 
-    def __init__(self, chromosomal_split_np_index: Dict[str, npt.NDArray]):
+    def __init__(self, chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]):
         self._chromosomal_split_np_index = chromosomal_split_np_index
 
     @classmethod
@@ -119,7 +119,7 @@ class NumpyIntervalEngine:
 
     @classmethod
     def from_interval_iterator(cls, interval_iterator: Iterable[IntervalType]):
-        tmpd: Dict[str, List[Tuple[int, int]]] = defaultdict(lambda: [])
+        tmpd: Dict[Tuple[str, Optional[bool]], List[Tuple[int, int]]] = defaultdict(lambda: [])
         for interval in interval_iterator:
             append_chr, append_s, append_e = interval
             tmpd[append_chr].append((append_s, append_e))

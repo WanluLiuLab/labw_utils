@@ -7,6 +7,15 @@ from labw_utils.bioutils.parser.feature import GtfIterator
 from labw_utils.bioutils.record.feature import Feature
 
 
+def resolve_strand(_feature: Feature) -> Optional[bool]:
+    if _feature.strand == "+":
+        return True
+    elif _feature.strand == "-":
+        return False
+    else:
+        return None
+
+
 class QuantificationOptimizedGeneTree:
     _feature_ids: List[str]
     _feature_boundary: NumpyIntervalEngine
@@ -38,8 +47,10 @@ class QuantificationOptimizedGeneTree:
             if feature.feature == feature_type and feature.attribute.get(feature_attribute_name) is not None:
                 staged_features.append(feature)
                 chromosome_names.add(feature.seqname)
+
         nie = NumpyIntervalEngine.from_interval_iterator(
-            ((_feature.seqname, _feature.strand), _feature.start, _feature.end - 1) for _feature in staged_features
+            ((_feature.seqname, resolve_strand(_feature)), _feature.start, _feature.end - 1) for _feature in
+            staged_features
         )
         feature_ids = list(_feature.attribute.get(feature_attribute_name) for _feature in staged_features)
         return cls(feature_ids, nie, list(chromosome_names))

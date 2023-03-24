@@ -192,9 +192,15 @@ def is_valid_chrname(chr_name: str) -> bool:
     else:
         if (
                 chr_name.startswith("KI") or
+                chr_name.startswith("KB") or
+                chr_name.startswith("KN") or
+                chr_name.startswith("KV") or
+                chr_name.startswith("KZ") or
+                chr_name.startswith("ML") or
                 chr_name.startswith("GL") or
                 chr_name.startswith("KQ") or
-                chr_name.startswith("CHR_")
+                chr_name.startswith("CHR_") or
+                chr_name.startswith("JH")
         ):
             return False
     return True
