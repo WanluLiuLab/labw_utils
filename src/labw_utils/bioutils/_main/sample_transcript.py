@@ -20,6 +20,7 @@ def subset_gtf_by_transcript_id(
         gtf_filename: str,
         out_filename: str
 ):
+    possible_values = list(possible_values)
     gi = GtfIterator(gtf_filename)
     input_record_num = 0
     intermediate_records = []
