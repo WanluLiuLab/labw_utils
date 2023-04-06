@@ -18,7 +18,6 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = "YSJSD BACKEND"
 NOT_READY = ("Not ready\n", 500)
 
-
 # Global Variables
 global_config: Optional[ServerSideYSJSDConfig] = None
 global_ysjsd: Optional[YSJSD] = None

@@ -7,7 +7,7 @@ __all__ = (
     "describe"
 )
 
-from typing import Union, Tuple, Optional, Any
+from typing import Union, Tuple, Optional
 
 import numpy as np
 

@@ -43,6 +43,3 @@ class ChainAccessionMatcherRuleType(AccessionMatcherRuleType):
             if match_result is not None:
                 return match_result
         return None
-
-
-

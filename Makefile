@@ -30,3 +30,7 @@ test:
 .PHONY: pytype
 pytype:
 	 pytype --config=pytype.cfg src/labw_utils
+
+.PHONY: sonar-scanner
+sonar-scanner:
+	sonar-scanner

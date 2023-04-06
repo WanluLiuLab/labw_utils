@@ -1,4 +1,3 @@
-
 __all__ = (
     "FastaIterator",
     "extract_fasta_name",
@@ -12,11 +11,13 @@ from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
 
+
 def extract_fasta_name(line: str, full_header: bool) -> str:
     if full_header:
         return line[1:].strip()
     else:
         return line[1:].strip().split(' ')[0].split('\t')[0]
+
 
 class FastaIterator(BaseFileIterator):
     filetype: Final[str] = "FASTA"

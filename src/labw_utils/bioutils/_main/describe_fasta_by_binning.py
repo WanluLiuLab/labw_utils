@@ -6,7 +6,7 @@ from typing import List, Any, Dict
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.accession_matcher.match import infer_accession_type
-from labw_utils.bioutils.algorithm.sequence import is_valid_chrname, get_gc_percent
+from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -80,7 +80,7 @@ def main(args: List[str]) -> None:
     fa = FastaViewFactory(fasta_file_path, full_header=False, read_into_memory=False)
     out_metadata.update({
         "FATSA_FILE_PATH": fasta_file_path,
-        "FASTA_CHRS":[]
+        "FASTA_CHRS": []
     })
 
     for chr_name in fa.chr_names:

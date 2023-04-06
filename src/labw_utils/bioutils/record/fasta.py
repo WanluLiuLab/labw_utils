@@ -6,8 +6,6 @@ __all__ = (
     "FastaRecord"
 )
 
-from typing import List
-
 
 class FastaRecord:
     """

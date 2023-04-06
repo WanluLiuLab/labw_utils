@@ -53,7 +53,6 @@ class FastaIndexView:
             return False
         return list(self.values()) == list(other.values())
 
-
     def __repr__(self):
         return f"Fasta Index from {self._filename}\n" \
                f"Full Header: {self._full_header}\n" \

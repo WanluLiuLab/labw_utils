@@ -6,6 +6,7 @@ from labw_utils import UnmetDependenciesError
 
 try:
     import pytest
+
     pysam = pytest.importorskip("pysam")
 except ImportError:
     try:

@@ -22,7 +22,7 @@ class GtfIteratorWriter(BaseIteratorWriter):
     filetype: str = "GTF"
     record_type = Feature
 
-    def __init__(self, filename: str, quote: str, **kwargs):
+    def __init__(self, filename: str, quote: str = DEFAULT_GTF_QUOTE_OPTIONS, **kwargs):
         super().__init__(filename, **kwargs)
         self._fd = get_writer(self._filename)
         self._quote = quote

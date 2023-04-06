@@ -102,7 +102,7 @@ class YSJSCluster:
                 raise MalformedResponseException from e
         _lh.debug("Successfully GET YSJSD load")
         return load
-    
+
     @property
     def cluster_status(self) -> YSJSDStatus:
         try:

@@ -67,4 +67,3 @@ def main(args: List[str]):
         )
     if args.show_status:
         current_status = cl.cluster_status
-        

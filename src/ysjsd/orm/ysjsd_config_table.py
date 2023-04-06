@@ -13,7 +13,7 @@ class ServerSideYSJSDConfigTable(SQLAlchemyDeclarativeBase):
     name = Column(sqlalchemy.String(32), primary_key=True, nullable=False)
     description = Column(sqlalchemy.String(1024), nullable=False)
     ysjs_port = Column(sqlalchemy.String(8), nullable=False)
-    var_directory_path= Column(sqlalchemy.String(256), nullable=False)
+    var_directory_path = Column(sqlalchemy.String(256), nullable=False)
     config_file_path = Column(sqlalchemy.String(256), nullable=False)
     total_cpu = Column(sqlalchemy.Float, nullable=False)
     total_mem = Column(sqlalchemy.Float, nullable=False)

@@ -4,7 +4,7 @@ parser -- Basic bioinformatics database parsers
 Here contains codes of parsers for basic bioinformatics databases
 """
 from abc import abstractmethod, ABC
-from typing import Iterable, Optional, IO, Iterator, TypeVar, Generic
+from typing import Iterable, IO, Iterator, TypeVar, Generic
 
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 

@@ -204,7 +204,7 @@ class YSJSSubmission:
     @property
     def submission_name(self) -> str:
         return self._submission_name
-    
+
     @property
     def depends(self) -> List[str]:
         return self._depends

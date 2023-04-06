@@ -10,11 +10,11 @@ __all__ = (
 
 from typing import Union, Tuple, Optional
 
-from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
 import numpy as np
-from numpy import typing as npt
 import torch
+from numpy import typing as npt
+
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _Tensor = Union[npt.NDArray, torch.Tensor]
 

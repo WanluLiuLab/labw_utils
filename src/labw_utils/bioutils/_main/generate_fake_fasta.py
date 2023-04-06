@@ -39,7 +39,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
     parser.add_argument(
         "--split_at", required=False, help="Length of split, 0 for unsplit",
         nargs="?", type=int, action='store', default=80
-    ) # TODO: Not implemented
+    )  # TODO: Not implemented
     return parser.parse_args(args)
 
 
@@ -58,10 +58,11 @@ def main(args: List[str]):
 
             mask(0, args.chr_len * args.n_5p)
             mask(args.chr_len - args.chr_len * args.n_3p, args.chr_len)
-            mask(args.chr_len * args.centromere_offset,  args.chr_len * (args.centromere_offset + args.centromere_len))
+            mask(args.chr_len * args.centromere_offset, args.chr_len * (args.centromere_offset + args.centromere_len))
             chr_contents = "".join(chr_contents)
             if args.split_at != 0:
-                chr_contents = "\n".join([(chr_contents[i:i + args.split_at]) for i in range(0, len(chr_contents), args.split_at)])
+                chr_contents = "\n".join(
+                    [(chr_contents[i:i + args.split_at]) for i in range(0, len(chr_contents), args.split_at)])
             writer.write(
                 f">{seqid}\n{chr_contents}\n"
             )

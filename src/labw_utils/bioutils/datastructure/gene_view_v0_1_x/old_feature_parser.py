@@ -26,7 +26,6 @@ See :py:class:`bioutils.record.feature.GtfRecord` for this feature.
 * Parse a GTF/GFF3 file into a three-tier Exon-Transcript-GeneView structure.
 See :py:class:`bioutils.datastructure.gene_view.GeneView` for this feature.
 """
-from abc import ABC
 from collections import defaultdict
 from typing import Dict, Iterator, Union, Optional, List, TextIO, Iterable, Final
 
@@ -153,10 +152,10 @@ class Gff3Tree:
         return self._flat_record[gff3_id]
 
     def get_child_ids(self, gff3_id: str) -> Iterator[str]:
-        return self._id_tree[gff3_id]
+        return iter(self._id_tree[gff3_id])
 
     def get_all_ids(self) -> Iterator[str]:
-        return self._flat_record.keys()
+        return iter(self._flat_record.keys())
 
     def get_toplevel_ids(self) -> Iterator[str]:
         return self.get_child_ids(GFF3_TOPLEVEL_NAME)

@@ -6,7 +6,7 @@ from typing import List, Any, Dict
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.algorithm.sequence import is_valid_chrname
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
-from labw_utils.bioutils.datastructure.gene_view import GeneViewFactory
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import QuantificationOptimizedGeneTree
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -135,7 +135,7 @@ def main(args: List[str]) -> None:
             try:
                 seq_len = fa.get_chr_length(chr_name)
             except KeyError:
-                continue # pass
+                continue  # pass
             segment_length = seq_len // args.nbins
             for start in range(0, seq_len - segment_length, segment_length):
                 end = start + segment_length
@@ -145,7 +145,8 @@ def main(args: List[str]) -> None:
                 }
                 gtf_isoform_intervals_pos = len(list(gtf_isoform_intervals.overlap(((chr_name, True), start, end))))
                 gtf_isoform_intervals_neg = len(list(gtf_isoform_intervals.overlap(((chr_name, False), start, end))))
-                gtf_isoform_intervals_strandless = len(list(gtf_isoform_intervals.overlap(((chr_name, None), start, end))))
+                gtf_isoform_intervals_strandless = len(
+                    list(gtf_isoform_intervals.overlap(((chr_name, None), start, end))))
                 gtf_gene_intervals_pos = len(list(gtf_gene_intervals.overlap(((chr_name, True), start, end))))
                 gtf_gene_intervals_neg = len(list(gtf_gene_intervals.overlap(((chr_name, False), start, end))))
                 gtf_gene_intervals_strandless = len(list(gtf_gene_intervals.overlap(((chr_name, None), start, end))))

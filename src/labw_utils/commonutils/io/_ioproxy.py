@@ -166,7 +166,9 @@ class RuleBasedIOProxy(IOProxy):
         else:
             raise TypeError(f"Type {type(path_or_fd)} not supported!")
 
+
 _illegal_in_readonly_io = OSError("Illegal operation on Sequential Read-Only IO")
+
 
 class SequentialReader(RuleBasedIOProxy):
     """
