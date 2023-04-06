@@ -24,6 +24,10 @@
       <excludeFolder url="file://$MODULE_DIR$/.vscode" />
       <excludeFolder url="file://$MODULE_DIR$/.scannerwork" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/out" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/fa" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/gtf" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/out_fa" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/out_gtf" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

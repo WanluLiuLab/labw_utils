@@ -17,7 +17,9 @@ df_cat <- df %>%
     dplyr::select(!c(
         gtf_intervals_pos,
         gtf_intervals_neg,
-        gtf_intervals_strandless
+        gtf_intervals_strandless,
+        sdi,
+        gc
     ))
 df_gtf_intervals <- df %>%
     dplyr::select(
@@ -27,13 +29,73 @@ df_gtf_intervals <- df %>%
         gtf_intervals_neg,
         gtf_intervals_strandless
     )
+df_diversity <- df %>%
+    dplyr::select(
+        start,
+        chr_name,
+        sdi,
+        gc
+    )
+
 
 normal_nts <- c("A", "C", "G", "T")
-sm_nts <- c("a", "c", "g", "t")
+sm_nts <- tolower(normal_nts)
+hm_nts <- "N"
+sm_hm_nts <- tolower(hm_nts)
+ambig_nts <- c(
+    "R", #	AG	puRine
+    "Y", #	CT	pYrimidine
+    "K", #	GT	Keto
+    "M", #	AC	aMino
+    "S", #	GC	Strong
+    "W", #	AT	Weak
+    "B", #	CGT	Not A
+    "D", #	AGT	Not C
+    "H", #	ACT	Not G
+    "V" #	ACG	Not T
+)
+sm_ambig_nts <- tolower(ambig_nts)
 other_nts <- setdiff(
     colnames(df_cat),
-    c(normal_nts, sm_nts, "N", "n", "chr_name", "start")
+    c(
+        normal_nts,
+        sm_nts,
+        hm_nts,
+        sm_hm_nts,
+        ambig_nts,
+        sm_ambig_nts,
+        "chr_name",
+        "start"
+    )
 )
+
+nt_scale_limits <- c(
+    normal_nts,
+    sm_nts,
+    hm_nts,
+    sm_hm_nts,
+    ambig_nts,
+    sm_ambig_nts
+)
+nt_scale_colors <- c(
+    c("green", "red", "yellow", "cyan"),
+    c("green4", "red4", "yellow4", "cyan4"),
+    "black",
+    grDevices::colorRampPalette(
+        RColorBrewer::brewer.pal(5, "Greys")
+    )(length(c(sm_hm_nts, ambig_nts, sm_ambig_nts)))
+)
+
+nt_cat_scale_limits <- c(
+    "NT_NORMAL",
+    "NT_SOFT_MASKED",
+    "NT_HARD_MASKED",
+    "NT_SOFT_HARD_MASKED",
+    "NT_AMBIG",
+    "NT_AMBIG_SOFT_MASKED",
+    "OTHERS"
+)
+nt_cat_scale_colors <- RColorBrewer::brewer.pal(7, "Set1")
 
 parallel::clusterExport(cl, varlist = ls())
 
@@ -49,12 +111,16 @@ plot_chr <- function(this_chr_name){
             -start
         )
     this_df_cat_long_1 <- this_df_cat %>%
-        dplyr::mutate(
-            NORMAL = rowSums(dplyr::select(this_df_cat, dplyr::all_of(normal_nts))),
-            SOFT_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::all_of(sm_nts))),
-            OTHERS= rowSums(dplyr::select(this_df_cat, dplyr::all_of(other_nts)))
+        dplyr::transmute(
+            NT_NORMAL = rowSums(dplyr::select(this_df_cat, dplyr::any_of(normal_nts))),
+            NT_SOFT_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_nts))),
+            NT_HARD_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(hm_nts))),
+            NT_SOFT_HARD_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_nts))),
+            NT_AMBIG = rowSums(dplyr::select(this_df_cat, dplyr::any_of(ambig_nts))),
+            NT_AMBIG_SOFT_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_ambig_nts))),
+            OTHERS= rowSums(dplyr::select(this_df_cat, dplyr::any_of(other_nts))),
+            start=start
         ) %>%
-        dplyr::select(NORMAL, SOFT_MASKED, OTHERS, N, n, start) %>%
         tidyr::gather(
             key = "Nt",
             value = "value",
@@ -68,6 +134,14 @@ plot_chr <- function(this_chr_name){
             value = "value",
             -start
         )
+    this_df_diversity <- df_diversity %>%
+        dplyr::filter(chr_name == this_chr_name) %>%
+        dplyr::select(!chr_name) %>%
+        tidyr::gather(
+            key = "DiversityIndexName",
+            value = "value",
+            -start
+        )
 
     message(sprintf("Plotting %s: Plotting", this_chr_name))
     g1 <- ggplot(this_df_cat_long) +
@@ -75,6 +149,10 @@ plot_chr <- function(this_chr_name){
             aes(x = start, y = value, fill = Nt)
         ) +
         scale_x_continuous("POS", labels = scales::label_number()) +
+        scale_fill_manual(
+            limits = nt_scale_limits,
+            values = nt_scale_colors
+        ) +
         theme_bw() +
         ggtitle(sprintf("Base distribution in %s", this_chr_name))
 
@@ -83,18 +161,32 @@ plot_chr <- function(this_chr_name){
             aes(x = start, y = value, fill = Nt)
         ) +
         scale_x_continuous("POS", labels = scales::label_number()) +
-        scale_color_manual() +
+        scale_fill_manual(
+            limits = nt_cat_scale_limits,
+            values = nt_cat_scale_colors
+        ) +
         theme_bw() +
         ggtitle(sprintf("Base distribution in %s", this_chr_name))
 
     g3 <- ggplot(this_df_gtf_intervals) +
-        geom_area(
-            aes(x = start, y = value)
+        geom_bar(
+            aes(x = start, y = value),
+            stat = "identity"
         ) +
         facet_grid(IntervalType~., scales="free_y") +
         scale_x_continuous("POS", labels = scales::label_number()) +
         theme_bw() +
         ggtitle(sprintf("Interval distribution in %s", this_chr_name))
+
+    g4 <- ggplot(this_df_diversity) +
+        geom_area(
+            aes(x = start, y = value)
+        ) +
+        facet_grid(DiversityIndexName~.) +
+        scale_x_continuous("POS", labels = scales::label_number()) +
+        scale_y_continuous(limits = c(0, 1)) +
+        theme_bw() +
+        ggtitle(sprintf("Diversity of %s", this_chr_name))
 
     ggsave(
         sprintf("%s/%s-nt.pdf", argv$output, this_chr_name),
@@ -107,6 +199,10 @@ plot_chr <- function(this_chr_name){
     ggsave(
         sprintf("%s/%s-gtf.pdf", argv$output, this_chr_name),
         g3, width = 20, height = 5
+    )
+    ggsave(
+        sprintf("%s/%s-div.pdf", argv$output, this_chr_name),
+        g4, width = 20, height = 5
     )
 }
 

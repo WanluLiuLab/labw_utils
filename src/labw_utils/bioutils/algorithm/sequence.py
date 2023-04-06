@@ -2,7 +2,8 @@
 Naive sequence algorithms. e.g., complement, reverse or get GC content.
 """
 import itertools
-from typing import Iterable, List, Optional, Tuple
+import re
+from typing import Iterable, List, Optional, Tuple, Dict
 
 _comp_trans = str.maketrans('ATCGatcgNnXx', 'TAGCtagcNnXx')
 
@@ -131,37 +132,37 @@ TRANSL_TABLES = {
         "AA": "FFLLSSSSYY**CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
         "NAME": "Rhabdopleuridae Mitochondrial Code"
     },
-    25:{
-        "AA":"FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Candidate Division SR1 and Gracilibacteria Code"
+    25: {
+        "AA": "FFLLSSSSYY**CCGWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Candidate Division SR1 and Gracilibacteria Code"
     },
-    26:{
-        "AA":"FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Pachysolen tannophilus Nuclear Code"
+    26: {
+        "AA": "FFLLSSSSYY**CC*WLLLAPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Pachysolen tannophilus Nuclear Code"
     },
-    27:{
-        "AA":"FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Karyorelict Nuclear Code"
+    27: {
+        "AA": "FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Karyorelict Nuclear Code"
     },
-    28:{
-        "AA":"FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Condylostoma Nuclear Code"
+    28: {
+        "AA": "FFLLSSSSYYQQCCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Condylostoma Nuclear Code"
     },
-    29:{
-        "AA":"FFLLSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Mesodinium Nuclear Code"
+    29: {
+        "AA": "FFLLSSSSYYYYCC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Mesodinium Nuclear Code"
     },
-    30:{
-        "AA":"FFLLSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Peritrich Nuclear Code"
+    30: {
+        "AA": "FFLLSSSSYYEECC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Peritrich Nuclear Code"
     },
-    31:{
-        "AA":"FFLLSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
-        "NAME":"Blastocrithidia Nuclear Code"
+    31: {
+        "AA": "FFLLSSSSYYEECCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",
+        "NAME": "Blastocrithidia Nuclear Code"
     },
-    33:{
-        "AA":"FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
-        "NAME":"Cephalodiscidae Mitochondrial UAA-Tyr Code"
+    33: {
+        "AA": "FFLLSSSSYYY*CCWWLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSSKVVVVAAAADDEEGGGG",
+        "NAME": "Cephalodiscidae Mitochondrial UAA-Tyr Code"
     }
 }
 """
@@ -170,9 +171,60 @@ NCBI Translation Table.
 This table does NOT care circumstances that a codon may encode either normal AA or STOP.
 """
 
+ACCESSION_MATCHER: Dict[str, re.Pattern] = {
+    "Ensemble Gene ID": re.compile(r"^ENS([A-Z_]+)?G\d{8}$"),
+    "Ensemble Gene ID with Version": re.compile(r"^ENS([A-Z_]+)?G\d{8}\.\d+$"),
+    "Ensemble Transcript ID": re.compile(r"^ENS([A-Z_]+)?T\d{8}$"),
+    "Ensemble Transcript ID with Version": re.compile(r"^ENS([A-Z_]+)?T\d{8}\.\d+$"),
+    "Ensemble Exon ID": re.compile(r"^ENS([A-Z_]+)?E\d{8}$"),
+    "Ensemble Exon ID with Version": re.compile(r"^ENS([A-Z_]+)?E\d{8}\.\d+$"),
+    "Ensemble Protein Family ID": re.compile(r"^ENS([A-Z_]+)?FM\d{8}$"),
+    "Ensemble Protein Family ID with Version": re.compile(r"^ENS([A-Z_]+)?FM\d{8}\.\d+$"),
+    "Ensemble Gene Tree ID": re.compile(r"^ENS([A-Z_]+)?GT\d{8}$"),
+    "Ensemble Gene Tree ID with Version": re.compile(r"^ENS([A-Z_]+)?GT\d{8}\.\d+$"),
+    "Ensemble Protein ID": re.compile(r"^ENS([A-Z_]+)?P\d{8}$"),
+    "Ensemble Protein ID with Version": re.compile(r"^ENS([A-Z_]+)?P\d{8}\.\d+$"),
+    "Ensemble Regulatory Feature ID": re.compile(r"^ENS([A-Z_]+)?R\d{8}$"),
+    "Ensemble Regulatory Feature ID with Version": re.compile(r"^ENS([A-Z_]+)?R\d{8}\.\d+$"),
+    "Ensemble Unknown": re.compile(r"^ENS.+$"),
+    "RefSeq Protein-Coding Transcript": re.compile(r"^NM_.+$"),
+    "RefSeq Non-Protein-Coding Transcript": re.compile(r"^NR_.+$"),
+    "RefSeq Predicted Protein-Coding Transcript": re.compile(r"^XM_c.+$"),
+    "RefSeq Predicted Non-Protein-Coding Transcript": re.compile(r"^XR_c.+$"),
+    "RefSeq Chromosome in Reference Assembly": re.compile(r"^NC_.+$"),
+    "RefSeq Chromosome in Alternate Assembly": re.compile(r"^AC_.+$"),
+    "RefSeq Incomplete Genomic Region": re.compile(r"^NG_.+$"),
+    "Analysis Set Chromosome": re.compile(r"^chr(([0-9]+)|X|Y|M)$"),
+    "Analysis Set Chromosome, EBV": re.compile(r"^chrEBV$"),
+    "Analysis Set Chromosome, Unplaced Decoy Sequences": re.compile(r"^chrUn_.+_decoy$"),
+    "Analysis Set Chromosome, HLA Sequences": re.compile(r"^HLA-.*$"),
+    "Analysis Set Chromosome, Unplaced Scaffolds": re.compile(r"^chrUn_.+$"),
+    "Analysis Set Chromosome, Alternate Loci": re.compile(r"^chr(([0-9]+)|X|Y|M)_.+_alt$"),
+    "Analysis Set Chromosome, Unlocalized Scaffolds": re.compile(r"^chr(([0-9]+)|X|Y|M)_.+_random$"),
+    "Analysis Set Chromosome, Fix Patches": re.compile(r"^chr(([0-9]+)|X|Y|M)_.+_fix$"),
+    "Analysis Set Chromosome, Unknown": re.compile(r"^chr.+"),
+    "Unknown": re.compile(r".*")
+}
+
+
+# NT_	Genomic	Contig or scaffold, clone-based or WGSa
+# NW_	Genomic	Contig or scaffold, primarily WGSa
+# NZ_b	Genomic	Complete genomes and unfinished WGS data
+# AP_	Protein	Annotated on AC_ alternate assembly
+# NP_	Protein	Associated with an NM_ or NC_ accession
+# YP_c	Protein	Annotated on genomic molecules without an instantiated
+# transcript record
+# XP_c	Protein	Predicted model, associated with an XM_ accession
+# WP_	Protein	Non-redundant across multiple strains and species
 
 class MalformedMRNAError(ValueError):
     pass
+
+
+def infer_accession_type(accession: str) -> str:
+    for k, v in ACCESSION_MATCHER.items():
+        if v.match(accession):
+            return k
 
 
 def is_valid_chrname(chr_name: str) -> bool:
@@ -204,6 +256,7 @@ def is_valid_chrname(chr_name: str) -> bool:
         ):
             return False
     return True
+
 
 def find_orf(
         seq: str,

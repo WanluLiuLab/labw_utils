@@ -2,17 +2,29 @@
 
 export PYTHONPATH=/home/yuzj/Documents/labw_utils/src
 
-mkdir -p out
+mkdir -p out out_fa out_gtf
 # make
 
 mkdir -p out/ncbi_analysis_set-plots
-python -m labw_utils.bioutils describe_fasta_gtf_by_binning \
-    -f GCA_000001405.15_GRCh38_full_plus_hs38d1_analysis_set.fna \
-    -g hg38.ncbiRefSeq.gtf \
-    -o out/ncbi_analysis_set
+for fn in fa/*.fa fa/*.fna; do
+    python -m labw_utils.bioutils describe_fasta_by_binning \
+        -f "${fn}"\
+        -o out_"${fn}" \
+        --metadata_only
+done
+
 Rscript plot_describe_fasta_gtf_by_binning.R \
     --input out/ncbi_analysis_set.parquet \
     --output out/ncbi_analysis_set-plots/
+
+mkdir -p out/gencode_toplevel_comprehensive-plots
+python -m labw_utils.bioutils describe_fasta_gtf_by_binning \
+    -f GRCh38.p13.genome.fa \
+    -g gencode.v43.chr_patch_hapl_scaff.annotation.gtf \
+    -o out/gencode_toplevel_comprehensive
+Rscript plot_describe_fasta_gtf_by_binning.R \
+    --input out/gencode_toplevel_comprehensive.parquet \
+    --output out/gencode_toplevel_comprehensive-plots/
 
 mkdir -p out/ncbi_refseq-plots
 python -m labw_utils.bioutils describe_fasta_gtf_by_binning \
@@ -31,15 +43,6 @@ python -m labw_utils.bioutils describe_fasta_gtf_by_binning \
 Rscript plot_describe_fasta_gtf_by_binning.R \
     --input out/ncbi_genebank.parquet \
     --output out/ncbi_genebank-plots/
-
-mkdir -p out/gencode_toplevel_comprehensive-plots
-python -m labw_utils.bioutils describe_fasta_gtf_by_binning \
-    -f GRCh38.p13.genome.fa \
-    -g gencode.v43.chr_patch_hapl_scaff.annotation.gtf \
-    -o out/gencode_toplevel_comprehensive
-Rscript plot_describe_fasta_gtf_by_binning.R \
-    --input out/gencode_toplevel_comprehensive.parquet \
-    --output out/gencode_toplevel_comprehensive-plots/
 
 mkdir -p out/gencode_primary_assembly_comprehensive-plots
 python -m labw_utils.bioutils describe_fasta_gtf_by_binning \

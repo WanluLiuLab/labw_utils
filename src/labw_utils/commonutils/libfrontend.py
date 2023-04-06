@@ -2,7 +2,8 @@ __all__ = (
     'setup_frontend',
     "get_subcommands",
     "get_argparser_from_subcommand",
-    "get_main_func_from_subcommand"
+    "get_main_func_from_subcommand",
+    "get_doc_from_subcommand"
 )
 
 import argparse
@@ -40,7 +41,7 @@ def get_subcommands(package_main_name: str) -> Iterable[str]:
             yield spec.name
 
 
-def _get_doc(
+def get_doc_from_subcommand(
         package_main_name: str,
         subcommand_name: str
 ) -> Optional[str]:
@@ -84,13 +85,14 @@ def get_argparser_from_subcommand(
     else:
         return None
 
+
 def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
     _lh.info("Listing modules...")
     for item in valid_subcommand_names:
-        doc = _get_doc(package_main_name, item)
+        doc = get_doc_from_subcommand(package_main_name, item)
         if doc is None:
             doc = NONE_DOC
         else:

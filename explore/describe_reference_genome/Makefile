@@ -14,6 +14,7 @@ all: \
 	GRCh38_Ensembl_rmsk_TE.gtf \
 	hg38.fa \
 	hg38.masked.fa \
+	GRCh38_full_analysis_set_plus_decoy_hla.fa \
 	Homo_sapiens.GRCh38.dna.toplevel.fa \
 	Homo_sapiens.GRCh38.dna.primary_assembly.fa \
 	Homo_sapiens.GRCh38.dna_sm.toplevel.fa \
@@ -113,3 +114,6 @@ GCA_000001405.15_GRCh38_full_plus_hs38d1_analysis_set.fna.gz:
 
 hg38.analysisSet.fa.gz:
 	axel "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz"
+
+GRCh38_full_analysis_set_plus_decoy_hla.fa:
+	axel "https://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa"
