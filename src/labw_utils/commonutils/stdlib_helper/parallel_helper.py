@@ -118,16 +118,28 @@ class ParallelJobExecutor(threading.Thread):
     """
 
     _running_job_queue: List[Job]
+    _finished_job_queue: List[Job]
 
     _n_jobs: int
     """
     Number of jobs to be executed
     """
 
-    def __init__(self,
-                 pool_name: str = "Unnamed pool",
-                 pool_size: Union[int, float] = 0,
-                 refresh_interval: float = 0.01):
+    _delete_after_finish: bool
+    """
+    Whether to delete job instance after finish
+    """
+
+    _show_tqdm: bool
+
+    def __init__(
+            self,
+            pool_name: str = "Unnamed pool",
+            pool_size: Union[int, float] = 0,
+            refresh_interval: float = 0.01,
+            delete_after_finish: bool = True,
+            show_tqdm: bool = True
+    ):
         super().__init__()
         self._pool_size = pool_size
         if self._pool_size == 0:
@@ -136,15 +148,20 @@ class ParallelJobExecutor(threading.Thread):
         self._is_terminated = False
         self._is_appendable = True
         self._pending_job_queue = []
-        self._n_jobs = 0
         self._running_job_queue = []
+        self._finished_job_queue = []
+        self._n_jobs = 0
         self._refresh_interval = refresh_interval
+        self._delete_after_finish = delete_after_finish
+        self._show_tqdm = show_tqdm
 
     def run(self):
         """
         Run the queue.
         """
         self._is_appendable = False
+        if self._show_tqdm:
+            pbar = tqdm(desc=self._pool_name, total=self._n_jobs)
 
         def _scan_through_process():
             """
@@ -156,11 +173,14 @@ class ParallelJobExecutor(threading.Thread):
                     if isinstance(process.job_object, multiprocessing.Process):
                         process.job_object.close()
                     self._running_job_queue.remove(process)
-                    del process
-                    gc.collect()
-                    pbar.update(1)
+                    if self._delete_after_finish:
+                        del process
+                        gc.collect()
+                    else:
+                        self._finished_job_queue.append(process)
+                    if self._show_tqdm:
+                        pbar.update(1)
 
-        pbar = tqdm(desc=self._pool_name, total=self._n_jobs)
         while len(self._pending_job_queue) > 0 and not self._is_terminated:
             while len(self._pending_job_queue) > 0 and len(self._running_job_queue) < self._pool_size:
                 new_process = self._pending_job_queue.pop(0)
@@ -203,6 +223,30 @@ class ParallelJobExecutor(threading.Thread):
             self._n_jobs += 1
         else:
             raise ValueError("Job queue not appendable!")
+
+    def iter_running_jobs(self) -> Iterable[_JOB_TYPE]:
+        for job in self._running_job_queue:
+            yield job.job_object
+
+    def iter_pending_jobs(self) -> Iterable[_JOB_TYPE]:
+        for job in self._pending_job_queue:
+            yield job.job_object
+
+    def iter_finished_jobs(self) -> Iterable[_JOB_TYPE]:
+        for job in self._finished_job_queue:
+            yield job.job_object
+
+    @property
+    def num_running_jobs(self) -> int:
+        return len(self._running_job_queue)
+
+    @property
+    def num_pending_jobs(self) -> int:
+        return len(self._pending_job_queue)
+
+    @property
+    def num_finished_jobs(self) -> int:
+        return len(self._finished_job_queue)
 
 
 class TimeOutKiller(threading.Thread):

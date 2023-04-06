@@ -438,3 +438,6 @@ SiLiCO_Scratch/
 pypy_venv/
 .idea/dataSources.xml
 *.bak
+*.token
+*sonar*
+.scannerwork/

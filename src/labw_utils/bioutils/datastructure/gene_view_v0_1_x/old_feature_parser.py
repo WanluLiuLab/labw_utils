@@ -43,7 +43,8 @@ class GtfIterator(BaseFileIterator):
     record_type = GtfRecord
 
     def __iter__(self) -> Iterator[GtfRecord]:
-        for line in get_tqdm_line_reader(self.filename):
+        self._fd = get_tqdm_line_reader(self.filename)
+        for line in self._fd:
             if line.startswith('#') or line == '':
                 continue
             yield GtfRecord.from_string(line)
@@ -54,7 +55,8 @@ class Gff3Iterator(BaseFileIterator):
     record_type = Gff3Record
 
     def __iter__(self) -> Iterator[Gff3Record]:
-        for line in get_tqdm_line_reader(self.filename):
+        self._fd = get_tqdm_line_reader(self.filename)
+        for line in self._fd:
             if line.startswith('##FASTA'):
                 return
             if line.startswith('#') or line == '':

@@ -51,7 +51,7 @@ def describe(input_filename: str, out_basename: str):
             "NAIVE_LENGTH"
         )) + "\n")
 
-        for gene in tqdm(desc="Iterating over genes...", iterable=gv.iter_genes()):
+        for gene in tqdm(desc="Iterating over genes...", iterable=gv.iter_genes(), total=gv.number_of_genes):
 
             gene_writer.write("\t".join((
                 str(gene.gene_id),

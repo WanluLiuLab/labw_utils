@@ -291,7 +291,7 @@ class BaseGeneView(GeneViewType, ABC):
             sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     ):
         TranscriptMutator.sort_exons(
-            self.get_transcript(transcript_id),
+            self._transcripts[transcript_id],
             exon_number_policy=sort_exon_exon_number_policy
         )
 
@@ -317,7 +317,7 @@ class BaseGeneView(GeneViewType, ABC):
     ):
         transcript_id_to_del = []
         """Transcript to be deleted for reason like no exons."""
-        for transcript in tqdm(iterable=self.iter_transcripts(), desc="Standardizing transcripts"):
+        for transcript in tqdm(iterable=self._transcripts.values(), desc="Standardizing transcripts"):
             if remove_transcript_without_exons and transcript.number_of_exons == 0:
                 transcript_id_to_del.append(transcript.transcript_id)
                 continue
@@ -334,7 +334,7 @@ class BaseGeneView(GeneViewType, ABC):
     def _standardize_genes(self):
         gene_id_to_del = []
         """Genes to be deleted for reason like no transcripts"""
-        for gene in tqdm(iterable=self.iter_genes(), desc="Standardizing genes"):
+        for gene in tqdm(iterable=self._genes.values(), desc="Standardizing genes"):
             if gene.number_of_transcripts == 0:
                 gene_id_to_del.append(gene.gene_id)
                 continue
@@ -363,7 +363,7 @@ class BaseGeneView(GeneViewType, ABC):
 
     def del_gene(self, gene_id: str):
         if gene_id in self._genes.keys():
-            for transcript_id in list(self.get_gene(gene_id).iter_transcript_ids()):
+            for transcript_id in list(self._genes[gene_id].iter_transcript_ids()):
                 self.del_transcript(transcript_id)
         else:
             raise ValueError(f"Gene ID {gene_id} not found!")
@@ -390,10 +390,10 @@ class BaseGeneView(GeneViewType, ABC):
         self._genes.pop(gene_id)
 
     def del_transcript(self, transcript_id: str, auto_remove_empty_gene: bool = True):
-        if transcript_id in self.iter_transcript_ids():
-            gene_id = self.get_transcript(transcript_id).gene_id
-            GeneMutator.del_transcript(self.get_gene(gene_id), transcript_id)
-            if self.get_gene(gene_id).number_of_transcripts == 0 and auto_remove_empty_gene:
+        if transcript_id in self._transcripts.keys():
+            gene_id = self._transcripts[transcript_id].gene_id
+            GeneMutator.del_transcript(self._genes[gene_id], transcript_id)
+            if self._genes[gene_id].number_of_transcripts == 0 and auto_remove_empty_gene:
                 lh.debug(f"Automatically remove empty gene {gene_id}")
                 self._del_gene(gene_id)
             self._del_transcript(transcript_id)
@@ -420,16 +420,16 @@ class BaseGeneView(GeneViewType, ABC):
     ):
         gene_id = transcript.gene_id
         transcript_id = transcript.transcript_id
-        if gene_id not in self.iter_gene_ids():
+        if gene_id not in self._genes.keys():
             self.add_gene(BaseFeatureProxy.duplicate_cast(transcript, Gene))
-        gene = self.get_gene(gene_id)
-        if transcript_id not in gene.iter_transcript_ids() or gene.get_transcript(
-                transcript_id).feature != "transcript":
+        gene = self._genes[gene_id]
+        if not gene.have_transcript_id(transcript_id) or \
+                gene.get_transcript(transcript_id).feature != "transcript":
             if fast:
                 GeneMutator.fast_add_transcript(gene, transcript)
             else:
                 GeneMutator.add_transcript(gene, transcript)
-        if transcript_id not in self.iter_transcript_ids() or \
+        if transcript_id not in self._transcripts or \
                 self.get_transcript(transcript_id).feature != "transcript":
             self._add_transcript(transcript)
         if transcript.feature != "transcript":
@@ -437,7 +437,7 @@ class BaseGeneView(GeneViewType, ABC):
 
     def add_exon(self, exon: Exon, fast: bool = False):
         transcript_id = exon.transcript_id
-        if transcript_id not in self.iter_transcript_ids():
+        if transcript_id not in self._transcripts:
             self.add_transcript(BaseFeatureProxy.duplicate_cast(exon, Transcript), fast=fast)
         if fast:
             TranscriptMutator.fast_add_exon(self.get_transcript(transcript_id), exon)

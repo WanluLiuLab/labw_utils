@@ -1,3 +1,12 @@
+__all__ = (
+    'setup_frontend',
+    "get_subcommands",
+    "get_argparser_from_subcommand",
+    "get_main_func_from_subcommand",
+    "get_doc_from_subcommand"
+)
+
+import argparse
 import importlib
 import inspect
 import logging
@@ -7,9 +16,6 @@ import sys
 from typing import List, Iterable, Callable, Optional
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
-
-__all__ = ['setup_frontend']
-
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 
 stream_handler = logging.StreamHandler()
@@ -28,14 +34,14 @@ _lh = logger_helper.get_logger(__name__)
 NONE_DOC = "NONE DOC"
 
 
-def _get_subcommands(package_main_name: str) -> Iterable[str]:
+def get_subcommands(package_main_name: str) -> Iterable[str]:
     for spec in pkgutil.iter_modules(
             resolve_name(package_main_name).__spec__.submodule_search_locations):
         if not spec.name.startswith("_"):
             yield spec.name
 
 
-def _get_doc(
+def get_doc_from_subcommand(
         package_main_name: str,
         subcommand_name: str
 ) -> Optional[str]:
@@ -50,7 +56,7 @@ def _get_doc(
         return None
 
 
-def _get_main_func_from_subcommand(
+def get_main_func_from_subcommand(
         package_main_name: str,
         subcommand_name: str
 ) -> Optional[Callable[[List[str]], int]]:
@@ -65,13 +71,28 @@ def _get_main_func_from_subcommand(
         return None
 
 
+def get_argparser_from_subcommand(
+        package_main_name: str,
+        subcommand_name: str
+) -> Optional[argparse.ArgumentParser]:
+    """
+    Return result of a subcommands' "create_parser" function.
+    """
+    importlib.import_module(f'{package_main_name}.{subcommand_name}')
+    i = resolve_name(f'{package_main_name}.{subcommand_name}')
+    if hasattr(i, 'create_parser') and inspect.isfunction(getattr(i, 'create_parser')):
+        return i.create_parser()
+    else:
+        return None
+
+
 def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
     _lh.info("Listing modules...")
     for item in valid_subcommand_names:
-        doc = _get_doc(package_main_name, item)
+        doc = get_doc_from_subcommand(package_main_name, item)
         if doc is None:
             doc = NONE_DOC
         else:
@@ -163,7 +184,7 @@ def setup_frontend(
         file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
         logging.root.addHandler(file_handler)
 
-    valid_subcommand_names = _get_subcommands(package_main_name)
+    valid_subcommand_names = get_subcommands(package_main_name)
     if parsed_args.input_subcommand_name == "lscmd":
         lscmd(package_main_name, valid_subcommand_names)
     elif parsed_args.input_subcommand_name == "":
@@ -179,10 +200,8 @@ def setup_frontend(
             _lh.exception(f"Subcommand name not set! {subcommand_help}")
             sys.exit(1)
     elif parsed_args.input_subcommand_name in valid_subcommand_names:
-        main_fnc = _get_main_func_from_subcommand(
-            package_main_name=package_main_name,
-            subcommand_name=parsed_args.input_subcommand_name
-        )
+        main_fnc = get_main_func_from_subcommand(package_main_name=package_main_name,
+                                                 subcommand_name=parsed_args.input_subcommand_name)
         if main_fnc is not None:
             sys.exit(main_fnc(parsed_args.parsed_args))
         else:

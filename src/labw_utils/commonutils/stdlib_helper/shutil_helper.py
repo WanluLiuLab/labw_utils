@@ -66,7 +66,7 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     return wc_c_io(fd)
 
 
-def wc_l_io(fd: IO, block_size: int=4096) -> int:
+def wc_l_io(fd: IO, block_size: int = 4096) -> int:
     """
     Count lines in a file.
 
