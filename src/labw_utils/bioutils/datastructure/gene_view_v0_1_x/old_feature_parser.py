@@ -1,6 +1,5 @@
 """
-The Low-Level Parser of GTF and GFF3 Files
-==========================================
+old_feature_parser.py -- The Low-Level Parser of GTF and GFF3 Files
 
 This module includes record iterators of GTF and GFF3 files,
 and a tree parser of GFF3 files.
@@ -15,16 +14,14 @@ Since GFF3 files are organized in a Child-Parent way,
 a DOM-like GFF3 tree (actually Graph) parser is implemented.
 This parser parses GFF3 files into a Directed-Acyclic Graph (DAG).
 
-Warnings:
----------
-
 This module does not:
 
 * Parse a GTF/GFF3 record string into :py:class:`GtfRecord`.
-See :py:class:`bioutils.record.feature.GtfRecord` for this feature.
+See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record.GtfRecord` for this feature.
 
 * Parse a GTF/GFF3 file into a three-tier Exon-Transcript-GeneView structure.
-See :py:class:`bioutils.datastructure.gene_view.GeneView` for this feature.
+See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view.GeneView` for this feature.
+
 """
 from collections import defaultdict
 from typing import Dict, Iterator, Union, Optional, List, TextIO, Iterable, Final

@@ -1,12 +1,15 @@
 """
-fasta.py -- An In-Memory Fasta Record
+labw_utils.bioutils.record.fasta -- An In-Memory Fasta Record
 """
 
 __all__ = (
-    "FastaRecord"
+    "FastaRecord",
 )
 
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
 
+
+@create_class_init_doc_from_property()
 class FastaRecord:
     """
     A naive in-memory FASTQ record.

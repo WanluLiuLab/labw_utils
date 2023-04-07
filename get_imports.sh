@@ -12,7 +12,9 @@ while read -r fn; do
     sed 's;$;'" # ${fn}"';'
 done | \
 grep 'import ' | \
+grep -e '^from ' -e '^import' | \
 grep -v '^\#' | \
 grep -v 'typing' | \
+grep -v '^>>>' | \
 sort | uniq
 

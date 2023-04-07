@@ -8,13 +8,13 @@ import uuid
 from abc import abstractmethod, ABC
 from typing import Optional, Dict, Iterator, Union, Type, Iterable
 
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x._determine_filetype import get_file_type_from_suffix
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_feature_proxy_mutator import GeneMutator, TranscriptMutator
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import Gene, Transcript, Exon, \
     BaseFeatureProxy, \
     DEFAULT_SORT_EXON_EXON_STRAND_POLICY
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator, GtfWriter, Gff3Iterator
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord, FeatureType, Gff3Record
-from labw_utils.bioutils.parser._determine_filetype import get_file_type_from_suffix
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.stdlib_helper import pickle_helper
@@ -118,7 +118,8 @@ class GeneViewType:
     def standardize(
             self,
             sort_exon_exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
-            *args, **kwargs
+            *args,
+            **kwargs
     ):
         """
         This function standardizes GeneView into a Gene-Transcript-Exon Three-Tier Structure,
@@ -128,7 +129,7 @@ class GeneViewType:
         1). Remove transcript without exons;
         2). Sort exons and re-mark exon number.
         3). If transcript is not built with feature ``transcript``,
-            normalize its starting and ending position to its span length.
+        normalize its starting and ending position to its span length.
         2. Same things to be done for gene.
         """
         pass

@@ -441,3 +441,4 @@ pypy_venv/
 *.token
 *sonar*
 .scannerwork/
+/twine.pypirc.ini

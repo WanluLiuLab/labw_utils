@@ -3,6 +3,13 @@ parser -- Basic bioinformatics database parsers
 
 Here contains codes of parsers for basic bioinformatics databases
 """
+
+__all__ = (
+    "BaseFileIterator",
+    "FileTypeNotFoundError",
+    "BaseIteratorWriter"
+)
+
 from abc import abstractmethod, ABC
 from typing import Iterable, IO, Iterator, TypeVar, Generic
 
@@ -25,7 +32,7 @@ class _BaseFileIO(ABC):
     _fd: IO
 
     filetype: str
-    """File type indicator, should be class variable."""
+    """File type indicator, should be FINAL class variable."""
 
     @property
     def filename(self) -> str:

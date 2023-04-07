@@ -1,5 +1,5 @@
 """
-feature.py -- General-Purposed GTF/GFF3/BED Record that Represents a Genomic Feature
+labw_utils.bioutils.record.feature -- General-Purposed GTF/GFF3/BED Record that Represents a Genomic Feature
 
 This module includes GTF/GFF3/BED record datastructure and their one-line parsers.
 """
@@ -12,6 +12,7 @@ from functools import total_ordering
 from typing import Union, Optional, Dict, Iterable, List
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
 
 lh = get_logger(__name__)
 
@@ -19,6 +20,7 @@ GtfAttributeValueType = Union[
     str, int, float, bool, None,
     List[str], List[int], List[float], List[bool], List[None]
 ]
+"""Type of GTF/GFF attributes"""
 
 GtfAttributeType = Dict[str, GtfAttributeValueType]
 """Type of GTF/GFF fields"""
@@ -42,15 +44,19 @@ DEFAULT_GTF_QUOTE_OPTIONS = "all"
 
 
 class _NotSet:
+    """Not set indicator"""
     pass
 
 
 _notset = _NotSet()
+"""Not set indicator"""
 
 
 def feature_repr(v: GtfAttributeValueType) -> str:
     """
     Python standard :py:func:`repr` for genomic data.
+
+    If the genomic attribute is of type ``list``, ivoke this function multiple times.
 
     >>> feature_repr(None)
     '.'
@@ -76,23 +82,55 @@ def feature_repr(v: GtfAttributeValueType) -> str:
     return attr_str
 
 
+def strand_repr(strand: Optional[bool]) -> str:
+    """Convert strand in bool to strand in str."""
+    if strand is None:
+        return "."
+    if strand:
+        return "+"
+    return "-"
+
+
 class FeatureParserError(ValueError):
+    """
+    General feature parsing errors.
+    """
     pass
 
 
 class RegionError(FeatureParserError):
+    """
+    Error raised if:
+
+    1. ``start`` less than 1
+    2. ``end`` less than ``start``
+    """
+
     def __init__(self, *args):
         super(RegionError, self).__init__(*args)
 
 
 class FeatureType(enum.IntEnum):
+    """
+    Type of genomic feature.
+    """
+
     NOT_PRESENT = -1
+    """If feature is ``.``"""
+
     UNKNOWN = 0
+    """If not recognized."""
+
     EXON = 9
+
     FIVE_PRIME_UTR = 8
     THREE_PRIME_UTR = 7
     OTHER_UTR = 6
+    """If feature is ``utr``"""
+
     CDS = 5
+    """Coding sequence."""
+
     START_CODON = 4
     STOP_CODON = 3
     TRANSCRIPT = 2
@@ -129,6 +167,7 @@ class BiologicalIntervalInterface(ABC):
     def start(self) -> int:
         """
         Inclusive 1-based start position.
+        As-is on GTF.
         """
         raise NotImplementedError
 
@@ -137,6 +176,7 @@ class BiologicalIntervalInterface(ABC):
     def start0b(self) -> int:
         """
         Inclusive 0-based start position.
+        For picking from FASTA.
         """
         raise NotImplementedError
 
@@ -145,6 +185,7 @@ class BiologicalIntervalInterface(ABC):
     def end(self) -> int:
         """
         Inclusive 1-based end position.
+        As-is on GTF.
         """
         raise NotImplementedError
 
@@ -153,6 +194,7 @@ class BiologicalIntervalInterface(ABC):
     def end0b(self) -> int:
         """
         Exclusive 0-based end position.
+        For picking from FASTA.
         """
         raise NotImplementedError
 
@@ -166,6 +208,20 @@ class BiologicalIntervalInterface(ABC):
 
     @abstractmethod
     def regional_equiv(self, other: BiologicalIntervalInterface):
+        """
+        Whether two BiologicalIntervalInterface is regionally equivalent.
+        Requires same ``start``, ``end`` and ``strand``.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def overlaps(self, other: Feature, is_stranded: bool = False) -> bool:
+        """
+        Whether this feature overlaps with another feature.
+
+        :param other: Another feature.
+        :param is_stranded: Whether to consider strands.
+        """
         raise NotImplementedError
 
 
@@ -190,6 +246,9 @@ class FeatureInterface(BiologicalIntervalInterface):
     @property
     @abstractmethod
     def parsed_feature(self) -> FeatureType:
+        """
+        Feature type that is parsed into standard format.
+        """
         raise NotImplementedError
 
     @property
@@ -204,8 +263,13 @@ class FeatureInterface(BiologicalIntervalInterface):
     @abstractmethod
     def frame(self) -> Optional[int]:
         """
-        One of ``0`` (first base of the feature is the first base of a codon),
-                        ``1`` (the second base is the first base of a codon) or ``2``.
+        One of:
+
+        - ``0`` (first base of the feature is the first base of a codon),
+        - ``1`` (the second base is the first base of a codon),
+        - ``2`` (so on).
+
+        See Ensemble Documentations at <https://www.ensembl.org/info/website/upload/gff.html>
         """
         raise NotImplementedError
 
@@ -224,13 +288,25 @@ class FeatureInterface(BiologicalIntervalInterface):
     @property
     @abstractmethod
     def naive_length(self) -> int:
+        """Naive length, is ``end`` - ``start`` + 1"""
         raise NotImplementedError
 
 
 @total_ordering
+@create_class_init_doc_from_property(
+    text_after="""
+
+:raises RegionError: If the region is invalid.
+"""
+)
 class Feature(FeatureInterface):
     """
     A general GTF/GFF/BED Record.
+
+    The filenames are named after Ensembl specifications.
+
+    .. warning::
+        Ensembl uses different way to represent 5'UTR.
     """
 
     __slots__ = (
@@ -325,8 +401,10 @@ class Feature(FeatureInterface):
         """Other attributes presented in Key-Value pair"""
         return self._attribute.get(name, default)
 
-    def overlaps(self, other: Feature) -> bool:
+    def overlaps(self, other: Feature, is_stranded: bool = False) -> bool:
         if self.seqname != other.seqname:
+            return False
+        if is_stranded and self.strand != other.strand:
             return False
         return (
                 self.start < other.start < self.end or
@@ -350,6 +428,9 @@ class Feature(FeatureInterface):
             frame: Union[Optional[int], _NotSet] = _notset,
             attribute: Union[GtfAttributeType, _NotSet] = _notset
     ) -> Feature:
+        """
+        Update fields or attributes of current Feature and generate a new one.
+        """
         return Feature(
             seqname=self._seqname if seqname is _notset else seqname,
             source=self._source if source is _notset else source,
@@ -366,6 +447,9 @@ class Feature(FeatureInterface):
             self,
             **attribute
     ):
+        """
+        Perform :py:func:`dict.update` on attributes of current Feature and generate a new one.
+        """
         new_attribute = dict(self._attribute)
         new_attribute.update(attribute)
         return Feature(
@@ -381,6 +465,9 @@ class Feature(FeatureInterface):
         )
 
     def reset_attribute(self, **attribute) -> Feature:
+        """
+        Reset attributes of current Feature and generate a new one.
+        """
         return Feature(
             seqname=self._seqname,
             source=self._source,
@@ -394,7 +481,9 @@ class Feature(FeatureInterface):
         )
 
     def keep_only_selected_attribute(self, *attribute_names) -> Feature:
-
+        """
+        Filter attributes of current Feature and generate a new one.
+        """
         return Feature(
             seqname=self._seqname,
             source=self._source,
@@ -419,12 +508,6 @@ class Feature(FeatureInterface):
             frame: Optional[int],
             attribute: Optional[GtfAttributeType] = None
     ):
-        """
-        The filenames are named after Ensembl specifications.
-
-        .. warning::
-            Ensembl uses different way to represent 5'UTR.
-        """
         if start < 1:
             raise RegionError(f"Start ({start}) cannot less than 1")
         if end < 1:
@@ -463,16 +546,19 @@ class Feature(FeatureInterface):
             self._strand == other.strand
 
     def __gt__(self, other: Feature):
-        if not self.seqname == other.seqname:
+        if self.seqname != other.seqname:
             return self.seqname > other.seqname
-        if not self.start == other.start:
+        if self.start != other.start:
             return self.start > other.start
-        if not self.parsed_feature == other.parsed_feature:
+        if self.parsed_feature != other.parsed_feature:
             return self.parsed_feature > other.parsed_feature
-        if not self.end == other.end:
+        if self.end != other.end:
             return self.end > other.end
 
     def to_dict(self) -> Dict[str, Union[str, GtfAttributeType]]:
+        """
+        Convert to dict to be used for initiators.
+        """
         return {
             "seqname": self.seqname,
             "source": self.source,

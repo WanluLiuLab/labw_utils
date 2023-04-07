@@ -8,20 +8,25 @@ from __future__ import annotations
 
 __all__ = (
     "FastaIndexRecordParserError",
-    "MisFormattedFastaIndexRecordError",
     "FastaIndexRecord"
 )
 
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
+
 
 class FastaIndexRecordParserError(ValueError):
-    pass
+    """
+    Error raised if:
 
+    1. the FAI record have incorrect number of fields.
+    2. the FAI record contains non-integer in integer fields.
+    """
 
-class MisFormattedFastaIndexRecordError(FastaIndexRecordParserError):
     def __init__(self, reason: str):
         super().__init__(reason)
 
 
+@create_class_init_doc_from_property()
 class FastaIndexRecord:
     """
     An entry from ``.fai`` files
@@ -92,16 +97,24 @@ class FastaIndexRecord:
 
     @classmethod
     def from_fai_str(cls, fai_str: str):
+        """
+        Parse FAI string.
+
+        :raises FastaIndexRecordParserError: On invalid input.
+        """
         fields = fai_str.rstrip().split("\t")
         if len(fields) != 5:
-            raise MisFormattedFastaIndexRecordError(f"Illegal record: '{fai_str}'. Need to have 5 fields.")
-        new_instance = cls(
-            name=fields[0],
-            length=int(fields[1]),
-            offset=int(fields[2]),
-            line_blen=int(fields[3]),
-            line_len=int(fields[4]),
-        )
+            raise FastaIndexRecordParserError(f"Illegal record: '{fai_str}'. Need to have 5 fields.")
+        try:
+            new_instance = cls(
+                name=fields[0],
+                length=int(fields[1]),
+                offset=int(fields[2]),
+                line_blen=int(fields[3]),
+                line_len=int(fields[4]),
+            )
+        except ValueError as e:
+            raise FastaIndexRecordParserError(f"Illegal record: '{fai_str}'. Integer parsing error.") from e
         return new_instance
 
     def __repr__(self):
@@ -118,5 +131,5 @@ class FastaIndexRecord:
 
     def __eq__(self, other: FastaIndexRecord) -> bool:
         if not isinstance(other, FastaIndexRecord):
-            return False
+            raise TypeError(f"Object {other} (class: {type(other)}) is not FastaIndexRecord!")
         return repr(self) == repr(other)

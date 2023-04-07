@@ -1,10 +1,13 @@
+import inspect
 import logging
 import os
 import types
 import uuid
-from typing import Callable, Any
+from typing import Callable, Any, TypeVar, Optional
 
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
+
+_InType = TypeVar("_InType")
 
 
 def copy_doc(source: Any) -> Callable:
@@ -107,3 +110,34 @@ def chronolog(display_time: bool = False, log_error: bool = False):
         return inner_dec
 
     return msg_decorator
+
+
+def create_class_init_doc_from_property(
+        text_before: Optional[str] = "",
+        text_after: Optional[str] = "",
+):
+    """
+    Place documentations at attributes to __init__ function.
+    """
+
+    def inner_dec(cls: _InType) -> _InType:
+        init_func = cls.__init__
+        mro = list(cls.__mro__)
+        sig = inspect.signature(init_func)
+        result_doc = ""
+        for argname in sig.parameters.keys():
+            curr_mro = list(mro)
+            while curr_mro:
+                curr_class = curr_mro.pop(0)
+                try:
+                    doc = getattr(curr_class, argname).__doc__
+                except AttributeError:
+                    continue
+                if doc is None:
+                    continue
+                result_doc += f":param {argname}: {doc}\n"
+                break
+
+        init_func.__doc__ = text_before + result_doc + text_after
+        return cls
+    return inner_dec

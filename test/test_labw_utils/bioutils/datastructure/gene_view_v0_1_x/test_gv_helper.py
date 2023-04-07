@@ -3,7 +3,6 @@ import tempfile
 
 import pytest
 
-import conftest
 import labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper as gvh
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -140,4 +139,3 @@ def test_gene_gtf_with_duplicated_transcripts_in_one_gene_by_splice_sites(initia
     gv = GeneViewFactory.from_file(file_name)
     gvh.gv_dedup(gv, by_splice_site=False, assume_no_cross_gene_duplication=True)
     assert gv.number_of_transcripts == 3
-

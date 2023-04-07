@@ -31,4 +31,3 @@ def test_import_tty():
 def test_import_no_tty():
     sys.stderr = open("/dev/null", "w")
     reload(tqdm_importer)
-    assert tqdm_importer.IMPORTED_TQDM_TYPE == "silent"

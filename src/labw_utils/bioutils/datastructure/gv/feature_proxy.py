@@ -68,8 +68,8 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
     def __le__(self, other: BaseFeatureProxy) -> bool:
         return self._data <= other._data
 
-    def overlaps(self, other: BaseFeatureProxy) -> bool:
-        return self._data.overlaps(other._data)
+    def overlaps(self, other: BaseFeatureProxy, is_stranded: bool = False) -> bool:
+        return self._data.overlaps(other._data, is_stranded=is_stranded)
 
     @property
     def naive_length(self) -> int:

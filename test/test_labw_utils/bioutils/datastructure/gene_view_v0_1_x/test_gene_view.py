@@ -3,7 +3,6 @@ import tempfile
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.io.safe_io import get_writer
-from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 
 gene_gtf = """
 chrI	ncbiRefSeq	exon	4221	4358	.	-	.	gene_id "homt-1"; transcript_id "NM_058260.4"; exon_number "1"; exon_id "NM_058260.4.1"; gene_name "homt-1";

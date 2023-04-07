@@ -1,18 +1,32 @@
+"""
+labw_utils.bioutils.record.gtf -- GTF parsers
+"""
+
+__all__ = (
+    "format_string",
+    "parse_record"
+)
+
 from typing import List, Optional
 
 from labw_utils.bioutils.record.feature import Feature, DEFAULT_GTF_QUOTE_OPTIONS, VALID_GTF_QUOTE_OPTIONS, \
-    feature_repr, GtfAttributeValueType
+    feature_repr, GtfAttributeValueType, strand_repr
 from labw_utils.commonutils.str_utils import to_dict
 
 
-def format_attribute_str(
+class GTFParsingError(ValueError):
+    """General GTF parsing errors."""
+    pass
+
+
+def _format_attribute_str(
         attribute_key: str,
         attribute_value: GtfAttributeValueType,
         quote: str
 ) -> str:
     if isinstance(attribute_value, List):
         return "; ".join(
-            format_attribute_str(attribute_key, _single_value, quote) for _single_value in attribute_value
+            _format_attribute_str(attribute_key, _single_value, quote) for _single_value in attribute_value
         )
     attr_str = feature_repr(attribute_value)
     if quote == "blank":
@@ -29,10 +43,18 @@ def format_string(
         feature: Feature,
         quote: str = DEFAULT_GTF_QUOTE_OPTIONS
 ):
+    """
+    Format :py:class:`Feature` to GTF.
+
+    :param feature: Feature to be formatted.
+    :param quote: Quoting policy.
+
+    :raise ValueError: On invalid quoting options.
+    """
     if quote not in VALID_GTF_QUOTE_OPTIONS:
         raise ValueError(f"Invalid quoting option {quote}, should be one in {VALID_GTF_QUOTE_OPTIONS}.")
     attribute_full_str = "; ".join(
-        format_attribute_str(attribute_key, attribute_value, quote)
+        _format_attribute_str(attribute_key, attribute_value, quote)
         for attribute_key, attribute_value in zip(feature.attribute_keys, feature.attribute_values)
     ) + ";"
     return ("\t".join((
@@ -42,7 +64,7 @@ def format_string(
         feature_repr(feature.start),
         feature_repr(feature.end),
         feature_repr(feature.score),
-        "." if feature.strand is None else ("+" if feature.strand else "-"),
+        strand_repr(feature.strand),
         feature_repr(feature.frame),
         attribute_full_str
     )))
@@ -53,9 +75,22 @@ def parse_record(
         skip_fields: Optional[List[str]] = None,
         included_attributes: Optional[List[str]] = None,
 ) -> Feature:
+    """
+    Parse record string to :py:class:`Feature`.
+
+    :param in_str: String to be parsed.
+    :param skip_fields: Explicitly skip optional features to reduce space.
+    :param included_attributes: Explicitly include attributes to reduce space. Other attributes are discarded.
+
+    :raises GTFParsingError: On invalid record.
+    """
     if skip_fields is None:
         skip_fields = []
     line_split = in_str.rstrip('\n\r').split('\t')
+    if len(line_split) != 9:
+        raise GTFParsingError(
+            f"Illegal GTF record '{in_str}': Should have 9 fields, here only {len(line_split)}"
+        )
     required_fields = line_split[0:-1]
     attributes = to_dict(
         line_split[-1],
@@ -68,14 +103,19 @@ def parse_record(
     if included_attributes is not None:
         attributes = {k: v for k, v in attributes.items() if k in included_attributes}
 
-    return Feature(
-        seqname=required_fields[0],
-        source=required_fields[1] if required_fields[1] != "." and "source" not in skip_fields else None,
-        feature=required_fields[2] if required_fields[2] != "." and "feature" not in skip_fields else None,
-        start=int(required_fields[3]),
-        end=int(required_fields[4]),
-        score=float(required_fields[5]) if required_fields[5] != "." and "score" not in skip_fields else None,
-        strand=required_fields[6] == "+" if required_fields[6] != "." and "strand" not in skip_fields else None,
-        frame=int(required_fields[7]) if required_fields[7] != "." and "frame" not in skip_fields else None,
-        attribute=attributes
-    )
+    try:
+        return Feature(
+            seqname=required_fields[0],
+            source=required_fields[1] if required_fields[1] != "." and "source" not in skip_fields else None,
+            feature=required_fields[2] if required_fields[2] != "." and "feature" not in skip_fields else None,
+            start=int(required_fields[3]),
+            end=int(required_fields[4]),
+            score=float(required_fields[5]) if required_fields[5] != "." and "score" not in skip_fields else None,
+            strand=required_fields[6] == "+" if required_fields[6] != "." and "strand" not in skip_fields else None,
+            frame=int(required_fields[7]) if required_fields[7] != "." and "frame" not in skip_fields else None,
+            attribute=attributes
+        )
+    except ValueError as e:
+        raise GTFParsingError(
+            f"Illegal GTF record '{in_str}'"
+        ) from e

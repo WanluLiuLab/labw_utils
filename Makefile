@@ -6,6 +6,14 @@ dist:
 doc:
 	$(MAKE) -C doc
 
+.PHONY: twine
+twine:
+	twine upload \
+		-r local-pypi \
+		--skip-existing \
+		--config-file twine.pypirc.ini \
+		dist/*
+
 .PHONY: html
 html:
 	$(MAKE) -C doc html

@@ -64,7 +64,7 @@ html_theme = 'sphinx_rtd_theme'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
-    #    'sphinx.ext.intersphinx',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     "sphinx.ext.viewcode",
     'myst_nb',

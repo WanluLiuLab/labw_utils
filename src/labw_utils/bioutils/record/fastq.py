@@ -45,6 +45,8 @@ __all__ = (
 
 from typing import List
 
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
+
 
 class FastqRecordParserError(ValueError):
     pass
@@ -62,6 +64,12 @@ class SequenceQualityLengthMismatchError(FastqRecordParserError):
         )
 
 
+@create_class_init_doc_from_property(
+    text_after="""
+
+:raises SequenceQualityLengthMismatchError: On illegal record.
+"""
+)
 class FastqRecord:
     """
     A naive in-memory FASTQ record.
@@ -124,6 +132,8 @@ class FastqRecord:
         Generate from FASTQ sequence, 4 lines.
 
         This method is set to generate record from arbitrary :py:mod:`typing.TextIO` readers.
+
+        :raises MisFormattedFastqRecordError: If the record is invalid.
         """
         if len(lines) != 4:
             raise MisFormattedFastqRecordError("Should get a 4-element aray representing 4 FASTQ lines.")
@@ -143,5 +153,7 @@ class FastqRecord:
     def from_single_str(cls, input_str: str):
         """
         Generate from FASTQ sequence, 1 line.
+
+        :raises MisFormattedFastqRecordError: If the record is invalid.
         """
         return cls.from_str(input_str.splitlines())

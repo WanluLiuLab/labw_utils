@@ -1,4 +1,3 @@
-import fileinput
 import os
 import sqlite3
 import tempfile

@@ -1,8 +1,8 @@
 library(argparser)
 
 p <- arg_parser("")
-p <- add_argument(p, "--input", help="input Parquet file")
-p <- add_argument(p, "--output", help="Output Directory")
+p <- add_argument(p, "--input", help = "input Parquet file")
+p <- add_argument(p, "--output", help = "Output Directory")
 argv <- parse_args(p)
 
 library(tidyverse)
@@ -99,7 +99,7 @@ nt_cat_scale_colors <- RColorBrewer::brewer.pal(7, "Set1")
 
 parallel::clusterExport(cl, varlist = ls())
 
-plot_chr <- function(this_chr_name){
+plot_chr <- function(this_chr_name) {
     library(tidyverse)
     this_df_cat <- df_cat %>%
         dplyr::filter(chr_name == this_chr_name) %>%
@@ -118,8 +118,8 @@ plot_chr <- function(this_chr_name){
             NT_SOFT_HARD_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_nts))),
             NT_AMBIG = rowSums(dplyr::select(this_df_cat, dplyr::any_of(ambig_nts))),
             NT_AMBIG_SOFT_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_ambig_nts))),
-            OTHERS= rowSums(dplyr::select(this_df_cat, dplyr::any_of(other_nts))),
-            start=start
+            OTHERS = rowSums(dplyr::select(this_df_cat, dplyr::any_of(other_nts))),
+            start = start
         ) %>%
         tidyr::gather(
             key = "Nt",
@@ -173,7 +173,7 @@ plot_chr <- function(this_chr_name){
             aes(x = start, y = value),
             stat = "identity"
         ) +
-        facet_grid(IntervalType~., scales="free_y") +
+        facet_grid(IntervalType ~ ., scales = "free_y") +
         scale_x_continuous("POS", labels = scales::label_number()) +
         theme_bw() +
         ggtitle(sprintf("Interval distribution in %s", this_chr_name))
@@ -182,7 +182,7 @@ plot_chr <- function(this_chr_name){
         geom_area(
             aes(x = start, y = value)
         ) +
-        facet_grid(DiversityIndexName~.) +
+        facet_grid(DiversityIndexName ~ .) +
         scale_x_continuous("POS", labels = scales::label_number()) +
         scale_y_continuous(limits = c(0, 1)) +
         theme_bw() +
@@ -207,8 +207,8 @@ plot_chr <- function(this_chr_name){
 }
 
 a <- parLapply(
-    cl=cl,
-    X=unique(df_cat$chr_name),
+    cl = cl,
+    X = unique(df_cat$chr_name),
     plot_chr
 )
 

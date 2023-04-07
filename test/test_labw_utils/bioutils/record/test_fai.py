@@ -1,6 +1,6 @@
 import pytest
 
-from labw_utils.bioutils.record.fai import FastaIndexRecord, MisFormattedFastaIndexRecordError
+from labw_utils.bioutils.record.fai import FastaIndexRecord, FastaIndexRecordParserError
 
 
 def test():
@@ -13,5 +13,5 @@ def test():
     assert fair.line_len == 28
     assert str(fair) == fai_str
 
-    with pytest.raises(MisFormattedFastaIndexRecordError):
+    with pytest.raises(FastaIndexRecordParserError):
         _ = FastaIndexRecord.from_fai_str("AAAAA")

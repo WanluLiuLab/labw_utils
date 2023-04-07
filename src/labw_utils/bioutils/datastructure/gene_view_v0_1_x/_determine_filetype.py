@@ -1,12 +1,11 @@
-# Common file suffixes.
+"""
+Common file suffixes. To be deprecated.
+"""
 import itertools
 
 common_suffixes = {
     "GTF": ('.gtf', '.gff'),
-    "GFF3": ('.gff3',),
-    "BED": ('.bed',),
-    "RMSK": ('rmsk.txt',),
-    "FASTA": ('.fasta', '.fa'),
+    "GFF3": ('.gff3',)
 }
 
 archive_suffixes = {

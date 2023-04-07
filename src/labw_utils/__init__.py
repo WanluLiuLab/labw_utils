@@ -1,4 +1,4 @@
-__version__ = "0.1.15"
+__version__ = "1.0.1"
 
 _deps = {
     "pandas": ("pandas", "pandas"),

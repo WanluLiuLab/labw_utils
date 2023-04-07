@@ -15,6 +15,7 @@ import pkgutil
 import sys
 from typing import List, Iterable, Callable, Optional
 
+from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 
@@ -34,11 +35,20 @@ _lh = logger_helper.get_logger(__name__)
 NONE_DOC = "NONE DOC"
 
 
-def get_subcommands(package_main_name: str) -> Iterable[str]:
+def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[str]:
     for spec in pkgutil.iter_modules(
-            resolve_name(package_main_name).__spec__.submodule_search_locations):
-        if not spec.name.startswith("_"):
-            yield spec.name
+            resolve_name(package_main_name).__spec__.submodule_search_locations
+    ):
+        subcommand_name = spec.name
+        if subcommand_name.startswith("_"):
+            continue
+        try:
+            _ = resolve_name(f'{package_main_name}.{subcommand_name}')
+        except (UnmetDependenciesError, ImportError):
+            if verbose:
+                _lh.warning("Subcommand %s have unmet dependencies!", subcommand_name)
+            continue
+        yield subcommand_name
 
 
 def get_doc_from_subcommand(
@@ -183,8 +193,14 @@ def setup_frontend(
         file_handler.setLevel(logger_helper.TRACE)
         file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
         logging.root.addHandler(file_handler)
-
-    valid_subcommand_names = get_subcommands(package_main_name)
+    if parsed_args.input_subcommand_name == "lscmd":
+        get_subcommands_verbose = True
+    else:
+        get_subcommands_verbose = False
+    valid_subcommand_names = get_subcommands(
+        package_main_name,
+        get_subcommands_verbose
+    )
     if parsed_args.input_subcommand_name == "lscmd":
         lscmd(package_main_name, valid_subcommand_names)
     elif parsed_args.input_subcommand_name == "":
