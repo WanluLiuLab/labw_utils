@@ -72,7 +72,7 @@ extensions = [
     'sphinxcontrib.bibtex'
 ]
 myst_enable_extensions = ["deflist"]
-bibtex_bibfiles = ['refs.bib']
+bibtex_bibfiles = ['refs.bibtex.bib']
 exclude_patterns = [
     '_build',
     'Thumbs.db',

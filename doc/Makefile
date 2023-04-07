@@ -25,20 +25,27 @@ SPHINX_APIDOC_ARGS := --separate \
 BUILD_DIR := $(CURDIR)/_build
 SPHINX_APIDOC := PYTHONPATH="$(dir $(CURDIR))/src:${PYTHONPATH:-}" sphinx-apidoc
 
+
+
 .PHONY: all
 
-all: pdf html
+all: html
 
 .PHONY: apidoc
 apidoc:
 	rm -rf $(CURDIR)/_apidoc
 	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/labw_utils
 
-html: apidoc
+html: apidoc refs.bibtex.bib
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
-pdf: apidoc
-	sphinx-build -M latexpdf $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
+refs.bibtex.bib: refs.bib
+	biber --tool \
+		--configfile=biberConf.xml \
+		--output-file refs.bibtex.bib \
+		--output-legacy-date \
+		--output-field-replace=location:address,journaltitle:journal \
+		refs.bib
 
 clean:
 	rm -rf $(BUILD_DIR)

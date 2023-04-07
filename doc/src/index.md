@@ -3,7 +3,7 @@
 :glob:
 :maxdepth: 2
 
-guide/index
+# guide/index
 license/index
 reference
 ```
