@@ -77,7 +77,8 @@ def transcribe(
         gv: GeneViewType,
         output_fasta: str,
         fv: FastaViewType,
-        show_tqdm: bool = True
+        show_tqdm: bool = True,
+        write_single_transcript: bool = True
 ):
     intermediate_fasta_dir = output_fasta + ".d"
     os.makedirs(intermediate_fasta_dir, exist_ok=True)
@@ -118,6 +119,7 @@ def transcribe(
                 str(transcript_value.transcribed_length),
                 str(round(get_gc_percent(cdna_seq) * 100, 2))
             )) + "\n")
-            transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
-            with get_writer(transcript_output_fasta) as single_transcript_writer:
-                single_transcript_writer.write(fa_str)
+            if write_single_transcript:
+                transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
+                with get_writer(transcript_output_fasta) as single_transcript_writer:
+                    single_transcript_writer.write(fa_str)

@@ -1,20 +1,16 @@
 import argparse
 from typing import List
 
+from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper import transcribe
-from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
-logger = get_logger(__name__)
 
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--fasta', required=True, help="Reference genome, in FASTA format", nargs='?',
-                        type=str, action='store')
-    parser.add_argument('-g', '--gtf', required=True, help="Input GTF", nargs='?',
-                        type=str, action='store')
+    parser = FrontendOptSpecs.patch(parser, "-f")
+    parser = FrontendOptSpecs.patch(parser, "-g")
     parser.add_argument('-o', '--out', required=True, help="Name of Output FASTA", nargs='?',
                         type=str, action='store')
     return parser.parse_args(args)

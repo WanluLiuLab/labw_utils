@@ -5,8 +5,9 @@ from collections import defaultdict
 from typing import List, Any, Dict
 
 from labw_utils import UnmetDependenciesError
-from labw_utils.bioutils.accession_matcher.match import infer_accession_type
+from labw_utils.bioutils.accession_matcher import infer_accession_type
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
+from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -35,14 +36,7 @@ _lh = get_logger(__name__)
 
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-f", "--fasta",
-        required=True,
-        help="FASTA to filter from",
-        nargs='?',
-        type=str,
-        action='store'
-    )
+    parser = FrontendOptSpecs.patch(parser, "-f")
     parser.add_argument(
         "-o", "--out",
         required=True,

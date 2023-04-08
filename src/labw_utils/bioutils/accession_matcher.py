@@ -1,10 +1,49 @@
 from __future__ import annotations
 
 import re
-from typing import List, Final, Optional, Mapping, Iterable
+from abc import abstractmethod, ABC
+from typing import Mapping, Union, List, Optional, Type, Iterable, Final
 
-from labw_utils.bioutils.accession_matcher import ChainAccessionMatcherRuleType, AccessionMatcherRuleType, \
-    AccessionMatchResult
+_AccessionMatchResultValueType = Union[str, Mapping[str, str]]
+
+
+class AccessionMatchResult:
+    _toplevel: str
+    _details: Mapping[str, AccessionMatchResult]
+
+    def __init__(self, toplevel: str, details: Mapping[str, Union[str, AccessionMatchResult]]):
+        self._toplevel = toplevel
+        self._details = details
+
+    def as_dict(self) -> Mapping[str, _AccessionMatchResultValueType]:
+        return {
+            "toplevel": self._toplevel,
+            "details": {
+                k: v.as_dict() if isinstance(v, AccessionMatchResult) else v
+                for k, v in self._details.items()
+            }
+        }
+
+    def __repr__(self) -> str:
+        return f"{self._toplevel}, with {self._details}"
+
+
+class AccessionMatcherRuleType(ABC):
+
+    @abstractmethod
+    def match(self, accession: str) -> Optional[AccessionMatchResult]:
+        raise NotImplementedError
+
+
+class ChainAccessionMatcherRuleType(AccessionMatcherRuleType):
+    _rule_chain: List[Type[AccessionMatcherRuleType]]
+
+    def match(self, accession: str) -> Optional[AccessionMatchResult]:
+        for rule in self._rule_chain:
+            match_result = rule().match(accession)
+            if match_result is not None:
+                return match_result
+        return None
 
 
 def generate_ncbi_genbank_nt_regex(
@@ -163,7 +202,6 @@ class NCBIGenBankAccessionMatcher(AccessionMatcherRuleType):
         }),
     }
 
-
 # AP","BS                                                      DDBJ           Genome project data
 # AL","BX","CR","CT","CU","FP","FQ","FR                                    EMBL           Genome project data
 # AE","CP","CY                                                   GenBank        Genome project data
@@ -196,6 +234,7 @@ class NCBIGenBankAccessionMatcher(AccessionMatcherRuleType):
 # J","K","L","M                                                    GenBank        From GSDB direct submissions
 # N                                                          GenBank/DDBJ   N0-N2 were used intially by both groups but have
 #                                                                             been removed from circulation; N2-N9 are ESTs
+
 
 class AnalysisSetChromosomePlacedGenbankMatcher(AccessionMatcherRuleType):
     _regex = re.compile(r"^chr([0-9]+|X|Y|M)_(.+)v(\d+)?(_alt|_random|_fix)?$")
@@ -285,8 +324,3 @@ class MasterAccessionMatcher(ChainAccessionMatcherRuleType):
 def infer_accession_type(accession: str) -> Optional[AccessionMatchResult]:
     mam = MasterAccessionMatcher()
     return mam.match(accession)
-
-
-if __name__ == "__main__":
-    print(infer_accession_type("ENSMUSG00000017167.6"))
-    print(infer_accession_type("NM_AAAAAAAA.6"))
