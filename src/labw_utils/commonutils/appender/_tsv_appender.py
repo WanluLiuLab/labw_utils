@@ -1,4 +1,4 @@
-from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
+from labw_utils.commonutils.appender._base_dict_buffer_appender import BaseDictBufferAppender
 
 
 class TSVTableAppender(BaseDictBufferAppender):

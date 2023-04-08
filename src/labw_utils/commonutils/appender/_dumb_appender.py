@@ -1,7 +1,6 @@
 from typing import List, Any
 
-from labw_utils.commonutils.appender import BaseTableAppender
-from labw_utils.commonutils.appender.typing import TableAppenderConfig
+from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
 
 
 class DumbTableAppender(BaseTableAppender):

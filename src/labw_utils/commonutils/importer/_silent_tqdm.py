@@ -5,11 +5,14 @@ _silent_tqdm.py -- A silent tqdm that does not pollutes stderr
 import sys
 from typing import Optional, Iterable, Sized, TypeVar, Iterator
 
+from labw_utils.devutils.decorators import create_class_init_doc_from_property, copy_doc
+
 __all__ = ("tqdm",)
 
 _VarType = TypeVar('_VarType')
 
 
+@create_class_init_doc_from_property()
 class tqdm(Iterable[_VarType]):
     """
     A silent tqdm that does not pollute stderr.
@@ -37,53 +40,64 @@ class tqdm(Iterable[_VarType]):
     >>> out_list
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     """
-    __slots__ = ['iterable', 'total', 'desc', '_n', '_quarters']
+    __slots__ = ('_iterable', '_total', '_desc', '_n', '_quarters')
 
-    iterable: Optional[Iterable]
-    """
-    The iterable to be iterated when using ``tqdm`` in ``for`` loops.
-    """
-
-    desc: Optional[str]
-    """
-    Description show at the front of the progress bar.
-    """
-
-    total: Optional[int]
-    """
-    The maximum number of items to be iterated.
-    
-    Set this variable if ``iterable`` is not sizeable or is ``None``.
-    """
-
+    _iterable: Optional[Iterable]
+    _desc: Optional[str]
+    _total: Optional[int]
     _n: int
     _quarters: float
 
-    def __init__(self,
-                 iterable: Optional[Iterable[_VarType]] = None,
-                 desc: Optional[str] = None,
-                 total: Optional[int] = None,
-                 **kwargs):
+    @property
+    def total(self) -> Optional[int]:
+        """
+        The maximum number of items to be iterated.
+
+        Set this variable if ``iterable`` is not sizeable or is ``None``.
+        """
+        return self._total
+
+    @property
+    def desc(self) -> Optional[str]:
+        """
+        Description show at the front of the progress bar.
+        """
+        return self._desc
+
+    @property
+    def iterable(self) -> Optional[Iterable[_VarType]]:
+        """
+        The iterable to be iterated when using ``tqdm`` in ``for`` loops.
+        """
+        return self._iterable
+
+    def __init__(
+            self,
+            iterable: Optional[Iterable[_VarType]] = None,
+            desc: Optional[str] = None,
+            total: Optional[int] = None,
+            **kwargs
+    ):
         _ = kwargs  # Stop PyCharm from complaining
-        self.desc = desc
+        self._desc = desc
         self._n = 0
         self._quarters = 0
         if total is None and iterable is not None:
             if isinstance(iterable, Sized):
                 try:
-                    self.total = len(iterable)
+                    self._total = len(iterable)
                 except (TypeError, AttributeError):
-                    self.total = None
+                    self._total = None
             else:
-                self.total = None
+                self._total = None
         else:
-            self.total = total
+            self._total = total
         if total == float("inf"):
-            self.total = None
-        self.iterable = iterable
+            self._total = None
+        self._iterable = iterable
 
     def __iter__(self) -> Iterator[_VarType]:
-        for item in self.iterable:
+        for item in self._iterable:
             yield item
             self.update(1)
 
@@ -94,15 +108,20 @@ class tqdm(Iterable[_VarType]):
         return
 
     def update(self, i: int = 1):
+        """
+        Update the progress bar with given value.
+
+        The given value should NOT be negative.
+        """
         self._n += i
-        if self.total:
-            percent = round(self._n / self.total, 2)
+        if self._total:
+            percent = round(self._n / self._total, 2)
             if percent > self._quarters:
                 total_len = 100
                 pbar_fill = '=' * int(self._quarters * total_len)
                 pbar_blank = ' ' * int((1 - self._quarters) * total_len)
                 print(
-                    f"{self.desc}: {int(percent * 100)}% [{pbar_fill}|{pbar_blank}]",
+                    f"{self._desc}: {int(percent * 100)}% [{pbar_fill}|{pbar_blank}]",
                     file=sys.stderr
                 )
                 self._quarters += 0.25

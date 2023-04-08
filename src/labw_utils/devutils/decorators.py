@@ -1,3 +1,13 @@
+"""
+labw_utils.devutils.decorators -- Decorators for miscellaneous features.
+"""
+
+__all__ = (
+    "copy_doc",
+    "chronolog",
+    "create_class_init_doc_from_property"
+)
+
 import inspect
 import logging
 import os
@@ -43,6 +53,8 @@ def copy_doc(source: Any) -> Callable:
     ...     @copy_doc(A.foo)
     ...     def foo(self) -> None:
     ...         self._A.foo()
+    >>> AProxy.foo.__doc__
+    'Woa'
     """
     if isinstance(source, str):
         source = resolve_name(source)
@@ -117,7 +129,48 @@ def create_class_init_doc_from_property(
         text_after: Optional[str] = "",
 ):
     """
-    Place documentations at attributes to __init__ function.
+    Place documentations at attributes to ``__init__`` function of a class.
+
+    :param text_before: Text placed before parameters.
+    :param text_after: Text placed after parameters.
+
+    Example:
+
+    >>> @create_class_init_doc_from_property()
+    ... class TestInitDoc:
+    ...     _a: int
+    ...     _b: int
+    ...     def __init__(self, a: int, b: int):
+    ...         ...
+    ...
+    ...     @property
+    ...     def a(self) -> int:
+    ...         \"\"\"Some A value\"\"\"
+    ...         return self._a
+    ...
+    ...     @property
+    ...     def b(self) -> int:
+    ...         \"\"\"Some B value\"\"\"
+    ...         return self._b
+    >>> print(TestInitDoc.__init__.__doc__)
+    :param a: Some A value
+    :param b: Some B value
+    <BLANKLINE>
+
+    Note that this example would NOT work:
+
+    >>> @create_class_init_doc_from_property()
+    ... class TestInitDoc:
+    ...     a: int
+    ...     \"\"\"Some A value\"\"\"
+    ...
+    ...     b: int
+    ...     \"\"\"Some B value\"\"\"
+    ...
+    ...     def __init__(self, a: int, b: int):
+    ...         ...
+    >>> print(TestInitDoc.__init__.__doc__)
+    <BLANKLINE>
     """
 
     def inner_dec(cls: _InType) -> _InType:

@@ -27,7 +27,7 @@ def assess_binary_archive_io(filename: str):
     with get_tqdm_reader(filename, is_binary=True) as reader:
         reader: TqdmReader
         assert reader.read(len_contents) == contents
-        assert reader._tqdm.total == len(contents)
+        assert reader._tqdm._total == len(contents)
     assert filename.endswith("txt") == (os.path.getsize(filename) == len_contents)
 
 
@@ -46,11 +46,11 @@ def assess_text_archive_io(filename: str):
     with get_tqdm_reader(filename, encoding="UTF-8", newline='\n') as reader:
         reader: TqdmReader
         assert reader.read(len_contents) == contents
-        assert reader._tqdm.total == len(contents)
+        assert reader._tqdm._total == len(contents)
     with get_tqdm_line_reader(filename, encoding="UTF-8", newline='\n') as reader:
         reader: TqdmReader
         i = 0
-        assert reader._tqdm.total == len(contents_list)
+        assert reader._tqdm._total == len(contents_list)
         for line in reader:
             assert contents_list[i] == line
             i += 1

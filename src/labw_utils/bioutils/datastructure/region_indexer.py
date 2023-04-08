@@ -12,45 +12,10 @@ from typing import List
 
 import numpy as np
 import numpy.typing as npt
-import pandas as pd
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
 
 IntervalType = Tuple[Tuple[str, Optional[bool]], int, int]
-
-
-def create_pandas_dataframe_from_input_file(
-        interval_file: str,
-        show_tqdm: bool = True
-) -> pd.DataFrame:
-    """
-    Pandas dataframe for the intervals.
-
-    Schema:
-    - chr: str, chromosome name
-    - s: int, sequence start
-    - e: int, sequence end
-    - idx: int, an auto-incremental index
-    """
-    if show_tqdm:
-        reader = get_tqdm_reader(interval_file, is_binary=True)
-    else:
-        reader = get_reader(interval_file, is_binary=True)
-    df = pd.read_csv(
-        reader,
-        sep="\t",
-        engine="pyarrow",
-        dtype={
-            "chr": str,
-            "s": int,
-            "e": int
-        }
-    )
-    reader.close()
-    df["idx"] = range(0, df.shape[0])
-    return df
 
 
 class NumpyIntervalEngine:
@@ -103,19 +68,6 @@ class NumpyIntervalEngine:
 
     def __init__(self, chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]):
         self._chromosomal_split_np_index = chromosomal_split_np_index
-
-    @classmethod
-    def from_interval_tsv(cls, interval_file: str, show_tqdm: bool = True):
-        pd_df = create_pandas_dataframe_from_input_file(
-            interval_file, show_tqdm
-        )
-        tmpd = {}
-        for chr_name in pd.unique(pd_df["chr"]):
-            tmpd = pd_df.query(
-                f"`chr` == '{chr_name}'"
-            ).loc[:, ["s", "e"]].to_numpy(dtype=int)
-        del pd_df
-        return cls(tmpd)
 
     @classmethod
     def from_interval_iterator(cls, interval_iterator: Iterable[IntervalType]):

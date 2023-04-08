@@ -1,5 +1,7 @@
 """
-Here provides compressed readers and writers for Pickle, Numpy and Torch serialization formats,
+labw_utils.mlutils.io_helper -- Compressed serialization formats.
+
+Here provides compressed readers and writers for Numpy and Torch serialization formats,
 which can significantly reduce disk size.
 
 We also have an abstract base class that allows programmers to create their own configuration class.

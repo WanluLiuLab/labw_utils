@@ -1,28 +1,10 @@
 """Get statistics about GTF files that can be parsed into a Gene-Transcript-Exon Three-Tier Structure"""
 
-import statistics
 from typing import List
-
-from matplotlib import pyplot as plt
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
-
-
-def stat(item: List[int], fig_name: str):
-    plt.clf()
-    quantiles = statistics.quantiles(item)
-    print(f"{fig_name} " + ", ".join((
-        f"min={min(item)}",
-        f"mean={round(statistics.mean(item), 2)}",
-        f"median={statistics.median(item)}",
-        f"max={max(item)}",
-        f"quantiles={quantiles}"
-    )))
-    plt.hist(item, bins=150)
-    # plt.xlim(0, quantiles[2])
-    plt.savefig(f"{fig_name}_distribution.png")
 
 
 def describe(input_filename: str, out_basename: str):

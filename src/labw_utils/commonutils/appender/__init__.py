@@ -1,17 +1,24 @@
+"""
+labw_utils.commonutils.appender -- Appenders of relational data format
+
+TODO: Docs
+"""
+
 import importlib
-from typing import Type, Iterator, Tuple
+import os
+from abc import ABC, abstractmethod
+from typing import Type, Iterator, Tuple, List, Any
 
 from labw_utils import UnmetDependenciesError
-from labw_utils.commonutils.appender.typing import BaseTableAppender
 
 POSSIBLE_APPENDER_PATHS = (
-    "labw_utils.commonutils.appender.tsv_appender",
-    "labw_utils.commonutils.appender.lzmatsv_appender",
-    "labw_utils.commonutils.appender.lz77tsv_appender",
-    "labw_utils.commonutils.appender.dumb_appender",
-    "labw_utils.commonutils.appender.hdf5_appender",
-    "labw_utils.commonutils.appender.parquet_appender",
-    "labw_utils.commonutils.appender.sqlite3_appender",
+    "labw_utils.commonutils.appender._tsv_appender",
+    "labw_utils.commonutils.appender._lzmatsv_appender",
+    "labw_utils.commonutils.appender._lz77tsv_appender",
+    "labw_utils.commonutils.appender._dumb_appender",
+    "labw_utils.commonutils.appender._hdf5_appender",
+    "labw_utils.commonutils.appender._parquet_appender",
+    "labw_utils.commonutils.appender._sqlite3_appender",
 )
 
 AVAILABLE_TABLE_APPENDERS = {
@@ -25,11 +32,80 @@ AVAILABLE_TABLE_APPENDERS = {
 }
 
 
+class TableAppenderConfig:
+    _buffer_size: int
+    """
+    Buffering strategy. 1 for no buffering.
+    """
+
+    def __init__(self, buffer_size: int = 1):
+        self._buffer_size = buffer_size
+
+    @property
+    def buffer_size(self) -> int:
+        return self._buffer_size
+
+
+class BaseTableAppender(ABC):
+    _filename: str
+    _header: List[str]
+    _real_filename: str
+    _tac: TableAppenderConfig
+
+    @property
+    def filename(self) -> str:
+        return self._filename
+
+    @property
+    def header(self) -> List[str]:
+        return self._header
+
+    @property
+    def real_filename(self) -> str:
+        return self._real_filename
+
+    def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
+        self._filename = filename
+        self._header = header
+        self._real_filename = self._get_real_filename_hook()
+        self._tac = tac
+        if os.path.exists(self._real_filename):
+            os.remove(self._real_filename)
+        self._create_file_hook()
+
+    @abstractmethod
+    def _get_real_filename_hook(self) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def _create_file_hook(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def flush(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def append(self, body: List[Any]) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def close(self) -> None:
+        raise NotImplementedError
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+
 def load_table_appender_class(name: str) -> Type[BaseTableAppender]:
     """
     Return a known tracer.
 
-    :raise UnmetDependenciesError: If dependencies are unmet
+    :raise UnmetDependenciesError: If dependencies are unmet.
+    :raise ModuleNotFoundError: If is not found.
     """
     for possible_path in POSSIBLE_APPENDER_PATHS:
         try:
@@ -41,6 +117,9 @@ def load_table_appender_class(name: str) -> Type[BaseTableAppender]:
 
 
 def list_table_appender() -> Iterator[Tuple[str, str]]:
+    """
+    List table appenders that can be imported and their documentations.
+    """
     for possible_path in POSSIBLE_APPENDER_PATHS:
         try:
             mod = importlib.import_module(possible_path)

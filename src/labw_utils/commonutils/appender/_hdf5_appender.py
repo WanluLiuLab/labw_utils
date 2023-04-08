@@ -12,7 +12,7 @@ try:
 except ImportError:
     raise UnmetDependenciesError("pandas")
 
-from labw_utils.commonutils.appender._pandas_table_appender import BasePandasDictBufferAppender
+from labw_utils.commonutils.appender._base_pandas_dict_table_appender import BasePandasDictBufferAppender
 
 
 class HDF5TableAppender(BasePandasDictBufferAppender):

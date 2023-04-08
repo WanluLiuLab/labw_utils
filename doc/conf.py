@@ -11,7 +11,7 @@ import sys
 
 import tomli
 
-os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog.
+os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
 
@@ -102,6 +102,10 @@ intersphinx_mapping = {
     'joblib': ('https://joblib.readthedocs.io/en/latest', None),
     'sklearn': ('https://scikit-learn.org/stable', None),
     'torch': ('https://pytorch.org/docs/stable', None),
+}
+
+html_theme_options = {
+    "navigation_depth": -1,
 }
 
 # myst-nb settings

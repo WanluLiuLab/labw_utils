@@ -7,7 +7,7 @@ try:
 except ImportError:
     raise UnmetDependenciesError("pandas")
 
-from labw_utils.commonutils.appender.typing import BaseDictBufferAppender
+from labw_utils.commonutils.appender._base_dict_buffer_appender import BaseDictBufferAppender
 
 
 class BasePandasDictBufferAppender(BaseDictBufferAppender, ABC):

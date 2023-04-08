@@ -1,6 +1,6 @@
 import lzma
 
-from labw_utils.commonutils.appender.tsv_appender import TSVTableAppender
+from labw_utils.commonutils.appender._tsv_appender import TSVTableAppender
 
 
 class LZMATSVTableAppender(TSVTableAppender):

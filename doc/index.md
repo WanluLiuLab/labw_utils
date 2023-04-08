@@ -8,10 +8,9 @@ This contains documentation for Users and Developers.
 :maxdepth: 2
 
 _root/Readme
-_root/Copying
-apidoc_index
 src/index
-_root/TODO
+apidoc_index
+_root/Copying
 ```
 
 - {ref}`genindex`

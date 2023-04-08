@@ -5,8 +5,8 @@ import tempfile
 import pandas as pd
 import pytest
 
-from labw_utils.commonutils.appender import load_table_appender_class, AVAILABLE_TABLE_APPENDERS
-from labw_utils.commonutils.appender.typing import TableAppenderConfig, BaseTableAppender
+from labw_utils.commonutils.appender import load_table_appender_class, AVAILABLE_TABLE_APPENDERS, TableAppenderConfig, \
+    BaseTableAppender
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_l
 
 

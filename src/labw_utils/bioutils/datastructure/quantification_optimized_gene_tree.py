@@ -3,17 +3,7 @@ from __future__ import annotations
 from typing import Iterable, List, Tuple, Optional
 
 from labw_utils.bioutils.datastructure.region_indexer import NumpyIntervalEngine
-from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import Feature
-
-
-def resolve_strand(_feature: Feature) -> Optional[bool]:
-    if _feature.strand == "+":
-        return True
-    elif _feature.strand == "-":
-        return False
-    else:
-        return None
 
 
 class QuantificationOptimizedGeneTree:
@@ -56,10 +46,3 @@ class QuantificationOptimizedGeneTree:
 
     def overlap(self, query_interval: Tuple[Tuple[str, Optional[bool]], int, int]) -> List[str]:
         return [self._feature_ids[i] for i in self._feature_boundary.overlap(query_interval)]
-
-
-if __name__ == "__main__":
-    qgt = QuantificationOptimizedGeneTree.from_feature_iterator(
-        GtfIterator("/home/yuzj/Documents/cpptetgs_experimental/test_data/gtf/hg38.ncbiRefSeq_sel.gtf")
-    )
-    print(qgt.overlap((("chr1", True), 0, 100000)))
