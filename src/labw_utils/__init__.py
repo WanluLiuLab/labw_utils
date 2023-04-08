@@ -170,6 +170,39 @@ PackageSpecs.add(PackageSpec(
     pypi_name="tomli-w",
     conda_channel="conda-forge"
 ))
+PackageSpecs.add(PackageSpec(
+    name="requests",
+    conda_name="requests",
+    pypi_name="requests",
+    conda_channel="conda-forge"
+))
+PackageSpecs.add(PackageSpec(
+    name="joblib",
+    conda_name="joblib",
+    pypi_name="joblib",
+    conda_channel="conda-forge"
+))
+PackageSpecs.add(PackageSpec(
+    name="jinja2",
+    conda_name="jinja2",
+    pypi_name="jinja2",
+    conda_channel="conda-forge"
+))
+PackageSpecs.add(PackageSpec(
+    name="matplotlib",
+    conda_name="matplotlib",
+    pypi_name="matplotlib",
+    conda_channel="conda-forge"
+))
+PackageSpecs.add(PackageSpec(
+    name="scipy",
+    conda_name="scipy",
+    pypi_name="scipy",
+    conda_channel="conda-forge"
+))
+
+
+
 
 
 class UnmetDependenciesError(RuntimeError):

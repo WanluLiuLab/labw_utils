@@ -1,6 +1,16 @@
 .PHONY: dist
-dist:
+dist: requirements_all.txt
 	python -m build
+
+.PHONY: requirements_all.txt # Fast so can always be built.
+requirements_all.txt:
+	cat requirements.txt \
+		requirements_bioutils.txt \
+		requirements_mlutils.txt \
+		requirements_ysjs.txt \
+		requirements_ysjsd.txt \
+	| sort | uniq \
+	> requirements_all.txt
 
 .PHONY: doc
 doc:

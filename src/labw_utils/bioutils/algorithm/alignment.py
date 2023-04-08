@@ -10,9 +10,14 @@ import glob
 import math
 import os.path
 from typing import Optional, List, Tuple, Dict, Iterable
+from labw_utils import UnmetDependenciesError
 
-import numpy as np
-import numpy.typing as npt
+
+try:
+    import numpy as np
+    import numpy.typing as npt
+except ImportError:
+    raise UnmetDependenciesError("numpy")
 
 from labw_utils.commonutils.io.safe_io import get_reader
 

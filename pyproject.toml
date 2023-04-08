@@ -27,6 +27,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Unix Shell",
     "Topic :: Scientific/Engineering :: Bio-Informatics",
@@ -34,8 +35,6 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dynamic = ["version", "readme", "dependencies", "optional-dependencies"]
-
-# FIXME: Errors in SAM & other dynamic dependencies
 
 [tool.setuptools]
 license-files = ["License.md", "Copying.md"]
@@ -49,6 +48,8 @@ dependencies = { file = "requirements.txt" }
 bioutils =  { file = "requirements_bioutils.txt" }
 mlutils =  { file = "requirements_mlutils.txt" }
 ysjs =  { file = "requirements_ysjs.txt" }
+ysjsd =  { file = "requirements_ysjsd.txt" }
+all = {file = "requirements_all.txt" }
 
 [tool.setuptools.packages.find]
 where = ["src"]

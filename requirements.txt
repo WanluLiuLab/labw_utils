@@ -1,11 +1,7 @@
-tomli~=2.0.1
-requests~=2.28
-matplotlib~=3.6
-numpy~=1.24
-tqdm~=4.64.1
+tomli>=2.0 # Move
+tomli-w>=1.0 # Move
+numpy>=1.24
+tqdm>=4.64
 
-pandas~=1.5.1
-numexpr~=2.8.3
-setuptools
-joblib~=1.2
-tomli-w~=1.0.0
+pandas[performance]>=1.4
+joblib>=1.2

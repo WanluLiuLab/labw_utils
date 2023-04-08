@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import json
 from typing import Mapping, Union
+from labw_utils import UnmetDependenciesError
 
-import requests
+try:
+    import requests
+except ImportError:
+    raise UnmetDependenciesError("requests")
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from libysjs.ds.ysjs_submission import YSJSSubmission

@@ -1,7 +1,11 @@
 import os
 from typing import List
+from labw_utils import UnmetDependenciesError
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    raise UnmetDependenciesError("numpy")
 
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent, decode_phred33
 from labw_utils.bioutils.parser.fastq import FastqIterator

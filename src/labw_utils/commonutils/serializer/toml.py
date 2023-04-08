@@ -2,9 +2,18 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Mapping, Any, Optional, Callable, Dict
+from labw_utils import UnmetDependenciesError
 
-import tomli
-import tomli_w
+try:
+    import tomli
+except ImportError:
+    raise UnmetDependenciesError("tomli")
+
+try:
+    import tomli_w
+except ImportError:
+    raise UnmetDependenciesError("tomli_w")
+
 
 from labw_utils.commonutils.serializer import SerializableInterface
 

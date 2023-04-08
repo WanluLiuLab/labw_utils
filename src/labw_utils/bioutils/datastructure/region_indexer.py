@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from labw_utils import UnmetDependenciesError
+
 __all__ = (
     "IntervalType",
     "NumpyIntervalEngine",
@@ -10,8 +12,12 @@ from collections import defaultdict
 from typing import Iterable, Dict, Tuple, Optional
 from typing import List
 
-import numpy as np
-import numpy.typing as npt
+
+try:
+    import numpy as np
+    import numpy.typing as npt
+except ImportError:
+    raise UnmetDependenciesError("numpy")
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 

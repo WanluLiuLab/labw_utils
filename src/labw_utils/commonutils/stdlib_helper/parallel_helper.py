@@ -11,8 +11,13 @@ import subprocess
 import threading
 import time
 from typing import Union, List, Optional, Callable, TypeVar, Iterable
+from labw_utils import UnmetDependenciesError
 
-import joblib
+
+try:
+    import joblib
+except ImportError:
+    raise UnmetDependenciesError("joblib")
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 

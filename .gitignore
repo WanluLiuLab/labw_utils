@@ -442,3 +442,4 @@ pypy_venv/
 *sonar*
 .scannerwork/
 /twine.pypirc.ini
+/requirements_all.txt
