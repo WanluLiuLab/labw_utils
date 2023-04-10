@@ -5,3 +5,4 @@
 refs.*
 !refs.bib
 !biberConf.xml
+*.ipynb

@@ -17,10 +17,10 @@ This parser parses GFF3 files into a Directed-Acyclic Graph (DAG).
 This module does not:
 
 * Parse a GTF/GFF3 record string into :py:class:`GtfRecord`.
-See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record.GtfRecord` for this feature.
+  See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record.GtfRecord` for this feature.
 
 * Parse a GTF/GFF3 file into a three-tier Exon-Transcript-GeneView structure.
-See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view.GeneView` for this feature.
+  See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view.GeneView` for this feature.
 
 """
 from collections import defaultdict

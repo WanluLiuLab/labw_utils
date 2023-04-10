@@ -1,7 +1,6 @@
 """
 Under construction!
 """
-
 from typing import Dict
 
 from labw_utils.bioutils.parser.fastq import FastqIterator

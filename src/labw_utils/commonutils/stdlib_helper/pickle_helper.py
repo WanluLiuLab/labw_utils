@@ -1,7 +1,7 @@
 """
-pickle_helper.py -- Pickle helper with compression and progress-bar.
+pickle_helper.py -- Pickle helper with compression and progress-bar
 
-Example
+Following are some examples of this module:
 
 We may firstly generate some random sequence
 
@@ -26,12 +26,14 @@ This module can also handle compressed pickle
 >>> assert unpickle_obj == random_arr
 
 Without a progress bar
+
 >>> unpickle_obj = load(pickle_fn, with_tqdm=False)
 >>> assert unpickle_obj == random_arr
 
 Clean up the environment.
 
 >>> rm_rf(test_path)
+
 """
 import pickle
 from pickle import Unpickler
@@ -65,7 +67,7 @@ def dump(obj: Any, filename: str):
 
     :param obj: The object to be pickled.
     :param filename: The filename to be written to.
-    If the filename have compressed suffixes like ``xz``, it will be compressed.
+        If the filename have compressed suffixes like ``xz``, it will be compressed.
     """
     with get_writer(filename, is_binary=True) as writer:
         pickle.dump(obj, writer)

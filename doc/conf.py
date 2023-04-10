@@ -7,16 +7,14 @@ Configuration file for the Sphinx documentation builder.
 import glob
 import os
 import shutil
-import sys
 
 import tomli
+
+from labw_utils.devutils.sphinx_helper import convert_ipynb_to_myst
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
-
-# Enable scan of packages in src which is not installed.
-sys.path.insert(0, os.path.join(ROOT_DIR, 'src'))
 
 import labw_utils
 
@@ -48,6 +46,8 @@ def copy_doc_files(from_path: str, to_path: str):
 
 copy_doc_files(os.path.join(ROOT_DIR, '*.md'), os.path.join(THIS_DIR, "_root"))
 
+convert_ipynb_to_myst(THIS_DIR)
+
 # -- Project information -----------------------------------------------------
 
 with open(os.path.join(ROOT_DIR, "pyproject.toml"), "rb") as reader:
@@ -55,12 +55,12 @@ with open(os.path.join(ROOT_DIR, "pyproject.toml"), "rb") as reader:
 
 project = parsed_pyproject["project"]["name"]
 author = "&".join([author["name"] for author in parsed_pyproject["project"]["authors"]])
-copyright_string = f'2022, {author}'
+copyright_string = f'2022-2023, {author}'
 release = labw_utils.__version__
 
 # -- General configuration ---------------------------------------------------
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'furo'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
@@ -69,32 +69,39 @@ extensions = [
     "sphinx.ext.viewcode",
     'myst_nb',
     'sphinx_copybutton',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    'sphinx_design'
 ]
-myst_enable_extensions = ["deflist"]
-bibtex_bibfiles = ['refs.bibtex.bib']
+
+myst_enable_extensions = ["deflist", "colon_fence"]
 exclude_patterns = [
     '_build',
     'Thumbs.db',
     '.DS_Store',
-    '.virtualenv/**'
+    '.virtualenv/**',
+    "*.ipynb"
 ]
+html_theme_options = {
+    "navigation_depth": -1,
+}
 
 # html_static_path = ['_static']
 
+# Source code suffixes
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'myst-nb',
 }
-
 nb_custom_formats = {
     ".ipynb.py": ["jupytext.reads", {"fmt": "py:percent"}]
 }
 
-# Insert both docstring of the class and constructor.
+# Autodoc settings
 autodoc_default_options = {
     'special-members': '__init__',
 }
+autodoc_class_signature = "separated"
+autodoc_member_order = "bysource"
 
 # Intersphinx settings
 intersphinx_mapping = {
@@ -103,11 +110,10 @@ intersphinx_mapping = {
     'torch': ('https://pytorch.org/docs/stable', None),
 }
 
-html_theme_options = {
-    "navigation_depth": -1,
-}
-
 # myst-nb settings
 nb_execution_timeout = 1200
 nb_execution_mode = "cache"
 nb_merge_streams = True
+
+# BibTeX setting
+bibtex_bibfiles = ['refs.bibtex.bib']

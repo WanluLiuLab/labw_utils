@@ -100,6 +100,7 @@ def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
+    name_doc_dict = {}
     _lh.info("Listing modules...")
     for item in valid_subcommand_names:
         doc = get_doc_from_subcommand(package_main_name, item)
@@ -121,7 +122,8 @@ def lscmd(
                     doc = NONE_DOC
         if doc.find("--") != -1:
             doc = doc.split("--")[1].strip()
-
+        name_doc_dict[item] = doc
+    for item, doc in name_doc_dict.items(): # To prevent logger from polluting outout
         print(f"{item} -- {doc}")
     sys.exit(0)
 
@@ -215,14 +217,13 @@ def setup_frontend(
         else:
             _lh.exception(f"Subcommand name not set! {subcommand_help}")
             sys.exit(1)
-    elif parsed_args.input_subcommand_name in valid_subcommand_names:
-        main_fnc = get_main_func_from_subcommand(package_main_name=package_main_name,
-                                                 subcommand_name=parsed_args.input_subcommand_name)
+    else:
+        main_fnc = get_main_func_from_subcommand(
+            package_main_name=package_main_name,
+            subcommand_name=parsed_args.input_subcommand_name
+        )
         if main_fnc is not None:
             sys.exit(main_fnc(parsed_args.parsed_args))
         else:
             _lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
             sys.exit(1)
-    else:
-        _lh.exception(f"Subcommand '{parsed_args.input_subcommand_name}' not found! {subcommand_help}")
-        sys.exit(1)

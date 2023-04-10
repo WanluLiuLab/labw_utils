@@ -8,6 +8,7 @@ This contains documentation for Users and Developers.
 :maxdepth: 2
 
 _root/Readme
+src/tutorial/index
 apidoc_index
 _root/Copying
 src/license/index

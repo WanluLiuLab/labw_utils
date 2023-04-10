@@ -1,3 +1,12 @@
+"""
+describe_fasta_by_binning.py -- Describe statistics on FASTA by binning.
+"""
+
+__all__ = (
+    "create_parser",
+    "main"
+)
+
 import argparse
 import json
 import os.path
@@ -34,8 +43,11 @@ except ImportError:
 _lh = get_logger(__name__)
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python -m labw_utils.bioutils describe_fasta_by_binning",
+        description=__doc__.splitlines()[1]
+    )
     parser = FrontendOptSpecs.patch(parser, "-f")
     parser.add_argument(
         "-o", "--out",
@@ -59,7 +71,7 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         help="Dump metadata only",
         action='store_true'
     )
-    return parser.parse_args(args)
+    return parser
 
 
 def sdi(abundance_data: npt.ArrayLike) -> float:
@@ -68,7 +80,7 @@ def sdi(abundance_data: npt.ArrayLike) -> float:
 
 def main(args: List[str]) -> None:
     out_metadata = {}
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     nbins = args.nbins
     fasta_file_path = os.path.abspath(args.fasta)
     fa = FastaViewFactory(fasta_file_path, full_header=False, read_into_memory=False)

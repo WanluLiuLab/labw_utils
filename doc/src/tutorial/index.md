@@ -1,15 +1,10 @@
----
-orphan: true
----
-
-% WIP
-
-# Guides
+# Tutorials
 
 ```{toctree}
 :caption: 'Contents:'
 :glob:
 :maxdepth: 2
 
-*/index
+installation/index
+frontend/index.ipynb.md
 ```

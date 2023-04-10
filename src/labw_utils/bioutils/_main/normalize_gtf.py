@@ -1,23 +1,29 @@
 """
-normalize_gtf -- Performs GTF normalization, etc.
+normalize_gtf.py -- Performs GTF normalization, etc.
 """
+
+__all__ = (
+    "create_parser",
+    "main"
+)
 
 import argparse
 from typing import List
 
+from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
     VALID_SORT_EXON_EXON_STRAND_POLICY
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator, GtfWriter
 from labw_utils.bioutils.record.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS
-from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-
-lh = get_logger(__name__)
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-g", "--gtf", required=True, help="Input GTF", nargs='?', type=str, action='store')
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python -m labw_utils.bioutils normalize_gtf",
+        description=__doc__.splitlines()[1]
+    )
+    parser = FrontendOptSpecs.patch(parser, "-g")
     parser.add_argument(
         "--three_tier",
         help="Whether to parse the GTF into Gene-Transcript-Exon Three-Tier Structure." +
@@ -44,12 +50,19 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         choices=VALID_SORT_EXON_EXON_STRAND_POLICY,
         default=DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     )
-    parser.add_argument("-o", "--out", required=True, help="Output GTF", nargs='?', type=str, action='store')
-    return parser.parse_args(args)
+    parser.add_argument(
+        "-o", "--out",
+        required=True,
+        help="Path to normalized output",
+        nargs='?',
+        type=str,
+        action='store'
+    )
+    return parser
 
 
 def main(args: List[str]):
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     if args.three_tier:
         gv = GeneViewFactory.from_file(args.gtf, not_save_index=True)
         gv.standardize(

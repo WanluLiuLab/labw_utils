@@ -1,7 +1,7 @@
 """
 tqdm_reader.py -- Reader with Progress Bar
 
-Here are wrappings for basic IO classes & functions in :py:mod:`commonutils.io` with additional progress bar.
+Here are wrappings for basic IO classes \& functions in :py:mod:`labw_utils.commonutils.io` with additional progress bar.
 """
 
 from typing import Iterator, AnyStr, List

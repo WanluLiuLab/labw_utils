@@ -1,15 +1,17 @@
 import os
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Iterator
 
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType, GeneViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import Transcript
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
-lh = get_logger(__name__)
+_lh = get_logger(__name__)
 
 
 def assert_splice_site_existence(
@@ -33,13 +35,13 @@ def get_duplicated_transcript_ids(
         for transcript in transcripts:
             this_splice_site = list(transcript.splice_sites)
             if assert_splice_site_existence(this_splice_site, all_splice_sites):
-                lh.warning(f"Will remove {transcript.transcript_id}")
+                _lh.warning(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
     else:
         for transcript in transcripts:
             this_splice_site = list(transcript.exon_boundaries)
             if assert_splice_site_existence(this_splice_site, all_splice_sites):
-                lh.warning(f"Will remove {transcript.transcript_id}")
+                _lh.warning(f"Will remove {transcript.transcript_id}")
                 yield transcript.transcript_id
 
 
@@ -54,7 +56,7 @@ def gv_dedup(
     :param by_splice_site: Detect by splice sites rather than exon boundaries
     :param assume_no_cross_gene_duplication: Whether they may be duplications among genes.
     """
-    lh.info("Finding transcript duplicates in gv...")
+    _lh.info("Finding transcript duplicates in gv...")
     if assume_no_cross_gene_duplication:
         transcript_ids_to_del = []
         for gene in tqdm(iterable=gv.iter_genes()):
@@ -67,10 +69,10 @@ def gv_dedup(
             transcripts=gv.iter_transcripts(),
             by_splice_site=by_splice_site
         ))
-    lh.info(f"Removing {len(transcript_ids_to_del)} transcript duplicate(s) in gv...")
+    _lh.info(f"Removing {len(transcript_ids_to_del)} transcript duplicate(s) in gv...")
     for transcript_id_to_del in transcript_ids_to_del:
         gv.del_transcript(transcript_id_to_del)
-    lh.info("Removing transcript duplicate(s) in gv FIN")
+    _lh.info("Removing transcript duplicate(s) in gv FIN")
 
 
 def transcribe(
@@ -123,3 +125,86 @@ def transcribe(
                 transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
                 with get_writer(transcript_output_fasta) as single_transcript_writer:
                     single_transcript_writer.write(fa_str)
+
+
+def subset_gtf_by_attribute_value(
+        attribute_values: Iterator[str],
+        attribute_name: str,
+        gtf_filename: str,
+        out_filename: str
+):
+    attribute_values = list(attribute_values)
+    gi = GtfIterator(gtf_filename)
+    input_record_num = 0
+    intermediate_records = []
+    for gtf_record in gi:
+        input_record_num += 1
+        if gtf_record.attribute.get(attribute_name, None) in attribute_values:
+            intermediate_records.append(gtf_record)
+    gv = GeneViewFactory.from_iterable(intermediate_records, record_type=GtfRecord)
+    gv.standardize()
+    final_record_num = len(gv)
+    gv.to_file(out_filename)
+    _lh.info(
+        "%d processed with %d (%.2f%%) records output",
+        input_record_num,
+        final_record_num,
+        round(final_record_num / input_record_num * 100, 2)
+    )
+
+
+def describe(input_filename: str, out_basename: str):
+    """
+    Describe input GTF.
+    """
+    gv = GeneViewFactory.from_file(input_filename, not_save_index=True)
+
+    with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
+            get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \
+            get_writer(f"{out_basename}.exons.tsv") as exons_writer:
+        gene_writer.write("\t".join((
+            "GENE_ID",
+            "TRANSCRIPT_NUMBER",
+            "NAIVE_LENGTH",
+            "TRANSCRIBED_LENGTH",
+            "MAPPABLE_LENGTH"
+        )) + "\n")
+        transcripts_writer.write("\t".join((
+            "TRANSCRIPT_ID",
+            "GENE_ID",
+            "NAIVE_LENGTH",
+            "TRANSCRIBED_LENGTH",
+            "EXON_NUMBER"
+        )) + "\n")
+        exons_writer.write("\t".join((
+            "TRANSCRIPT_ID",
+            "EXON_NUMBER",
+            "NAIVE_LENGTH"
+        )) + "\n")
+
+        for gene in tqdm(desc="Iterating over genes...", iterable=gv.iter_genes(), total=gv.number_of_genes):
+
+            gene_writer.write("\t".join((
+                str(gene.gene_id),
+                str(gene.number_of_transcripts),
+                str(gene.naive_length),
+                str(gene.transcribed_length),
+                str(gene.mappable_length)
+            )) + "\n")
+
+            transcripts = list(gene.iter_transcripts())
+            for t_i in range(len(transcripts)):
+                transcript = transcripts[t_i]
+                for exon in list(transcript.iter_exons()):
+                    exons_writer.write("\t".join((
+                        exon.transcript_id,
+                        str(exon.exon_number),
+                        str(exon.naive_length)
+                    )) + "\n")
+                transcripts_writer.write("\t".join((
+                    transcript.transcript_id,
+                    transcript.gene_id,
+                    str(transcript.naive_length),
+                    str(transcript.transcribed_length),
+                    str(transcript.number_of_exons)
+                )) + "\n")

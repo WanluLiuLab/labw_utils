@@ -1,3 +1,15 @@
+"""
+split_fasta.py -- Split input FASTA file into one-line FASTAs with one file per contig.
+
+SYNOPSIS: python -m labw_utils.bioutils split_fasta [FASTA] [[FASTA]...]
+
+where [FASTA] are path to FASTA files.
+"""
+
+__all__ = (
+    "main"
+)
+
 from typing import List
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, split_fasta

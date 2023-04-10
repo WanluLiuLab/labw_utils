@@ -2,6 +2,11 @@
 transcribe.py -- General-purposed stranded transcription, from reference genome to reference cDNA.
 """
 
+__all__ = (
+    "create_parser",
+    "main"
+)
+
 import argparse
 from typing import List
 
@@ -11,8 +16,11 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneVie
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper import transcribe
 
 
-def _parse_args(args: List[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="python -m labw_utils.bioutils transcribe",
+        description=__doc__.splitlines()[1]
+    )
     parser = FrontendOptSpecs.patch(parser, "-f")
     parser = FrontendOptSpecs.patch(parser, "-g")
     parser.add_argument(
@@ -24,15 +32,15 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
         action='store'
     )
     parser.add_argument(
-        '-no_write_single_transcript',
+        '--no_write_single_transcript',
         help="Stop splitting cDNA of each isoform into separate file",
         action='store_true'
     )
-    return parser.parse_args(args)
+    return parser
 
 
 def main(args: List[str]):
-    args = _parse_args(args)
+    args = create_parser().parse_args(args)
     gv = GeneViewFactory.from_file(args.gtf)
     fv = FastaViewFactory(args.fasta)
     transcribe(

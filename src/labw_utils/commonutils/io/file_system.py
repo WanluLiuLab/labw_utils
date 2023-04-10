@@ -56,3 +56,16 @@ def directory_exists(path: str) -> bool:
 
 def is_soft_link(path: str) -> bool:
     return stat.S_ISLNK(os.stat(path, follow_symlinks=False)[0])
+
+
+def should_regenerate(src_path: str, dst_path: str) -> bool:
+    """
+    This function assumes ``dst_path`` is generated from ``src_path``
+    and determine whether re-generation is necessary.
+
+    :param src_path: The source path.
+    :param dst_path: The destination path.
+    """
+    if file_exists(dst_path):
+        return os.path.getmtime(dst_path) - os.path.getmtime(src_path) < 0
+    return True

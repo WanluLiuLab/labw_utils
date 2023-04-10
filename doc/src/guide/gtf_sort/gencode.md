@@ -394,7 +394,7 @@ Ruby: [germ](https://github.com/mountetna/germ)
 
 ### Tag description in GENCODE
 
-The following tags can be found in the GENCODE GTF/GFF3 files. Read more about the [GTF file format](/pages/data_format.html)
+The following tags can be found in the GENCODE GTF/GFF3 files. Read more about the [GTF file format](https://www.gencodegenes.org/pages/data_format.html)
 
 3_nested_supported_extension
 : 3' end extended based on RNA-seq data.

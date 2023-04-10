@@ -1,5 +1,12 @@
+"""
+describe_fastq.py -- Lite Python-implemented fastqc.
+
+SYNOPSIS: python -m labw_utils.bioutils describe_fastq [FASTQ] [[FASTQ]...]
+
+where [FASTQ] are path to GTF files you wish to describe.
+"""
 import os
-from typing import List
+from typing import List, Optional
 from labw_utils import UnmetDependenciesError
 
 try:
@@ -14,11 +21,11 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 _lh = get_logger(__name__)
 
 
-def qc(filepath: str):
+def fastqc(filepath: str, outdir_path: Optional[str] = None):
     _lh.info("Start parsing '%s'...", filepath)
     if not os.path.exists(filepath):
         _lh.error("File '%s' not exist!", filepath)
-    outdir_path = filepath + ".stats.d"
+    outdir_path = filepath + ".stats.d" if outdir_path is None else outdir_path
     os.makedirs(filepath + ".stats.d", exist_ok=True)
     with open(os.path.join(outdir_path, "all.tsv"), "wt") as all_writer:
         all_writer.write("\t".join((
@@ -55,4 +62,4 @@ def qc(filepath: str):
 
 def main(args: List[str]):
     for name in args:
-        qc(name)
+        fastqc(name)

@@ -1,3 +1,11 @@
+"""
+labw_utils -- Utility Python functions & classes used in LabW
+
+Optional dependencies:
+
+"""
+
+
 from __future__ import annotations
 
 __all__ = (
@@ -30,16 +38,16 @@ class PackageSpec:
     def __repr__(self):
         if self._conda_name is not None:
             if self._conda_channel is not None:
-                conda_str = f"Use `conda install -c {self._conda_channel} {self._conda_name}`"
+                conda_str = f"Use ``conda install -c {self._conda_channel} {self._conda_name}``"
             else:
-                conda_str = f"Use `conda install {self._conda_name}`"
+                conda_str = f"Use ``conda install {self._conda_name}``"
         else:
             conda_str = ""
         if self._pypi_name is not None:
-            pypi_str = f"Use `pip install {self._pypi_name}`"
+            pypi_str = f"Use ``pip install {self._pypi_name}``"
         else:
             pypi_str = ""
-        return f"{self._name} not installed; " + ", ".join((conda_str, pypi_str))
+        return "; ".join((conda_str, pypi_str))
 
     def __init__(
             self,
@@ -82,6 +90,7 @@ class PackageSpecs:
         """
         Add a package into the list.
         """
+        globals()["__doc__"] = globals()["__doc__"] + f"- ``{item.name}``: {item}\n"
         PackageSpecs._deps[item.name] = item
 
     @staticmethod
@@ -202,9 +211,6 @@ PackageSpecs.add(PackageSpec(
 ))
 
 
-
-
-
 class UnmetDependenciesError(RuntimeError):
     """
     An error indicating some additional packages should be installed.
@@ -213,7 +219,7 @@ class UnmetDependenciesError(RuntimeError):
 
     def __init__(self, package_name: str):
         self._package_name = package_name
-        err_message = repr(PackageSpecs.get(package_name))
+        err_message = f"{package_name} not installed; " + repr(PackageSpecs.get(package_name))
         super().__init__(err_message)
 
     @property

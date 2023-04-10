@@ -45,7 +45,10 @@ class FrontendOptSpecs:
         FrontendOptSpecs._inner_dict[opt_spec.name] = opt_spec
 
     @staticmethod
-    def patch(parser: argparse.ArgumentParser, name: str, **update_kwargs):
+    def patch(
+            parser: argparse.ArgumentParser,
+            name: str, **update_kwargs
+    ):
         return FrontendOptSpecs._inner_dict[name].patch(parser=parser, **update_kwargs)
 
 
@@ -63,6 +66,15 @@ FrontendOptSpecs.add(FrontendOptSpec(
     '-g', '--gtf',
     required=True,
     help="Path to input genomic annotation in GTF format. Can be compressed.",
+    nargs='?',
+    type=str,
+    action='store'
+))
+
+FrontendOptSpecs.add(FrontendOptSpec(
+    "-s", "--sam",
+    required=True,
+    help="Alignment file in SAM/BAM format",
     nargs='?',
     type=str,
     action='store'

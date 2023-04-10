@@ -21,7 +21,8 @@ __all__ = (
     "ChromosomeNotFoundError",
     "FromGreaterThanToError",
     "FastaViewInvalidRegionError",
-    "DuplicatedChromosomeNameError"
+    "DuplicatedChromosomeNameError",
+    "split_fasta"
 )
 
 import os
@@ -409,12 +410,33 @@ class FastaViewFactory:
             )
 
 
-def split_fasta(fav: FastaViewType):
-    out_basename = fav.filename + ".d"
-    os.makedirs(out_basename, exist_ok=True)
+def split_fasta(
+        fav: FastaViewType,
+        out_dir_path: Optional[str] = None
+):
+    """
+    Split input FASTA file into one-line FASTAs with one file per contig.
+
+    :param fav: Source FASTA view.
+    :param out_dir_path: Output directory.
+    """
+    out_dir_path = fav.filename + ".d" if out_dir_path is None else out_dir_path
+    os.makedirs(out_dir_path, exist_ok=True)
 
     for seqname in fav.chr_names:
-        seqname = seqname.replace(" ", "_").replace("\t", "_")
-        transcript_output_fasta = os.path.join(out_basename, f"{seqname}.fa")
+        seqname = (
+            seqname.
+            replace(" ", "_").
+            replace("\t", "_").
+            replace("\\", "_").
+            replace(":", "_").
+            replace("*", "_").
+            replace("?", "_").
+            replace("\"", "_").
+            replace("<", "_").
+            replace(">", "_").
+            replace("|", "_")
+        )
+        transcript_output_fasta = os.path.join(out_dir_path, f"{seqname}.fa")
         with get_writer(transcript_output_fasta) as single_transcript_writer:
             single_transcript_writer.write(f">{seqname}\n{fav.sequence(seqname)}\n")
