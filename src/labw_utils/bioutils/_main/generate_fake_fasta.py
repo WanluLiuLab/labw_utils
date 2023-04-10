@@ -11,10 +11,11 @@ import random
 from typing import List
 
 from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils generate_fake_fasta",
         description=__doc__.splitlines()[1]
     )

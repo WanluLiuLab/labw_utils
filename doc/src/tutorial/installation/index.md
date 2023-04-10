@@ -2,6 +2,58 @@
 
 `labw_utils` is a package that can both be used as an executable and as a supporting library. Here provides a detailed guide on how it should be installed. In following text, `[VERSION]` should be replaced with your desired version, currently 1.0.1.
 
+## Prerequisites
+
+The `labw_utils` is implemented in Python, so a working Python intepreter is required. Following are several popular ways to get it installed:
+
+::::{tab-set}
+
+:::{tab-item} Conda
+:sync: ts_k_conda
+
+We assume you're on a machine with [Conda](https://conda.io) (or [Mamba](https://mamba.readthedocs.io/)) installed. If not, get it from [Here](https://docs.conda.io/en/latest/miniconda.html). On successful installation, you should be able to execute following command in your terminal:
+
+```console
+$ conda --version
+conda 23.3.1
+```
+
+:::
+
+:::{tab-item} pip
+:sync: ts_k_pip
+
+To use PYPA [`pip`](https://pip.pypa.io/), you should install Python intepreter first. Check your Python version using:
+
+```console
+$ python --version
+Python 3.8.15
+```
+
+or:
+
+```console
+$ python3 --version
+Python 3.8.15
+```
+
+if your operating system reserves `python` for Python 2.
+
+If the command is failed or if the version is too low, get one from [Official Site](https://www.python.org) or your package management systems.
+
+Then you may check whether `pip` is installed using:
+
+```console
+$ python -m pip --version
+pip 23.0.1 from /home/yuzj/conda/envs/labw_utils/lib/python3.8/site-packages/pip (python 3.8)
+```
+
+If failed, you may either install `pip` using package manager (If you installed Python that way) or use script from <https://bootstrap.pypa.io/get-pip.py>.
+
+:::
+
+::::
+
 ## Installation as an Executable
 
 This section is for those who uses executables inside {py:mod}`labw_utils.bioutils`, like `transcribe` otr `describe_fastq`.
@@ -37,13 +89,8 @@ pip install labw_utils~=[VERSION]
 
 You may test whether your installation is successful using:
 
-```shell
-python -m labw_utils.bioutils lscmd
-```
-
-which should give an output like:
-
-```text
+```console
+$ python -m labw_utils.bioutils lscmd
 2023-04-09 21:18:38,800	[INFO] labw_utils.bioutils -- Biological Utilities used in LabW projects ver. 1.0.1
 2023-04-09 21:18:38,800	[INFO] Called by: /home/yuzj/Documents/labw_utils/src/labw_utils/bioutils/__main__.py lscmd
 2023-04-09 21:18:38,800	[INFO] Listing modules...
@@ -119,20 +166,25 @@ Suppose you're developing a software package named `foo` using Python 3.8 and wi
 
 ::::
 
-You're then free to go! Your editors or IDEs should recognize `labw_utils` and give you type hints \& hover docs afterwards.
+You may test whether your installation is successful using:
+
+```pycon
+>>> import labw_utils
+>>> labw_utils.__version__
+1.0.1
+```
 
 ## Dependencies
 
 The default installation requires following packages:
 
-- `tqdm`, for a user-friendly progress bar.
+- [`tqdm`](https://tqdm.github.io), for a user-friendly progress bar.
   - Although not recommended, this package can be uninstalled. If so, `labw_utils` would use a bundled shabby process bar implementation.
-- `numpy`, for performing numerical operations. This package is used in most places so uninstallation is not recommended.
-- `tomli` and `tomli_w`, for parsing and serialization from \& to TOML formats.
+- [`numpy`](https://numpy.org), for performing numerical operations. This package is used in most places so uninstallation is not recommended.
+- [`tomli`](https://pypi.org/project/tomli) and [`tomli-w`](https://pypi.org/project/tomli-w), for parsing and serialization from \& to TOML formats.
   - These packages can be uninstalled if you do not use {py:mod}`labw_utils.commonutils.serializer.toml` module.
-- `pandas`, for reading and writing relational data formats. This package is used in most places so uninstallation is not recommended.
-- `tomli` and `tomli_w`, for parsing and serialization from \& to TOML formats.
-- `joblib`, for embarrasing parallelization of small tasks.
+- [`pandas`](https://pandas.pydata.org), for reading and writing relational data formats. This package is used in most places so uninstallation is not recommended.
+- [`joblib`](https://joblib.readthedocs.io), for embarrasing parallelization of small tasks.
 
 ### Non-Default Installation with Optional Extras
 
@@ -174,35 +226,50 @@ A list of extras are:
 
 The `bioutils` installation come with following additional packages:
 
-- `pysam`, for parsing Sequence Alignment Format (SAM)/Binary Alignment Format (BAM) files.
-  - Notice: This package is not installable under Microsoft Windows.
+- [`pysam`](https://pysam.readthedocs.io), for parsing Sequence Alignment Format (SAM)/Binary Alignment Format (BAM) files.
   - Used in `get_exonic_depth` executable.
+
+```{warning}
+This installation option is not installable under Microsoft Windows.
+```
 
 #### `mlutils`
 
 The `mlutils` installation come with following additional package:
 
-- `torch`, for pyTorch integration. With this module:
+- [`torch`](https://pytorch.org), for pyTorch integration. With this module:
   - The {py:mod}`labw_utils.mlutils.io_helper` would work with pyTorch Tensor serialization format.
   - The {py:mod}`labw_utils.mlutils.ndarray_helper` would work with {py:class}`torch.Tensor`.
   - The {py:mod}`labw_utils.mlutils.torch_layers` would function.
 
 #### `ysjs`
 
-The `ysjs` installation would allow user to use YSJS Client.
+The `ysjs` installation would allow user to use YSJS Client. That insluces:
+
+- [`requests`](https://docs.python-requests.org) for {py:mod}`libysjs.operation`
 
 #### `ysjsd`
 
-The `ysjsd` installation would allow user to use YSJSD Server.
+The `ysjsd` installation would allow user to use YSJSD Server. That insluces:
+
+- [`flask`](https://flask.palletsprojects.com) for backend HTTP server.
+- [`sqlalchemy`](https://www.sqlalchemy.org) for connecting to databases.
+- [`psutil`](https://psutil.readthedocs.io/en/latest) for resource monitoring.
+- [`gevent`](https://www.gevent.org) for CGI server.
+- [`jinja2`](https://jinja.palletsprojects.com) for template rendering.
 
 #### `appenders`
 
 The `appenders` installation come with following additional package:
 
-- `pyarrow`, to use Apache Parquet as output format in `describe_fasta_by_binning` and `describe_gtf_by_binning` executables.
-- `fastparquet`, to use Apache Parquet format in {py:mod}`labw_utils.commonutils.appender`.
-- `pytables`, to use HDF5 format in {py:mod}`labw_utils.commonutils.appender`.
+- [`pyarrow`](https://arrow.apache.org/docs/python), to use [Apache Parquet](https://parquet.apache.org) as output format in `describe_fasta_by_binning` and `describe_gtf_by_binning` executables.
+- [`fastparquet`](https://fastparquet.readthedocs.io), to use Apache Parquet format in {py:mod}`labw_utils.commonutils.appender`.
+- [`pytables`](https://www.pytables.org), to use HDF5 format in {py:mod}`labw_utils.commonutils.appender`.
 
 #### `all`
 
 The `all` installation installs all above.
+
+## Alternate Python Implementation
+
+[Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) was not tested. Use at your own risk.

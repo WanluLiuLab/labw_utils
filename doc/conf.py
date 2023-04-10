@@ -4,49 +4,22 @@ Configuration file for the Sphinx documentation builder.
 
 # pylint: disable=wrong-import-position, invalid-name
 
-import glob
 import os
-import shutil
 
 import tomli
+from docutils.parsers.null import Parser as NullParser
+from sphinx.application import Sphinx
 
-from labw_utils.devutils.sphinx_helper import convert_ipynb_to_myst
+import labw_utils
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
 
-import labw_utils
 
+def setup(app: Sphinx):
+    app.add_source_parser(NullParser)
 
-def scan_dir(path_to_scan: str):
-    """
-    Recursively list files in directories.
-
-    <https://www.sethserver.com/python/recursively-list-files.html>
-    """
-
-    files = []
-    dirlist = [path_to_scan]
-    while len(dirlist) > 0:
-        for (dirpath, dirnames, filenames) in os.walk(dirlist.pop()):
-            dirlist.extend(dirnames)
-            files.extend(map(lambda n: os.path.join(*n), zip([dirpath] * len(filenames), filenames)))
-    return files
-
-
-def copy_doc_files(from_path: str, to_path: str):
-    """
-    Copy items to project root
-    """
-    os.makedirs(to_path, exist_ok=True)
-    for name in glob.glob(from_path):
-        shutil.copy(name, to_path + os.sep)
-
-
-copy_doc_files(os.path.join(ROOT_DIR, '*.md'), os.path.join(THIS_DIR, "_root"))
-
-convert_ipynb_to_myst(THIS_DIR)
 
 # -- Project information -----------------------------------------------------
 
@@ -78,12 +51,11 @@ exclude_patterns = [
     '_build',
     'Thumbs.db',
     '.DS_Store',
-    '.virtualenv/**',
-    "*.ipynb"
+    '.virtualenv/**'
 ]
 html_theme_options = {
-    "navigation_depth": -1,
 }
+
 
 # html_static_path = ['_static']
 
@@ -91,9 +63,11 @@ html_theme_options = {
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md': 'myst-nb',
+    '.ipynb': 'null'
 }
 nb_custom_formats = {
-    ".ipynb.py": ["jupytext.reads", {"fmt": "py:percent"}]
+    ".ipynb.py": ["jupytext.reads", {"fmt": "py:percent"}],
+    ".ipynb.md": ["jupytext.reads", {"fmt": "md:myst"}]
 }
 
 # Autodoc settings

@@ -1,8 +1,5 @@
 """
 labw_utils -- Utility Python functions & classes used in LabW
-
-Optional dependencies:
-
 """
 
 
@@ -71,6 +68,9 @@ class PackageSpecs:
     Package specifications.
     Maintains a list of :py:class:`PackageSpec`.
     Used in :py:class:`UnmetDependenciesError`.
+
+    Current recognized optional dependencies:
+
     """
     _deps: Dict[str, PackageSpec] = {}
 
@@ -90,7 +90,7 @@ class PackageSpecs:
         """
         Add a package into the list.
         """
-        globals()["__doc__"] = globals()["__doc__"] + f"- ``{item.name}``: {item}\n"
+        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"- ``{item.name}``: {item}\n"
         PackageSpecs._deps[item.name] = item
 
     @staticmethod

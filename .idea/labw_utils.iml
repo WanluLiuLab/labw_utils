@@ -32,9 +32,11 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/gtf" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/out_fa" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/out_gtf" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/.ipynb_checkpoints" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/L4_rep2.fastq.gz.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/L4_rep2.fastq.stats.d" />
     </content>
     <orderEntry type="inheritedJdk" />
-
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

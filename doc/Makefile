@@ -1,16 +1,4 @@
 #!/usr/bin/env make
-#===============================================================================
-# Copyright (C) 2021-2022. tetgs authors
-#
-# This file is a part of tetgs, which is licensed under MIT,
-# a copy of which can be obtained at <https://opensource.org/licenses/MIT>.
-#
-# NAME: Makefile -- Makefile of building sphinx documentations
-#
-# VERSION HISTORY:
-# 2021-08-20 0.1  : Purposed and added by YU Zhejian.
-#
-#===============================================================================
 
 SPHINX_OPTS := -j auto
 
@@ -35,8 +23,21 @@ all: html
 apidoc:
 	rm -rf $(CURDIR)/_apidoc
 	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/labw_utils
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/libysjs
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/ysjs
+	$(SPHINX_APIDOC) $(SPHINX_APIDOC_ARGS) $(dir $(CURDIR))/src/ysjsd
 
-html: apidoc refs.bibtex.bib
+.PHONY: preconfigure
+preconfigure: src
+	python preconfigure.py
+
+
+.PHONY: src
+src:
+	$(MAKE) -C src
+
+
+html: apidoc src refs.bibtex.bib preconfigure
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
 refs.bibtex.bib: refs.bib

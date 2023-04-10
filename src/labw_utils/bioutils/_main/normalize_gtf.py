@@ -16,10 +16,11 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import 
     VALID_SORT_EXON_EXON_STRAND_POLICY
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator, GtfWriter
 from labw_utils.bioutils.record.feature import VALID_GTF_QUOTE_OPTIONS, DEFAULT_GTF_QUOTE_OPTIONS
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils normalize_gtf",
         description=__doc__.splitlines()[1]
     )

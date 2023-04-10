@@ -15,6 +15,7 @@ from typing import List, Optional, Union, Literal
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 
 try:
     import pytest
@@ -36,7 +37,7 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils get_exonic_depth",
         description=__doc__.splitlines()[1]
     )

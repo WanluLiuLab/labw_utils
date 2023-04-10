@@ -8,7 +8,7 @@ mkdir -p out out_fa out_gtf
 mkdir -p out/ncbi_analysis_set-plots
 for fn in fa/*.fa fa/*.fna; do
     python -m labw_utils.bioutils describe_fasta_by_binning \
-        -f "${fn}"\
+        -f "${fn}" \
         -o out_"${fn}" \
         --metadata_only
 done
@@ -97,4 +97,3 @@ python -m labw_utils.bioutils describe_fasta_gtf_by_binning \
 Rscript plot_describe_fasta_gtf_by_binning.R \
     --input out/ucsc_analysis_set.parquet \
     --output out/usuc_masked-plots/
-

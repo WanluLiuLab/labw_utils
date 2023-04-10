@@ -46,6 +46,8 @@ dependencies:
   - sphinxcontrib-bibtex
   - sphinx-design=0.3.0
   - furo=2023.3.27
+  - seaborn>=0.12.2
+  - matplotlib>=3.7.1
 
   # Pandas acceleration libraries
   - bottleneck>=1.3.1

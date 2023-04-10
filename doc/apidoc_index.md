@@ -8,4 +8,7 @@ Here are documentations for developers who wish to use infrastructure provided b
 :maxdepth: 10
 
 _apidoc/labw_utils
+_apidoc/libysjs
+_apidoc/ysjs
+_apidoc/ysjsd
 ```

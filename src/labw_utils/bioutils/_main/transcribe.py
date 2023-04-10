@@ -14,10 +14,11 @@ from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper import transcribe
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils transcribe",
         description=__doc__.splitlines()[1]
     )

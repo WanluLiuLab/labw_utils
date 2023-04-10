@@ -20,6 +20,8 @@ from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.stdlib_helper.argparse_helper import EnhancedHelpFormatter, \
+    ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 try:
@@ -44,7 +46,7 @@ _lh = get_logger(__name__)
 
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils describe_fasta_by_binning",
         description=__doc__.splitlines()[1]
     )

@@ -10,8 +10,9 @@ VERSION=0.1
 
 LAST_COMMIT=$(git log --pretty=oneline --abbrev-commit --graph --branches -n 1)
 AUTHOR_INFO=$(git shortlog --numbered --summary --email)
-AD_MINUS=$(git log --numstat --pretty="%an$(echo -e "\t")%H" | \
-    awk '
+AD_MINUS=$(
+    git log --numstat --pretty="%an$(echo -e "\t")%H" |
+        awk '
     BEGIN{
         FS="\t"
     }
@@ -27,29 +28,28 @@ AD_MINUS=$(git log --numstat --pretty="%an$(echo -e "\t")%H" | \
         for (name in plus) {
             print name":\t+"plus[name]"\t-"minus[name]
         }
-    }' | \
-    sort -k2 -gr | \
-    sed 's;^;\t;'
+    }' |
+        sort -k2 -gr |
+        sed 's;^;\t;'
 )
 
 SOURCES=$(
-    git ls-files |\
-    grep -v '\.idea' |\
-    xargs
+    git ls-files |
+        grep -v '\.idea' |
+        xargs
 )
 echo "Enumerating sources FIN"
 if [ -n "${SCC:-}" ]; then
     CLOC_INFO=$("${SCC}" ${SOURCES})
-elif which scc &>/dev/null;then
+elif which scc &>/dev/null; then
     CLOC_INFO=$(scc ${SOURCES})
-elif which cloc &>/dev/null;then
+elif which cloc &>/dev/null; then
     CLOC_INFO=$(cloc ${SOURCES})
 else
     echo "scc or cloc required!"
 fi
 
-
-cat << EOF
+cat <<EOF
 ${NAME} ver. ${VERSION}
 Called by: ${0} ${*}
 Repository version information:
