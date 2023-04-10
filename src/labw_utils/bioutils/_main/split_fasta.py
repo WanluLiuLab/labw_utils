@@ -16,5 +16,8 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, split
 
 
 def main(args: List[str]):
+    if "--help" in args or "-h" in args:
+        print(__doc__)
+        return 0
     for arg in args:
         split_fasta(FastaViewFactory(arg))

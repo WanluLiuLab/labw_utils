@@ -1,5 +1,5 @@
 """
-get_transcript.py -- Filter GTF records by a specific attributes
+filter_gtf_by_attribute.py -- Filter GTF records by a specific attributes
 """
 
 __all__ = (
@@ -21,7 +21,7 @@ _lh = get_logger(__name__)
 
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
-        prog="python -m labw_utils.bioutils get_transcript",
+        prog="python -m labw_utils.bioutils filter_gtf_by_attribute",
         description=__doc__.splitlines()[1]
     )
     parser = FrontendOptSpecs.patch(parser, "-g")
@@ -50,19 +50,25 @@ def create_parser() -> argparse.ArgumentParser:
         type=str,
         action='store'
     )
+    parser.add_argument(
+        "--regex",
+        help="Enable regular expression",
+        action='store_true'
+    )
     return parser
 
 
 def main(args: List[str]):
     args = create_parser().parse_args(args)
     possible_values = []
-    for line in get_tqdm_line_reader(args.field_value):
+    for line in get_tqdm_line_reader(args.attribute_values):
         line = line.strip().strip("\"\'")  # Get rid of quotation marks produced by R
         possible_values.append(line)
     _lh.info(f"{len(possible_values)} values loaded")
     subset_gtf_by_attribute_value(
         attribute_values=iter(possible_values),
-        attribute_name=args.field_name,
+        attribute_name=args.attribute_name,
         gtf_filename=args.gtf,
-        out_filename=args.out
+        out_filename=args.out,
+        regex=args.regex
     )

@@ -13,10 +13,7 @@ SPHINX_APIDOC_ARGS := --separate \
 BUILD_DIR := $(CURDIR)/_build
 SPHINX_APIDOC := PYTHONPATH="$(dir $(CURDIR))/src:${PYTHONPATH:-}" sphinx-apidoc
 
-
-
 .PHONY: all
-
 all: html
 
 .PHONY: apidoc
@@ -31,12 +28,11 @@ apidoc:
 preconfigure: src
 	python preconfigure.py
 
-
 .PHONY: src
 src:
 	$(MAKE) -C src
 
-
+.PHONY: html
 html: apidoc src refs.bibtex.bib preconfigure
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
@@ -48,7 +44,10 @@ refs.bibtex.bib: refs.bib
 		--output-field-replace=location:address,journaltitle:journal \
 		refs.bib
 
+.PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
+	$(MAKE) -C src clean
 
-distclean:
+.PHONY: distclean
+distclean: clean

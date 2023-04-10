@@ -443,3 +443,4 @@ pypy_venv/
 .scannerwork/
 /twine.pypirc.ini
 /requirements_all.txt
+*.finished

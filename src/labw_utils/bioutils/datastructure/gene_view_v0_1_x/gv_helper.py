@@ -1,4 +1,5 @@
 import os
+import re
 from typing import List, Tuple, Iterable, Iterator
 
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
@@ -131,16 +132,30 @@ def subset_gtf_by_attribute_value(
         attribute_values: Iterator[str],
         attribute_name: str,
         gtf_filename: str,
-        out_filename: str
+        out_filename: str,
+        regex: bool = False
 ):
-    attribute_values = list(attribute_values)
     gi = GtfIterator(gtf_filename)
     input_record_num = 0
     intermediate_records = []
-    for gtf_record in gi:
-        input_record_num += 1
-        if gtf_record.attribute.get(attribute_name, None) in attribute_values:
-            intermediate_records.append(gtf_record)
+    if regex:
+        attribute_regex:List[re.Pattern] = list(map(re.compile, attribute_values))
+        for gtf_record in gi:
+            input_record_num += 1
+            this_attribute_value = gtf_record.attribute.get(attribute_name, None)
+            if this_attribute_value is None:
+                continue
+            for possible_regex in attribute_regex:
+                if possible_regex.match(this_attribute_value):
+                    intermediate_records.append(gtf_record)
+                    break
+    else:
+        attribute_values = list(attribute_values)
+        for gtf_record in gi:
+            input_record_num += 1
+            if gtf_record.attribute.get(attribute_name, None) in attribute_values:
+                intermediate_records.append(gtf_record)
+
     gv = GeneViewFactory.from_iterable(intermediate_records, record_type=GtfRecord)
     gv.standardize()
     final_record_num = len(gv)
