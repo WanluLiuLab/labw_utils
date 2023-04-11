@@ -6,7 +6,7 @@ class TSVTableAppender(BaseDictBufferAppender):
     def _get_real_filename_hook(self) -> str:
         return ".".join((self.filename, "tsv"))
 
-    def _flush(self) -> str:
+    def _convert_dict_to_df(self) -> str:
         return "\n".join(map(
             lambda x: "\t".join(map(repr, x)),  # x is [COLUMN]
             zip(*self._buff.values())

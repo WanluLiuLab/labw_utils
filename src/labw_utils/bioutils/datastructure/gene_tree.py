@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import os
 from typing import Iterable, Dict, Iterator
 
-from labw_utils.bioutils.algorithm.sequence import get_gc_percent
-from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.datastructure.gv import GVPError, SortedContainerInterface, CanCheckInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.gene import Gene
@@ -12,8 +9,6 @@ from labw_utils.bioutils.datastructure.gv.gene_container_interface import GeneCo
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface
 from labw_utils.bioutils.record.feature import Feature, FeatureType
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_writer
 
 
 class DuplicatedGeneIDError(GVPError):
@@ -217,55 +212,3 @@ class GeneTree(
             for transcript in gene.transcript_values:
                 yield transcript
                 yield from transcript.exons
-
-
-def transcribe(
-        gt: GeneTree,
-        output_fasta: str,
-        fv: FastaViewType,
-        show_tqdm: bool = True,
-        write_single_transcript: bool = True
-):
-    intermediate_fasta_dir = output_fasta + ".d"
-    os.makedirs(intermediate_fasta_dir, exist_ok=True)
-    with get_writer(output_fasta) as fasta_writer, \
-            get_writer(output_fasta + ".stats") as stats_writer:
-        stats_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "GENE_ID",
-            "SEQNAME",
-            "START",
-            "END",
-            "STRAND",
-            "ABSOLUTE_LENGTH",
-            "TRANSCRIBED_LENGTH",
-            "GC"
-        )) + "\n")
-        if show_tqdm:
-            it = tqdm(iterable=list(gt.transcript_values), desc="Transcribing GTF...")
-        else:
-            it = gt.transcript_values
-        for transcript_value in it:
-            transcript_value: Transcript
-            cdna_seq = transcript_value.transcribe(sequence_func=fv.sequence)
-            if len(cdna_seq) == 0:
-                continue
-
-            transcript_name = transcript_value.transcript_id
-            fa_str = f">{transcript_name}\n{cdna_seq}\n"
-            fasta_writer.write(fa_str)
-            stats_writer.write("\t".join((
-                transcript_name,
-                transcript_value.gene_id,
-                transcript_value.seqname,
-                str(transcript_value.start),
-                str(transcript_value.end),
-                transcript_value.strand,
-                str(transcript_value.end - transcript_value.start + 1),
-                str(transcript_value.transcribed_length),
-                str(round(get_gc_percent(cdna_seq) * 100, 2))
-            )) + "\n")
-            if write_single_transcript:
-                transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
-                with get_writer(transcript_output_fasta) as single_transcript_writer:
-                    single_transcript_writer.write(fa_str)

@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import tempfile
+import time
 
 import pandas as pd
 import pytest
@@ -31,15 +32,6 @@ def validate_lines(appender: BaseTableAppender, required_number_of_lines: int) -
         )
 
 
-def assert_appender(
-        appender: BaseTableAppender,
-        lines_to_append: int
-):
-    for i in range(lines_to_append):
-        appender.append([i, "2", "3"])
-    appender.close()
-    validate_lines(appender, lines_to_append)
-
 
 @pytest.mark.parametrize(
     argnames="name",
@@ -49,11 +41,13 @@ def assert_appender(
 def test_appender(name: str):
     with tempfile.TemporaryDirectory() as tmpdir:
         for lines_to_append in (1, 4, 5, 6, 9, 10, 11, 1024):
-            appender = load_table_appender_class(name)(
+            with load_table_appender_class(name)(
                 filename=os.path.join(tmpdir, "test"),
-                header=["1", "2", "3"],
+                header=("INDEX", "TIME", "3"),
                 tac=TableAppenderConfig(buffer_size=5)
-            )
-            assert_appender(appender, lines_to_append)
+            ) as appender:
+                for i in range(lines_to_append):
+                    appender.append((i, time.asctime(), "3"))
+            validate_lines(appender, lines_to_append)
             if appender.real_filename != '':
                 os.remove(appender.real_filename)

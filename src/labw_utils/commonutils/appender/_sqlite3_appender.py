@@ -21,4 +21,4 @@ class SQLite3TableAppender(BasePandasDictBufferAppender):
 
     def _write_hook(self, df: pd.DataFrame):
         with sqlite3.connect(self._real_filename) as con:
-            df.to_sql(name="db", con=con, if_exists="append")
+            df.to_sql(name="db", con=con, if_exists="append", index=False)

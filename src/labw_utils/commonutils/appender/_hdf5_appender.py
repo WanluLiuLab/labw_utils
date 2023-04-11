@@ -25,4 +25,10 @@ class HDF5TableAppender(BasePandasDictBufferAppender):
         pass
 
     def _write_hook(self, df: pd.DataFrame):
-        df.to_hdf(self._real_filename, key="df", format='table', append=os.path.exists(self._real_filename))
+        df.to_hdf(
+            self._real_filename,
+            key="df",
+            format='table',
+            append=os.path.exists(self._real_filename),
+            index=False
+        )

@@ -10,7 +10,7 @@ if [ ! -f ce11.fa ]; then
 fi
 if [ ! -f L4_rep2.bam ]; then
     {
-        axel ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR324/ERR3245471/L4_rep2.fastq.gz &>>/dev/null
+        wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR324/ERR3245471/L4_rep2.fastq.gz &>>/dev/null
         gunzip -f L4_rep2.fastq.gz
         minimap2 -a -x splice ce11.fa L4_rep2.fastq |
             samtools sort -o L4_rep2.bam

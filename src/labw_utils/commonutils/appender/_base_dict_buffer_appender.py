@@ -1,57 +1,56 @@
 import multiprocessing
 from abc import ABC, abstractmethod
 from multiprocessing import synchronize
-from typing import Dict, List, Any
+from typing import Dict, Any, Tuple, List
 
 from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
 
 
 class BaseDictBufferAppender(BaseTableAppender, ABC):
     _h0: str
+    """Name of the first column."""
     _buff: Dict[str, List[Any]]
+    """Column-oriented buffer."""
     _write_mutex: synchronize.Lock
     _buff_mutex: synchronize.Lock
 
-    def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
+    def __init__(self, filename: str, header: Tuple[str, ...], tac: TableAppenderConfig):
         super().__init__(filename, header, tac)
         self._buff_mutex = multiprocessing.Lock()
         self._write_mutex = multiprocessing.Lock()
-        self._buff = {}
+        self._init_buffer()
         self._h0 = self.header[0]
 
-    def append(self, body: List[Any]):
+    def _init_buffer(self):
+        self._buff = {k:[] for k in self.header}
+
+    def append(self, body: Tuple[Any, ...]):
         with self._buff_mutex:
-            if self._buff == {}:
-                self._buff = dict(zip(self.header, map(lambda x: [x], body)))
-            else:
-                for header_item, body_item in zip(self.header, body):
-                    self._buff[header_item].append(body_item)
+            for header_item, body_item in zip(self.header, body):
+                self._buff[header_item].append(body_item)
             if len(self) == self._tac.buffer_size:
-                df = self._flush()
-                self._buff = {}
-                with self._write_mutex:
-                    self._write_hook(df)
+                self.flush()
 
     @abstractmethod
     def _write_hook(self, df: Any):
         raise NotImplementedError
 
     @abstractmethod
-    def _flush(self) -> Any:
+    def _convert_dict_to_df(self) -> Any:
+        """
+        Convert the buffer dict to intermediate format.
+        """
         raise NotImplementedError
 
     def __len__(self):
-        if self._buff == {}:
-            return 0
         return len(self._buff[self._h0])
 
     def flush(self):
         if len(self) == 0:
             return
-        df = self._flush()
-        self._buff = {}
         with self._write_mutex:
-            self._write_hook(df)
+            self._write_hook(self._convert_dict_to_df())
+        self._init_buffer()
 
     def close(self):
         self.flush()

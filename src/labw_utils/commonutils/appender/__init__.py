@@ -7,7 +7,7 @@ TODO: Docs
 import importlib
 import os
 from abc import ABC, abstractmethod
-from typing import Type, Iterator, Tuple, List, Any
+from typing import Type, Iterator, Tuple, Any
 
 from labw_utils import UnmetDependenciesError
 
@@ -48,7 +48,7 @@ class TableAppenderConfig:
 
 class BaseTableAppender(ABC):
     _filename: str
-    _header: List[str]
+    _header: Tuple[str, ...]
     _real_filename: str
     _tac: TableAppenderConfig
 
@@ -57,16 +57,16 @@ class BaseTableAppender(ABC):
         return self._filename
 
     @property
-    def header(self) -> List[str]:
+    def header(self) -> Tuple[str, ...]:
         return self._header
 
     @property
     def real_filename(self) -> str:
         return self._real_filename
 
-    def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
+    def __init__(self, filename: str, header: Tuple[str, ...], tac: TableAppenderConfig):
         self._filename = filename
-        self._header = header
+        self._header = tuple(header)
         self._real_filename = self._get_real_filename_hook()
         self._tac = tac
         if os.path.exists(self._real_filename):
@@ -86,7 +86,7 @@ class BaseTableAppender(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def append(self, body: List[Any]) -> None:
+    def append(self, body: Tuple[Any, ...]) -> None:
         raise NotImplementedError
 
     @abstractmethod

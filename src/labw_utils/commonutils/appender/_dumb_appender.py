@@ -1,10 +1,10 @@
-from typing import List, Any
+from typing import Any, Tuple
 
 from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
 
 
 class DumbTableAppender(BaseTableAppender):
-    def __init__(self, filename: str, header: List[str], tac: TableAppenderConfig):
+    def __init__(self, filename: str, header: Tuple[str, ...], tac: TableAppenderConfig):
         super().__init__(filename, header, tac)
 
     def _get_real_filename_hook(self):
@@ -14,7 +14,7 @@ class DumbTableAppender(BaseTableAppender):
         """Not needed"""
         pass
 
-    def append(self, body: List[Any]):
+    def append(self, body: Tuple[Any, ...]):
         """Not needed"""
         pass
 
