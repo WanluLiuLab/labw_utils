@@ -35,6 +35,7 @@
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/L4_rep2.fastq.gz.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/L4_rep2.fastq.stats.d" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/ce11_trans_filtered.fa.d" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

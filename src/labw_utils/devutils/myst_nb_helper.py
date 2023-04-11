@@ -11,10 +11,13 @@ import re
 from collections import defaultdict
 from typing import List, Callable, Optional
 
-import jupytext
-import nbformat as nbf
-import tomli
+try:
+    import jupytext
+    import nbformat as nbf
+except ImportError:
+    pass
 
+from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.commonutils import libfrontend
 from labw_utils.commonutils.io.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -81,7 +84,7 @@ def generate_cli_docs(
 ):
     os.makedirs(dest_dir_path, exist_ok=True)
     with open(config_toml_file_path, "rb") as toml_reader:
-        config_toml = tomli.load(toml_reader)
+        config_toml = tomllib.load(toml_reader)
 
     arg_parsers = defaultdict(lambda: [])
     for main_module in config_toml["names"]:

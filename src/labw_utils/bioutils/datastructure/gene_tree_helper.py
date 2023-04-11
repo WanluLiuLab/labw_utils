@@ -18,6 +18,7 @@ def transcribe(
         show_tqdm: bool = True,
         write_single_transcript: bool = True
 ):
+    intermediate_fasta_dir = ""
     if write_single_transcript:
         intermediate_fasta_dir = dst_fasta_path + ".d"
         os.makedirs(intermediate_fasta_dir, exist_ok=True)

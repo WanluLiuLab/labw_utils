@@ -21,11 +21,6 @@ except ImportError:
     raise UnmetDependenciesError("gevent")
 
 try:
-    import tomli
-except ImportError:
-    raise UnmetDependenciesError("tomli")
-
-try:
     import tomli_w
 except ImportError:
     raise UnmetDependenciesError("tomli_w")

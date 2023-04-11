@@ -181,7 +181,7 @@ The default installation requires following packages:
 - [`tqdm`](https://tqdm.github.io), for a user-friendly progress bar.
   - Although not recommended, this package can be uninstalled. If so, `labw_utils` would use a bundled shabby process bar implementation.
 - [`numpy`](https://numpy.org), for performing numerical operations. This package is used in most places so uninstallation is not recommended.
-- [`tomli`](https://pypi.org/project/tomli) and [`tomli-w`](https://pypi.org/project/tomli-w), for parsing and serialization from \& to TOML formats.
+- [`tomli-w`](https://pypi.org/project/tomli-w), for serialization to TOML formats.
   - These packages can be uninstalled if you do not use {py:mod}`labw_utils.commonutils.serializer.toml` module.
 - [`pandas`](https://pandas.pydata.org), for reading and writing relational data formats. This package is used in most places so uninstallation is not recommended.
 - [`joblib`](https://joblib.readthedocs.io), for embarrasing parallelization of small tasks.

@@ -27,7 +27,11 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    args = _parse_args(sys.argv[1:])
+    try:
+        argv = sys.orig_argv 
+    except AttributeError:
+        argv = sys.argv
+    args = _parse_args(argv)
     if args.generate_default_config:
         ServerSideYSJSDConfig.new(args.config).save(args.config)
         _lh.info("Configure file generated at %s", args.config)

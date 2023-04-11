@@ -4,7 +4,8 @@ commonutils.io -- Enhanced Python IO Functions/Classes
 
 This module includes some enhanced IO functions,
 like IO that automatically creates missing intermediate directories or IO with tqdm progress bar.
-It also supports Python standard archive types like ``bz2``, ``gzip`` or ``lzma``.
+It also supports Python standard archive types like ``bz2``, ``gzip`` or ``lzma``
+like is implemented in :py:mod:`fileinput` module.
 
 For those who wish to get a ``gzip`` command-like utilities,
 please visit :py:mod:`commonutils.shell_utils` for more information

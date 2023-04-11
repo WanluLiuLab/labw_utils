@@ -6,11 +6,11 @@ Configuration file for the Sphinx documentation builder.
 
 import os
 
-import tomli
 from docutils.parsers.null import Parser as NullParser
 from sphinx.application import Sphinx
 
 import labw_utils
+from labw_utils.stdlib.cpy311 import tomllib
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +24,7 @@ def setup(app: Sphinx):
 # -- Project information -----------------------------------------------------
 
 with open(os.path.join(ROOT_DIR, "pyproject.toml"), "rb") as reader:
-    parsed_pyproject = tomli.load(reader)
+    parsed_pyproject = tomllib.load(reader)
 
 project = parsed_pyproject["project"]["name"]
 author = "&".join([author["name"] for author in parsed_pyproject["project"]["authors"]])

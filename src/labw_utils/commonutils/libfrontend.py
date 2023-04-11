@@ -154,11 +154,11 @@ def _parse_args(
     return parsed_args
 
 
-def _format_help_info(package_main_name: str) -> str:
+def _format_help_info(prefix: str, package_main_name: str) -> str:
     return f"""
 This is frontend of `{package_main_name.split('.')[0].strip()}` provided by `commonutils.libfrontend`.
 
-SYNOPSYS: {sys.argv[0]} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version]
+SYNOPSYS: {prefix} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version]
 
 If a valid [SUBCOMMAND] is present, will execute [SUBCOMMAND] with all other arguments
 
@@ -187,8 +187,12 @@ def setup_frontend(
         default_log_filename: str = "log.log"
 ):
     _lh.info(f'{one_line_description} ver. {version}')
-    _lh.info(f'Called by: {" ".join(sys.argv)}')
-    parsed_args = _parse_args(sys.argv[1:])
+    try:
+        argv = sys.orig_argv 
+    except AttributeError:
+        argv = sys.argv
+    _lh.info(f'Called by: {" ".join(argv)}')
+    parsed_args = _parse_args(argv[1:])
     if use_root_logger:
         log_filename = os.environ.get("LOG_FILE_NAME", default_log_filename)
         file_handler = logging.FileHandler(filename=log_filename)
@@ -208,7 +212,7 @@ def setup_frontend(
     elif parsed_args.input_subcommand_name == "":
         if parsed_args.have_help:
             if help_info is None:
-                help_info = _format_help_info(package_main_name)
+                help_info = _format_help_info(argv[0], package_main_name)
             print(help_info)
             sys.exit(0)
         elif parsed_args.have_version:

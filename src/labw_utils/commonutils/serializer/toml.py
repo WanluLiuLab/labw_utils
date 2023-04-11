@@ -4,10 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Mapping, Any, Optional, Callable, Dict
 from labw_utils import UnmetDependenciesError
 
-try:
-    import tomli
-except ImportError:
-    raise UnmetDependenciesError("tomli")
+from labw_utils.stdlib.cpy311 import tomllib
 
 try:
     import tomli_w
@@ -46,7 +43,7 @@ def read_toml_with_metadata(
     Read and validate TOML files with metadata.
     """
     with open(path, "rb") as reader:
-        in_dict = tomli.load(reader)
+        in_dict = tomllib.load(reader)
     if "version_info" in in_dict and validate_versions is not None:
         validate_versions(in_dict.pop("version_info"))
     if "metadata" in in_dict:

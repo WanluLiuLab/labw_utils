@@ -168,12 +168,6 @@ PackageSpecs.add(PackageSpec(
     conda_channel="conda-forge"
 ))
 PackageSpecs.add(PackageSpec(
-    name="tomli",
-    conda_name="tomli",
-    pypi_name="tomli",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
     name="tomli_w",
     conda_name="tomli-w",
     pypi_name="tomli-w",

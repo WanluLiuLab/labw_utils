@@ -7,7 +7,6 @@ channels:
   - main
   - free
   - pytorch
-  - nvidia
 
 dependencies:
   # Core libraries
@@ -18,7 +17,6 @@ dependencies:
   - pysam>=0.20
   - joblib=>1.2
   - requests>=2.28
-  - tomli>=2.0
   - tomli-w>=1.0
   - tqdm>=4.64
 
@@ -68,10 +66,7 @@ dependencies:
   - jinja2>=3.1.2
 
   # mlutils
-  - pytorch>=1.13 # Supported: 1.13.X, 2.0.X
-  - pytorch-cuda=11.8
-  - cudatoolkit=11.8
-  - cudnn>=8.1.0
+  - pytorch>=1.13=py*_cpu_0 # Supported: 1.13.X, 2.0.X
 
   # Apache Parquet
   - pyarrow>=9.0.0

@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 
 class EnhancedHelpFormatter(argparse.HelpFormatter):
     def _expand_help(self, action: argparse.Action):
-        params:Dict[str, Optional[Any]] = dict(**vars(action), prog=self._prog)
+        params: Dict[str, Optional[Any]] = dict(**vars(action), prog=self._prog)
         for name in list(params):
             if params[name] is argparse.SUPPRESS:
                 del params[name]
@@ -56,7 +56,8 @@ class EnhancedHelpFormatter(argparse.HelpFormatter):
 
 
 _ACTION_GROUP_TILE_REPLACEMENT_DICT = {
-    "optional arguments": "OPTIONS",
+    "optional arguments": "OPTIONS",  # Python < 3.10
+    "options": "OPTIONS",  # Python >= 3.10
     "positional arguments": "PARAMETERS"
 }
 
