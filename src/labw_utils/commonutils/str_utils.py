@@ -4,9 +4,11 @@ str_utils.py -- String utilities
 This file defines ANSI color supported by most terminals.
 """
 
+from __future__ import annotations
+
 import string
 
-from typing import Dict, Any, Optional, List
+from typing import Any, Optional
 
 
 def to_dict(
@@ -15,7 +17,7 @@ def to_dict(
         record_sep: str = '\n',
         quotation_mark: Optional[str] = None,
         resolve_str: bool = True
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     A simple parser to get key-value pairs to a dictionary.
 
@@ -75,7 +77,7 @@ def to_dict(
             except ValueError:
                 pass
         if record_key in retd:
-            if isinstance(retd[record_key], List):
+            if isinstance(retd[record_key], list):
                 retd[record_key].append(record_val)
             else:
                 retd[record_key] = [retd[record_key], record_val]

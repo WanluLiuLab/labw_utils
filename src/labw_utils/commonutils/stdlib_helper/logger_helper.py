@@ -1,16 +1,7 @@
 """
 logger_helper.py -- System-Wide Logger.
 
-Features
---------
 
-It can also read environment variable named 'LOG_LEVEL' and fallback to DEBUG (10) by default.
-
-Usage
------
-
-There are also :py:func:`set_level` and :py:func:`get_logger`,
-which is only snake-case wrappers for those contents inside :py:mod:`logging` standard module.
 """
 
 import logging

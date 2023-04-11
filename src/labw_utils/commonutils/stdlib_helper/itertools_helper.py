@@ -1,9 +1,21 @@
-from typing import Dict, Any, List, Iterable, TypeVar
+
+
+from __future__ import annotations
+
+__all__ = (
+    "iterable_translate",
+    "list_translate",
+    "dict_translate"
+)
+
+from typing import Any, TypeVar
+from collections.abc import Iterable
 
 _InType = TypeVar("_InType")
 
 
-def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Dict[_InType, _InType]) -> Iterable[_InType]:
+def iterable_translate(in_iterable: Iterable[_InType], trans_dict: dict[_InType, _InType]) -> Iterable[_InType]:
+    trans_dict = dict(trans_dict)
     for old_item in in_iterable:
         if old_item in trans_dict.keys():
             yield trans_dict[old_item]
@@ -11,7 +23,7 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Dict[_InType,
             yield old_item
 
 
-def dict_translate(in_dict: Dict[_InType, Any], trans_dict: Dict[_InType, _InType]) -> Dict[_InType, Any]:
+def dict_translate(in_dict: dict[_InType, Any], trans_dict: dict[_InType, _InType]) -> dict[_InType, Any]:
     """
     Dictionary Translator.
 
@@ -29,10 +41,11 @@ def dict_translate(in_dict: Dict[_InType, Any], trans_dict: Dict[_InType, _InTyp
     :param in_dict: The input dictionary.
     :param trans_dict: The translator.
     """
+    trans_dict = dict(trans_dict)
     return {k: v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
 
 
-def list_translate(in_list: List[_InType], trans_dict: Dict[_InType, _InType]) -> List[_InType]:
+def list_translate(in_list: list[_InType], trans_dict: dict[_InType, _InType]) -> list[_InType]:
     """
     List Translator.
 

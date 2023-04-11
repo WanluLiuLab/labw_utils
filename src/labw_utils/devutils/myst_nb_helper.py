@@ -1,6 +1,8 @@
 """
 labw_utils.devutils.sphinx_helper -- Helpers of Sphinx documentation system
 """
+from __future__ import annotations
+
 __all__ = (
     "convert_ipynb_to_myst",
 )
@@ -9,18 +11,36 @@ import glob
 import os
 import re
 from collections import defaultdict
-from typing import List, Callable, Optional
+from collections.abc import Callable
+from typing import Optional
 
-try:
-    import jupytext
-    import nbformat as nbf
-except ImportError:
-    pass
-
+from labw_utils import UnmetDependenciesError, PackageSpecs, PackageSpec
 from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.commonutils import libfrontend
 from labw_utils.commonutils.io.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
+PackageSpecs.add(PackageSpec(
+    name="jupytext",
+    conda_name="jupytext",
+    conda_channel="conda-forge",
+    pypi_name="jupytext"
+))
+PackageSpecs.add(PackageSpec(
+    name="nbformat",
+    conda_name="nbformat",
+    conda_channel="conda-forge",
+    pypi_name="nbformat"
+))
+
+try:
+    import jupytext
+except ImportError as e:
+    raise UnmetDependenciesError("jupytext") from e
+try:
+    import nbformat as nbf
+except ImportError as e:
+    raise UnmetDependenciesError("nbformat") from e
 
 _lh = get_logger(__name__)
 
@@ -51,7 +71,7 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
 
 def convert_ipynb_to_myst(
         source_dir: str,
-        hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
+        hooks: Optional[list[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
 ):
     if hooks is None:
         hooks = []

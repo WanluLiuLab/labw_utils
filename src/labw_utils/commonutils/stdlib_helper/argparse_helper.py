@@ -1,10 +1,14 @@
+__all__ = (
+    "EnhancedHelpFormatter",
+    "ArgumentParserWithEnhancedFormatHelp"
+)
+
 import argparse
-from typing import Dict, Any, Optional
 
 
 class EnhancedHelpFormatter(argparse.HelpFormatter):
     def _expand_help(self, action: argparse.Action):
-        params: Dict[str, Optional[Any]] = dict(**vars(action), prog=self._prog)
+        params = {**vars(action), "prog": self._prog}
         for name in list(params):
             if params[name] is argparse.SUPPRESS:
                 del params[name]
@@ -62,10 +66,6 @@ _ACTION_GROUP_TILE_REPLACEMENT_DICT = {
 }
 
 
-def replace_section_title(input_title: str) -> str:
-    return _ACTION_GROUP_TILE_REPLACEMENT_DICT.get(input_title, input_title)
-
-
 class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
     def format_help(self) -> str:
         formatter = EnhancedHelpFormatter(prog=self.prog)
@@ -79,7 +79,7 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         )
 
         for action_group in self._action_groups:
-            formatter.start_section(replace_section_title(action_group.title))
+            formatter.start_section(_ACTION_GROUP_TILE_REPLACEMENT_DICT.get(action_group.title, action_group.title))
             formatter.add_arguments(action_group._group_actions)
             formatter.end_section()
 

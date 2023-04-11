@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 __all__ = (
     'setup_frontend',
     "get_subcommands",
@@ -13,7 +15,8 @@ import logging
 import os
 import pkgutil
 import sys
-from typing import List, Iterable, Callable, Optional
+from typing import Optional
+from collections.abc import Iterable, Callable
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper import logger_helper
@@ -69,7 +72,7 @@ def get_doc_from_subcommand(
 def get_main_func_from_subcommand(
         package_main_name: str,
         subcommand_name: str
-) -> Optional[Callable[[List[str]], int]]:
+) -> Optional[Callable[[list[str]], int]]:
     """
     Return a subcommands' "main" function.
     """
@@ -123,7 +126,7 @@ def lscmd(
         if doc.find("--") != -1:
             doc = doc.split("--")[1].strip()
         name_doc_dict[item] = doc
-    for item, doc in name_doc_dict.items(): # To prevent logger from polluting outout
+    for item, doc in name_doc_dict.items():  # To prevent logger from polluting outout
         print(f"{item} -- {doc}")
     sys.exit(0)
 
@@ -132,11 +135,11 @@ class _ParsedArgs:
     input_subcommand_name: str = ""
     have_help: bool = False
     have_version: bool = False
-    parsed_args: List[str] = []
+    parsed_args: list[str] = []
 
 
 def _parse_args(
-        args: List[str]
+        args: list[str]
 ) -> _ParsedArgs:
     parsed_args = _ParsedArgs()
     i = 0

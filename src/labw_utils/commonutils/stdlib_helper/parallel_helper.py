@@ -4,13 +4,16 @@ parallel_helper.py -- Helper for Multiprocessing
 This includes a very basic job pool and some helper classes
 """
 
+from __future__ import annotations
+
 import gc
 import multiprocessing
 import os
 import subprocess
 import threading
 import time
-from typing import Union, List, Optional, Callable, TypeVar, Iterable
+from typing import Union, Optional, TypeVar
+from collections.abc import Callable, Iterable
 from labw_utils import UnmetDependenciesError
 
 
@@ -117,13 +120,13 @@ class ParallelJobExecutor(threading.Thread):
     Whether this queue is appendable.
     """
 
-    _pending_job_queue: List[Job]
+    _pending_job_queue: list[Job]
     """
     Job waiting to be executed
     """
 
-    _running_job_queue: List[Job]
-    _finished_job_queue: List[Job]
+    _running_job_queue: list[Job]
+    _finished_job_queue: list[Job]
 
     _n_jobs: int
     """

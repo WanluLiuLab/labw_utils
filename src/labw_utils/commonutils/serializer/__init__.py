@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Mapping, Any
+from typing import Optional, Any
+from collections.abc import Mapping
 
 
 class SerializableInterface(ABC):

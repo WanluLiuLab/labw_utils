@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Mapping, Any, Optional, Callable, Dict
+from typing import Any, Optional
 from labw_utils import UnmetDependenciesError
+from collections.abc import Mapping, Callable
 
 from labw_utils.stdlib.cpy311 import tomllib
 
@@ -38,7 +39,7 @@ def read_toml_with_metadata(
         path: str,
         title: str,
         validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Read and validate TOML files with metadata.
     """

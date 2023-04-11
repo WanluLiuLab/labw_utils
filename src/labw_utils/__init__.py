@@ -15,11 +15,14 @@ __all__ = (
 
 __version__ = "1.0.1"
 
-from typing import Optional, Dict, Iterable
+from typing import Optional
+from collections.abc import Iterable
 
 
 def get_version() -> str:
-    """Get runtime version using function."""
+    """
+    Get runtime version using function.
+    """
     return __version__
 
 
@@ -72,7 +75,7 @@ class PackageSpecs:
     Current recognized optional dependencies:
 
     """
-    _deps: Dict[str, PackageSpec] = {}
+    _deps: dict[str, PackageSpec] = {}
 
     @staticmethod
     def get(name: str) -> PackageSpec:

@@ -12,7 +12,8 @@ __all__ = (
     "get_abspath",
     "file_exists",
     "directory_exists",
-    "is_soft_link"
+    "is_soft_link",
+    "should_regenerate"
 )
 
 
