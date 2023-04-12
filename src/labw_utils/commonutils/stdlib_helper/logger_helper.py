@@ -1,13 +1,15 @@
 """
-logger_helper.py -- System-Wide Logger.
+labw_utils.stdlib_helper.logger_helper -- Additional logging facilities.
 
+It performs the following:
 
+- Addition of a ``TRACE`` level, which is ``8`` and less than ``DEBUG``.
+- An easy-to-use logger setup facility.
 """
 
 import logging
-import os
 import sys
-from logging import DEBUG, WARNING, ERROR, FATAL
+from logging import DEBUG, WARNING, ERROR, FATAL, INFO
 from typing import Optional, Union
 
 __all__ = (
@@ -15,13 +17,14 @@ __all__ = (
     'WARNING',
     'ERROR',
     'FATAL',
-    'get_logger'
+    'INFO',
+    'TRACE',
+    'get_logger',
+    'get_formatter'
 )
 
-_SB = os.environ.get('SPHINX_BUILD')
-
-# The following contents adds a new log level called trace.
 TRACE = 8
+"""New logging level"""
 
 
 def trace(self, msg, *args, **kwargs):
@@ -36,10 +39,17 @@ logging.addLevelName(TRACE, "TRACE")
 logging.Logger.trace = trace
 logging.trace = trace
 
-_lh = logging.getLogger(__name__)
-
 
 def get_formatter(level: Union[int, str]) -> logging.Formatter:
+    """
+    Create standard formatter.
+
+    :param level: Cutoff level of the logger.
+    :return: Generated formatter. Will be:
+      - ``%(asctime)s\t[%(levelname)s] %(message)s`` if level is larger than debug.
+      - ``%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s`` otherwise.
+    :raises ValueError: If level does not exist.
+    """
     if isinstance(level, str):
         level = logging.getLevelName(level)
     if isinstance(level, str):
@@ -51,25 +61,31 @@ def get_formatter(level: Union[int, str]) -> logging.Formatter:
     return logging.Formatter(log_format)
 
 
-def set_level(**_):
-    """
-    Deprecated dumb function
-    """
-    pass
-
-
 def get_logger(
         name: Optional[str] = None,
         level: Optional[Union[str, int]] = TRACE,
         log_to_stderr: bool = False,
-        log_stderr_level: Optional[Union[str, int]] = logging.INFO,
+        log_stderr_level: Optional[Union[str, int]] = INFO,
         log_stderr_formatter: Optional[logging.Formatter] = None,
         log_file_name: Optional[str] = None,
         log_file_level: Optional[Union[str, int]] = TRACE,
         log_file_formatter: Optional[logging.Formatter] = None
-):
+) -> logging.Logger:
     """
-    A Simple logging.getLogger() wrapper.
+    A Simple :py:func:`logging.getLogger()` wrapper.
+
+    :param name: Name of the logger. Recommended to be module name (i.e., ``__name__`` global in module).
+    :param level: Cutoff level of the logger.
+    :param log_to_stderr: Whether to log to standard error.
+    :param log_stderr_level: Standard error logging level.
+    :param log_stderr_formatter: Standard error logging formatter. If not set, would automatically generate
+      one from ``log_stderr_level``.
+    :param log_file_name: Filename of the log. Set to :py:obj:`None` to avoid creating files.
+    :param log_file_level: File logging level.
+    :param log_file_formatter: File logging formatter. If not set, would automatically generate
+      one from ``log_stderr_level``.
+    :return: The logger handler.
+    :raises ValueError: If level does not exist.
     """
     if name is None:
         return logging.getLogger()

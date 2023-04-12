@@ -1,10 +1,19 @@
 """
-parallel_helper.py -- Helper for Multiprocessing
+labw_utils.stdlib_helper.parallel_helper -- Helper for Multiprocessing
 
 This includes a very basic job pool and some helper classes
 """
 
 from __future__ import annotations
+
+__all__ = (
+    "PRIMITIVE_JOB_TYPE",
+    "PROCESS_TYPE",
+    "Job",
+    "ParallelJobExecutor",
+    "TimeOutKiller",
+    "parallel_map"
+)
 
 import gc
 import multiprocessing
@@ -12,37 +21,68 @@ import os
 import subprocess
 import threading
 import time
-from typing import Union, Optional, TypeVar
-from collections.abc import Callable, Iterable
+from typing import Union, Optional, TypeVar, Callable, Type
+from collections.abc import Iterable
 from labw_utils import UnmetDependenciesError
-
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
 try:
     import joblib
 except ImportError:
     raise UnmetDependenciesError("joblib")
 
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
+PRIMITIVE_JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
+"""Python built-in job types"""
 
-_JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
-_PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen]
-_TERMINATE_HANDLER_TYPE = Callable[[_JOB_TYPE], None]
-_CALLBACK_TYPE = Callable[[_JOB_TYPE], None]
+PROCESS_TYPE: Type
+"""
+Process type that have a ``pid`` attribute.
+Default is :py:class:`multiprocessing.Process`, :py:class:`subprocess.Popen`
+
+If :external+psutil:py:mod:`psutil` is installed, will add :external+psutil:py:class:`psutil.Process`.
+"""
+
+try:
+    import psutil
+
+    PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen, psutil.Process]
+except ImportError:
+    psutil = None
+    PROCESS_TYPE = Union[multiprocessing.Process, subprocess.Popen]
+
+_TERMINATE_HANDLER_TYPE = Callable[[PRIMITIVE_JOB_TYPE], None]
+_CALLBACK_TYPE = Callable[[PRIMITIVE_JOB_TYPE], None]
 
 _InType = TypeVar("_InType")
 _OutType = TypeVar("_OutType")
 
 
+@create_class_init_doc_from_property(
+    text_after="""
+:param terminate_handler: Function to terminate a job.
+  Should accept the type of ``job_object`` and return :py:obj:`None`.
+:param callback: Function executed after exit (successful or not) of a job.
+  Should accept the type of ``job_object`` and return :py:obj:`None`.
+"""
+)
 class Job:
+    """
+    The basic allocatable job with callback and termination function.
+    It does not provide limitations on resource allocation or functions that handles errors.
+
+    This class is NOT a subclass of :py:class:`threading.Thread`. It would not start new threads.
+    All actions are synchronous.
+    """
     _job_id: int
-    _job_object: _JOB_TYPE
+    _job_object: PRIMITIVE_JOB_TYPE
     _terminate_handler: Optional[_TERMINATE_HANDLER_TYPE]
     _callback: Optional[_CALLBACK_TYPE]
 
     def __init__(
             self,
             job_id: int,
-            job_object: _JOB_TYPE,
+            job_object: PRIMITIVE_JOB_TYPE,
             terminate_handler: Optional[_TERMINATE_HANDLER_TYPE] = None,
             callback: Optional[_CALLBACK_TYPE] = None
     ):
@@ -52,20 +92,32 @@ class Job:
         self._callback = callback
 
     def start(self):
+        """
+        Start the job. This step should NOT raise exception.
+        """
         self._job_object.start()
 
     def join(self):
+        """
+        Join the job and execute callback function if present. This step should NOT raise exception.
+        """
         self._job_object.join()
         if self._callback is not None:
             self._callback(self._job_object)
 
     def terminate(self):
+        """
+        Terminate the job and execute callback, if present.
+        """
         if self._terminate_handler is not None:
             self._terminate_handler(self._job_object)
         if self._callback is not None:
             self._callback(self._job_object)
 
     def terminate_without_callback(self):
+        """
+        Terminate the job without executing callback.
+        """
         if self._terminate_handler is not None:
             self._terminate_handler(self._job_object)
 
@@ -74,13 +126,25 @@ class Job:
 
     @property
     def job_id(self) -> int:
+        """
+        Unique job-id, which would also become ``hash`` of the job instance.
+        """
         return self._job_id
 
     @property
-    def job_object(self) -> _JOB_TYPE:
+    def job_object(self) -> PRIMITIVE_JOB_TYPE:
+        """
+        The internal object which a Job controls.
+        """
         return self._job_object
 
 
+@create_class_init_doc_from_property(
+    text_after="""
+:param delete_after_finish: Whether to delete job instance and perform garbage collection after finish
+:param show_tqdm: Whether to show a progress bar.
+"""
+)
 class ParallelJobExecutor(threading.Thread):
     """
     This is a parallel job executor,
@@ -91,24 +155,15 @@ class ParallelJobExecutor(threading.Thread):
 
     This executor is designed for non-stated jobs.
     That is, the executor will NOT save the state of any job.
+
+    This executor would start a new thread.
+
+    Length of the executor is defined by total number of jobs.
     """
 
     _pool_size: Union[int, float]
-    """
-    How many jobs is allowed to be executed in one time.
-
-    Use ``math.inf`` to set unlimited or ``0`` to auto determine.
-    """
-
     _pool_name: str
-    """
-    name of pool to be showed on progress bar, etc.
-    """
-
     _refresh_interval: float
-    """
-    Interval for probing job status.
-    """
 
     _is_terminated: bool
     """
@@ -134,10 +189,6 @@ class ParallelJobExecutor(threading.Thread):
     """
 
     _delete_after_finish: bool
-    """
-    Whether to delete job instance after finish
-    """
-
     _show_tqdm: bool
 
     def __init__(
@@ -205,6 +256,7 @@ class ParallelJobExecutor(threading.Thread):
         """
         Send termination signal.
         This will stop the job queue from adding more jobs.
+        It would not affect job that is being executed.
         """
         self._is_appendable = False
         self._is_terminated = True
@@ -214,7 +266,7 @@ class ParallelJobExecutor(threading.Thread):
 
     def append(
             self,
-            mp_instance: _JOB_TYPE,
+            mp_instance: PRIMITIVE_JOB_TYPE,
             terminate_handler: Optional[_TERMINATE_HANDLER_TYPE] = None,
             callback: Optional[_CALLBACK_TYPE] = None
     ):
@@ -232,17 +284,40 @@ class ParallelJobExecutor(threading.Thread):
         else:
             raise ValueError("Job queue not appendable!")
 
-    def iter_running_jobs(self) -> Iterable[_JOB_TYPE]:
+    def iter_running_jobs(self) -> Iterable[PRIMITIVE_JOB_TYPE]:
         for job in self._running_job_queue:
             yield job.job_object
 
-    def iter_pending_jobs(self) -> Iterable[_JOB_TYPE]:
+    def iter_pending_jobs(self) -> Iterable[PRIMITIVE_JOB_TYPE]:
         for job in self._pending_job_queue:
             yield job.job_object
 
-    def iter_finished_jobs(self) -> Iterable[_JOB_TYPE]:
+    def iter_finished_jobs(self) -> Iterable[PRIMITIVE_JOB_TYPE]:
         for job in self._finished_job_queue:
             yield job.job_object
+
+    @property
+    def pool_size(self) -> int:
+        """
+        How many jobs is allowed to be executed in one time.
+
+        Use :py:obj:`math.inf` to set unlimited or ``0`` to auto determine.
+        """
+        return self._pool_size
+
+    @property
+    def refresh_interval(self) -> float:
+        """
+        Interval for probing job status.
+        """
+        return self._refresh_interval
+
+    @property
+    def pool_name(self) -> str:
+        """
+        name of pool to be showed on progress bar, etc.
+        """
+        return self._pool_name
 
     @property
     def num_running_jobs(self) -> int:
@@ -256,18 +331,20 @@ class ParallelJobExecutor(threading.Thread):
     def num_finished_jobs(self) -> int:
         return len(self._finished_job_queue)
 
+    def __len__(self):
+        return self._n_jobs
+
 
 class TimeOutKiller(threading.Thread):
     """
     A timer that kills a process if time out is reached.
 
-    A process can be either represented using :py:class:`multiprocessing.Process` or :py:class`subprocess.Popen`,
-    or by its PID.
+
 
     After reaching the timeout, the killer will firstly send SIGTERM (15).
     If the process is alive after 3 seconds, it will send SIGKILL (9).
 
-    TODO: Check whether the PIDs are in the same round.
+    .. warning :: This would not check whether the PIDs are in the same round.
     """
 
     _pid: int
@@ -275,24 +352,24 @@ class TimeOutKiller(threading.Thread):
     Monitored process ID
     """
 
-    timeout: float
-    """
-    The timeout in seconds, default 30.0
-    """
+    _timeout: float
 
-    def __init__(self, process_or_pid: Union[_PROCESS_TYPE, int], timeout: float = 30.0):
+    def __init__(self, process_or_pid: Union[PROCESS_TYPE, int], timeout: float = 30.0):
         """
         .. warning :: Initialize the object after starting the monitored process!
+
+        :param process_or_pid: A process represented either by some class with ``pid`` attribute or by its PID.
+        :param timeout: The timeout in seconds, default 30.0.
         """
         super().__init__()
         if isinstance(process_or_pid, int):
             self._pid = process_or_pid
         else:
             self._pid = process_or_pid.pid
-        self.timeout = timeout
+        self._timeout = timeout
 
     def run(self):
-        time.sleep(self.timeout)
+        time.sleep(self._timeout)
         try:
             os.kill(self._pid, 15)
         except (ProcessLookupError, PermissionError):
@@ -311,9 +388,11 @@ def parallel_map(
         backend: str = "threading",
 ) -> Iterable[_OutType]:
     """
-    The parallel version of Python :external:py:func:`map` function (or, ``apply`` function in R).
+    The parallel version of Python :py:func:`map` function (or, ``apply`` function in R)
+    with :external+joblib:py:class:`joblib.Parallel` as backend.
 
-    See also: :external+joblib:py:class:`joblib.Parallel`.
+    .. note ::
+        This is to be refactored into a non :external+joblib:py:mod:`joblib`-dependent way.
 
     .. warning::
         With inappropriate parallelization, the system would consume lots of memory with minimal speed improvement!

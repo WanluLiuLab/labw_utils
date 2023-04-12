@@ -8,10 +8,10 @@ __all__ = (
 )
 
 import argparse
-from typing import Dict, Any, Mapping, Tuple
+from typing import Dict, Any, Mapping, Tuple, Iterable
 
 from labw_utils.devutils.decorators import copy_doc
-
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 
 class FrontendOptSpec:
     _args: Tuple[Any, ...]
@@ -51,6 +51,10 @@ class FrontendOptSpecs:
     ):
         return FrontendOptSpecs._inner_dict[name].patch(parser=parser, **update_kwargs)
 
+    @staticmethod
+    def names() -> Iterable[str]:
+        return iter(FrontendOptSpecs._inner_dict.keys())
+
 
 FrontendOptSpecs.add(FrontendOptSpec(
     '-f',
@@ -79,3 +83,10 @@ FrontendOptSpecs.add(FrontendOptSpec(
     type=str,
     action='store'
 ))
+
+_parser = ArgumentParserWithEnhancedFormatHelp()
+for _name in FrontendOptSpecs.names():
+    _parser = FrontendOptSpecs.patch(_parser, _name)
+
+
+__doc__ += "\n\n" + _parser.format_help()

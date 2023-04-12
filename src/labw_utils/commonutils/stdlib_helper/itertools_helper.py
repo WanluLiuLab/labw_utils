@@ -1,4 +1,6 @@
-
+"""
+labw_utils.stdlib_helper.itertools_helper -- Some general-purposed functions on iterables.
+"""
 
 from __future__ import annotations
 
@@ -12,9 +14,17 @@ from typing import Any, TypeVar
 from collections.abc import Iterable
 
 _InType = TypeVar("_InType")
+_VarType = TypeVar("_VarType")
 
 
 def iterable_translate(in_iterable: Iterable[_InType], trans_dict: dict[_InType, _InType]) -> Iterable[_InType]:
+    """
+    Iterable translator.
+
+    This function will change the elements of ``in_iterable`` with the rules specified in ``trans_dict``.
+
+    See also :py:func:`list_translate`.
+    """
     trans_dict = dict(trans_dict)
     for old_item in in_iterable:
         if old_item in trans_dict.keys():
@@ -23,7 +33,7 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: dict[_InType,
             yield old_item
 
 
-def dict_translate(in_dict: dict[_InType, Any], trans_dict: dict[_InType, _InType]) -> dict[_InType, Any]:
+def dict_translate(in_dict: dict[_InType, _VarType], trans_dict: dict[_InType, _InType]) -> dict[_InType, _VarType]:
     """
     Dictionary Translator.
 
@@ -34,9 +44,6 @@ def dict_translate(in_dict: dict[_InType, Any], trans_dict: dict[_InType, _InTyp
 
     >>> dict_translate({'A':1, 'B':2, 'C':3}, {'A':'a', 'B':'b'})
     {'a': 1, 'b': 2, 'C': 3}
-
-    .. warning::
-     The order of item will change!
 
     :param in_dict: The input dictionary.
     :param trans_dict: The translator.

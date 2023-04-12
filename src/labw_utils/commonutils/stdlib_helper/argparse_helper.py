@@ -1,12 +1,64 @@
+"""
+labw_utils.stdlib_helper.argparse_helper -- Argument parser with enhanced help formatter
+
+Following is an example using "normal" formatter:
+
+>>> parser = argparse.ArgumentParser(prog="prog", description="description")
+>>> _ = parser.add_argument("p", type=int, help="p-value")
+>>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
+>>> _ = parser.add_argument("--flag", action="store_true", help="flag")
+>>> print(parser.format_help())
+usage: prog [-h] -o O [--flag] p
+<BLANKLINE>
+description
+<BLANKLINE>
+positional arguments:
+  p           p-value
+<BLANKLINE>
+optional arguments:
+  -h, --help  show this help message and exit
+  -o O        output filename
+  --flag      flag
+<BLANKLINE>
+
+
+Following is an example using enhanced formatter:
+
+>>> parser = ArgumentParserWithEnhancedFormatHelp(prog="prog", description="description")
+>>> _ = parser.add_argument("p", type=int, help="p-value")
+>>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
+>>> _ = parser.add_argument("--flag", action="store_true", help="flag")
+>>> print(parser.format_help())
+description
+<BLANKLINE>
+SYNOPSIS: prog [-h] -o O [--flag] p
+<BLANKLINE>
+PARAMETERS:
+  p
+              [REQUIRED] Type: int;
+              p-value
+<BLANKLINE>
+OPTIONS:
+  -h, --help
+              [OPTIONAL]
+              show this help message and exit
+  -o O
+              [REQUIRED] Type: str; Default: /dev/stdout
+              output filename
+  --flag
+              [OPTIONAL] Default: False
+              flag
+<BLANKLINE>
+"""
+
 __all__ = (
-    "EnhancedHelpFormatter",
-    "ArgumentParserWithEnhancedFormatHelp"
+    "ArgumentParserWithEnhancedFormatHelp",
 )
 
 import argparse
 
 
-class EnhancedHelpFormatter(argparse.HelpFormatter):
+class _EnhancedHelpFormatter(argparse.HelpFormatter):
     def _expand_help(self, action: argparse.Action):
         params = {**vars(action), "prog": self._prog}
         for name in list(params):
@@ -37,7 +89,7 @@ class EnhancedHelpFormatter(argparse.HelpFormatter):
                 defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
                 if action.option_strings or action.nargs in defaulting_nargs:
                     default_prefix = f'Default: {action.default} '
-        return req_opt_prefix + dtype_prefix + default_prefix + "\n" + help_str % params
+        return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params
 
     def _format_action(self, action):
         help_position = min(
@@ -68,7 +120,7 @@ _ACTION_GROUP_TILE_REPLACEMENT_DICT = {
 
 class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
     def format_help(self) -> str:
-        formatter = EnhancedHelpFormatter(prog=self.prog)
+        formatter = _EnhancedHelpFormatter(prog=self.prog)
         formatter.add_text(self.description)
 
         formatter.add_usage(

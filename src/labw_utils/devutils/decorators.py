@@ -13,9 +13,7 @@ import logging
 import os
 import types
 import uuid
-from typing import Any, TypeVar, Optional
-
-from collections.abc import Callable
+from typing import Any, TypeVar, Optional, Callable
 
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 

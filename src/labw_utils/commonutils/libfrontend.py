@@ -1,3 +1,7 @@
+"""
+libfrontend -- Helpers to setup commandline frontend that have multiple subcommands.
+"""
+
 from __future__ import annotations
 
 __all__ = (
@@ -15,30 +19,33 @@ import logging
 import os
 import pkgutil
 import sys
-from typing import Optional
-from collections.abc import Iterable, Callable
+from typing import Optional, Callable
+from collections.abc import Iterable
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
-stream_handler.setFormatter(logger_helper.get_formatter(stream_handler.level))
+_stream_handler = logging.StreamHandler()
+_stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+_stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
 
 logging.basicConfig(
     handlers=[
-        stream_handler
+        _stream_handler
     ],
     force=True,
     level=logger_helper.TRACE
 )
 _lh = logger_helper.get_logger(__name__)
 
-NONE_DOC = "NONE DOC"
+_NONE_DOC = "NONE DOC"
 
 
 def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[str]:
+    """
+    Get valid name of subcommands.
+    """
     for spec in pkgutil.iter_modules(
             resolve_name(package_main_name).__spec__.submodule_search_locations
     ):
@@ -103,16 +110,17 @@ def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
+    """`lscmd` frontend."""
     name_doc_dict = {}
     _lh.info("Listing modules...")
     for item in valid_subcommand_names:
         doc = get_doc_from_subcommand(package_main_name, item)
         if doc is None:
-            doc = NONE_DOC
+            doc = _NONE_DOC
         else:
             doc_splitlines = doc.splitlines()
             if not doc_splitlines:
-                doc = NONE_DOC
+                doc = _NONE_DOC
             else:
                 while len(doc_splitlines) > 0:
                     potential_doc = doc_splitlines[0].strip()
@@ -122,7 +130,7 @@ def lscmd(
                         doc = potential_doc
                         break
                 else:
-                    doc = NONE_DOC
+                    doc = _NONE_DOC
         if doc.find("--") != -1:
             doc = doc.split("--")[1].strip()
         name_doc_dict[item] = doc

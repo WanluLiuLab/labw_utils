@@ -5,14 +5,15 @@ from __future__ import annotations
 
 __all__ = (
     "convert_ipynb_to_myst",
+    "shell_filter",
+    "generate_cli_docs"
 )
 
 import glob
 import os
 import re
 from collections import defaultdict
-from collections.abc import Callable
-from typing import Optional
+from typing import Optional, Callable
 
 from labw_utils import UnmetDependenciesError, PackageSpecs, PackageSpec
 from labw_utils.stdlib.cpy311 import tomllib

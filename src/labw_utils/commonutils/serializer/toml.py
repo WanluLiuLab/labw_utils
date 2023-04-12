@@ -1,9 +1,56 @@
+"""
+
+>>> from typing import Final
+>>> import io
+>>> class A(AbstractTOMLSerializable):
+...     _a: int
+...     _b: int
+...     _title: Final[str] = "A"
+...
+...     def __init__(self, a: int, b: int):
+...         self._a = a
+...         self._b = b
+...
+...     def to_dict(self) -> Mapping[str, Any]:
+...         return {"a": self._a, "b": self._b}
+...
+...     @classmethod
+...     def from_dict(cls, in_dict: Mapping[str, Any]):
+...         return cls(**in_dict)
+...
+...     @staticmethod
+...     def _dump_versions() -> Optional[Mapping[str, Any]]:
+...         return {"version": 1}
+...
+...     @staticmethod
+...     def _dump_metadata() -> Optional[Mapping[str, Any]]:
+...         return {}
+...
+...     @staticmethod
+...     def _validate_versions(versions: Mapping[str, Any]) -> None:
+...         return None
+>>> sio = io.BytesIO()
+>>> A(1, 2).save(sio)
+>>> print(str(sio.getvalue(), encoding="UTF-8"))
+[A]
+a = 1
+b = 2
+<BLANKLINE>
+[version_info]
+version = 1
+<BLANKLINE>
+[metadata]
+<BLANKLINE>
+"""
+
+
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Callable
 from labw_utils import UnmetDependenciesError
-from collections.abc import Mapping, Callable
+from collections.abc import Mapping 
 
 from labw_utils.stdlib.cpy311 import tomllib
 
@@ -71,7 +118,8 @@ def write_toml_with_metadata(
         metadata = dump_metadata()
         if metadata is not None:
             retd["metadata"] = metadata
-    with open(path, 'wb') as writer:
+    if not isinstance(path, str):
+        writer = path
         tomli_w.dump(retd, writer)
 
 

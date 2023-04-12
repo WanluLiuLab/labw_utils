@@ -1,16 +1,9 @@
 """
 tqdm_reader.py -- Reader with Progress Bar
 
-Here are wrappings for basic IO classes \& functions in :py:mod:`labw_utils.commonutils.io` with additional progress bar.
+Here are wrappings for basic IO classes & functions in
+:py:mod:`labw_utils.commonutils.io` with additional progress bar.
 """
-
-from typing import Iterator, AnyStr, List
-
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io import get_reader
-from labw_utils.commonutils.io._ioproxy import RuleBasedIOProxy, SequentialReader
-from labw_utils.commonutils.stdlib_helper import shutil_helper
-from labw_utils.devutils.decorators import copy_doc
 
 __all__ = (
     "TqdmReader",
@@ -19,8 +12,16 @@ __all__ = (
     "get_tqdm_line_reader"
 )
 
+from typing import Iterator, AnyStr, List
 
-class _BaseTqdmReader(SequentialReader):
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.io.rule_based_ioproxy import RuleBasedIOProxy, RuleBasedSequentialReader, get_reader
+from labw_utils.commonutils.stdlib_helper import shutil_helper
+from labw_utils.devutils.decorators import copy_doc
+import labw_utils.commonutils.io as cio
+
+
+class _BaseTqdmReader(RuleBasedSequentialReader):
     _tqdm: tqdm
 
     @copy_doc(RuleBasedIOProxy.__enter__)
@@ -69,7 +70,9 @@ class TqdmLineReader(_BaseTqdmReader):
     """
     A very simple tqdm reader with only :py:func:`readline` functions.
 
-    .. warning:: This class has different ``__iter__`` method!
+    .. warning::
+        This class has different :py:func:`__iter__` method!
+        It would remove trailing line feeds.
     """
 
     @copy_doc(RuleBasedIOProxy.__init__)
@@ -105,23 +108,31 @@ class TqdmLineReader(_BaseTqdmReader):
 
 
 @copy_doc(get_reader)
-def get_tqdm_reader(filename: str, is_binary: bool = False, **kwargs) -> TqdmReader:
+def get_tqdm_reader(path_or_fd: cio.PathOrFDType, is_binary: bool = False, **kwargs) -> RuleBasedSequentialReader:
     """
-    Get a reader for multiple format.
+    :py:func:`get_reader`-like wrapper for :py:class:`TqdmReader`.
+
+    If input is IO, will pass through to :py:class`RuleBasedSequentialReader`.
     """
+    if cio.type_check(path_or_fd):
+        return RuleBasedSequentialReader(path_or_fd)
     if is_binary:
         mode = "rb"
     else:
         mode = "rt"
-    return TqdmReader(filename, mode=mode, **kwargs)
+    return TqdmReader(path_or_fd, mode=mode, **kwargs)
 
 
-def get_tqdm_line_reader(filename: str, is_binary: bool = False, **kwargs) -> TqdmLineReader:
+def get_tqdm_line_reader(path_or_fd: cio.PathOrFDType, is_binary: bool = False, **kwargs) -> RuleBasedSequentialReader:
     """
-    :py:func:`get_reader`-like wrapper for :py:class:`TqdmLineReader`
+    :py:func:`get_reader`-like wrapper for :py:class:`TqdmLineReader`.
+
+    If input is IO, will pass through to :py:class`RuleBasedSequentialReader`.
     """
+    if cio.type_check(path_or_fd):
+        return RuleBasedSequentialReader(path_or_fd)
     if is_binary:
         mode = "rb"
     else:
         mode = "rt"
-    return TqdmLineReader(filename, mode=mode, **kwargs)
+    return TqdmLineReader(path_or_fd, mode=mode, **kwargs)

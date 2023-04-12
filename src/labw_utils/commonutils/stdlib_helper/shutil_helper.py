@@ -1,30 +1,41 @@
 """
-shell_utils -- Enhanced :py:mod:`shutils` Module
+labw_utils.stdlib_helper.shutil_helper -- Enhanced :py:mod:`shutils` Module
 
 More shell-like utilities.
 """
 
-import gzip
+__all__ = (
+    "rm_rf",
+    "wc_c",
+    "wc_l",
+    "wc_l_io",
+    "wc_c_io",
+    "touch"
+)
+
 import os
 import shutil
+import time
 from typing import IO, Callable, Optional
 
-from labw_utils.commonutils.io import get_reader
+from labw_utils.commonutils.io.rule_based_ioproxy import get_reader
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.devutils.decorators import chronolog
 
-lh = get_logger(__name__)
+_lh = get_logger(__name__)
 
 
 def readlink_f(path: str) -> str:
     """
-    Remove soft links out of the path and return its abstract form, just like what is done by GNU CoreUtils readlink -f.
+    Remove soft links out of the path and return its absolute form,
+    just like what is done by GNU CoreUtils ``readlink -f``.
 
     Can be used to trace symlink of symlink.
 
+    TODO: to be re-checked.
+
     :param path: Input relative path
-    :return: What you get from readlink -f
+    :return: What you get from ``readlink -f``.
     """
     path = path.rstrip(os.sep)
     if path == '':
@@ -34,7 +45,6 @@ def readlink_f(path: str) -> str:
     return path
 
 
-@chronolog(display_time=True)
 def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     """
     Count lines in a file.
@@ -50,7 +60,6 @@ def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     return wc_l_io(fd)
 
 
-@chronolog(display_time=True)
 def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
@@ -122,21 +131,40 @@ def wc_c_io(fd: IO) -> int:
         return -1
 
 
-def touch(filename: str) -> None:
+def touch(
+        filename: str,
+        time_ns: Optional[float] = None,
+        change_a_time: bool = True,
+        change_m_time: bool = False
+) -> None:
     """
     touch: ensure the existence of a file, just like GNU CoreUtils touch.
-    Please note that this version of touch CANNOT change file attributes like times.
 
-    :param filename: The filename you wish to touch
+    :param filename: The filename you wish to touch.
+    :param change_m_time: Whether to change modification time.
+    :param change_a_time: Whether to change access time.
+    :param time_ns: Change time to this time instead of current time. Use :py:obj:`None` to use current time.
+    :raises IsADirectoryError: If targeted filename is a directory.
     """
     filename = get_abspath(filename)
     if file_exists(filename):
-        return
+        pass
     elif os.path.isdir(filename):
         raise IsADirectoryError(f"File '{filename}' is a directory")
     else:
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         open(filename, mode="a").close()
+    if time_ns is None:
+        time_ns = time.time_ns()
+    if change_a_time:
+        atime = time_ns
+    else:
+        atime = os.path.getatime(filename)
+    if change_m_time:
+        mtime = time_ns
+    else:
+        mtime = os.path.getmtime(filename)
+    os.utime(filename, ns=(int(atime), int(mtime)))
 
 
 def rm_rf(path: str) -> None:
@@ -151,24 +179,10 @@ def rm_rf(path: str) -> None:
     dbg_head = "rm(path='" + path + "')"
     try:
         if os.path.isdir(path) and not os.path.islink(path):
-            lh.debug(f"{dbg_head} is a directory")
+            _lh.debug(f"{dbg_head} is a directory")
             shutil.rmtree(path)
         elif os.path.exists(path):
-            lh.debug(f"{dbg_head} is a file")
+            _lh.debug(f"{dbg_head} is a file")
             os.remove(path)
     except FileNotFoundError:
-        lh.debug(f"{dbg_head} not exist")
-
-
-def gz_compress(in_file: str, out_file: str, keep_in_file: bool = False, compresslevel: int = 9) -> None:
-    with open(in_file, 'rb') as f_in, gzip.open(out_file, 'wb', compresslevel=compresslevel) as f_out:
-        shutil.copyfileobj(f_in, f_out)
-    if not keep_in_file:
-        rm_rf(in_file)
-
-
-def gz_decompress(in_file: str, out_file: str, keep_in_file: bool = False) -> None:
-    with gzip.open(in_file, 'rb') as f_in, open(out_file, 'wb') as f_out:
-        shutil.copyfileobj(f_in, f_out)
-    if not keep_in_file:
-        rm_rf(in_file)
+        _lh.debug(f"{dbg_head} not exist")

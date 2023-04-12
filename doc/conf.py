@@ -76,12 +76,14 @@ autodoc_default_options = {
 }
 autodoc_class_signature = "separated"
 autodoc_member_order = "bysource"
+autodoc_typehints = "description"
 
 # Intersphinx settings
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.8', None),
     'joblib': ('https://joblib.readthedocs.io/en/latest', None),
     'torch': ('https://pytorch.org/docs/stable', None),
+    'psutil': ('https://psutil.readthedocs.io/en/latest', None)
 }
 
 # myst-nb settings
