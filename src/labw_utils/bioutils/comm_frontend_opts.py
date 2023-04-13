@@ -1,5 +1,8 @@
 """
-frontend.py -- Utilities for other ``main`` functions.
+comm_frontend_opts.py -- Common-used frontend options.
+
+Existing argument parsers::
+
 """
 
 __all__ = (
@@ -13,7 +16,11 @@ from typing import Dict, Any, Mapping, Tuple, Iterable
 from labw_utils.devutils.decorators import copy_doc
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 
+
 class FrontendOptSpec:
+    """
+    Class for Frontend option specification
+    """
     _args: Tuple[Any, ...]
     _kwargs: Mapping[str, Any]
 
@@ -27,6 +34,13 @@ class FrontendOptSpec:
             parser: argparse.ArgumentParser,
             **update_kwargs
     ) -> argparse.ArgumentParser:
+        """
+        Patch argument parser.
+
+        :param parser: Destination parser.
+        :param update_kwargs: Keyword arguments used to override existing configurations.
+        :return: Patched argument parser.
+        """
         kwargs = dict(self._kwargs)
         kwargs.update(update_kwargs)
         parser.add_argument(*self._args, **kwargs)
@@ -34,6 +48,7 @@ class FrontendOptSpec:
 
     @property
     def name(self) -> str:
+        """Unique name of the option"""
         return self._args[0]
 
 
@@ -60,7 +75,7 @@ FrontendOptSpecs.add(FrontendOptSpec(
     '-f',
     '--fasta',
     required=True,
-    help="Path to input reference genome sequence, in FASTA format",
+    help="Path to input reference genome sequence in FASTA format. Can be compressed.",
     nargs='?',
     type=str,
     action='store'
@@ -78,7 +93,7 @@ FrontendOptSpecs.add(FrontendOptSpec(
 FrontendOptSpecs.add(FrontendOptSpec(
     "-s", "--sam",
     required=True,
-    help="Alignment file in SAM/BAM format",
+    help="Path to input alignment file in SAM/BAM format",
     nargs='?',
     type=str,
     action='store'
@@ -88,5 +103,4 @@ _parser = ArgumentParserWithEnhancedFormatHelp()
 for _name in FrontendOptSpecs.names():
     _parser = FrontendOptSpecs.patch(_parser, _name)
 
-
-__doc__ += "\n\n" + _parser.format_help()
+__doc__ += "\n" + "\n".join("    " + ln for ln in _parser.format_help().splitlines()) +"\n"

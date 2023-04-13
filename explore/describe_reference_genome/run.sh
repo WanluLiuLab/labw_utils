@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# TODO: Illumina iGenome https://support.illumina.com/sequencing/sequencing_software/igenome.html
 
 export PYTHONPATH=/home/yuzj/Documents/labw_utils/src
 

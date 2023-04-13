@@ -92,15 +92,26 @@ def main(args: list[str]) -> None:
         "FASTA_CHRS": []
     })
 
+    fail_to_idenfy = 0
+    num_of_contigs = 0
     for chr_name in fa.chr_names:
+        num_of_contigs += 1
         inf_type = infer_accession_type(chr_name)
         if inf_type is not None:
             inf_type = infer_accession_type(chr_name).as_dict()
+        else:
+            fail_to_idenfy += 1
         out_metadata["FASTA_CHRS"].append({
             "NAME": chr_name,
             "LEN": fa.get_chr_length(chr_name),
             "TYPE": inf_type
         })
+    _lh.info(
+        "Identified %d out of %d contigs (%.2f%%)",
+        num_of_contigs - fail_to_idenfy,
+        num_of_contigs,
+        (num_of_contigs - fail_to_idenfy) / num_of_contigs * 100
+    )
 
     with get_writer(f"{args.out}.json") as metadata_writer:
         json.dump(out_metadata, metadata_writer)

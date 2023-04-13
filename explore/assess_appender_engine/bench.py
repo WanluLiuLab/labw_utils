@@ -7,8 +7,7 @@ from typing import Iterable
 
 import tqdm
 
-from labw_utils.commonutils.appender import load_table_appender_class, BaseTableAppender
-from labw_utils.commonutils.appender.typing import TableAppenderConfig
+from labw_utils.commonutils.appender import load_table_appender_class, BaseTableAppender, TableAppenderConfig, list_table_appender
 
 
 def bench_multithread(
@@ -30,18 +29,18 @@ def bench_multithread(
 
         def run(self):
             for i in range(self.n_line):
-                self.appender.append([
+                self.appender.append((
                     i,
                     random.random(),
                     random.choice(''.join(random.choices(string.ascii_letters, k=5))),
                     random.randint(1, 5),
                     time.time()
-                ])
+                ))
             self.appender.close()
 
     appender = load_table_appender_class(_appender_class_name)(
         "test",
-        ["ID", "RAND_FLOAT", "RAND_STR", "RAND_INT", "TIME"],
+        ("ID", "RAND_FLOAT", "RAND_STR", "RAND_INT", "TIME"),
         tac
     )
     ts = time.time()
@@ -54,33 +53,36 @@ def bench_multithread(
         process_pool[i].join()
     te = time.time()
     appender.close()
-    appender.validate_lines(total_n_lines)
     if appender._real_filename != "":
         os.remove(appender._real_filename)
-    _final_result_appender.append([
+    _final_result_appender.append((
         _appender_class_name,
         _thread_num,
         tac.buffer_size,
         _run_id,
         te - ts
-    ])
+    ))
 
 
-def bench(thread_nums: Iterable[int], buffer_sizes: Iterable[int]):
+def bench(
+        thread_nums: Iterable[int],
+        buffer_sizes: Iterable[int],
+        nruns: int
+):
     try:
         os.remove("bench_result.tsv")
     except FileNotFoundError:
         pass
     final_result_appender = load_table_appender_class("TSVTableAppender")(
         "bench_result",
-        ["APPENDER_CLASS_NAME", "THREAD_NUM", "BUFF_SIZE", "RUN_ID", "TIME_SPENT"],
+        ("APPENDER_CLASS_NAME", "THREAD_NUM", "BUFF_SIZE", "RUN_ID", "TIME_SPENT"),
         TableAppenderConfig(1)
     )
-    for appender_class_name in ["SQLite3TableAppender"]:
+    for appender_class_name in (name_desc[0] for name_desc in list_table_appender()):
         for thread_num in thread_nums:
             for buffer_size in buffer_sizes:
                 desc = f"{appender_class_name}: threads={thread_num}, buffer={buffer_size}"
-                for run_id in tqdm.tqdm(range(40), desc=desc):
+                for run_id in tqdm.tqdm(range(nruns), desc=desc):
                     bench_multithread(
                         appender_class_name,
                         thread_num,
@@ -93,11 +95,12 @@ def bench(thread_nums: Iterable[int], buffer_sizes: Iterable[int]):
 
 
 if __name__ == '__main__':
-    bench(
-        [1, 3],
-        [1, 3]
-    )
+    # bench(
+    #     [1, 3],
+    #     [1, 3]
+    # )
     bench(
         range(1, 2 * multiprocessing.cpu_count() + 1, 10),
-        [1, 4, 16, 64, 256, 1024]
+        [1, 4, 16, 64, 256, 1024],
+        40
     )

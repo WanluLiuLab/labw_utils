@@ -2,6 +2,14 @@
 
 `labw_utils` is a package that can both be used as an executable and as a supporting library. Here provides a detailed guide on how it should be installed. In following text, `[VERSION]` should be replaced with your desired version, currently 1.0.1.
 
+```{warning}
+Copy-and-paste code on a website to your terminal is dangerous. See following StackOverflow pages for more details on prevention:
+
+- [web browser - Simple way to safely paste text from website into terminal - Information Security Stack Exchange](https://security.stackexchange.com/questions/249586/simple-way-to-safely-paste-text-from-website-into-terminal)
+- [malware - What is the risk of copy and pasting Linux commands from a website? How can some commands be invisible? - Information Security Stack Exchange](https://security.stackexchange.com/questions/249586/simple-way-to-safely-paste-text-from-website-into-terminal)
+- [exploit - How can I protect myself from this kind of clipboard abuse? - Information Security Stack Exchange](https://security.stackexchange.com/questions/39118/how-can-i-protect-myself-from-this-kind-of-clipboard-abuse)
+```
+
 ## Prerequisites
 
 The `labw_utils` is implemented in Python, so a working Python intepreter is required. Following are several popular ways to get it installed:

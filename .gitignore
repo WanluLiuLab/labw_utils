@@ -444,3 +444,4 @@ pypy_venv/
 /twine.pypirc.ini
 /requirements_all.txt
 *.finished
+*.parquet

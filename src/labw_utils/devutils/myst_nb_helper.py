@@ -48,11 +48,11 @@ _lh = get_logger(__name__)
 SHOUT_LINK_REGEX = re.compile(r"^# SHOUT LINK: (.+)$")
 
 SHOUT_SEARCH_DICT = {
-    "# RMCELL": "remove-cell",  # Remove the whole cell
-    "# SKIP": "skip-execution",  # Remove the whole cell
-    "# RMIN": "remove-input",  # Remove only the input
-    "# RMOUT": "remove-output",  # Remove only the output
-    "# HIDEIN": "hide-input"  # Hide the input w/ a button to show
+    "# RMCELL\n": "remove-cell",  # Remove the whole cell
+    "# SKIP\n": "skip-execution",  # Remove the whole cell
+    "# RMIN\n": "remove-input",  # Remove only the input
+    "# RMOUT\n": "remove-output",  # Remove only the output
+    "# HIDEIN\n": "hide-input"  # Hide the input w/ a button to show
 }
 
 
@@ -65,6 +65,7 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
             if key in cell['source']:
                 if val not in cell_tags:
                     cell_tags.append(val)
+                cell['source'] = cell['source'].replace(key, "")
         if len(cell_tags) > 0:
             cell['metadata']['tags'] = cell_tags
     return nb
