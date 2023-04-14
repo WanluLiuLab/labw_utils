@@ -1,11 +1,6 @@
 library("tidyverse")
 library("arrow")
 library("biomaRt")
-library("GenomeInfoDb")
-
-ncbi_chrinfo <- getChromInfoFromNCBI("GRCh38") %>%
-    dplyr::select(SequenceName, GenBankAccn, RefSeqAccn, UCSCStyleName)
-arrow::write_parquet(ncbi_chrinfo, "ncbi_chrinfo.parquet")
 
 ensembl <- useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
 
@@ -37,7 +32,7 @@ getBM(
     mart = ensembl
 ) %>%
     arrow::write_parquet("ens_refseq_transcript_map.parquet")
-
+# ENST00000641006.1
 getBM(
     attributes = c(
         "ensembl_transcript_id_version",

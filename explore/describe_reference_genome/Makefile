@@ -70,50 +70,5 @@ GRCh38_GENCODE_rmsk_TE.gtf.gz:
 GRCh38_Ensembl_rmsk_TE.gtf.gz:
 	axel "https://labshare.cshl.edu/shares/mhammelllab/www-data/TEtranscripts/TE_GTF/GRCh38_Ensembl_rmsk_TE.gtf.gz"
 
-hg38.fa.gz:
-	axel "https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.gz"
-
-hg38.fa.masked.gz:
-	axel "https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.masked.gz"
-
-hg38.masked.fa: hg38.fa.masked
-	mv hg38.fa.masked hg38.masked.fa
-
-Homo_sapiens.GRCh38.dna_sm.toplevel.fa.gz:
-	axel "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.toplevel.fa.gz"
-
-Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz:
-	axel "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
-
-Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz:
-	axel "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz"
-
-Homo_sapiens.GRCh38.dna_rm.primary_assembly.fa.gz:
-	axel "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.primary_assembly.fa.gz"
-
-Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz:
-	axel "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
-
-Homo_sapiens.GRCh38.dna.toplevel.fa.gz:
-	axel "ttps://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.toplevel.fa.gz"
-
-GRCh38.p13.genome.fa.gz:
-	axel "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/GRCh38.p13.genome.fa.gz"
-
-GRCh38.primary_assembly.genome.fa.gz:
-	axel "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/GRCh38.primary_assembly.genome.fa.gz"
-
-GCF_000001405.40_GRCh38.p14_genomic.fna.gz:
-	axel "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.fna.gz"
-
-GCA_000001405.29_GRCh38.p14_genomic.fna.gz:
-	axel "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"
-
-GCA_000001405.15_GRCh38_full_plus_hs38d1_analysis_set.fna.gz:
-	axel "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_full_plus_hs38d1_analysis_set.fna.gz"
-
-hg38.analysisSet.fa.gz:
-	axel "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz"
-
 GRCh38_full_analysis_set_plus_decoy_hla.fa:
 	axel "https://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa"

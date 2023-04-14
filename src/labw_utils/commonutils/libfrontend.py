@@ -26,18 +26,21 @@ from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
 
-_stream_handler = logging.StreamHandler()
-_stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
-_stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
+_lh: Optional[logging.Logger] = None
 
-logging.basicConfig(
-    handlers=[
-        _stream_handler
-    ],
-    force=True,
-    level=logger_helper.TRACE
-)
-_lh = logger_helper.get_logger(__name__)
+def setup_basic_logger():
+    _stream_handler = logging.StreamHandler()
+    _stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+    _stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
+
+    logging.basicConfig(
+        handlers=[
+            _stream_handler
+        ],
+        force=True,
+        level=logger_helper.TRACE
+    )
+
 
 _NONE_DOC = "NONE DOC"
 
@@ -55,7 +58,7 @@ def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[s
         try:
             _ = resolve_name(f'{package_main_name}.{subcommand_name}')
         except (UnmetDependenciesError, ImportError):
-            if verbose:
+            if verbose and _lh is not None:
                 _lh.warning("Subcommand %s have unmet dependencies!", subcommand_name)
             continue
         yield subcommand_name
@@ -112,7 +115,8 @@ def lscmd(
 ):
     """`lscmd` frontend."""
     name_doc_dict = {}
-    _lh.info("Listing modules...")
+    if _lh is not None:
+        _lh.info("Listing modules...")
     for item in valid_subcommand_names:
         doc = get_doc_from_subcommand(package_main_name, item)
         if doc is None:
@@ -197,9 +201,12 @@ def setup_frontend(
         use_root_logger: bool = True,
         default_log_filename: str = "log.log"
 ):
+    global _lh
+    setup_basic_logger()
+    _lh = logger_helper.get_logger(__name__)
     _lh.info(f'{one_line_description} ver. {version}')
     try:
-        argv = sys.orig_argv 
+        argv = sys.orig_argv
     except AttributeError:
         argv = sys.argv
     _lh.info(f'Called by: {" ".join(argv)}')

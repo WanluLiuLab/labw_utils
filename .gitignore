@@ -445,3 +445,5 @@ pypy_venv/
 /requirements_all.txt
 *.finished
 *.parquet
+*.json
+*.txt
