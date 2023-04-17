@@ -1,4 +1,4 @@
-from typing import Union, Tuple
+from labw_utils.typing_importer import Union, Tuple
 
 
 def scale_si(num: Union[int, float]) -> Tuple[Union[float, int], str]:

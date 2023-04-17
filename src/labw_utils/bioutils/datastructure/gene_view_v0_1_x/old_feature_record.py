@@ -8,14 +8,14 @@ from __future__ import annotations
 
 import uuid
 from abc import abstractmethod, ABC
-from typing import Union, Optional, Dict
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.str_utils import to_dict
+from labw_utils.typing_importer import Union, Optional, Mapping
 
 lh = get_logger(__name__)
 
-GTFAttributeType = Dict[str, Union[str, int, float, bool, None]]
+GTFAttributeType = Mapping[str, Union[str, int, float, bool, None]]
 """Type of GTF/GFF fields"""
 
 GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
@@ -98,11 +98,7 @@ class FeatureType(ABC):
     """Other attributes presented in Key-Value pair"""
 
     @abstractmethod
-    def __eq__(self, other: FeatureType):
-        pass
-
-    @abstractmethod
-    def __ne__(self, other: FeatureType):
+    def __eq__(self, other: object):
         pass
 
     @abstractmethod
@@ -183,16 +179,15 @@ class Feature(FeatureType):
             attribute = {}
         self.attribute = attribute
 
-    def __eq__(self, other: Feature):
+    def __eq__(self, other: object):
+        if not isinstance(other, Feature):
+            raise TypeError
         return self.start == other.start and \
             self.end == other.end and \
             self.seqname == other.seqname and \
             self.strand == other.strand
 
-    def __ne__(self, other: Feature):
-        return not self == other
-
-    def overlaps(self, other: Feature) -> bool:
+    def overlaps(self, other: FeatureType) -> bool:
         if self.seqname != other.seqname:
             return False
         return (
@@ -204,20 +199,20 @@ class Feature(FeatureType):
                 )
         )
 
-    def __gt__(self, other: Feature):
+    def __gt__(self, other: FeatureType):
         return self.seqname > other.seqname or (
                 self.seqname == other.seqname and self.start > other.start
         )
 
-    def __ge__(self, other: Feature):
+    def __ge__(self, other: FeatureType):
         return self > other or self == other
 
-    def __lt__(self, other: Feature):
+    def __lt__(self, other: FeatureType):
         return self.seqname < other.seqname or (
                 self.seqname == other.seqname and self.start < other.start
         )
 
-    def __le__(self, other: Feature):
+    def __le__(self, other: FeatureType):
         return self < other or self == other
 
     @classmethod
@@ -274,7 +269,7 @@ class Gff3Record(Feature):
             frame=frame,
             attribute=attribute
         )
-        self.id = attribute.get("ID", uuid.uuid4())
+        self.id = attribute.get("ID", str(uuid.uuid4()))
         self.parent_id = attribute.get("Parent", GFF3_TOPLEVEL_NAME)
 
     @classmethod

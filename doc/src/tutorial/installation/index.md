@@ -278,6 +278,31 @@ The `appenders` installation come with following additional package:
 
 The `all` installation installs all above.
 
-## Alternate Python Implementation
+## Alternate Python Implementation and Low Python Versions
 
-[Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) was not tested. Use at your own risk.
+
+Although using Python 3.8 is recommended, it is also possible to use most function of `labw_utils` on Python 3.7. You need to specify `--ignore-requires-python` flag in PIP.
+
+Known limitations are:
+
+1. The typing system would be completely a mess. The {py:class}`typing.Final` and {py:class}`typing.Literal` would not work as expected.
+2. Version of dependent packages (i.e., Pandas, Numpy, etc.) would be low, making it impossible for you to enjoy advantages provided by more recent versions.
+
+Python3 less than 3.6 and Python <= 3 is explicitly unsupported. Do not try on these Python implementations. [Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) and [PyPy](https://www.pypy.org) are not recommended. Use at your own risk.
+
+Following is a list of tested alternate Python implementations and versions using [Tox](https://tox.wiki/). Dependencies are set up using either `all` or default installation strategy using Conda.
+
+| Implementation | Python API | ALL                | DEFAULT            |
+|----------------|------------|--------------------|--------------------|
+| CPython        | 3.6        | NOT TESTED         | FAIL               |
+| CPython        | 3.7        | PASS               | PASS               |
+| CPython        | 3.8        | PASS               | PASS               |
+| CPython        | 3.9        | PASS               | PASS               |
+| CPython        | 3.10       | PASS               | PASS               |
+| CPython        | 3.11       | UNMET DEPENDENCIES | PASS               |
+| CPython        | 3.12       | NOT TESTED         | NOT TESTED         |
+| PyPy           | 3.6        | NOT TESTED         | NOT TESTED         |
+| PyPy           | 3.7        | PASS               | PASS               |
+| PyPy           | 3.8        | UNMET DEPENDENCIES | PASS               |
+| PyPy           | 3.9        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
+

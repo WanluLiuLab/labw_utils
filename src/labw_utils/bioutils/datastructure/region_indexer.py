@@ -9,9 +9,8 @@ __all__ = (
 
 import functools
 from collections import defaultdict
-from typing import Iterable, Dict, Tuple, Optional
-from typing import List
-
+from labw_utils.typing_importer import Iterable, Dict, Tuple, Optional
+from labw_utils.typing_importer import List
 
 try:
     import numpy as np

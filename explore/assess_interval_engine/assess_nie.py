@@ -1,6 +1,6 @@
 import os.path
 import time
-from typing import Type
+from labw_utils.typing_importer import Type
 
 import numpy as np
 import tqdm

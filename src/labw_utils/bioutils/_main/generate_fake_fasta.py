@@ -8,10 +8,10 @@ __all__ = (
 
 import argparse
 import random
-from typing import List
 
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.typing_importer import List
 
 
 def create_parser() -> argparse.ArgumentParser:

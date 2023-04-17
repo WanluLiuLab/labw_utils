@@ -1,6 +1,5 @@
 import os
 
-import labw_utils.bioutils.datastructure.gene_tree_helper
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.record.gtf import parse_record

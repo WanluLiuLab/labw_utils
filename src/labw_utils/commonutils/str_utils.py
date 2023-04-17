@@ -7,8 +7,9 @@ This file defines ANSI color supported by most terminals.
 from __future__ import annotations
 
 import string
+from typing import Mapping
 
-from typing import Any, Optional
+from labw_utils.typing_importer import Any, Optional, Dict
 
 
 def to_dict(
@@ -17,7 +18,7 @@ def to_dict(
         record_sep: str = '\n',
         quotation_mark: Optional[str] = None,
         resolve_str: bool = True
-) -> dict[str, Any]:
+) -> Mapping[str, Any]:
     """
     A simple parser to get key-value pairs to a dictionary.
 
@@ -48,7 +49,8 @@ def to_dict(
                            Will not parse quoted by triple quotes.
     :param resolve_str: Whether to resolve strings to float or int.
     """
-    retd = {}
+    retd: Dict[str, Any] = {}
+    record_val: Any
     in_str_by_record = in_str.split(record_sep)
     for record in in_str_by_record:
         record = record.strip(string.whitespace + field_sep)

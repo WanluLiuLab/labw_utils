@@ -7,9 +7,9 @@ TODO: Docs
 import importlib
 import os
 from abc import ABC, abstractmethod
-from typing import Type, Iterator, Tuple, Any
 
 from labw_utils import UnmetDependenciesError
+from labw_utils.typing_importer import Type, Iterator, Tuple, Any
 
 POSSIBLE_APPENDER_PATHS = (
     "labw_utils.commonutils.appender._tsv_appender",
@@ -111,7 +111,7 @@ def load_table_appender_class(name: str) -> Type[BaseTableAppender]:
         try:
             mod = importlib.import_module(possible_path)
             return getattr(mod, name)
-        except (ModuleNotFoundError, AttributeError):
+        except (ModuleNotFoundError, AttributeError, UnmetDependenciesError):
             continue
     raise ModuleNotFoundError
 
@@ -126,7 +126,10 @@ def list_table_appender() -> Iterator[Tuple[str, str]]:
             mod = importlib.import_module(possible_path)
 
             for k, v in mod.__dict__.items():
-                if k.__contains__("Appender") and not k.__contains__("Base") and not k.__contains__("Config") and not k in models:
+                if k.__contains__("Appender") and \
+                        not k.__contains__("Base") and \
+                        not k.__contains__("Config") and \
+                        k not in models:
                     try:
                         yield k, v.__doc__.strip().splitlines()[0]
                     except AttributeError:

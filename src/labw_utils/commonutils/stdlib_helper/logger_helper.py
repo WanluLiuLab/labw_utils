@@ -10,7 +10,8 @@ It performs the following:
 import logging
 import sys
 from logging import DEBUG, WARNING, ERROR, FATAL, INFO
-from typing import Optional, Union
+
+from labw_utils.typing_importer import Optional, Union
 
 __all__ = (
     'DEBUG',
@@ -36,8 +37,8 @@ def trace(self, msg, *args, **kwargs):
 
 
 logging.addLevelName(TRACE, "TRACE")
-logging.Logger.trace = trace
-logging.trace = trace
+logging.Logger.trace = trace # type: ignore
+logging.trace = trace # type: ignore
 
 
 def get_formatter(level: Union[int, str]) -> logging.Formatter:
@@ -63,12 +64,12 @@ def get_formatter(level: Union[int, str]) -> logging.Formatter:
 
 def get_logger(
         name: Optional[str] = None,
-        level: Optional[Union[str, int]] = TRACE,
+        level: Union[str, int] = TRACE,
         log_to_stderr: bool = False,
-        log_stderr_level: Optional[Union[str, int]] = INFO,
+        log_stderr_level: Union[str, int] = INFO,
         log_stderr_formatter: Optional[logging.Formatter] = None,
         log_file_name: Optional[str] = None,
-        log_file_level: Optional[Union[str, int]] = TRACE,
+        log_file_level: Union[str, int] = TRACE,
         log_file_formatter: Optional[logging.Formatter] = None
 ) -> logging.Logger:
     """

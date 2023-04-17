@@ -67,15 +67,15 @@ __all__ = (
 
 import io
 import os
-from collections.abc import Iterator, Iterable
-from typing import Union, IO, Optional, AnyStr
+
+from labw_utils.typing_importer import Iterator, Iterable, List, Union, IO, Optional, AnyStr
 
 try:
     from io import RawIOBase
 
     _ = RawIOBase.write
 except AttributeError:
-    from typing import IO as RawIOBase
+    from labw_utils.typing_importer import IO as RawIOBase
 
 from labw_utils.devutils.decorators import copy_doc
 
@@ -316,7 +316,7 @@ class IOProxy(IO):
         return self._fd.readline(limit)
 
     @copy_doc(RawIOBase.readlines)
-    def readlines(self, hint: int = -1) -> list[AnyStr]:
+    def readlines(self, hint: int = -1) -> List[AnyStr]:
         return self._fd.readlines(hint)
 
     @copy_doc(RawIOBase.seek)
@@ -395,6 +395,7 @@ def get_reader(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> I
     if type_check(path_or_fd):
         return IOProxy(path_or_fd)
     else:
+        path_or_fd = convert_path_to_str(path_or_fd)
         if is_binary:
             mode = "rb"
         else:
@@ -419,6 +420,7 @@ def get_writer(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> I
     if type_check(path_or_fd):
         return IOProxy(path_or_fd)
     else:
+        path_or_fd = convert_path_to_str(path_or_fd)
         if is_binary:
             mode = "wb"
         else:
@@ -443,6 +445,7 @@ def get_appender(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) ->
     if type_check(path_or_fd):
         return IOProxy(path_or_fd)
     else:
+        path_or_fd = convert_path_to_str(path_or_fd)
         if is_binary:
             mode = "ab"
         else:

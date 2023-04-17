@@ -7,8 +7,8 @@ import multiprocessing
 import os.path
 
 from labw_utils.bioutils.accession_matcher import infer_accession_type
-from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.bioutils.parser.gtf import GtfIterator, GtfIteratorWriter
+from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 
 
@@ -62,4 +62,3 @@ if __name__ == "__main__":
         ppool[-1].start()
     for p in ppool:
         p.join()
-

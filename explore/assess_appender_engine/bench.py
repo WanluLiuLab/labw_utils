@@ -3,11 +3,12 @@ import os
 import random
 import string
 import time
-from typing import Iterable
 
 import tqdm
 
-from labw_utils.commonutils.appender import load_table_appender_class, BaseTableAppender, TableAppenderConfig, list_table_appender
+from labw_utils.commonutils.appender import load_table_appender_class, BaseTableAppender, TableAppenderConfig, \
+    list_table_appender
+from labw_utils.typing_importer import Iterable
 
 
 def bench_multithread(

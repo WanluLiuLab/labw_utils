@@ -11,11 +11,11 @@ import argparse
 import itertools
 import os
 from collections import defaultdict
-from typing import List, Optional, Union, Literal
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.typing_importer import List, Optional, Union, Literal
 
 try:
     import pytest
@@ -25,8 +25,8 @@ except ImportError:
     pytest = None
     try:
         import pysam
-    except ImportError:
-        raise UnmetDependenciesError("pysam")
+    except ImportError as e:
+        raise UnmetDependenciesError("pysam") from e
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import merge_intervals
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator

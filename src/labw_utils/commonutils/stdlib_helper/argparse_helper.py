@@ -3,11 +3,21 @@ labw_utils.stdlib_helper.argparse_helper -- Argument parser with enhanced help f
 
 Following is an example using "normal" formatter:
 
+>>> import sys
+>>> import pytest
 >>> parser = argparse.ArgumentParser(prog="prog", description="description")
 >>> _ = parser.add_argument("p", type=int, help="p-value")
 >>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
 >>> _ = parser.add_argument("--flag", action="store_true", help="flag")
->>> print(parser.format_help())
+
+Please notice that the default format differs between Python 3.9 and 3.10.
+
+Below is an example on how it would show on Python <= 3.9:
+
+>>> if sys.version_info > (3, 9):
+...     pytest.skip()
+... else:
+...     print(parser.format_help())
 usage: prog [-h] -o O [--flag] p
 <BLANKLINE>
 description
@@ -21,6 +31,26 @@ optional arguments:
   --flag      flag
 <BLANKLINE>
 
+Below is an example on how it would show on Python >= 3.10:
+
+>>> if sys.version_info < (3, 10):
+...     pytest.skip()
+... else:
+...     print(parser.format_help())
+usage: prog [-h] -o O [--flag] p
+<BLANKLINE>
+description
+<BLANKLINE>
+positional arguments:
+  p           p-value
+<BLANKLINE>
+options:
+  -h, --help  show this help message and exit
+  -o O        output filename
+  --flag      flag
+<BLANKLINE>
+
+# FIXME: "optional arguments" renamed to "options" in Python 3.10
 
 Following is an example using enhanced formatter:
 
@@ -66,7 +96,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
                 del params[name]
         for name in list(params):
             if hasattr(params[name], '__name__'):
-                params[name] = params[name].__name__
+                params[name] = params[name].__name__ # type: ignore
         if params.get('choices') is not None:
             choices_str = ', '.join([str(c) for c in params['choices']])
             params['choices'] = choices_str

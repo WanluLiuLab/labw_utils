@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import bisect
-from typing import Final, List, Optional, Iterable
 
 from labw_utils.bioutils.datastructure.gv import generate_unknown_gene_id, GVPError, SortedContainerInterface
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface
 from labw_utils.bioutils.record.feature import Feature, FeatureType
+from labw_utils.typing_importer import Final, List, Optional, Iterable
 
 
 class TranscriptInAGeneOnDifferentChromosomeError(GVPError):

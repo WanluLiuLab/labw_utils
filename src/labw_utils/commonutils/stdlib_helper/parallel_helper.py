@@ -21,11 +21,12 @@ import os
 import subprocess
 import threading
 import time
-from typing import Union, Optional, TypeVar, Callable, Type
-from collections.abc import Iterable
+
 from labw_utils import UnmetDependenciesError
-from labw_utils.devutils.decorators import create_class_init_doc_from_property
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.typing_importer import Iterable
+from labw_utils.typing_importer import Union, Optional, TypeVar, Callable, Type, List
 
 try:
     import joblib
@@ -175,13 +176,13 @@ class ParallelJobExecutor(threading.Thread):
     Whether this queue is appendable.
     """
 
-    _pending_job_queue: list[Job]
+    _pending_job_queue: List[Job]
     """
     Job waiting to be executed
     """
 
-    _running_job_queue: list[Job]
-    _finished_job_queue: list[Job]
+    _running_job_queue: List[Job]
+    _finished_job_queue: List[Job]
 
     _n_jobs: int
     """

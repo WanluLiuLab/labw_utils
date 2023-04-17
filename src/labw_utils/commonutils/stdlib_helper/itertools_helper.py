@@ -10,14 +10,13 @@ __all__ = (
     "dict_translate"
 )
 
-from typing import Any, TypeVar
-from collections.abc import Iterable
+from labw_utils.typing_importer import Iterable, TypeVar, Mapping, List
 
 _InType = TypeVar("_InType")
 _VarType = TypeVar("_VarType")
 
 
-def iterable_translate(in_iterable: Iterable[_InType], trans_dict: dict[_InType, _InType]) -> Iterable[_InType]:
+def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InType, _InType]) -> Iterable[_InType]:
     """
     Iterable translator.
 
@@ -33,7 +32,7 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: dict[_InType,
             yield old_item
 
 
-def dict_translate(in_dict: dict[_InType, _VarType], trans_dict: dict[_InType, _InType]) -> dict[_InType, _VarType]:
+def dict_translate(in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InType, _InType]) -> Mapping[_InType, _VarType]:
     """
     Dictionary Translator.
 
@@ -52,7 +51,7 @@ def dict_translate(in_dict: dict[_InType, _VarType], trans_dict: dict[_InType, _
     return {k: v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
 
 
-def list_translate(in_list: list[_InType], trans_dict: dict[_InType, _InType]) -> list[_InType]:
+def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]) -> List[_InType]:
     """
     List Translator.
 

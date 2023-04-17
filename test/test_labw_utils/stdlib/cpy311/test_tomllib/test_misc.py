@@ -4,11 +4,11 @@
 
 import copy
 import datetime
-from decimal import Decimal as D
-from pathlib import Path
 import sys
 import tempfile
 import unittest
+from decimal import Decimal as D
+from pathlib import Path
 
 from . import tomllib
 

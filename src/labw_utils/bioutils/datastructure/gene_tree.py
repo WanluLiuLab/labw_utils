@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Iterable, Dict, Iterator
-
 from labw_utils.bioutils.datastructure.gv import GVPError, SortedContainerInterface, CanCheckInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.gene import Gene
@@ -9,6 +7,7 @@ from labw_utils.bioutils.datastructure.gv.gene_container_interface import GeneCo
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface
 from labw_utils.bioutils.record.feature import Feature, FeatureType
+from labw_utils.typing_importer import Iterable, Dict, Iterator
 
 
 class DuplicatedGeneIDError(GVPError):
@@ -72,9 +71,8 @@ class GeneTree(
         return self._gene_id_to_gene_index[gene_id]
 
     def add_gene(self, gene: Gene) -> GeneTree:
-        if self._is_checked:
-            if gene.gene_id in self._gene_id_to_gene_index:
-                raise DuplicatedGeneIDError(gene.gene_id)
+        if self._is_checked and gene.gene_id in self._gene_id_to_gene_index:
+            raise DuplicatedGeneIDError(gene.gene_id)
         new_gene_id_to_gene_index = dict(self._gene_id_to_gene_index)
         new_transcript_ids_to_gene_ids_index = dict(self._transcript_ids_to_gene_ids_index)
         new_gene_id_to_gene_index[gene.gene_id] = gene

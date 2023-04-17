@@ -1,9 +1,9 @@
 import argparse
 import datetime
 import os
-from typing import List, Union
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Union
 from libysjs.ds.ysjs_submission import YSJSSubmission, DEFAULT_SUBMISSION_NAME, DEFAULT_SUBMISSION_DESCRIPTION, \
     DEFAULT_SUBMISSION_CPU, DEFAULT_SUBMISSION_MEM
 from libysjs.operation import YSJSCluster

@@ -16,11 +16,11 @@ __all__ = (
 import os
 import shutil
 import time
-from typing import IO, Callable, Optional
 
-from labw_utils.commonutils.io.rule_based_ioproxy import get_reader
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
+from labw_utils.commonutils.io.rule_based_ioproxy import get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import IO, Callable, Optional
 
 _lh = get_logger(__name__)
 
@@ -147,11 +147,9 @@ def touch(
     :raises IsADirectoryError: If targeted filename is a directory.
     """
     filename = get_abspath(filename)
-    if file_exists(filename):
-        pass
-    elif os.path.isdir(filename):
+    if os.path.isdir(filename):
         raise IsADirectoryError(f"File '{filename}' is a directory")
-    else:
+    elif not file_exists(filename):
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         open(filename, mode="a").close()
     if time_ns is None:

@@ -1,6 +1,6 @@
 """
 
->>> from typing import Final
+>>> from labw_utils.typing_importer import Final
 >>> import io
 >>> class A(AbstractTOMLSerializable):
 ...     _a: int
@@ -43,21 +43,25 @@ version = 1
 <BLANKLINE>
 """
 
-
-
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Callable
-from labw_utils import UnmetDependenciesError
-from collections.abc import Mapping 
 
+from labw_utils import UnmetDependenciesError
 from labw_utils.stdlib.cpy311 import tomllib
+from labw_utils.typing_importer import Any, Optional, Callable
+from labw_utils.typing_importer import Mapping
 
 try:
-    import tomli_w
+    import pytest
+
+    tomli_w = pytest.importorskip("tomli_w")
 except ImportError:
-    raise UnmetDependenciesError("tomli_w")
+    pytest = None
+    try:
+        import tomli_w
+    except ImportError as e:
+        raise UnmetDependenciesError("tomli_w") from e
 
 
 from labw_utils.commonutils.serializer import SerializableInterface
@@ -86,7 +90,7 @@ def read_toml_with_metadata(
         path: str,
         title: str,
         validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None
-) -> dict[str, Any]:
+) -> Mapping[str, Any]:
     """
     Read and validate TOML files with metadata.
     """

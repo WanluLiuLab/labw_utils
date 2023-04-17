@@ -21,7 +21,6 @@
       <excludeFolder url="file://$MODULE_DIR$/src/labw_utils.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/real_data" />
-      <excludeFolder url="file://$MODULE_DIR$/explore/assess_appender_engine" />
       <excludeFolder url="file://$MODULE_DIR$/src/labw_utils.egg-info" />
       <excludeFolder url="file://$MODULE_DIR$/.pytype" />
       <excludeFolder url="file://$MODULE_DIR$/var" />
@@ -36,6 +35,11 @@
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/L4_rep2.fastq.gz.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/L4_rep2.fastq.stats.d" />
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/ce11_trans_filtered.fa.d" />
+      <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/.tox" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/ens_transcript_id_mtr" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_gtf" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_mtr" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

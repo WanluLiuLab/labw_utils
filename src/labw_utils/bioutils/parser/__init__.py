@@ -11,9 +11,9 @@ __all__ = (
 )
 
 from abc import abstractmethod, ABC
-from typing import Iterable, IO, Iterator, TypeVar, Generic
 
 from labw_utils.commonutils.stdlib_helper import shutil_helper
+from labw_utils.typing_importer import Iterable, IO, Iterator, TypeVar, Generic
 
 _RecordType = TypeVar("_RecordType")
 

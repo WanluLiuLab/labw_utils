@@ -8,12 +8,11 @@ __all__ = [
     'BaseFeatureProxy'
 ]
 
-from typing import Optional, Iterable, TypeVar, Union
-
 from labw_utils.bioutils.datastructure.gv import CanCheckInterface
 from labw_utils.bioutils.record.feature import Feature, FeatureType, GtfAttributeValueType, FeatureInterface, \
     BiologicalIntervalInterface
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Optional, Iterable, TypeVar, Union
 
 lh = get_logger(__name__)
 
@@ -50,7 +49,9 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
     def __str__(self):
         return repr(self)
 
-    def __eq__(self, other: BaseFeatureProxy) -> bool:
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BaseFeatureProxy):
+            raise TypeError
         return self._data == other._data
 
     def __ne__(self, other: BaseFeatureProxy) -> bool:

@@ -6,8 +6,9 @@ SYNOPSIS: python -m labw_utils.bioutils describe_fastq [FASTQ] [[FASTQ]...]
 where [FASTQ] are path to GTF files you wish to describe.
 """
 import os
-from typing import List, Optional
+
 from labw_utils import UnmetDependenciesError
+from labw_utils.typing_importer import List, Optional
 
 try:
     import numpy as np

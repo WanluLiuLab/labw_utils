@@ -14,4 +14,7 @@ for fn in fa/*.fa fa/*.fna; do
         --metadata_only
 done
 
-cat pre_processed_gtf/*.gtf | cut -f 2 | sort | uniq > all_sources.txt
+cat pre_processed_gtf/*.gtf | cut -f 2 | sort | uniq >all_sources.txt
+
+axel https://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/json/hgnc_complete_set.json
+axel https://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/json/withdrawn.json -o hgnc_withdrawn.json

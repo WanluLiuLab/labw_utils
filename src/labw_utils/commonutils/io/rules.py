@@ -14,17 +14,19 @@ __all__ = (
 import bz2
 import gzip
 import lzma
-from typing import Callable
 
-from labw_utils.commonutils.io import PathType, FDType
+from labw_utils.commonutils.io import PathType, FDType, convert_path_to_str
+from labw_utils.typing_importer import Callable, Type, List
 
-RuleType = Callable[..., bool]
+
+RuleType: Type[Callable]
 """
 Type definition of rules.
 
 Is a function which accepts a path as input and give result (True/False) as output.
 """
-OpenerType = Callable[..., FDType]
+
+OpenerType:Type[Callable]
 """
 Type definition of openers.
 
@@ -36,11 +38,11 @@ file descriptor as output.
 try:
     RuleType = Callable[[PathType, ...], bool]
 except TypeError:
-    pass
+    RuleType = Callable[..., bool]
 try:
     OpenerType = Callable[[PathType, ...], FDType]
 except TypeError:
-    pass
+    OpenerType = Callable[..., FDType]
 
 
 class BaseFileRule:
@@ -81,6 +83,7 @@ class BaseFileRule:
 
         def extension_rule(path: PathType, *args, **kwargs):
             _, _ = args, kwargs
+            path = convert_path_to_str(path)
             for extension in extensions:
                 if path.endswith(extension):
                     return True
@@ -94,7 +97,7 @@ class FileRuleRing:
     """
     The rule ring.
     """
-    _registered_rules: list[BaseFileRule] = []
+    _registered_rules: List[BaseFileRule] = []
 
     @staticmethod
     def register(rule: BaseFileRule):

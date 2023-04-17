@@ -3,7 +3,8 @@ Utilities that may be helpful.
 """
 
 import math
-from typing import Tuple
+
+from labw_utils.typing_importer import Tuple
 
 CoordinateType = Tuple[float, float]
 

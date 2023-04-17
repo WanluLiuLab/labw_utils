@@ -447,3 +447,4 @@ pypy_venv/
 *.parquet
 *.json
 *.txt
+*pkl

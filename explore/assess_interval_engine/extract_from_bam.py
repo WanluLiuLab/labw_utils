@@ -1,18 +1,6 @@
 import sys
 
-from labw_utils import UnmetDependenciesError
-
-try:
-    import pytest
-
-    pysam = pytest.importorskip("pysam")
-except ImportError:
-    pytest = None
-    try:
-        import pysam
-    except ImportError:
-        raise UnmetDependenciesError("pysam")
-
+import pysam
 
 def extract(sam_filename: str, out_filename: str):
     written = 0

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Optional
-
+from labw_utils.bioutils.algorithm.sequence import complement, reverse_complement
 from labw_utils.bioutils.datastructure.gv import SequenceFuncType, generate_unknown_transcript_id, \
     generate_unknown_gene_id, CanTranscribeInterface
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Optional
 
 lh = get_logger(__name__)
 
@@ -56,7 +56,9 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
                         f"{self.transcript_id}: Different exon length at {self}: " +
                         f"cdna ({len(self._cdna)}) != exon ({self.transcribed_length})"
                     )
-            except Exception as e:  # TODO
+                if self.strand is False:
+                    self._cdna = reverse_complement(self._cdna)
+            except Exception as e:
                 lh.warning(f"{self.transcript_id}: Failed to get cDNA sequence at exon ({self.start, self.end}) {e}")
                 self._cdna = ""
         return self._cdna

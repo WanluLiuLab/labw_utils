@@ -42,10 +42,10 @@ __all__ = (
 
 import pickle
 from pickle import Unpickler
-from typing import Any
 
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
+from labw_utils.typing_importer import Any
 
 
 def load(filename: str, with_tqdm: bool = True) -> Any:

@@ -6,9 +6,11 @@ import time
 import pandas as pd
 import pytest
 
-from labw_utils.commonutils.appender import load_table_appender_class, AVAILABLE_TABLE_APPENDERS, TableAppenderConfig, \
+from labw_utils.commonutils.appender import load_table_appender_class, list_table_appender, TableAppenderConfig, \
     BaseTableAppender
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_l
+
+AVAILABLE_TABLE_APPENDERS = [v_doc[0] for v_doc in list_table_appender()]
 
 
 def validate_lines(appender: BaseTableAppender, required_number_of_lines: int) -> None:
@@ -32,7 +34,6 @@ def validate_lines(appender: BaseTableAppender, required_number_of_lines: int) -
         )
 
 
-
 @pytest.mark.parametrize(
     argnames="name",
     argvalues=AVAILABLE_TABLE_APPENDERS,
@@ -42,9 +43,9 @@ def test_appender(name: str):
     with tempfile.TemporaryDirectory() as tmpdir:
         for lines_to_append in (1, 4, 5, 6, 9, 10, 11, 1024):
             with load_table_appender_class(name)(
-                filename=os.path.join(tmpdir, "test"),
-                header=("INDEX", "TIME", "3"),
-                tac=TableAppenderConfig(buffer_size=5)
+                    filename=os.path.join(tmpdir, "test"),
+                    header=("INDEX", "TIME", "3"),
+                    tac=TableAppenderConfig(buffer_size=5)
             ) as appender:
                 for i in range(lines_to_append):
                     appender.append((i, time.asctime(), "3"))

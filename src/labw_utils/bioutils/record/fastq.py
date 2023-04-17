@@ -33,7 +33,7 @@ The attributes in ``fastq_record`` are read-only. Example:
 >>> fastq_record.seq_id = "5"
 Traceback (most recent call last):
     ...
-AttributeError: can't set attribute
+AttributeError: ...
 """
 
 __all__ = (
@@ -43,9 +43,8 @@ __all__ = (
     "FastqRecord"
 )
 
-from typing import List
-
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.typing_importer import List
 
 
 class FastqRecordParserError(ValueError):

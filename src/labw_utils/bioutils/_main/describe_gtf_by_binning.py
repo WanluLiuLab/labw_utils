@@ -9,7 +9,6 @@ __all__ = (
 import argparse
 import json
 import os.path
-from typing import List, Any, Dict
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
@@ -21,6 +20,7 @@ from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Any, Dict
 
 try:
     import numpy as np

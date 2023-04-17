@@ -1,8 +1,9 @@
 import io
 import json
 
-import requests, sys
 import pandas as pd
+import requests
+import sys
 
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
@@ -11,7 +12,7 @@ from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 def get_ncbi_chromosome_spec():
     cache_path = "ncbi_chromosome_cache.csv"
     if file_exists(cache_path):
-        ncbi_df =  pd.read_csv(cache_path)
+        ncbi_df = pd.read_csv(cache_path)
     else:
         url = 'https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/' \
               'GCF_000001405.40_GRCh38.p14_assembly_report.txt'
@@ -22,7 +23,8 @@ def get_ncbi_chromosome_spec():
         ncbi_df = pd.read_table(
             io.StringIO(r.text),
             comment="#",
-            names="NCBIName	SequenceRole	AssignedMolecule	AssignedMolecule-Location	GenBankAccn	Relationship	RefSeqAccn	AssemblyUnit	SequenceLength	UCSC".split("\t")
+            names="NCBIName	SequenceRole	AssignedMolecule	AssignedMolecule-Location	GenBankAccn	Relationship	RefSeqAccn	AssemblyUnit	SequenceLength	UCSC".split(
+                "\t")
         )
         ncbi_df.to_csv(cache_path, index=False)
     retd = {}
@@ -36,8 +38,6 @@ def get_ncbi_chromosome_spec():
                 if db_value is not None:
                     retd[db_value] = ucsc_value
     return retd
-
-
 
 
 def get_ensembl_chromosome_spec():

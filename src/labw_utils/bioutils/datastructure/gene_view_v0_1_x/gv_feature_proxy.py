@@ -9,13 +9,13 @@ import itertools
 import math
 import uuid
 from abc import abstractmethod
-from typing import List, Callable, Optional, Iterable, Tuple, Type, Union
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_errors import _all as _gve_all
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord, Feature, FeatureType, \
     GTFAttributeType, Gff3Record
+from labw_utils.typing_importer import List, Callable, Optional, Iterable, Tuple, Type, Union
 
 __all__ = [
     'VALID_SORT_EXON_EXON_STRAND_POLICY',
@@ -360,7 +360,7 @@ class Transcript(BaseFeatureProxy):
             try:
                 _seq = sequence_func(self.seqname, _exon.start - 1, _exon.end)
                 if len(_seq) != _exon.transcribed_length:
-                    lh.warn(
+                    lh.warning(
                         f"{self.transcript_id}: Different exon length at {_exon}: " +
                         f"cdna ({len(_seq)}) != exon ({_exon.transcribed_length})" +
                         f"({_exon.get_data()})"
@@ -380,9 +380,9 @@ class Transcript(BaseFeatureProxy):
             for exon in self._exons:
                 rets += get_exon_seq(exon)
         if len(rets) == 0:
-            lh.warn(f"Transcript {self.transcript_id} failed!")
+            lh.warning(f"Transcript {self.transcript_id} failed!")
         elif len(rets) != self.transcribed_length:
-            lh.warn(
+            lh.warning(
                 f"Transcript {self.transcript_id} " +
                 f"cdna_len({len(rets)}) != transcribed_len ({self.transcribed_length})."
             )

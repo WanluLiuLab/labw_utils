@@ -1,10 +1,9 @@
 """
 Under construction!
 """
-from typing import Dict
-
 from labw_utils.bioutils.parser.fastq import FastqIterator
 from labw_utils.bioutils.record.fastq import FastqRecord
+from labw_utils.typing_importer import Dict
 
 
 class FastqView:

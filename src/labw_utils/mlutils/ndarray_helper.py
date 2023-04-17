@@ -10,10 +10,10 @@ __all__ = (
     "describe"
 )
 
-from typing import Union, Optional
-
 import numpy as np
-from numpy import typing as npt
+import numpy.typing as npt
+
+from labw_utils.typing_importer import Union, Optional
 
 try:
     import torch
@@ -132,4 +132,3 @@ class DimensionMismatchException(ValueError):
             f"\twhere {_arr1_name} is {describe(_arr1)}\n"
             f"\twhere {_arr2_name} is {describe(_arr2)}\n"
         )
-

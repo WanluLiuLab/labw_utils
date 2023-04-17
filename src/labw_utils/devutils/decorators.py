@@ -13,9 +13,9 @@ import logging
 import os
 import types
 import uuid
-from typing import Any, TypeVar, Optional, Callable
 
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
+from labw_utils.typing_importer import Any, TypeVar, Optional, Callable, Type
 
 _InType = TypeVar("_InType")
 
@@ -82,8 +82,7 @@ def chronolog(display_time: bool = False, log_error: bool = False):
     :param log_error: Whether add error captured
     """
 
-    def msg_decorator(f: Callable) -> Callable:
-        f: types.FunctionType
+    def msg_decorator(f: types.FunctionType) -> Callable:
         if os.environ.get('SPHINX_BUILD') is not None:
             return f  # To make Sphinx get the right result.
 
@@ -106,7 +105,6 @@ def chronolog(display_time: bool = False, log_error: bool = False):
                 args_repr = [repr(a) for a in args]
                 kwargs_repr = [f"{k}={v!r}" for k, v in kwargs.items()]
                 signature = ", ".join(args_repr + kwargs_repr)
-                # FIXME: Function name incorrect!
                 lh.debug("%s %s(%s)", call_id, f.__name__, signature)
             res = None
             try:
@@ -193,4 +191,5 @@ def create_class_init_doc_from_property(
 
         init_func.__doc__ = text_before + result_doc + text_after
         return cls
+
     return inner_dec

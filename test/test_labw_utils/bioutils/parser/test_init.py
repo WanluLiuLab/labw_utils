@@ -1,8 +1,7 @@
-from typing import Iterator, Any
-
 import pytest
 
 from labw_utils.bioutils.parser import FileTypeNotFoundError, BaseFileIterator
+from labw_utils.typing_importer import Iterator, Any
 
 
 class ErrorFileIterator(BaseFileIterator):

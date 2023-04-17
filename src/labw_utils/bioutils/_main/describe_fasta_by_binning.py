@@ -13,9 +13,9 @@ import argparse
 import json
 import os.path
 from collections import defaultdict
-from typing import Any
 
 from labw_utils import UnmetDependenciesError
+from labw_utils.typing_importer import List, Dict
 from labw_utils.bioutils.accession_matcher import infer_accession_type
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
@@ -24,6 +24,7 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Any
 
 try:
     import numpy as np
@@ -81,7 +82,7 @@ def sdi(abundance_data: npt.ArrayLike) -> float:
     return 1 - np.sum(np.power(abundance_data / np.sum(abundance_data), 2))
 
 
-def main(args: list[str]) -> None:
+def main(args: List[str]) -> None:
     out_metadata = {}
     args = create_parser().parse_args(args)
     nbins = args.nbins
@@ -117,7 +118,7 @@ def main(args: list[str]) -> None:
         json.dump(out_metadata, metadata_writer)
     if args.metadata_only:
         return
-    out_dataframe: list[dict[str, Any]] = []
+    out_dataframe: List[Dict[str, Any]] = []
     tqdm_total = sum(map(fa.get_chr_length, fa.chr_names))
 
     with tqdm(desc="Parsing FASTA", total=tqdm_total) as pbar:

@@ -1,0 +1,42 @@
+name: tox_labw_utils_cpython
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+  - pytorch
+
+dependencies:
+  # Core libraries
+  - numpy
+  - pandas
+  - pysam
+  - joblib
+  - requests
+  - tomli-w
+  - tqdm
+
+  # Testing
+  - pytest
+  - pytest-cov
+  - pytest-html
+  - coverage
+
+  # ysjs
+  - flask
+  - sqlalchemy
+  - psutil
+  - gevent
+  - jinja2
+
+  # mlutils
+  - pytorch
+
+  # Apache Parquet
+  - pyarrow
+  - fastparquet
+
+  # HDF5
+  - pytables

@@ -1,9 +1,9 @@
 import os
-from typing import List
 
 from labw_utils.bioutils.record.feature import Feature, FeatureType
 from labw_utils.bioutils.record.gtf import parse_record, format_string
 from labw_utils.commonutils.io.safe_io import get_reader
+from labw_utils.typing_importer import List
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_gtf_path = os.path.join(TEST_DATA_DIR, "test_various_format.gtf")

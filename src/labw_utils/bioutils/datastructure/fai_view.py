@@ -5,10 +5,9 @@ __all__ = (
     "create_fai_from_fasta"
 )
 
-from typing import Dict
-
 from labw_utils.bioutils.parser.fai import FAIBasedFastaIndexIterator, FastaBasedFastaIndexIterator, FastaIndexWriter
 from labw_utils.bioutils.record.fai import FastaIndexRecord
+from labw_utils.typing_importer import Dict
 
 
 class FastaIndexView:

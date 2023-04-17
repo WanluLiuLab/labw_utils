@@ -13,13 +13,13 @@ import glob
 import os
 import re
 from collections import defaultdict
-from typing import Optional, Callable
 
 from labw_utils import UnmetDependenciesError, PackageSpecs, PackageSpec
-from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.commonutils import libfrontend
 from labw_utils.commonutils.io.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.stdlib.cpy311 import tomllib
+from labw_utils.typing_importer import Optional, Callable
 
 PackageSpecs.add(PackageSpec(
     name="jupytext",
@@ -35,13 +35,20 @@ PackageSpecs.add(PackageSpec(
 ))
 
 try:
-    import jupytext
-except ImportError as e:
-    raise UnmetDependenciesError("jupytext") from e
-try:
-    import nbformat as nbf
-except ImportError as e:
-    raise UnmetDependenciesError("nbformat") from e
+    import pytest
+
+    jupytext = pytest.importorskip("jupytext")
+    nbf = pytest.importorskip("nbformat")
+except ImportError:
+    pytest = None
+    try:
+        import jupytext
+    except ImportError as e:
+        raise UnmetDependenciesError("jupytext") from e
+    try:
+        import nbformat as nbf
+    except ImportError as e:
+        raise UnmetDependenciesError("nbformat") from e
 
 _lh = get_logger(__name__)
 
@@ -122,7 +129,6 @@ def generate_cli_docs(
                 if doc is None:
                     continue
                 else:
-                    # doc_sio = io.StringIO(doc)
                     with open(this_help_path, "w") as writer:
                         writer.write(doc)
                     arg_parsers[main_module].append(subcommand)

@@ -56,7 +56,6 @@ exclude_patterns = [
 html_theme_options = {
 }
 
-
 # html_static_path = ['_static']
 
 # Source code suffixes

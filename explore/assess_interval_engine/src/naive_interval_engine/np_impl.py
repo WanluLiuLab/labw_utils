@@ -1,10 +1,10 @@
 import functools
-from typing import Iterable, Dict, Tuple
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from labw_utils.typing_importer import Iterable, Dict, Tuple
 from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType, create_pandas_dataframe_from_input_file
 
 

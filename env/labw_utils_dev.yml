@@ -81,5 +81,8 @@ dependencies:
   - wheel
   - build
   - twine
-  - pip:
-    - pytype
+  - tox=3.27.1
+  - tox-conda=0.10.2
+  - types-requests
+  - mypy
+

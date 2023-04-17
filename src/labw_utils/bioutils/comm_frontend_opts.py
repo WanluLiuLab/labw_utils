@@ -11,10 +11,10 @@ __all__ = (
 )
 
 import argparse
-from typing import Dict, Any, Mapping, Tuple, Iterable
 
-from labw_utils.devutils.decorators import copy_doc
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.devutils.decorators import copy_doc
+from labw_utils.typing_importer import Dict, Any, Mapping, Tuple, Iterable
 
 
 class FrontendOptSpec:
@@ -103,4 +103,4 @@ _parser = ArgumentParserWithEnhancedFormatHelp()
 for _name in FrontendOptSpecs.names():
     _parser = FrontendOptSpecs.patch(_parser, _name)
 
-__doc__ += "\n" + "\n".join("    " + ln for ln in _parser.format_help().splitlines()) +"\n"
+__doc__ += "\n" + "\n".join("    " + ln for ln in _parser.format_help().splitlines()) + "\n"

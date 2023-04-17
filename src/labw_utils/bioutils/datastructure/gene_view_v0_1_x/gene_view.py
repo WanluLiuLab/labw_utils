@@ -6,7 +6,6 @@ import os
 import time
 import uuid
 from abc import abstractmethod, ABC
-from typing import Optional, Dict, Iterator, Union, Type, Iterable
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._determine_filetype import get_file_type_from_suffix
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_feature_proxy_mutator import GeneMutator, TranscriptMutator
@@ -19,6 +18,7 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Optional, Dict, Iterator, Union, Type, Iterable
 
 lh = get_logger(__name__)
 

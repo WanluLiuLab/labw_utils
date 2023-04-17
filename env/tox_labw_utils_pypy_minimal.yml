@@ -1,0 +1,23 @@
+name: tox_labw_utils_pypy_minimal
+channels:
+  - nodefaults
+  - conda-forge
+  - anaconda
+  - bioconda
+  - main
+  - free
+
+dependencies:
+  # Core libraries
+  - pypy
+  - numpy
+  - pandas
+  - joblib
+  - tomli-w
+  - tqdm
+
+  # Testing
+  - pytest
+  - pytest-cov
+  - pytest-html
+  - coverage

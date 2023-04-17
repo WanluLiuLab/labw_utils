@@ -12,13 +12,12 @@ __all__ = (
     "get_tqdm_line_reader"
 )
 
-from typing import Iterator, AnyStr, List
-
+import labw_utils.commonutils.io as cio
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.rule_based_ioproxy import RuleBasedIOProxy, RuleBasedSequentialReader, get_reader
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 from labw_utils.devutils.decorators import copy_doc
-import labw_utils.commonutils.io as cio
+from labw_utils.typing_importer import Iterator, AnyStr, List
 
 
 class _BaseTqdmReader(RuleBasedSequentialReader):

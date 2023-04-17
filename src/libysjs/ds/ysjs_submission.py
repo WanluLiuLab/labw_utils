@@ -4,7 +4,8 @@ import os
 import shutil
 import time
 import uuid
-from typing import Union, Mapping, Optional, Any, List, Iterable
+
+from labw_utils.typing_importer import Union, Mapping, Optional, Any, List, Iterable
 
 DEFAULT_SUBMISSION_NAME = "Unnamed"
 DEFAULT_SUBMISSION_DESCRIPTION = "No description"

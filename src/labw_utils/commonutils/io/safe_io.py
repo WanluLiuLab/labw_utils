@@ -15,12 +15,11 @@ __all__ = (
     "get_appender"
 )
 
-
 import labw_utils.commonutils.io as cio
 import labw_utils.commonutils.io.rule_based_ioproxy as rio
+from labw_utils.commonutils.io import PathOrFDType
 from labw_utils.commonutils.io import file_system, IOProxy
 from labw_utils.commonutils.stdlib_helper import shutil_helper
-from labw_utils.commonutils.io import PathOrFDType
 
 
 def get_reader(path_or_fd: PathOrFDType, **kwargs) -> IOProxy:

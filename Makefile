@@ -52,3 +52,13 @@ pytype:
 .PHONY: sonar-scanner
 sonar-scanner:
 	sonar-scanner
+
+.PHONY: tox
+tox:
+	CONDA_EXE=mamba tox run
+
+.PHONY: mypy
+mypy:
+	mypy src \
+		--html-report pytest/mypy.html \
+		--follow-imports=silent

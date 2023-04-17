@@ -1,8 +1,17 @@
+"""
+serializer -- Configuration serialization interfaces.
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Any
-from collections.abc import Mapping
+
+from labw_utils.typing_importer import Mapping
+from labw_utils.typing_importer import Optional, Any
+
+__all__ = (
+    "SerializableInterface",
+)
 
 
 class SerializableInterface(ABC):

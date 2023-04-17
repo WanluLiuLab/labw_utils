@@ -10,9 +10,8 @@ __all__ = (
     "main"
 )
 
-from typing import List
-
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, split_fasta
+from labw_utils.typing_importer import List
 
 
 def main(args: List[str]):

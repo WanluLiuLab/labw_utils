@@ -6,18 +6,18 @@ We assume that the GTF was sorted in a form that exons are under corresponding t
 Two RMSK-TEs are removed at this step.
 """
 import glob
+import hashlib
 import json
 import multiprocessing
 import os.path
 import re
 import uuid
-import hashlib
-from typing import Optional
 
 import pandas as pd
 
 from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import FeatureType
+from labw_utils.typing_importer import Optional
 
 UNASSIGNED_REGEX = re.compile(r"^unassigned_transcript_\d+$")
 

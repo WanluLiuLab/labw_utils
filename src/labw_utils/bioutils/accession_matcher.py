@@ -69,9 +69,9 @@ __all__ = (
 
 import re
 from abc import abstractmethod, ABC
-from typing import Union, Optional, Type, Final, Any, Callable, Mapping, Iterable
 
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.typing_importer import Union, Optional, Type, Final, Any, Callable, Mapping, Iterable, List
 
 
 @create_class_init_doc_from_property()
@@ -120,7 +120,7 @@ class AccessionMatcherRuleType(ABC):
 
 
 class ChainAccessionMatcherRuleType(AccessionMatcherRuleType):
-    _rule_chain: list[Type[AccessionMatcherRuleType]]
+    _rule_chain: List[Type[AccessionMatcherRuleType]]
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
         for rule in self._rule_chain:

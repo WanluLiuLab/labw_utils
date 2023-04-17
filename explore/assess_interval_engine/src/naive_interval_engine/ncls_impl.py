@@ -7,11 +7,11 @@ Also waiting for more documentations.
 """
 
 from enum import Enum
-from typing import Iterable, Dict, List, Optional
 
 import ncls
 import pandas as pd
 
+from labw_utils.typing_importer import Iterable, Dict, List, Optional
 from naive_interval_engine import IntervalEngineType, IntervalType, create_pandas_dataframe_from_input_file
 
 

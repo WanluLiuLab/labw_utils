@@ -1,13 +1,13 @@
 import os
 import random
 import tempfile
-from typing import List
 
 import pytest
 
 from labw_utils.bioutils.parser.fai import FastaBasedFastaIndexIterator, FAIBasedFastaIndexIterator, \
     FastaIndexNotWritableError, FastaIndexWriter, DuplicatedFastaNameError
 from labw_utils.bioutils.record.fai import FastaIndexRecord
+from labw_utils.typing_importer import List
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_fasta_path = os.path.join(TEST_DATA_DIR, "test.fasta")

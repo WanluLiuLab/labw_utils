@@ -3,12 +3,13 @@ import json
 import logging
 import os
 import signal
-from typing import Optional, Tuple, Union
 
 import flask
 from gevent import pywsgi
 
+from labw_utils.commonutils import libfrontend
 from labw_utils.commonutils.stdlib_helper import logger_helper
+from labw_utils.typing_importer import Optional, Tuple, Union
 from libysjs.ds.ysjs_submission import YSJSSubmission
 from ysjsd.ds.ysjsd_config import ServerSideYSJSDConfig
 from ysjsd.operation import YSJSD, JobNotExistException
@@ -31,17 +32,7 @@ global_flask_app = flask.Flask(
 ResponseType = Tuple[Union[str, flask.Response], int]
 
 # Create Logger
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel('INFO')
-stream_handler.setFormatter(logger_helper.get_formatter(stream_handler.level))
-
-logging.basicConfig(
-    handlers=[
-        stream_handler
-    ],
-    force=True,
-    level=logger_helper.TRACE
-)
+libfrontend.setup_basic_logger()
 
 _lh = logger_helper.get_logger("YSJSD BACKEND")
 

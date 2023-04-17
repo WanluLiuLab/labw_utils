@@ -1,4 +1,4 @@
-from typing import List
+from labw_utils.typing_importer import List
 
 
 def main(args: List[str]):

@@ -19,27 +19,36 @@ import logging
 import os
 import pkgutil
 import sys
-from typing import Optional, Callable
-from collections.abc import Iterable
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
+from labw_utils.typing_importer import Iterable
+from labw_utils.typing_importer import Optional, Callable, List
 
 _lh: Optional[logging.Logger] = None
+
 
 def setup_basic_logger():
     _stream_handler = logging.StreamHandler()
     _stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
     _stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
 
-    logging.basicConfig(
-        handlers=[
-            _stream_handler
-        ],
-        force=True,
-        level=logger_helper.TRACE
-    )
+    if sys.version_info < (3, 8):
+        logging.basicConfig(
+            handlers=[
+                _stream_handler
+            ],
+            level=logger_helper.TRACE
+        )
+    else:
+        logging.basicConfig(
+            handlers=[
+                _stream_handler
+            ],
+            force=True,
+            level=logger_helper.TRACE
+        )
 
 
 _NONE_DOC = "NONE DOC"
@@ -147,11 +156,11 @@ class _ParsedArgs:
     input_subcommand_name: str = ""
     have_help: bool = False
     have_version: bool = False
-    parsed_args: list[str] = []
+    parsed_args: List[str] = []
 
 
 def _parse_args(
-        args: list[str]
+        args: List[str]
 ) -> _ParsedArgs:
     parsed_args = _ParsedArgs()
     i = 0
@@ -205,10 +214,7 @@ def setup_frontend(
     setup_basic_logger()
     _lh = logger_helper.get_logger(__name__)
     _lh.info(f'{one_line_description} ver. {version}')
-    try:
-        argv = sys.orig_argv
-    except AttributeError:
-        argv = sys.argv
+    argv = sys.argv
     _lh.info(f'Called by: {" ".join(argv)}')
     parsed_args = _parse_args(argv[1:])
     if use_root_logger:

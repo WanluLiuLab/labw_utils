@@ -9,9 +9,9 @@ import functools
 import glob
 import math
 import os.path
-from typing import Optional, List, Tuple, Dict, Iterable
-from labw_utils import UnmetDependenciesError
 
+from labw_utils import UnmetDependenciesError
+from labw_utils.typing_importer import Optional, List, Tuple, Dict, Iterable
 
 try:
     import numpy as np
