@@ -3,9 +3,9 @@ _silent_tqdm.py -- A silent tqdm that does not pollutes stderr
 """
 
 import sys
-from typing import Optional, Iterable, Sized, TypeVar, Iterator
 
-from labw_utils.devutils.decorators import create_class_init_doc_from_property, copy_doc
+from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.typing_importer import Optional, Iterable, Sized, TypeVar, Iterator
 
 __all__ = ("tqdm",)
 

@@ -1,10 +1,10 @@
 from collections import defaultdict
-from typing import Iterable, Dict
 
 import intervaltree
 
 from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.typing_importer import Iterable, Dict
 from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType
 
 

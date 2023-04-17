@@ -1,9 +1,9 @@
 import multiprocessing
 from abc import ABC, abstractmethod
 from multiprocessing import synchronize
-from typing import Dict, Any, Tuple, List
 
 from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
+from labw_utils.typing_importer import Dict, Any, Tuple, List
 
 
 class BaseDictBufferAppender(BaseTableAppender, ABC):
@@ -22,7 +22,7 @@ class BaseDictBufferAppender(BaseTableAppender, ABC):
         self._h0 = self.header[0]
 
     def _init_buffer(self):
-        self._buff = {k:[] for k in self.header}
+        self._buff = {k: [] for k in self.header}
 
     def append(self, body: Tuple[Any, ...]):
         with self._buff_mutex:

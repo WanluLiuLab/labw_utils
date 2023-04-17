@@ -3,9 +3,16 @@ import os
 from labw_utils import UnmetDependenciesError
 
 try:
-    import tables as pt
+    import pytest
+
+    pt = pytest.importorskip("tables")
 except ImportError:
-    raise UnmetDependenciesError("pytables")
+    pytest = None
+    try:
+        import tables as pt
+    except (ImportError, AttributeError) as e:
+        raise UnmetDependenciesError("pytables") from e
+
 
 try:
     import pandas as pd

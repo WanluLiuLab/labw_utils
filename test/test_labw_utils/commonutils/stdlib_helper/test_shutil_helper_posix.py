@@ -1,10 +1,9 @@
 import os
-import tempfile
 
 import pytest
 
 import conftest
-from labw_utils.commonutils.io.file_system import file_exists, get_abspath
+from labw_utils.commonutils.io.file_system import get_abspath
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 
 if os.name != 'posix':
@@ -20,15 +19,6 @@ def initialize_module(initialize_session) -> conftest.ModuleTestInfo:
     module_test_info = conftest.ModuleTestInfo(session_test_info.base_test_dir, __name__)
     yield module_test_info
     module_test_info.teardown()
-
-
-def test_mkdir_p_and_rm_f(initialize_module):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        os.chmod(tmpdir, 0)
-        with pytest.raises(PermissionError):
-            shutil_helper.touch(os.path.join(tmpdir, "aaa"))
-    assert file_exists('/dev/null', allow_special_paths=True)
-    assert not file_exists('/dev/null', allow_special_paths=False)
 
 
 def test_wc_c():

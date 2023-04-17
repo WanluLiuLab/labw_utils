@@ -2,16 +2,18 @@
 labw_utils.mlutils.ndarray_helper -- General-purposed helpers for Numpy NDArray and Torch Tensor.
 """
 
+from __future__ import annotations
+
 __all__ = (
     "scale_np_array",
     "scale_torch_array",
     "describe"
 )
 
-from typing import Union, Tuple, Optional
-
 import numpy as np
-from numpy import typing as npt
+import numpy.typing as npt
+
+from labw_utils.typing_importer import Union, Optional
 
 try:
     import torch
@@ -26,8 +28,8 @@ else:
 
 def _scale_impl(
         x: _Tensor,
-        out_range: Tuple[Union[int, float], Union[int, float]],
-        domain: Tuple[Union[int, float], Union[int, float]]
+        out_range: tuple[Union[int, float], Union[int, float]],
+        domain: tuple[Union[int, float], Union[int, float]]
 ) -> _Tensor:
     if domain[1] == domain[0]:
         return x
@@ -37,8 +39,8 @@ def _scale_impl(
 
 def scale_np_array(
         x: npt.NDArray,
-        domain: Optional[Tuple[Union[int, float], Union[int, float]]] = None,
-        out_range: Tuple[Union[int, float], Union[int, float]] = (0, 1)
+        domain: Optional[tuple[Union[int, float], Union[int, float]]] = None,
+        out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
 ) -> npt.NDArray:
     """
     Scale a Numpy array to specific range.
@@ -58,8 +60,8 @@ def scale_np_array(
 if torch is not None:
     def scale_torch_array(
             x: torch.Tensor,
-            domain: Optional[Tuple[Union[int, float], Union[int, float]]] = None,
-            out_range: Tuple[Union[int, float], Union[int, float]] = (0, 1)
+            domain: Optional[tuple[Union[int, float], Union[int, float]]] = None,
+            out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
     ) -> torch.Tensor:
         """
         Scale a Torch array to specific range.
@@ -130,4 +132,3 @@ class DimensionMismatchException(ValueError):
             f"\twhere {_arr1_name} is {describe(_arr1)}\n"
             f"\twhere {_arr2_name} is {describe(_arr2)}\n"
         )
-

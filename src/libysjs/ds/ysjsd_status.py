@@ -1,4 +1,4 @@
-from typing import Any, Mapping
+from labw_utils.typing_importer import Any, Mapping
 
 AVAILABLE_YSJSD_STATE = ("starting", "running", "terminating")
 

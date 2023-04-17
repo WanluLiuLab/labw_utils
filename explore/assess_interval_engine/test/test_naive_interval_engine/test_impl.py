@@ -1,8 +1,8 @@
 import os
-from typing import Type
 
 import pytest
 
+from labw_utils.typing_importer import Type
 from naive_interval_engine import IntervalEngineType
 from naive_interval_engine.interval_tree_impl import IntervalTreeIntervalEngine
 from naive_interval_engine.ncls_impl import NclsIntervalEngine

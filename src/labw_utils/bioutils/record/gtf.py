@@ -7,11 +7,10 @@ __all__ = (
     "parse_record"
 )
 
-from typing import List, Optional
-
 from labw_utils.bioutils.record.feature import Feature, DEFAULT_GTF_QUOTE_OPTIONS, VALID_GTF_QUOTE_OPTIONS, \
     feature_repr, GtfAttributeValueType, strand_repr
 from labw_utils.commonutils.str_utils import to_dict
+from labw_utils.typing_importer import List, Optional
 
 
 class GTFParsingError(ValueError):

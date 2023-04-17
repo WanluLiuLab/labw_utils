@@ -2,7 +2,6 @@
 labw_utils -- Utility Python functions & classes used in LabW
 """
 
-
 from __future__ import annotations
 
 __all__ = (
@@ -15,11 +14,26 @@ __all__ = (
 
 __version__ = "1.0.1"
 
-from typing import Optional, Dict, Iterable
+import sys
+import warnings
+from typing import Any
+
+from labw_utils.typing_importer import Optional, Dict
+
+if sys.version_info <= (3, 6):
+    raise RuntimeError("Python version <= 3.6, refuse to work.")
+elif sys.version_info < (3, 8):
+    warnings.warn("Python version == 3.7, not recommended.")
+elif sys.version_info <= (3, 8):
+    from labw_utils.typing_importer import Iterable
+else:
+    from labw_utils.typing_importer import Iterable
 
 
 def get_version() -> str:
-    """Get runtime version using function."""
+    """
+    Get runtime version using function.
+    """
     return __version__
 
 
@@ -83,7 +97,7 @@ class PackageSpecs:
         :return: Specification of that package.
         :raises KeyError: If the package was not found.
         """
-        return PackageSpecs._deps.get(name)
+        return PackageSpecs._deps[name]
 
     @staticmethod
     def add(item: PackageSpec) -> None:
@@ -165,12 +179,6 @@ PackageSpecs.add(PackageSpec(
     name="gevent",
     conda_name="gevent",
     pypi_name="gevent",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="tomli",
-    conda_name="tomli",
-    pypi_name="tomli",
     conda_channel="conda-forge"
 ))
 PackageSpecs.add(PackageSpec(

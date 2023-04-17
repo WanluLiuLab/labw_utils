@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Final
-
 import sqlalchemy
 from sqlalchemy import Column
 
+from labw_utils.typing_importer import Final
 from ysjsd.orm import SQLAlchemyDeclarativeBase
 
 

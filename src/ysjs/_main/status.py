@@ -1,7 +1,7 @@
 import argparse
-from typing import List
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List
 from libysjs.operation import YSJSCluster
 from libysjs.utils import scale_si
 

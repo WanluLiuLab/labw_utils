@@ -3,15 +3,14 @@ from __future__ import annotations
 import bisect
 import math
 import operator
-from typing import List, Optional, Iterable, Tuple, Union, Callable
 
-from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure.gv import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, generate_unknown_transcript_id, \
     generate_unknown_gene_id, GVPError, CanTranscribeInterface, SortedContainerInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature, FeatureType
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Optional, Iterable, Tuple, Union, Callable
 
 lh = get_logger(__name__)
 
@@ -74,19 +73,19 @@ class Transcript(
         return sum(exon.transcribed_length for exon in self._exons)
 
     @property
-    def exon_boundaries(self) -> List[Tuple[int, int]]:
+    def exon_boundaries(self) -> Iterable[Tuple[int, int]]:
         if self._exon_boundaries is None:
             self._exon_boundaries = list((exon.start, exon.end) for exon in self._exons)
-        return list(self._exon_boundaries)
+        return iter(self._exon_boundaries)
 
     @property
-    def splice_sites(self) -> List[Tuple[int, int]]:
+    def splice_sites(self) -> Iterable[Tuple[int, int]]:
         if self._splice_sites is None:
             self._splice_sites = list(
                 (self._exons[i].end, self._exons[i + 1].start)
                 for i in range(self.number_of_exons - 1)
             )
-        return list(self._splice_sites)
+        return iter(self._splice_sites)
 
     @property
     def exons(self) -> Iterable[Exon]:
@@ -122,7 +121,7 @@ class Transcript(
         return f"Transcript {self.transcript_id} of {self.gene_id}"
 
     def exon_level_equiv(self, other: Transcript) -> bool:
-        if not self.number_of_exons == other.number_of_exons:
+        if self.number_of_exons != other.number_of_exons:
             return False
         return all(map(lambda exon_pair: operator.eq(*exon_pair), zip(self.exons, other.exons)))
 
@@ -247,11 +246,11 @@ class Transcript(
     def transcribe(self, sequence_func: Callable[[str, int, int], str]) -> str:
         if self._cdna is None:
             if self.strand is False:
-                self._cdna = "".join(reverse_complement(exon.transcribe(sequence_func)) for exon in self._exons[::-1])
+                self._cdna = "".join(exon.transcribe(sequence_func) for exon in self._exons[::-1])
             else:
                 self._cdna = "".join(exon.transcribe(sequence_func) for exon in self._exons)
             if len(self._cdna) != self.transcribed_length:
-                lh.warn(
+                lh.warning(
                     f"Transcript {self.transcript_id} " +
                     f"cdna_len({len(self._cdna)}) != transcribed_len ({self.transcribed_length})."
                 )

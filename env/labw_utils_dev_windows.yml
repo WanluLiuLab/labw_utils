@@ -16,9 +16,13 @@ dependencies:
   - pandas>=1.4 # Supported: 1.5.X, 2.0.X
   - joblib=>1.2
   - requests>=2.28
-  - tomli>=2.0
-  - tomli-w>=1.0
-  - tqdm>=4.64
+  - scipy>=1.10
+  - tomli-w
+
+  # Recommended libraries
+  - seaborn>=0.12 # A high-level plotting library over matplotlib.
+  - joblib>=1.2 # An easy-to-use parallel helper.
+  - tqdm>=4.64 # Progress bar.
 
   # Development Utilities
   - m2-bash

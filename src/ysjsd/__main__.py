@@ -1,9 +1,9 @@
 import argparse
 import os
 import sys
-from typing import List
 
 from labw_utils.commonutils.stdlib_helper import logger_helper
+from labw_utils.typing_importer import List
 from ysjsd.ds.ysjsd_config import ServerSideYSJSDConfig
 from ysjsd.server import start
 
@@ -27,7 +27,8 @@ def _parse_args(args: List[str]) -> argparse.Namespace:
 
 
 if __name__ == "__main__":
-    args = _parse_args(sys.argv[1:])
+    argv = sys.argv
+    args = _parse_args(argv)
     if args.generate_default_config:
         ServerSideYSJSDConfig.new(args.config).save(args.config)
         _lh.info("Configure file generated at %s", args.config)

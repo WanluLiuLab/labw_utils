@@ -1,6 +1,5 @@
 import os
 import re
-from typing import List, Tuple, Iterable, Iterator
 
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
@@ -11,6 +10,7 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record impor
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List, Tuple, Iterable, Iterator
 
 _lh = get_logger(__name__)
 
@@ -139,7 +139,7 @@ def subset_gtf_by_attribute_value(
     input_record_num = 0
     intermediate_records = []
     if regex:
-        attribute_regex:List[re.Pattern] = list(map(re.compile, attribute_values))
+        attribute_regex: List[re.Pattern] = list(map(re.compile, attribute_values))
         for gtf_record in gi:
             input_record_num += 1
             this_attribute_value = gtf_record.attribute.get(attribute_name, None)

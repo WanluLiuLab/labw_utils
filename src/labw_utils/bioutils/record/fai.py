@@ -129,7 +129,7 @@ class FastaIndexRecord:
     def __str__(self):
         return repr(self)
 
-    def __eq__(self, other: FastaIndexRecord) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, FastaIndexRecord):
             raise TypeError(f"Object {other} (class: {type(other)}) is not FastaIndexRecord!")
         return repr(self) == repr(other)

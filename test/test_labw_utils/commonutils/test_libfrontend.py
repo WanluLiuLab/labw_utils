@@ -5,15 +5,18 @@ import sys
 
 def test():
     with open("log_test_stderr.log", "w") as log_writer:
-        p = subprocess.Popen(
-            [
+        cmd = [
                 sys.executable,
                 os.path.join(
                     os.path.dirname(os.path.abspath(__file__)),
                     "libfrontend_sample.py"
                 ),
                 "b"
-            ],
+            ]
+        log_writer.write(f"EXEC {' '.join(cmd)}\n")
+        log_writer.flush()
+        p = subprocess.Popen(
+            cmd,
             stderr=log_writer,
             text=True,
             env={

@@ -1,34 +1,65 @@
 """
 labw_utils.devutils.sphinx_helper -- Helpers of Sphinx documentation system
 """
+from __future__ import annotations
+
 __all__ = (
     "convert_ipynb_to_myst",
+    "shell_filter",
+    "generate_cli_docs"
 )
 
 import glob
 import os
 import re
 from collections import defaultdict
-from typing import List, Callable, Optional
 
-import jupytext
-import nbformat as nbf
-import tomli
-
+from labw_utils import UnmetDependenciesError, PackageSpecs, PackageSpec
 from labw_utils.commonutils import libfrontend
 from labw_utils.commonutils.io.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.stdlib.cpy311 import tomllib
+from labw_utils.typing_importer import Optional, Callable
+
+PackageSpecs.add(PackageSpec(
+    name="jupytext",
+    conda_name="jupytext",
+    conda_channel="conda-forge",
+    pypi_name="jupytext"
+))
+PackageSpecs.add(PackageSpec(
+    name="nbformat",
+    conda_name="nbformat",
+    conda_channel="conda-forge",
+    pypi_name="nbformat"
+))
+
+try:
+    import pytest
+
+    jupytext = pytest.importorskip("jupytext")
+    nbf = pytest.importorskip("nbformat")
+except ImportError:
+    pytest = None
+    try:
+        import jupytext
+    except ImportError as e:
+        raise UnmetDependenciesError("jupytext") from e
+    try:
+        import nbformat as nbf
+    except ImportError as e:
+        raise UnmetDependenciesError("nbformat") from e
 
 _lh = get_logger(__name__)
 
 SHOUT_LINK_REGEX = re.compile(r"^# SHOUT LINK: (.+)$")
 
 SHOUT_SEARCH_DICT = {
-    "# RMCELL": "remove-cell",  # Remove the whole cell
-    "# SKIP": "skip-execution",  # Remove the whole cell
-    "# RMIN": "remove-input",  # Remove only the input
-    "# RMOUT": "remove-output",  # Remove only the output
-    "# HIDEIN": "hide-input"  # Hide the input w/ a button to show
+    "# RMCELL\n": "remove-cell",  # Remove the whole cell
+    "# SKIP\n": "skip-execution",  # Remove the whole cell
+    "# RMIN\n": "remove-input",  # Remove only the input
+    "# RMOUT\n": "remove-output",  # Remove only the output
+    "# HIDEIN\n": "hide-input"  # Hide the input w/ a button to show
 }
 
 
@@ -41,6 +72,7 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
             if key in cell['source']:
                 if val not in cell_tags:
                     cell_tags.append(val)
+                cell['source'] = cell['source'].replace(key, "")
         if len(cell_tags) > 0:
             cell['metadata']['tags'] = cell_tags
     return nb
@@ -48,7 +80,7 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
 
 def convert_ipynb_to_myst(
         source_dir: str,
-        hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
+        hooks: Optional[list[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
 ):
     if hooks is None:
         hooks = []
@@ -81,7 +113,7 @@ def generate_cli_docs(
 ):
     os.makedirs(dest_dir_path, exist_ok=True)
     with open(config_toml_file_path, "rb") as toml_reader:
-        config_toml = tomli.load(toml_reader)
+        config_toml = tomllib.load(toml_reader)
 
     arg_parsers = defaultdict(lambda: [])
     for main_module in config_toml["names"]:
@@ -97,7 +129,6 @@ def generate_cli_docs(
                 if doc is None:
                     continue
                 else:
-                    # doc_sio = io.StringIO(doc)
                     with open(this_help_path, "w") as writer:
                         writer.write(doc)
                     arg_parsers[main_module].append(subcommand)

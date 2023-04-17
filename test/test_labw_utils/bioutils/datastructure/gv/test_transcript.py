@@ -46,8 +46,8 @@ def test_transcript():
         assert transcript.transcribe(fasta_view.sequence) == "NNNNNNNATCGTTACCAT"
         assert transcript.span_length == 26
         assert transcript.naive_length == 31
-        assert transcript.exon_boundaries == [(5, 10), (15, 20), (25, 30)]
-        assert transcript.splice_sites == [(10, 15), (20, 25)]
+        assert list(transcript.exon_boundaries) == [(5, 10), (15, 20), (25, 30)]
+        assert list(transcript.splice_sites) == [(10, 15), (20, 25)]
         assert transcript.get_intron_length(0) == 5
         assert transcript.get_intron_length(3) == math.inf
 

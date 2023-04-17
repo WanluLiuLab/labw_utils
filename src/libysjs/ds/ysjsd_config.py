@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Final, Union, Mapping, Any
+from labw_utils.typing_importer import Final, Union, Mapping, Any
 
 AVAILABLE_SCHEDULING_METHOD = ("FIFO", "AGGRESSIVE")
 

@@ -3,9 +3,19 @@ import os
 from labw_utils import UnmetDependenciesError
 
 try:
-    import fastparquet as fp
+    import pytest
+
+    try:
+        fp = pytest.importorskip("fastparquet")
+    except AttributeError:
+        # Error in Numba under PyPy 3.7
+        pytest.skip(allow_module_level=True)
 except ImportError:
-    raise UnmetDependenciesError("fastparquet")
+    pytest = None
+    try:
+        import fastparquet as fp
+    except (ImportError, AttributeError) as e:
+        raise UnmetDependenciesError("fastparquet") from e
 
 try:
     import pandas as pd

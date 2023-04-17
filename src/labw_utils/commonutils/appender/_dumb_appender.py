@@ -1,6 +1,5 @@
-from typing import Any, Tuple
-
 from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
+from labw_utils.typing_importer import Any, Tuple
 
 
 class DumbTableAppender(BaseTableAppender):

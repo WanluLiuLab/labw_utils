@@ -4,11 +4,11 @@
 
 from __future__ import annotations
 
+import re
 from datetime import date, datetime, time, timedelta, timezone, tzinfo
 from functools import lru_cache
-import re
-from typing import Any
 
+from labw_utils.typing_importer import Any
 from ._types import ParseFloat
 
 # E.g.

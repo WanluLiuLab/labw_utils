@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import uuid
 from abc import abstractmethod, ABC
-from typing import Callable
+
+from labw_utils.typing_importer import Callable
 
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"

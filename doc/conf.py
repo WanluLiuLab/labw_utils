@@ -6,11 +6,11 @@ Configuration file for the Sphinx documentation builder.
 
 import os
 
-import tomli
 from docutils.parsers.null import Parser as NullParser
 from sphinx.application import Sphinx
 
 import labw_utils
+from labw_utils.stdlib.cpy311 import tomllib
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +24,7 @@ def setup(app: Sphinx):
 # -- Project information -----------------------------------------------------
 
 with open(os.path.join(ROOT_DIR, "pyproject.toml"), "rb") as reader:
-    parsed_pyproject = tomli.load(reader)
+    parsed_pyproject = tomllib.load(reader)
 
 project = parsed_pyproject["project"]["name"]
 author = "&".join([author["name"] for author in parsed_pyproject["project"]["authors"]])
@@ -56,7 +56,6 @@ exclude_patterns = [
 html_theme_options = {
 }
 
-
 # html_static_path = ['_static']
 
 # Source code suffixes
@@ -76,12 +75,14 @@ autodoc_default_options = {
 }
 autodoc_class_signature = "separated"
 autodoc_member_order = "bysource"
+autodoc_typehints = "description"
 
 # Intersphinx settings
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3.8', None),
     'joblib': ('https://joblib.readthedocs.io/en/latest', None),
     'torch': ('https://pytorch.org/docs/stable', None),
+    'psutil': ('https://psutil.readthedocs.io/en/latest', None)
 }
 
 # myst-nb settings

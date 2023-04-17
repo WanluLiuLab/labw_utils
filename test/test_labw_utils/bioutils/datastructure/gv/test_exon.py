@@ -1,6 +1,5 @@
 import os
 
-import labw_utils.bioutils.datastructure.gene_tree_helper
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.record.gtf import parse_record
@@ -17,8 +16,8 @@ def test_exon():
     with FastaViewFactory(test_fasta_path, read_into_memory=True) as fasta_view:
         exon = exons[0]
         assert exon.attribute_get("exon_number") == 1
-        assert labw_utils.bioutils.datastructure.gene_tree_helper.transcribe(fasta_view.sequence,,, == "NNNNNN"
-        assert len(labw_utils.bioutils.datastructure.gene_tree_helper.transcribe(fasta_view.sequence,,, ) == exon.transcribed_length
+        assert exon.transcribe(fasta_view.sequence) == "NNNNNN"
+        assert len(exon.transcribe(fasta_view.sequence)) == exon.transcribed_length
         assert exon.transcribed_length == exon.naive_length
         assert exon.transcript_id == "UN1.1"
         new_exon = Exon(data=exon.get_data().update(seqname="chr2"), is_checked=False, shortcut=True)

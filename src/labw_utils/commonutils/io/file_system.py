@@ -2,18 +2,19 @@
 file_system.py -- Basic Filesystem Functions
 
 Here are very low-level filesystem functions used by other Python modules,
-like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.shell_utils`.
+like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.stdlib_helper.shutil_helper`.
 """
-
-import os
-import stat
 
 __all__ = (
     "get_abspath",
     "file_exists",
     "directory_exists",
-    "is_soft_link"
+    "is_soft_link",
+    "should_regenerate"
 )
+
+import os
+import stat
 
 
 def get_abspath(path: str) -> str:
@@ -55,6 +56,11 @@ def directory_exists(path: str) -> bool:
 
 
 def is_soft_link(path: str) -> bool:
+    """
+    This function checks whether provided path is a soft (symbolic) link.
+
+    :param path: The path you wish to examine.
+    """
     return stat.S_ISLNK(os.stat(path, follow_symlinks=False)[0])
 
 

@@ -24,11 +24,13 @@ __all__ = (
 )
 
 import lzma
-from typing import Any, Union, Mapping
 
 import numpy as np
 import numpy.lib.format as npy_format
 import numpy.typing as npt
+
+from labw_utils.typing_importer import Any, Union
+from labw_utils.typing_importer import Mapping
 
 try:
     import torch

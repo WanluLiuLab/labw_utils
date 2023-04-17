@@ -5,7 +5,6 @@ import os
 import platform
 import sys
 import time
-from typing import Mapping, Any
 
 import flask
 import psutil
@@ -14,6 +13,7 @@ import sqlalchemy
 import labw_utils
 from labw_utils.commonutils.serializer.toml import AbstractTOMLSerializable
 from labw_utils.commonutils.stdlib_helper import logger_helper
+from labw_utils.typing_importer import Mapping, Any
 from libysjs import __version__
 from libysjs.ds.ysjsd_config import AVAILABLE_SCHEDULING_METHOD, YSJSDConfig
 

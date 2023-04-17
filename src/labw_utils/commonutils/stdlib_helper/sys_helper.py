@@ -1,34 +1,39 @@
 """
-sys_helper.py -- A rewritten of various sysadmin commands.
-
-Due to the issues caused by default :py:mod:`sys` and :py:mod:`platform`,
-we rewrote some functions inside.
-
-This module is intended to work on Microsoft Windows.
+labw_utils.stdlib_helper.sys_helper -- A rewritten of various sysadmin commands.
 """
+
+__all__ = (
+    "is_user_admin",
+)
 
 import ctypes
 import os
 
-
-def is_user_admin() -> int:
-    """
-    To detect whether the user is root (admin) or not.
-    A part of this function comes from
-    <https://stackoverflow.com/questions/19672352/how-to-run-script-with-elevated-privilege-on-windows>
-
-    :return: 0=no, 1=yes, -1=error
-    """
-    if os.name == 'nt':
-        # WARNING: requires Windows XP SP2 or higher!
+if os.name == 'nt':
+    def is_user_admin() -> int:
         try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
+            return ctypes.windll.shell32.IsUserAnAdmin() # type: ignore
         except AttributeError:
             return -1
-    elif os.name == 'posix':
-        if os.getuid() == 0:  # root
+
+elif os.name == 'posix':
+    def is_user_admin() -> int:
+        if os.getuid() == 0:
             return 1
         else:
             return 0
-    else:
+else:
+    def is_user_admin() -> int:
         return -1
+
+is_user_admin.__doc__ = """
+To detect whether the user is root (admin) or not.
+
+A part of this function comes from
+<https://stackoverflow.com/questions/19672352/how-to-run-script-with-elevated-privilege-on-windows>
+
+.. warning ::
+    For Microsoft Windows users: requires Windows XP SP2 or higher!
+
+:return: 0=no, 1=yes, -1=error
+"""

@@ -1,8 +1,7 @@
-from typing import Iterable
-
 import numexpr as ne
 import numpy as np
 
+from labw_utils.typing_importer import Iterable
 from naive_interval_engine import IntervalType
 from naive_interval_engine.np_impl import NumpyIntervalEngine
 

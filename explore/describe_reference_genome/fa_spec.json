@@ -1,0 +1,82 @@
+[
+  {
+    "name": "UCSC Standard",
+    "path": "fa/hg38.fa",
+    "url": "https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.gz"
+  },
+  {
+    "name": "UCSC Masked",
+    "path": "fa/hg38.masked.fa",
+    "url": "https://hgdownload.cse.ucsc.edu/goldenpath/hg38/bigZips/hg38.fa.masked.gz"
+  },
+  {
+    "name": "ENSEMBL TL SM",
+    "path": "fa/Homo_sapiens.GRCh38.dna_sm.toplevel.fa",
+    "url": "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.toplevel.fa.gz"
+  },
+  {
+    "name": "ENSEMBL TL RM",
+    "path": "fa/Homo_sapiens.GRCh38.dna_rm.toplevel.fa",
+    "url": "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.toplevel.fa.gz"
+  },
+  {
+    "name": "ENSEMBL PA SM",
+    "path": "fa/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa",
+    "url": "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa.gz"
+  },
+  {
+    "name": "ENSEMBL PA RM",
+    "path": "fa/Homo_sapiens.GRCh38.dna_rm.primary_assembly.fa",
+    "url": "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna_rm.primary_assembly.fa.gz"
+  },
+  {
+    "name": "ENSEMBL TL",
+    "path": "fa/Homo_sapiens.GRCh38.dna.toplevel.fa",
+    "url": "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.toplevel.fa.gz"
+  },
+  {
+    "name": "ENSEMBL PA",
+    "path": "fa/Homo_sapiens.GRCh38.dna.primary_assembly.fa",
+    "url": "https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz"
+  },
+  {
+    "name": "GENCODE",
+    "path": "fa/GRCh38.p13.genome.fa",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/GRCh38.p13.genome.fa.gz"
+  },
+  {
+    "name": "GENCODE PA",
+    "path": "fa/GRCh38.primary_assembly.genome.fa",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/GRCh38.primary_assembly.genome.fa.gz"
+  },
+  {
+    "name": "NCBI RefSeq",
+    "path": "fa/GCF_000001405.40_GRCh38.p14_genomic.fna",
+    "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.fna.gz"
+  },
+  {
+    "name": "NCBI GenBank",
+    "path": "fa/GCA_000001405.29_GRCh38.p14_genomic.fna",
+    "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.fna.gz"
+  },
+  {
+    "name": "NCBI AS",
+    "path": "fa/GCA_000001405.15_GRCh38_full_plus_hs38d1_analysis_set.fna",
+    "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.15_GRCh38/seqs_for_alignment_pipelines.ucsc_ids/GCA_000001405.15_GRCh38_full_plus_hs38d1_analysis_set.fna.gz"
+  },
+  {
+    "name": "UCSC AS",
+    "path": "fa/hg38.analysisSet.fa",
+    "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/analysisSet/hg38.analysisSet.fa.gz"
+  },
+  {
+    "name": "1KG AS",
+    "path": "fa/GRCh38_full_analysis_set_plus_decoy_hla.fa",
+    "url": "https://ftp-trace.ncbi.nih.gov/1000genomes/ftp/technical/reference/GRCh38_reference_genome/GRCh38_full_analysis_set_plus_decoy_hla.fa"
+  },
+  {
+    "name": "CellRanger",
+    "path": "fa/refdata-gex-GRCh38-2020-A.fa",
+    "url": "https://cf.10xgenomics.com/supp/cell-exp/refdata-gex-GRCh38-2020-A.tar.gz"
+  }
+]

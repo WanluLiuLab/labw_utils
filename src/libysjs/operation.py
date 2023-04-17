@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 import json
-from typing import Mapping, Union
+
 from labw_utils import UnmetDependenciesError
-
-try:
-    import requests
-except ImportError:
-    raise UnmetDependenciesError("requests")
-
+from labw_utils.typing_importer import Mapping, Union
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from libysjs.ds.ysjs_submission import YSJSSubmission
 from libysjs.ds.ysjsd_config import YSJSDConfig
 from libysjs.ds.ysjsd_status import YSJSDStatus
+
+try:
+    import pytest
+
+    requests = pytest.importorskip("requests")
+except ImportError:
+    pytest = None
+    try:
+        import requests
+    except ImportError:
+        raise UnmetDependenciesError("requests")
 
 _lh = get_logger(__name__)
 

@@ -1,26 +1,25 @@
 """
-pickle_helper.py -- Pickle helper with compression and progress-bar
-
-Following are some examples of this module:
+labw_utils.stdlib_helper.pickle_helper - Pickle helper with compression and progress-bar
 
 We may firstly generate some random sequence
 
 >>> import random
 >>> import tempfile
+>>> import os
 >>> from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 >>> random_arr = [random.random() for _ in range(1000)]
 >>> test_path = tempfile.mkdtemp()
 
 Test with a normal file
 
->>> pickle_fn = f'{test_path}/rd.pickle'
+>>> pickle_fn = os.path.join(test_path, 'rd.pickle')
 >>> dump(random_arr, pickle_fn)
 >>> unpickle_obj = load(pickle_fn)
 >>> assert unpickle_obj == random_arr
 
 This module can also handle compressed pickle
 
->>> pickle_fn = f'{test_path}/rd.pickle.xz'
+>>> pickle_fn = os.path.join(test_path, 'rd.pickle.xz')
 >>> dump(random_arr, pickle_fn)
 >>> unpickle_obj = load(pickle_fn)
 >>> assert unpickle_obj == random_arr
@@ -35,12 +34,18 @@ Clean up the environment.
 >>> rm_rf(test_path)
 
 """
+
+__all__ = (
+    "load",
+    "dump"
+)
+
 import pickle
 from pickle import Unpickler
-from typing import Any
 
 from labw_utils.commonutils.io.safe_io import get_writer, get_reader
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
+from labw_utils.typing_importer import Any
 
 
 def load(filename: str, with_tqdm: bool = True) -> Any:
@@ -61,7 +66,7 @@ def load(filename: str, with_tqdm: bool = True) -> Any:
     return obj
 
 
-def dump(obj: Any, filename: str):
+def dump(obj: Any, filename: str) -> None:
     """
     Pickle an object into a file.
 

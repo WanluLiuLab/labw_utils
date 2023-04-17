@@ -2,14 +2,18 @@
 labw_utils.mlutils.torch_layers -- Additional pyTorch layers.
 """
 
-
 from labw_utils import UnmetDependenciesError
 
 try:
-    import torch
-except ImportError as e:
-    raise UnmetDependenciesError("torch") from e
+    import pytest
 
+    torch= pytest.importorskip("torch")
+except ImportError:
+    pytest = None
+    try:
+        import torch
+    except ImportError as e:
+        raise UnmetDependenciesError("torch") from e
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.mlutils.ndarray_helper import describe

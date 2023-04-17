@@ -9,10 +9,10 @@ from __future__ import annotations
 import enum
 from abc import abstractmethod, ABC
 from functools import total_ordering
-from typing import Union, Optional, Dict, Iterable, List
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.typing_importer import Union, Optional, Mapping, Iterable, List
 
 lh = get_logger(__name__)
 
@@ -22,7 +22,7 @@ GtfAttributeValueType = Union[
 ]
 """Type of GTF/GFF attributes"""
 
-GtfAttributeType = Dict[str, GtfAttributeValueType]
+GtfAttributeType = Mapping[str, GtfAttributeValueType]
 """Type of GTF/GFF fields"""
 
 VALID_GTF_QUOTE_OPTIONS = (
@@ -527,7 +527,9 @@ class Feature(FeatureInterface):
             attribute = {}
         self._attribute = dict(attribute)
 
-    def __eq__(self, other: Feature):
+    def __eq__(self, other: object):
+        if not isinstance(other, Feature):
+            raise TypeError
         return self.seqname == other.seqname and \
             self.source == other.source and \
             self.feature == other.feature and \
@@ -555,7 +557,7 @@ class Feature(FeatureInterface):
         if self.end != other.end:
             return self.end > other.end
 
-    def to_dict(self) -> Dict[str, Union[str, GtfAttributeType]]:
+    def to_dict(self) -> Mapping[str, Union[str, GtfAttributeType]]:
         """
         Convert to dict to be used for initiators.
         """

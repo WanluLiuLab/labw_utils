@@ -1,3 +1,9 @@
+"""
+libfrontend -- Helpers to setup commandline frontend that have multiple subcommands.
+"""
+
+from __future__ import annotations
+
 __all__ = (
     'setup_frontend',
     "get_subcommands",
@@ -13,29 +19,45 @@ import logging
 import os
 import pkgutil
 import sys
-from typing import List, Iterable, Callable, Optional
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
+from labw_utils.typing_importer import Iterable
+from labw_utils.typing_importer import Optional, Callable, List
 
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
-stream_handler.setFormatter(logger_helper.get_formatter(stream_handler.level))
+_lh: Optional[logging.Logger] = None
 
-logging.basicConfig(
-    handlers=[
-        stream_handler
-    ],
-    force=True,
-    level=logger_helper.TRACE
-)
-_lh = logger_helper.get_logger(__name__)
 
-NONE_DOC = "NONE DOC"
+def setup_basic_logger():
+    _stream_handler = logging.StreamHandler()
+    _stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+    _stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
+
+    if sys.version_info < (3, 8):
+        logging.basicConfig(
+            handlers=[
+                _stream_handler
+            ],
+            level=logger_helper.TRACE
+        )
+    else:
+        logging.basicConfig(
+            handlers=[
+                _stream_handler
+            ],
+            force=True,
+            level=logger_helper.TRACE
+        )
+
+
+_NONE_DOC = "NONE DOC"
 
 
 def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[str]:
+    """
+    Get valid name of subcommands.
+    """
     for spec in pkgutil.iter_modules(
             resolve_name(package_main_name).__spec__.submodule_search_locations
     ):
@@ -45,7 +67,7 @@ def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[s
         try:
             _ = resolve_name(f'{package_main_name}.{subcommand_name}')
         except (UnmetDependenciesError, ImportError):
-            if verbose:
+            if verbose and _lh is not None:
                 _lh.warning("Subcommand %s have unmet dependencies!", subcommand_name)
             continue
         yield subcommand_name
@@ -69,7 +91,7 @@ def get_doc_from_subcommand(
 def get_main_func_from_subcommand(
         package_main_name: str,
         subcommand_name: str
-) -> Optional[Callable[[List[str]], int]]:
+) -> Optional[Callable[[list[str]], int]]:
     """
     Return a subcommands' "main" function.
     """
@@ -100,16 +122,18 @@ def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
+    """`lscmd` frontend."""
     name_doc_dict = {}
-    _lh.info("Listing modules...")
+    if _lh is not None:
+        _lh.info("Listing modules...")
     for item in valid_subcommand_names:
         doc = get_doc_from_subcommand(package_main_name, item)
         if doc is None:
-            doc = NONE_DOC
+            doc = _NONE_DOC
         else:
             doc_splitlines = doc.splitlines()
             if not doc_splitlines:
-                doc = NONE_DOC
+                doc = _NONE_DOC
             else:
                 while len(doc_splitlines) > 0:
                     potential_doc = doc_splitlines[0].strip()
@@ -119,11 +143,11 @@ def lscmd(
                         doc = potential_doc
                         break
                 else:
-                    doc = NONE_DOC
+                    doc = _NONE_DOC
         if doc.find("--") != -1:
             doc = doc.split("--")[1].strip()
         name_doc_dict[item] = doc
-    for item, doc in name_doc_dict.items(): # To prevent logger from polluting outout
+    for item, doc in name_doc_dict.items():  # To prevent logger from polluting outout
         print(f"{item} -- {doc}")
     sys.exit(0)
 
@@ -154,11 +178,11 @@ def _parse_args(
     return parsed_args
 
 
-def _format_help_info(package_main_name: str) -> str:
+def _format_help_info(prefix: str, package_main_name: str) -> str:
     return f"""
 This is frontend of `{package_main_name.split('.')[0].strip()}` provided by `commonutils.libfrontend`.
 
-SYNOPSYS: {sys.argv[0]} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version]
+SYNOPSYS: {prefix} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version]
 
 If a valid [SUBCOMMAND] is present, will execute [SUBCOMMAND] with all other arguments
 
@@ -186,9 +210,13 @@ def setup_frontend(
         use_root_logger: bool = True,
         default_log_filename: str = "log.log"
 ):
+    global _lh
+    setup_basic_logger()
+    _lh = logger_helper.get_logger(__name__)
     _lh.info(f'{one_line_description} ver. {version}')
-    _lh.info(f'Called by: {" ".join(sys.argv)}')
-    parsed_args = _parse_args(sys.argv[1:])
+    argv = sys.argv
+    _lh.info(f'Called by: {" ".join(argv)}')
+    parsed_args = _parse_args(argv[1:])
     if use_root_logger:
         log_filename = os.environ.get("LOG_FILE_NAME", default_log_filename)
         file_handler = logging.FileHandler(filename=log_filename)
@@ -208,7 +236,7 @@ def setup_frontend(
     elif parsed_args.input_subcommand_name == "":
         if parsed_args.have_help:
             if help_info is None:
-                help_info = _format_help_info(package_main_name)
+                help_info = _format_help_info(argv[0], package_main_name)
             print(help_info)
             sys.exit(0)
         elif parsed_args.have_version:

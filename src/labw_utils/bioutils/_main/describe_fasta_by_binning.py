@@ -2,6 +2,8 @@
 describe_fasta_by_binning.py -- Describe statistics on FASTA by binning.
 """
 
+from __future__ import annotations
+
 __all__ = (
     "create_parser",
     "main"
@@ -11,18 +13,18 @@ import argparse
 import json
 import os.path
 from collections import defaultdict
-from typing import List, Any, Dict
 
 from labw_utils import UnmetDependenciesError
+from labw_utils.typing_importer import List, Dict
 from labw_utils.bioutils.accession_matcher import infer_accession_type
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
-from labw_utils.commonutils.stdlib_helper.argparse_helper import EnhancedHelpFormatter, \
-    ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Any
 
 try:
     import numpy as np
@@ -91,15 +93,26 @@ def main(args: List[str]) -> None:
         "FASTA_CHRS": []
     })
 
+    fail_to_idenfy = 0
+    num_of_contigs = 0
     for chr_name in fa.chr_names:
+        num_of_contigs += 1
         inf_type = infer_accession_type(chr_name)
         if inf_type is not None:
             inf_type = infer_accession_type(chr_name).as_dict()
+        else:
+            fail_to_idenfy += 1
         out_metadata["FASTA_CHRS"].append({
             "NAME": chr_name,
             "LEN": fa.get_chr_length(chr_name),
             "TYPE": inf_type
         })
+    _lh.info(
+        "Identified %d out of %d contigs (%.2f%%)",
+        num_of_contigs - fail_to_idenfy,
+        num_of_contigs,
+        (num_of_contigs - fail_to_idenfy) / num_of_contigs * 100
+    )
 
     with get_writer(f"{args.out}.json") as metadata_writer:
         json.dump(out_metadata, metadata_writer)

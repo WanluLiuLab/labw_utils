@@ -1,7 +1,6 @@
-from typing import Iterable
-
 import pandas as pd
 
+from labw_utils.typing_importer import Iterable
 from naive_interval_engine import BaseNaiveIntervalEngine, IntervalType, create_pandas_dataframe_from_input_file
 
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Iterable
 
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
+from labw_utils.typing_importer import Iterable
 
 
 class TranscriptContainerInterface:

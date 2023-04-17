@@ -1,10 +1,9 @@
-from typing import Iterable, Iterator
-
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.feature import Feature, DEFAULT_GTF_QUOTE_OPTIONS
 from labw_utils.bioutils.record.gtf import parse_record, format_string
 from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.typing_importer import Iterable, Iterator
 
 
 class GtfIterator(BaseFileIterator, Iterable[Feature]):

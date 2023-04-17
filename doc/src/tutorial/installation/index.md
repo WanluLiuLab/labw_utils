@@ -2,6 +2,14 @@
 
 `labw_utils` is a package that can both be used as an executable and as a supporting library. Here provides a detailed guide on how it should be installed. In following text, `[VERSION]` should be replaced with your desired version, currently 1.0.1.
 
+```{warning}
+Copy-and-paste code on a website to your terminal is dangerous. See following StackOverflow pages for more details on prevention:
+
+- [web browser - Simple way to safely paste text from website into terminal - Information Security Stack Exchange](https://security.stackexchange.com/questions/249586/simple-way-to-safely-paste-text-from-website-into-terminal)
+- [malware - What is the risk of copy and pasting Linux commands from a website? How can some commands be invisible? - Information Security Stack Exchange](https://security.stackexchange.com/questions/249586/simple-way-to-safely-paste-text-from-website-into-terminal)
+- [exploit - How can I protect myself from this kind of clipboard abuse? - Information Security Stack Exchange](https://security.stackexchange.com/questions/39118/how-can-i-protect-myself-from-this-kind-of-clipboard-abuse)
+```
+
 ## Prerequisites
 
 The `labw_utils` is implemented in Python, so a working Python intepreter is required. Following are several popular ways to get it installed:
@@ -181,7 +189,7 @@ The default installation requires following packages:
 - [`tqdm`](https://tqdm.github.io), for a user-friendly progress bar.
   - Although not recommended, this package can be uninstalled. If so, `labw_utils` would use a bundled shabby process bar implementation.
 - [`numpy`](https://numpy.org), for performing numerical operations. This package is used in most places so uninstallation is not recommended.
-- [`tomli`](https://pypi.org/project/tomli) and [`tomli-w`](https://pypi.org/project/tomli-w), for parsing and serialization from \& to TOML formats.
+- [`tomli-w`](https://pypi.org/project/tomli-w), for serialization to TOML formats.
   - These packages can be uninstalled if you do not use {py:mod}`labw_utils.commonutils.serializer.toml` module.
 - [`pandas`](https://pandas.pydata.org), for reading and writing relational data formats. This package is used in most places so uninstallation is not recommended.
 - [`joblib`](https://joblib.readthedocs.io), for embarrasing parallelization of small tasks.
@@ -270,6 +278,31 @@ The `appenders` installation come with following additional package:
 
 The `all` installation installs all above.
 
-## Alternate Python Implementation
+## Alternate Python Implementation and Low Python Versions
 
-[Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) was not tested. Use at your own risk.
+
+Although using Python 3.8 is recommended, it is also possible to use most function of `labw_utils` on Python 3.7. You need to specify `--ignore-requires-python` flag in PIP.
+
+Known limitations are:
+
+1. The typing system would be completely a mess. The {py:class}`typing.Final` and {py:class}`typing.Literal` would not work as expected.
+2. Version of dependent packages (i.e., Pandas, Numpy, etc.) would be low, making it impossible for you to enjoy advantages provided by more recent versions.
+
+Python3 less than 3.6 and Python <= 3 is explicitly unsupported. Do not try on these Python implementations. [Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) and [PyPy](https://www.pypy.org) are not recommended. Use at your own risk.
+
+Following is a list of tested alternate Python implementations and versions using [Tox](https://tox.wiki/). Dependencies are set up using either `all` or default installation strategy using Conda.
+
+| Implementation | Python API | ALL                | DEFAULT            |
+|----------------|------------|--------------------|--------------------|
+| CPython        | 3.6        | NOT TESTED         | FAIL               |
+| CPython        | 3.7        | PASS               | PASS               |
+| CPython        | 3.8        | PASS               | PASS               |
+| CPython        | 3.9        | PASS               | PASS               |
+| CPython        | 3.10       | PASS               | PASS               |
+| CPython        | 3.11       | UNMET DEPENDENCIES | PASS               |
+| CPython        | 3.12       | NOT TESTED         | NOT TESTED         |
+| PyPy           | 3.6        | NOT TESTED         | NOT TESTED         |
+| PyPy           | 3.7        | PASS               | PASS               |
+| PyPy           | 3.8        | UNMET DEPENDENCIES | PASS               |
+| PyPy           | 3.9        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
+

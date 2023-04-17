@@ -1,18 +1,67 @@
+"""
+
+>>> from labw_utils.typing_importer import Final
+>>> import io
+>>> class A(AbstractTOMLSerializable):
+...     _a: int
+...     _b: int
+...     _title: Final[str] = "A"
+...
+...     def __init__(self, a: int, b: int):
+...         self._a = a
+...         self._b = b
+...
+...     def to_dict(self) -> Mapping[str, Any]:
+...         return {"a": self._a, "b": self._b}
+...
+...     @classmethod
+...     def from_dict(cls, in_dict: Mapping[str, Any]):
+...         return cls(**in_dict)
+...
+...     @staticmethod
+...     def _dump_versions() -> Optional[Mapping[str, Any]]:
+...         return {"version": 1}
+...
+...     @staticmethod
+...     def _dump_metadata() -> Optional[Mapping[str, Any]]:
+...         return {}
+...
+...     @staticmethod
+...     def _validate_versions(versions: Mapping[str, Any]) -> None:
+...         return None
+>>> sio = io.BytesIO()
+>>> A(1, 2).save(sio)
+>>> print(str(sio.getvalue(), encoding="UTF-8"))
+[A]
+a = 1
+b = 2
+<BLANKLINE>
+[version_info]
+version = 1
+<BLANKLINE>
+[metadata]
+<BLANKLINE>
+"""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Mapping, Any, Optional, Callable, Dict
+
 from labw_utils import UnmetDependenciesError
+from labw_utils.stdlib.cpy311 import tomllib
+from labw_utils.typing_importer import Any, Optional, Callable
+from labw_utils.typing_importer import Mapping
 
 try:
-    import tomli
-except ImportError:
-    raise UnmetDependenciesError("tomli")
+    import pytest
 
-try:
-    import tomli_w
+    tomli_w = pytest.importorskip("tomli_w")
 except ImportError:
-    raise UnmetDependenciesError("tomli_w")
+    pytest = None
+    try:
+        import tomli_w
+    except ImportError as e:
+        raise UnmetDependenciesError("tomli_w") from e
 
 
 from labw_utils.commonutils.serializer import SerializableInterface
@@ -41,12 +90,12 @@ def read_toml_with_metadata(
         path: str,
         title: str,
         validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None
-) -> Dict[str, Any]:
+) -> Mapping[str, Any]:
     """
     Read and validate TOML files with metadata.
     """
     with open(path, "rb") as reader:
-        in_dict = tomli.load(reader)
+        in_dict = tomllib.load(reader)
     if "version_info" in in_dict and validate_versions is not None:
         validate_versions(in_dict.pop("version_info"))
     if "metadata" in in_dict:
@@ -73,7 +122,8 @@ def write_toml_with_metadata(
         metadata = dump_metadata()
         if metadata is not None:
             retd["metadata"] = metadata
-    with open(path, 'wb') as writer:
+    if not isinstance(path, str):
+        writer = path
         tomli_w.dump(retd, writer)
 
 

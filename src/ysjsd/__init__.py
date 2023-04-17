@@ -1,31 +1,16 @@
 from labw_utils import UnmetDependenciesError
 
-try:
-    import flask
-except ImportError:
-    raise UnmetDependenciesError("flask")
+_REQUIRED_MODNAMES = ("flask", "sqlalchemy", "psutil", "gevent", "tomli_w")
 
 try:
-    import sqlalchemy
-except ImportError:
-    raise UnmetDependenciesError("sqlalchemy")
+    import pytest
 
-try:
-    import psutil
+    for modname in _REQUIRED_MODNAMES:
+        _ = pytest.importorskip(modname)
 except ImportError:
-    raise UnmetDependenciesError("psutil")
-
-try:
-    import gevent
-except ImportError:
-    raise UnmetDependenciesError("gevent")
-
-try:
-    import tomli
-except ImportError:
-    raise UnmetDependenciesError("tomli")
-
-try:
-    import tomli_w
-except ImportError:
-    raise UnmetDependenciesError("tomli_w")
+    pytest = None
+    for modname in _REQUIRED_MODNAMES:
+        try:
+            __import__(modname)
+        except ImportError:
+            raise UnmetDependenciesError(modname)

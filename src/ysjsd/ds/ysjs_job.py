@@ -4,13 +4,13 @@ import signal
 import subprocess
 import threading
 import time
-from typing import Optional, Any, Mapping
 
 import psutil
 import sqlalchemy.engine
 from sqlalchemy.orm import sessionmaker
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Optional, Any, Mapping
 from libysjs.ds.ysjs_job import YSJSJob
 from ysjsd.orm.ysjs_job_table import YSJSJobTable
 
@@ -92,6 +92,8 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
         _lh.info("Job %d finished with exit value %d", self._job_id, self._retv)
 
     def send_signal(self, _signal: int):
+        if self._p is None:
+            raise # TODO
         self._p.send_signal(_signal)
 
     @property
@@ -111,6 +113,8 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
         """
         Recursively terminate a process tree
         """
+        if self._p is None:
+            raise # TODO
 
         def _kill(_signal: int):
             try:

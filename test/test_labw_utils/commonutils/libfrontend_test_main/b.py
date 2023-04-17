@@ -1,6 +1,5 @@
-from typing import List
-
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import List
 
 blh = get_logger("b")
 ulh = get_logger()

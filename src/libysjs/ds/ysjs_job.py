@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Mapping, Any
-
+from labw_utils.typing_importer import Optional, Mapping, Any
 from libysjs.ds.ysjs_submission import YSJSSubmission
 
 AVAILABLE_JOB_STATUS = (
@@ -59,7 +58,8 @@ class YSJSJob:
     def new(
             cls,
             submission: YSJSSubmission,
-            job_id: int
+            job_id: int,
+            **kwargs
     ):
         return cls(
             submission=submission,

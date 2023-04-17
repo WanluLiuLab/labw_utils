@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Iterable, List, Tuple, Optional
-
 from labw_utils.bioutils.datastructure.region_indexer import NumpyIntervalEngine
 from labw_utils.bioutils.record.feature import Feature
+from labw_utils.typing_importer import Iterable, List, Tuple, Optional
 
 
 class QuantificationOptimizedGeneTree:

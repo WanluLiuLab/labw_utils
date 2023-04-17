@@ -1,9 +1,30 @@
-from typing import Dict, Any, List, Iterable, TypeVar
+"""
+labw_utils.stdlib_helper.itertools_helper -- Some general-purposed functions on iterables.
+"""
+
+from __future__ import annotations
+
+__all__ = (
+    "iterable_translate",
+    "list_translate",
+    "dict_translate"
+)
+
+from labw_utils.typing_importer import Iterable, TypeVar, Mapping, List
 
 _InType = TypeVar("_InType")
+_VarType = TypeVar("_VarType")
 
 
-def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Dict[_InType, _InType]) -> Iterable[_InType]:
+def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InType, _InType]) -> Iterable[_InType]:
+    """
+    Iterable translator.
+
+    This function will change the elements of ``in_iterable`` with the rules specified in ``trans_dict``.
+
+    See also :py:func:`list_translate`.
+    """
+    trans_dict = dict(trans_dict)
     for old_item in in_iterable:
         if old_item in trans_dict.keys():
             yield trans_dict[old_item]
@@ -11,7 +32,7 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Dict[_InType,
             yield old_item
 
 
-def dict_translate(in_dict: Dict[_InType, Any], trans_dict: Dict[_InType, _InType]) -> Dict[_InType, Any]:
+def dict_translate(in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InType, _InType]) -> Mapping[_InType, _VarType]:
     """
     Dictionary Translator.
 
@@ -23,16 +44,14 @@ def dict_translate(in_dict: Dict[_InType, Any], trans_dict: Dict[_InType, _InTyp
     >>> dict_translate({'A':1, 'B':2, 'C':3}, {'A':'a', 'B':'b'})
     {'a': 1, 'b': 2, 'C': 3}
 
-    .. warning::
-     The order of item will change!
-
     :param in_dict: The input dictionary.
     :param trans_dict: The translator.
     """
+    trans_dict = dict(trans_dict)
     return {k: v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
 
 
-def list_translate(in_list: List[_InType], trans_dict: Dict[_InType, _InType]) -> List[_InType]:
+def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]) -> List[_InType]:
     """
     List Translator.
 

@@ -21,21 +21,24 @@ This tutorial assumes basic Python and Shell scripting knowledge and understandi
 
 +++
 
-**How to read this documentation**: Code block without leading `!` are Python code blocks. For example:
+**How to read this documentation**: Code block without leading `%%bash` are Python code blocks. For example:
 
 ```{code-cell} ipython3
 import time; print(time.asctime())
 ```
 
-Code block with leading `!` are Shell code blocks. For example:
+Code block with leading %%bash are Shell code blocks. For example:
 
 ```{code-cell} ipython3
-!ls -lFh | grep ipynb
+%%bash
+ls -lFh | grep ipynb
 ```
 
 ## Preparation
 
 ```{code-cell} ipython3
+:tags: [remove-input]
+
 # Development Block which can be safely ignored.
 # %load_ext autoreload
 # %autoreload 2
@@ -55,6 +58,8 @@ sys.path.insert(0, NEW_PYTHON_PATH)
 os.environ["PYTHONPATH"] = os.pathsep.join((NEW_PYTHON_PATH, os.environ.get("PYTHONPATH", "")))
 ```
 
+Import of necessary modules and print their version.
+
 ```{code-cell} ipython3
 import labw_utils
 import pandas as pd # Pandas for reading/writing relational data
@@ -73,17 +78,16 @@ Download data. Following would download an _C. Elegans_ TGS (ONT GridION, R9.4 P
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
-# SKIP
-!wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR324/ERR3245471/L4_rep2.fastq.gz
-!gunzip L4_rep2.fastq.gz
-!minimap2 -a -x splice ce11.fa L4_rep2.fastq | samtools sort -o L4_rep2.bam
-!samtools index L4_rep2.bam
+%%bash
+wget ftp://ftp.sra.ebi.ac.uk/vol1/run/ERR324/ERR3245471/L4_rep2.fastq.gz
+gunzip L4_rep2.fastq.gz
+minimap2 -a -x splice ce11.fa L4_rep2.fastq | samtools sort -o L4_rep2.bam
+samtools index L4_rep2.bam
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-input]
 
-# RMIN
 %cat preparation.log
 ```
 
@@ -95,14 +99,17 @@ The frontends underneath this package provides bioinformatics utilities. Use ins
 
 ### `lscmd`
 
-This frontend does nothing but lists all available sub-commands and provides one-line description.
+This sub-command does nothing but lists all available sub-commands and provides one-line description.
 
 ```{warning}
-It would try to import every frontend so if you perform a default installation, frontends requiring optional extras like `get_exonic_depth` will NOT be shown.
+The `lscmd` sub-command would try to import all other sub-commands, and some may require optional extras that are **NOT** indluded in default installation. Under that circumstance, these sub-commands will **NOT** be shown.
+
+For example, sub-command `get_exonic_depth` requires dependency [PySam](https://pysam.readthedocs.io), which is defined in `bioutils` optional extras. So if you perform a default installation, this frontend would not show.
 ```
 
 ```{code-cell} ipython3
-!python -m labw_utils.bioutils lscmd
+%%bash
+python -m labw_utils.bioutils lscmd
 ```
 
 ### `describe_fasta_by_binning`
@@ -113,27 +120,20 @@ Work in progress -- do not use.
 
 ### `describe_fastq`
 
-This is a light-weighted [FASTQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) implemented in pure Python. It supports NGS and TGS reads but without detection of repetitive sequences and adapters.
+This is a light-weighted [FASTQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) implemented in pure Python. It supports NGS and TGS reads but cannot detect repetitive sequences and adapters.
 
-Help message:
-
-```{code-cell} ipython3
-!python -m labw_utils.bioutils describe_fastq
-```
-
-Following is an example of describing `L4_rep2.fastq`, the file we just downloaded.
+Using this command is simple, just put filenames after the command. Following is an example of describing `L4_rep2.fastq`, the file we just downloaded.
 
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
-# SKIP
-!python -m labw_utils.bioutils describe_fastq L4_rep2.fastq
+%%bash
+python -m labw_utils.bioutils describe_fastq L4_rep2.fastq
 ```
 
 ```{code-cell} ipython3
 :tags: [remove-input]
 
-# RMIN
 %cat describe_fastq.log
 ```
 
@@ -164,6 +164,17 @@ sns.histplot(fq_stats_all, x="LEN", ax=axs[1])
 sns.histplot(fq_stats_all, x="MEANQUAL", ax=axs[2])
 ```
 
+If multiple files are specified, they would be executed sequentially. If your workstation has a fast hard disk, you may use following shell snippet to analyse all FASTQ files under your current working directory in parallel.
+
+```shell
+for fn in ./*.fq ./*.fq.gz ./*.fastq ./*.fastq.gz; do
+    python -m labw_utils.bioutils describe_fastq "${fn}" &
+done
+wait
+```
+
++++
+
 ### `describe_gtf_by_binning`
 
 Work in progress -- do not use.
@@ -172,9 +183,52 @@ Work in progress -- do not use.
 
 ### `describe_gtf`
 
+```{warning}
+This sub-command (together with other sub-commands, if not specified) uses `labw_utils` 0.1.X GTF parser ({py:mod}`labw_utils.bioutils.datastructure.gene_view_v0_1_x`, with updated one at {py:mod}`labw_utils.bioutils.datastructure.gene_tree`). This parser is NOT stable and is to be deprecated. You shold use **UNSORTED** UCSC references for compatibility. Reference genome annotation from NCBI RefSeq official website (i.e., <https://www.ncbi.nlm.nih.gov/genome/?term=txid6239[orgn]>) is explicitly incompatible, and those from Ensembl may experience bugs.
+
+Known limitations of this version's GTF parser is:
+
+- Cannot parse GTF attribute with same keys, as is commonly seen in GTF distributed by NCBI.
+- If a gene is defined in multiple loci, only the first loci will be used.
+```
+
 This shows basic QC metrics on GTF files that can be parsed into a Gene-Isoform-Exon three-tier structure.
 
-TODO
+For example:
+
+```{code-cell} ipython3
+:tags: [skip-execution]
+
+%%bash
+python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.gtf
+```
+
+```{code-cell} ipython3
+:tags: [remove-input]
+
+%cat describe_gtf.log
+```
+
+This generates following files:
+
+- `ce11.ncbiRefSeq.gtf.gene.tsv`, is simple gene-level summary. It contains following columns:
+  - `GENE_ID`, the `gene_id` attribute on GTF.
+  - `TRANSCRIPT_NUMBER`, number of isoforms of this gene.
+  - `NAIVE_LENGTH`, length calculated by `start` - `start` + 1.
+  - `TRANSCRIBED_LENGTH`, sum of `TRANSCRIBED_LENGTH` of all isoforms.
+  - `MAPPABLE_LENGTH`, length of exonic regions.
+- `ce11.ncbiRefSeq.gtf.transcripts.tsv`, is simple isoform-level summary. It contains following columns:
+  - `TRANSCRIPT_ID`, the `transcript_id` attribute on GTF.
+  - `GENE_ID`, the `gene_id` attribute on GTF.
+  - `NAIVE_LENGTH`, length calculated by `start` - `start` + 1.
+  - `TRANSCRIBED_LENGTH`, length of cDNA. Is `NAIVE_LENGTH` without UTR and introns.
+  - `EXON_NUMBER`, number of exons inside the isoform.
+- `ce11.ncbiRefSeq.gtf.exons.tsv`, is simple exon-level summary. It contains following columns:
+  - `TRANSCRIPT_ID`, the `transcript_id` attribute on GTF.
+  - `EXON_NUMBER`, the `exon_number` attribute on GTF.
+  - `NAIVE_LENGTH`, length calculated by `start` - `start` + 1.
+
+If multiple files are specified, they would be executed sequentially.
 
 +++
 
@@ -211,7 +265,6 @@ and perform filtering using:
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
-# SKIP
 !python -m labw_utils.bioutils filter_gtf_by_attribute \
     -g ce11.ncbiRefSeq.gtf \
     --attribute_name gene_id \
@@ -223,7 +276,6 @@ and perform filtering using:
 ```{code-cell} ipython3
 :tags: [remove-input]
 
-# RMIN
 %cat filter_gtf_by_attribute.log
 ```
 
@@ -258,7 +310,6 @@ Help message:
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
-# SKIP
 !python -m labw_utils.bioutils get_exonic_depth \
     -s L4_rep2.bam \
     -g ce11.ncbiRefSeq.gtf
@@ -267,7 +318,6 @@ Help message:
 ```{code-cell} ipython3
 :tags: [remove-input]
 
-# RMIN
 %cat get_exonic_depth.log
 ```
 
@@ -322,7 +372,6 @@ Example:
 ```{code-cell} ipython3
 :tags: [skip-execution]
 
-# SKIP
 !python -m labw_utils.bioutils transcribe \
     -f ce11.fa \
     -g ce11.filtered.gtf \
@@ -333,7 +382,6 @@ Example:
 ```{code-cell} ipython3
 :tags: [remove-input]
 
-# RMIN
 %cat transcribe.log
 ```
 

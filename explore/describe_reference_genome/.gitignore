@@ -2,3 +2,6 @@
 *.fa
 *.fna
 */
+!*/Makefile
+!fa_spec.json
+!gtf_spec.json
