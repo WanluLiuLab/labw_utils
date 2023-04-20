@@ -23,20 +23,20 @@ This tutorial assumes basic Python and Shell scripting knowledge and understandi
 
 **How to read this documentation**: Code block without leading `%%bash` are Python code blocks. For example:
 
-```{code-cell} ipython3
+```{code-cell}
 import time; print(time.asctime())
 ```
 
 Code block with leading %%bash are Shell code blocks. For example:
 
-```{code-cell} ipython3
+```{code-cell}
 %%bash
 ls -lFh | grep ipynb
 ```
 
 ## Preparation
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 # Development Block which can be safely ignored.
@@ -60,7 +60,7 @@ os.environ["PYTHONPATH"] = os.pathsep.join((NEW_PYTHON_PATH, os.environ.get("PYT
 
 Import of necessary modules and print their version.
 
-```{code-cell} ipython3
+```{code-cell}
 import labw_utils
 import pandas as pd # Pandas for reading/writing relational data
 import seaborn as sns # seaborn for simple plotting
@@ -75,7 +75,7 @@ print(f"matplotlib: {matplotlib.__version__}")
 
 Download data. Following would download an _C. Elegans_ TGS (ONT GridION, R9.4 Pore) direct RNA-Seq data from ENA accession [ERR3245471](https://www.ebi.ac.uk/ena/browser/view/ERR3245471) (article {cite}`Roach2020`) and align it to UCSC `ce11` reference genome.
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [skip-execution]
 
 %%bash
@@ -85,7 +85,7 @@ minimap2 -a -x splice ce11.fa L4_rep2.fastq | samtools sort -o L4_rep2.bam
 samtools index L4_rep2.bam
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 %cat preparation.log
@@ -107,7 +107,7 @@ The `lscmd` sub-command would try to import all other sub-commands, and some may
 For example, sub-command `get_exonic_depth` requires dependency [PySam](https://pysam.readthedocs.io), which is defined in `bioutils` optional extras. So if you perform a default installation, this frontend would not show.
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 %%bash
 python -m labw_utils.bioutils lscmd
 ```
@@ -124,14 +124,14 @@ This is a light-weighted [FASTQC](http://www.bioinformatics.babraham.ac.uk/proje
 
 Using this command is simple, just put filenames after the command. Following is an example of describing `L4_rep2.fastq`, the file we just downloaded.
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [skip-execution]
 
 %%bash
 python -m labw_utils.bioutils describe_fastq L4_rep2.fastq
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 %cat describe_fastq.log
@@ -151,12 +151,12 @@ This generates:
 
 Following is an example of using `all.tsv` to determine base sequencing metrics.
 
-```{code-cell} ipython3
+```{code-cell}
 fq_stats_all = pd.read_table("L4_rep2.fastq.stats.d/all.tsv")
 fq_stats_all.head()
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 fig, axs = plt.subplots(3, 1)
 
 sns.histplot(fq_stats_all, x="GC", ax=axs[0])
@@ -196,14 +196,14 @@ This shows basic QC metrics on GTF files that can be parsed into a Gene-Isoform-
 
 For example:
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [skip-execution]
 
 %%bash
 python -m labw_utils.bioutils describe_gtf ce11.ncbiRefSeq.gtf
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 %cat describe_gtf.log
@@ -250,7 +250,7 @@ Fields like `chrI` or `3747` is more commonly refered to as "Required fields".
 
 With following help message:
 
-```{code-cell} ipython3
+```{code-cell}
 !python -m labw_utils.bioutils filter_gtf_by_attribute --help
 ```
 
@@ -262,7 +262,7 @@ For example, we wish to get all genomic features in [CED](https://wormbase.org/r
 
 and perform filtering using:
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [skip-execution]
 
 !python -m labw_utils.bioutils filter_gtf_by_attribute \
@@ -273,7 +273,7 @@ and perform filtering using:
     --regex
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 %cat filter_gtf_by_attribute.log
@@ -303,11 +303,11 @@ This module does NOT take care of alt contigs, decoy sequences, patch fixes, unl
 
 Help message:
 
-```{code-cell} ipython3
+```{code-cell}
 !python -m labw_utils.bioutils get_exonic_depth --help
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [skip-execution]
 
 !python -m labw_utils.bioutils get_exonic_depth \
@@ -315,7 +315,7 @@ Help message:
     -g ce11.ncbiRefSeq.gtf
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 %cat get_exonic_depth.log
@@ -339,7 +339,7 @@ This script randomly samples isoforms in a GTF by percentage.
 
 The help message is as follows:
 
-```{code-cell} ipython3
+```{code-cell}
 !python -m labw_utils.bioutils sample_transcript --help
 ```
 
@@ -349,7 +349,7 @@ This module splite FASTA with multiple contig into FASTA files with one file per
 
 The help message is as follows:
 
-```{code-cell} ipython3
+```{code-cell}
 !python -m labw_utils.bioutils split_fasta --help
 ```
 
@@ -363,13 +363,13 @@ Although this software can be used to generate reference cDNAs for software like
 
 The help message is as follows:
 
-```{code-cell} ipython3
+```{code-cell}
 !python -m labw_utils.bioutils transcribe --help
 ```
 
 Example:
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [skip-execution]
 
 !python -m labw_utils.bioutils transcribe \
@@ -379,7 +379,7 @@ Example:
     -o ce11_trans_filtered.fa
 ```
 
-```{code-cell} ipython3
+```{code-cell}
 :tags: [remove-input]
 
 %cat transcribe.log

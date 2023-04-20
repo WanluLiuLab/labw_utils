@@ -32,7 +32,7 @@ NCBI RefSeq, with {'TYPE': 'Chromosome in Reference Assembly', 'VERSION': None}
                                            'TYPE': 'WGS',
                                            'VERSION': None},
                                'toplevel': 'NCBI GeneBank Sequence'},
-             'IS_DECOY': 'True',
+             'TYPE': 'DECOY',
              'VERSION': '1'},
  'toplevel': 'Analysis Set Unplaced Scaffold'}
 >>> pprint.pprint(infer_accession_type("chr19_KI270885v1_alt").as_dict())
