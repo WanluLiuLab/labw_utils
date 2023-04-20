@@ -8,34 +8,15 @@ argv <- parse_args(p)
 library(tidyverse)
 library(arrow)
 library(parallel)
+library(fs)
 
-cl <- parallel::makeCluster(40)
+dir.create(argv$output, recursive = TRUE, showWarnings = FALSE)
+
+cl <- parallel::makeCluster(parallel::detectCores())
 df <- arrow::read_parquet(argv$input) %>%
     tibble::as_tibble() %>%
     replace(is.na(.), 0)
-df_cat <- df %>%
-    dplyr::select(!c(
-        gtf_intervals_pos,
-        gtf_intervals_neg,
-        gtf_intervals_strandless,
-        sdi,
-        gc
-    ))
-df_gtf_intervals <- df %>%
-    dplyr::select(
-        start,
-        chr_name,
-        gtf_intervals_pos,
-        gtf_intervals_neg,
-        gtf_intervals_strandless
-    )
-df_diversity <- df %>%
-    dplyr::select(
-        start,
-        chr_name,
-        sdi,
-        gc
-    )
+df_cat <- df
 
 
 normal_nts <- c("A", "C", "G", "T")
@@ -68,6 +49,16 @@ other_nts <- setdiff(
         "start"
     )
 )
+all_nts <- c(
+    normal_nts,
+    sm_nts,
+    hm_nts,
+    sm_hm_nts,
+    ambig_nts,
+    sm_ambig_nts,
+    other_nts
+)
+
 
 nt_scale_limits <- c(
     normal_nts,
@@ -115,7 +106,7 @@ plot_chr <- function(this_chr_name) {
             NT_NORMAL = rowSums(dplyr::select(this_df_cat, dplyr::any_of(normal_nts))),
             NT_SOFT_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_nts))),
             NT_HARD_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(hm_nts))),
-            NT_SOFT_HARD_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_nts))),
+            NT_SOFT_HARD_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of("n"))),
             NT_AMBIG = rowSums(dplyr::select(this_df_cat, dplyr::any_of(ambig_nts))),
             NT_AMBIG_SOFT_MASKED = rowSums(dplyr::select(this_df_cat, dplyr::any_of(sm_ambig_nts))),
             OTHERS = rowSums(dplyr::select(this_df_cat, dplyr::any_of(other_nts))),
@@ -126,17 +117,15 @@ plot_chr <- function(this_chr_name) {
             value = "value",
             -start
         )
-    this_df_gtf_intervals <- df_gtf_intervals %>%
-        dplyr::filter(chr_name == this_chr_name) %>%
-        dplyr::select(!chr_name) %>%
-        tidyr::gather(
-            key = "IntervalType",
-            value = "value",
-            -start
-        )
-    this_df_diversity <- df_diversity %>%
-        dplyr::filter(chr_name == this_chr_name) %>%
-        dplyr::select(!chr_name) %>%
+    this_df_diversity <- this_df_cat %>%
+        dplyr::transmute(
+            start,
+            gc = rowSums(
+                dplyr::select(this_df_cat, dplyr::any_of(c("c", "C", "g", "G")))
+            ) / rowSums(
+                dplyr::select(this_df_cat, dplyr::any_of(all_nts))
+            )
+        ) %>%
         tidyr::gather(
             key = "DiversityIndexName",
             value = "value",
@@ -168,16 +157,6 @@ plot_chr <- function(this_chr_name) {
         theme_bw() +
         ggtitle(sprintf("Base distribution in %s", this_chr_name))
 
-    g3 <- ggplot(this_df_gtf_intervals) +
-        geom_bar(
-            aes(x = start, y = value),
-            stat = "identity"
-        ) +
-        facet_grid(IntervalType ~ ., scales = "free_y") +
-        scale_x_continuous("POS", labels = scales::label_number()) +
-        theme_bw() +
-        ggtitle(sprintf("Interval distribution in %s", this_chr_name))
-
     g4 <- ggplot(this_df_diversity) +
         geom_area(
             aes(x = start, y = value)
@@ -195,10 +174,6 @@ plot_chr <- function(this_chr_name) {
     ggsave(
         sprintf("%s/%s-nt-c.pdf", argv$output, this_chr_name),
         g2, width = 20, height = 5
-    )
-    ggsave(
-        sprintf("%s/%s-gtf.pdf", argv$output, this_chr_name),
-        g3, width = 20, height = 5
     )
     ggsave(
         sprintf("%s/%s-div.pdf", argv$output, this_chr_name),

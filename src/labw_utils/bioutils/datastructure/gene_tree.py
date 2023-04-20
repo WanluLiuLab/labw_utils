@@ -6,8 +6,18 @@ from labw_utils.bioutils.datastructure.gv.gene import Gene
 from labw_utils.bioutils.datastructure.gv.gene_container_interface import GeneContainerInterface
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface
+from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import Feature, FeatureType
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.stdlib_helper import pickle_helper
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.commonutils.io.file_system import should_regenerate
 from labw_utils.typing_importer import Iterable, Dict, Iterator
+
+_lh = get_logger(__name__)
+
+GVPKL_VERSION = "1.0"
+"""Current version of GVPKL standard."""
 
 
 class DuplicatedGeneIDError(GVPError):
@@ -188,7 +198,7 @@ class GeneTree(
             return self
 
     @classmethod
-    def from_feature_iterator(
+    def from_feature_iterator_legacy(
             cls,
             feature_iterator: Iterable[Feature],
             keep_sorted: bool = False,
@@ -210,3 +220,122 @@ class GeneTree(
             for transcript in gene.transcript_values:
                 yield transcript
                 yield from transcript.exons
+
+    @classmethod
+    def from_feature_iterator(
+            cls,
+            feature_iterator: Iterable[Feature],
+            keep_sorted: bool = False,
+            is_checked: bool = False,
+    ):
+        feature_list = list(feature_iterator)
+        exons = list(
+            Exon(data=feature, is_checked=is_checked, shortcut=False) for feature in
+            filter(lambda feature: feature.parsed_feature == FeatureType.EXON, feature_list)
+        )
+        transcripts = list(
+            Transcript(
+                data=feature,
+                exons=[],
+                is_checked=is_checked,
+                is_inferred=False,
+                keep_sorted=keep_sorted,
+                shortcut=False
+            ) for feature in
+            filter(lambda feature: feature.parsed_feature == FeatureType.TRANSCRIPT, feature_list)
+        )
+        genes = list(
+            Gene(
+                data=feature,
+                transcripts=[],
+                transcript_ids=[],
+                is_checked=is_checked,
+                is_inferred=False,
+                keep_sorted=keep_sorted,
+                shortcut=False
+            ) for feature in
+            filter(lambda feature: feature.parsed_feature == FeatureType.GENE, feature_list)
+        )
+        transcript_ids = set(transcript.transcript_id for transcript in transcripts)
+        for exon in tqdm(exons, desc="Scanning for missing transcript definitions..."):
+            if exon.transcript_id not in transcript_ids:
+                _lh.warning("Transcript %s inferred from exon!", exon.transcript_id)
+                new_transcript = Transcript(
+                    data=exon.get_data(),
+                    exons=[],
+                    is_checked=is_checked,
+                    is_inferred=True,
+                    keep_sorted=keep_sorted,
+                    shortcut=False
+                )
+                transcripts.append(new_transcript)
+                transcript_ids.add(new_transcript.transcript_id)
+        transcript_id_to_transcript_index: Dict[str, Transcript] = {
+            transcript.transcript_id: transcript
+            for transcript in transcripts
+        }
+        for exon in tqdm(exons, desc="Adding exons to transcript..."):
+            transcript_id_to_transcript_index[exon.transcript_id] = \
+                transcript_id_to_transcript_index[exon.transcript_id].add_exon(exon)
+
+        transcripts = transcript_id_to_transcript_index.values()
+        gene_ids = set(gene.gene_id for gene in genes)
+        for transcript in tqdm(transcripts, desc="Scanning for missing gene definitions..."):
+            if transcript.gene_id not in gene_ids:
+                _lh.warning("Gene %s inferred from transcript %s!", transcript.gene_id, transcript.transcript_id)
+                new_gene = Gene(
+                    data=transcript.get_data(),
+                    transcripts=[],
+                    transcript_ids=[],
+                    is_checked=is_checked,
+                    is_inferred=True,
+                    keep_sorted=keep_sorted,
+                    shortcut=False
+                )
+                genes.append(new_gene)
+                gene_ids.add(new_gene.gene_id)
+        gene_id_to_gene_index: Dict[str, Gene] = {
+            gene.gene_id: gene
+            for gene in genes
+        }
+        for transcript in tqdm(transcripts, desc="Adding transcripts to gene..."):
+            gene_id_to_gene_index[transcript.gene_id] = \
+                gene_id_to_gene_index[transcript.gene_id].add_transcript(transcript)
+        return cls(
+            gene_id_to_gene_index=gene_id_to_gene_index,
+            transcript_ids_to_gene_ids_index={
+                transcript.transcript_id: transcript.gene_id
+                for transcript in transcripts
+            },
+            is_checked=is_checked,
+            keep_sorted=keep_sorted
+        )
+
+    @classmethod
+    def from_gtf_file(
+            cls,
+            gtf_file_path: str,
+            keep_sorted: bool = False,
+            is_checked: bool=False
+    ):
+        gtf_index_file_path = f"{gtf_file_path}.{GVPKL_VERSION}.gvpkl.xz"
+        if should_regenerate(gtf_file_path, gtf_index_file_path):
+            new_instance = cls.from_feature_iterator(
+                GtfIterator(gtf_file_path),
+                keep_sorted=keep_sorted,
+                is_checked=is_checked
+            )
+            pickle_helper.dump((GVPKL_VERSION, new_instance), gtf_index_file_path)
+            return new_instance
+        else:
+            (gvpkl_version, new_instance) = pickle_helper.load(gtf_index_file_path)
+            if gvpkl_version != GVPKL_VERSION:
+                new_instance = cls.from_feature_iterator(
+                    GtfIterator(gtf_file_path),
+                    keep_sorted=keep_sorted,
+                    is_checked=is_checked
+                )
+                pickle_helper.dump((GVPKL_VERSION, new_instance), gtf_index_file_path)
+            return new_instance
+
+

@@ -1,5 +1,9 @@
 """
 Gene View -- Gene Tree in version 0.1.X
+
+.. deprecated:: 1.0.0
+    Use :py:mod:`labw_utils.bioutils.datastructure.gene_tree` instead.
+
 """
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 

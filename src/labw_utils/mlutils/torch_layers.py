@@ -32,7 +32,7 @@ class Describe(torch.nn.Module):
 
         :param prefix: Prefix of the printed message. Recommended to be the name of previous layer.
 
-        See also: :py:func:`labw_utils.mlutils.ndarray_helper.describe`.
+        .. seealso :: :py:func:`labw_utils.mlutils.ndarray_helper.describe`.
         """
         super().__init__()
         self._prefix = prefix

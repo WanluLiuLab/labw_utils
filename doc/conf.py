@@ -33,18 +33,8 @@ release = labw_utils.__version__
 
 # -- General configuration ---------------------------------------------------
 
-html_theme = 'furo'
-extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.todo',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.mathjax',
-    "sphinx.ext.viewcode",
-    'myst_nb',
-    'sphinx_copybutton',
-    'sphinxcontrib.bibtex',
-    'sphinx_design'
-]
+html_theme = parsed_pyproject["tool"]["sphinx"]["html_theme"]
+extensions = parsed_pyproject["tool"]["sphinx"]["extensions"]
 
 myst_enable_extensions = ["deflist", "colon_fence"]
 exclude_patterns = [
@@ -53,8 +43,6 @@ exclude_patterns = [
     '.DS_Store',
     '.virtualenv/**'
 ]
-html_theme_options = {
-}
 
 # html_static_path = ['_static']
 
@@ -82,8 +70,11 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3.8', None),
     'joblib': ('https://joblib.readthedocs.io/en/latest', None),
     'torch': ('https://pytorch.org/docs/stable', None),
-    'psutil': ('https://psutil.readthedocs.io/en/latest', None)
+    'psutil': ('https://psutil.readthedocs.io/en/latest', None),
+    'pandas': ('https://pandas.pydata.org/docs/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
 }
+manpages_url = 'https://manpages.debian.org/{path}'
 
 # myst-nb settings
 nb_execution_timeout = 1200
@@ -92,3 +83,5 @@ nb_merge_streams = True
 
 # BibTeX setting
 bibtex_bibfiles = ['refs.bibtex.bib']
+bibtex_default_style = 'plain'
+bibtex_reference_style = 'super'

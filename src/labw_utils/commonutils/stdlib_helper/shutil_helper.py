@@ -140,6 +140,8 @@ def touch(
     """
     touch: ensure the existence of a file, just like GNU CoreUtils touch.
 
+    .. seealso :: :manpage:`touch(1)`
+
     :param filename: The filename you wish to touch.
     :param change_m_time: Whether to change modification time.
     :param change_a_time: Whether to change access time.

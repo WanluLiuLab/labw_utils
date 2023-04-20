@@ -645,7 +645,7 @@ class AnalysisSetChromosomeUnplacedGenbankMatcher(AccessionMatcherRuleType):
                 "GENBANK_ACCESSION": genbank_accession,
                 "GENBANK_MATCH": NCBIGenBankAccessionMatcher().match(genbank_accession),
                 "VERSION": groups[1],
-                "IS_DECOY": str(groups[2] is not None)
+                "TYPE": "DECOY" if groups[2] is not None else "MISC"
             }
         )
 
@@ -681,12 +681,26 @@ class AnalysisSetContigMatcher(ChainAccessionMatcherRuleType):
     ]
 
 
+class IntegerMatcher(AccessionMatcherRuleType):
+    _int_regex = re.compile(r"^\d+$")
+    _roman_int_regex = re.compile(r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$")
+    # See: <https://www.oreilly.com/library/view/regular-expressions-cookbook/9780596802837/ch06s09.html>
+
+    def match(self, accession: str) -> Optional[AccessionMatchResult]:
+        if self._int_regex.match(accession) is not None:
+            return AccessionMatchResult(toplevel="Integer", details={})
+        if self._roman_int_regex.match(accession) is not None:
+            return AccessionMatchResult(toplevel="Integer (Roman)", details={})
+        return None
+
+
 class MasterAccessionMatcher(ChainAccessionMatcherRuleType):
     _rule_chain: Final[list[AccessionMatcherRuleType]] = [
         MasterEnsembleIDMatcher,
         NCBIRefSeqMatcher,
         AnalysisSetContigMatcher,
-        NCBIGenBankAccessionMatcher
+        NCBIGenBankAccessionMatcher,
+        IntegerMatcher
     ]
 
 

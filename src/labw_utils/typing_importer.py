@@ -1,7 +1,7 @@
 """
 typing_importer -- Python :py:mod:`typing`, :py:mod:`builtins` and :py:mod:`collections.abc` compatibility layer.
 
-See also: PEP585
+.. seealso :: :pep:`585`.
 
 This also defines :py:class:`SequenceProxy` and :py:class:`MappingProxy` to create read-only view for underlying
 :py:obj:`list` or :py:obj:`dict` objects.
@@ -45,6 +45,7 @@ __all__ = (
     "Dict",
     "Tuple",
     "Set",
+    "Hashable",
     "Type",
     "Deque",
     "Iterable",
@@ -90,14 +91,16 @@ __all__ = (
     "MappingProxy"
 )
 
+import bisect
 import sys
+from abc import abstractmethod
 
 from typing import Any, Optional, Union, TypeVar, IO, TextIO, BinaryIO, AnyStr, NamedTuple, Generic
 
 if sys.version_info >= (3, 9):
     from collections.abc import Callable, Iterable, Iterator, Awaitable, Coroutine, Generator, Mapping, \
         AsyncIterable, AsyncIterator, AsyncGenerator, Reversible, Container, Collection, MutableSet, MutableMapping, \
-        Sequence, MutableSequence, ByteString, MappingView, KeysView, ItemsView, ValuesView, Sized
+        Sequence, MutableSequence, ByteString, MappingView, KeysView, ItemsView, ValuesView, Sized, Hashable
     from collections import Counter, OrderedDict, defaultdict, ChainMap, deque
 
     List = list
@@ -111,7 +114,7 @@ else:
     from typing import List, Dict, Set, Tuple, Type, Callable, Deque, Iterable, Iterator, Awaitable, Coroutine, \
         Generator, Mapping, AsyncIterable, AsyncIterator, AsyncGenerator, Reversible, Container, Collection, MutableSet, \
         MutableMapping, Sequence, MutableSequence, Counter, OrderedDict, DefaultDict, ChainMap, ByteString, MappingView, \
-        KeysView, ItemsView, ValuesView, Sized
+        KeysView, ItemsView, ValuesView, Sized, Hashable
 
 if sys.version_info < (3, 8):
     class _Subscriptable:

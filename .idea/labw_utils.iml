@@ -37,7 +37,14 @@
       <excludeFolder url="file://$MODULE_DIR$/doc/src/tutorial/frontend/ce11_trans_filtered.fa.d" />
       <excludeFolder url="file://$MODULE_DIR$/.mypy_cache" />
       <excludeFolder url="file://$MODULE_DIR$/.tox" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/chr21.fig.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/ens_transcript_id_mtr" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/fig" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/id_map" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/incoming" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/out_pre_processed_fa" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_fa" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_gtf" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_mtr" />
     </content>

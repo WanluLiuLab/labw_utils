@@ -448,3 +448,4 @@ pypy_venv/
 *.json
 *.txt
 *pkl
+*.tar

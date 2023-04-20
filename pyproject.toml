@@ -83,3 +83,18 @@ output = "pytest/cov.xml"
 
 [tool.coverage.html]
 directory = "pytest/cov_html"
+
+[tool.sphinx]
+html_theme = 'furo'
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.todo',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.mathjax',
+    "sphinx.ext.viewcode",
+    'myst_nb',
+    'sphinx_copybutton',
+    'sphinxcontrib.bibtex',
+    'sphinx_design'
+]
+

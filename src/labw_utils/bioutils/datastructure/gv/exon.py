@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from labw_utils.bioutils.algorithm.sequence import complement, reverse_complement
 from labw_utils.bioutils.datastructure.gv import SequenceFuncType, generate_unknown_transcript_id, \
-    generate_unknown_gene_id, CanTranscribeInterface
+    CanTranscribeInterface
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.record.feature import Feature
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -21,9 +21,6 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
     def transcript_id(self) -> str:
         return self.attribute_get("transcript_id")
 
-    @property
-    def gene_id(self) -> str:
-        return self.attribute_get("gene_id")
 
     @property
     def transcribed_length(self):
@@ -40,8 +37,6 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
         if not shortcut:
             if data.attribute_get("transcript_id") is None:
                 data = data.update_attribute(transcript_id=generate_unknown_transcript_id())
-            if data.attribute_get("gene_id") is None:
-                data = data.update_attribute(gene_id=generate_unknown_gene_id())
         BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 
     def __repr__(self):
