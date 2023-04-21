@@ -20,6 +20,28 @@ import labw_utils.commonutils.io.rule_based_ioproxy as rio
 from labw_utils.commonutils.io import PathOrFDType
 from labw_utils.commonutils.io import file_system, IOProxy
 from labw_utils.commonutils.stdlib_helper import shutil_helper
+from labw_utils.typing_importer import overload, Literal, Optional
+
+
+# @overload
+# def get_reader(
+#         path_or_fd: PathOrFDType,
+#         is_binary: Literal[True],
+#         compression: Optional[str] = None,
+#         **kwargs
+# ) -> IOProxy[bytes]:
+#     ...
+#
+#
+# @overload
+# def get_reader(
+#         path_or_fd: PathOrFDType,
+#         is_binary: Literal[False],
+#         encoding: str = "utf-8",
+#         compression: Optional[str] = None,
+#         **kwargs
+# ) -> IOProxy[str]:
+#     ...
 
 
 def get_reader(path_or_fd: PathOrFDType, **kwargs) -> IOProxy:

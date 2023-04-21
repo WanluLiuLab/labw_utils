@@ -12,7 +12,9 @@ Following is an example using :py:class:`IOProxy` over :py:class:`io.StringIO`.
 >>> sio = io.StringIO("AAAA")
 >>> siop = IOProxy(sio)
 >>> siop.mode
+'NA'
 >>> siop.name
+'NA'
 >>> siop.closed
 False
 >>> siop.fileno()
@@ -38,15 +40,6 @@ True
 True
 >>> sio.closed
 True
-
-This also works with :py:func:`get_reader`. For example:
-
->>> sio = io.StringIO("AAAA")
->>> with get_reader(sio) as reader:
-...    reader.read()
-'AAAA'
->>> sio.closed
-True
 """
 
 from __future__ import annotations
@@ -57,31 +50,24 @@ __all__ = (
     "PathOrFDType",
     "FDType",
     "IOProxy",
-    "get_reader",
-    "get_writer",
-    "get_appender",
     "is_io",
     "is_path",
     "type_check"
 )
 
+import enum
 import io
 import os
 
-from labw_utils.typing_importer import Iterator, Iterable, List, Union, IO, Optional, AnyStr
-
-try:
-    from io import RawIOBase
-
-    _ = RawIOBase.write
-except AttributeError:
-    from labw_utils.typing_importer import IO as RawIOBase
-
-from labw_utils.devutils.decorators import copy_doc
+from labw_utils.typing_importer import Iterator, Iterable, List, Union, IO, Optional, AnyStr, Generic, Literal, overload
 
 PathType = Union[str, bytes, os.PathLike]
 FDType = Union[IO, io.IOBase, io.StringIO, io.BytesIO]
 PathOrFDType = Union[PathType, FDType]
+class ModeEnum(enum.Enum):
+    READ = 0
+    WRITE = 1
+    APPEND = 2
 
 
 def is_io(obj: object) -> bool:
@@ -152,13 +138,17 @@ def convert_path_to_str(path: PathType) -> str:
     '/'
     >>> convert_path_to_str(pathlib.Path())
     '.'
+
+    :raises TypeError: On unexpected types.
     """
     if isinstance(path, os.PathLike):
         return path.__fspath__()
     elif isinstance(path, bytes):
         return str(path, encoding="UTF-8")
-    else:
+    elif isinstance(path, str):
         return path
+    else:
+        raise TypeError(f"Type {type(path)} not supported!")
 
 
 def type_check(obj: object) -> bool:
@@ -213,7 +203,8 @@ def determine_line_endings(file_path_or_fd: PathOrFDType) -> str:
     :param file_path_or_fd: File path or file descriptor.
     :return: One of ``\\r``, ``\\n``, ``\\r\\n``, ``\\n\\r``.
     """
-    if not is_io(file_path_or_fd):
+    if not type_check(file_path_or_fd):
+        file_path_or_fd = convert_path_to_str(file_path_or_fd)
         return determine_line_endings(open(file_path_or_fd, "r"))
 
     find_cr = False
@@ -240,7 +231,7 @@ def determine_line_endings(file_path_or_fd: PathOrFDType) -> str:
     return os.linesep
 
 
-class IOProxy(IO):
+class IOProxy(IO[AnyStr]):
     """
     IO Proxy for IO objects.
     """
@@ -263,27 +254,25 @@ class IOProxy(IO):
         self._fd = fd
 
     @property
-    def mode(self) -> Optional[str]:
+    def mode(self) -> str:
         if hasattr(self._fd, 'mode'):
             return self._fd.mode
         else:
-            return None
+            return "NA"
 
     @property
-    def name(self) -> Optional[str]:
+    def name(self) -> str:
         if hasattr(self._fd, 'name'):
             return self._fd.name
         else:
-            return None
+            return "NA"
 
-    @copy_doc(RawIOBase.closed)
     @property
     def closed(self) -> bool:
         return self._fd.closed
 
-    @copy_doc(RawIOBase.close)
     def close(self) -> None:
-        return self._fd.close()
+        self._fd.close()
 
     def fileno(self) -> int:
         """
@@ -295,74 +284,51 @@ class IOProxy(IO):
         except io.UnsupportedOperation as e:  # In io.StringIO
             raise OSError from e
 
-    @copy_doc(RawIOBase.flush)
     def flush(self) -> None:
         self._fd.flush()
 
-    @copy_doc(RawIOBase.isatty)
     def isatty(self) -> bool:
         return self._fd.isatty()
 
-    @copy_doc(RawIOBase.read)
     def read(self, size: int = -1) -> AnyStr:
         return self._fd.read(size)
 
-    @copy_doc(RawIOBase.readable)
     def readable(self) -> bool:
         return self._fd.readable()
 
-    @copy_doc(RawIOBase.readline)
     def readline(self, limit: int = -1) -> AnyStr:
         return self._fd.readline(limit)
 
-    @copy_doc(RawIOBase.readlines)
     def readlines(self, hint: int = -1) -> List[AnyStr]:
         return self._fd.readlines(hint)
 
-    @copy_doc(RawIOBase.seek)
     def seek(self, offset: int, whence: int = io.SEEK_SET) -> int:
         return self._fd.seek(offset, whence)
 
-    @copy_doc(RawIOBase.seekable)
     def seekable(self) -> bool:
         return self._fd.seekable()
 
-    @copy_doc(RawIOBase.tell)
     def tell(self) -> int:
         return self._fd.tell()
 
-    @copy_doc(RawIOBase.truncate)
-    def truncate(self, size: Optional[int]) -> int:
+    def truncate(self, size: Optional[int] = None) -> int:
         return self._fd.truncate(size)
 
-    @copy_doc(RawIOBase.writable)
     def writable(self) -> bool:
         return self._fd.writable()
 
-    @copy_doc(RawIOBase.write)
     def write(self, s: AnyStr) -> int:
         return self._fd.write(s)
 
-    @copy_doc(RawIOBase.writelines)
     def writelines(self, lines: Iterable[AnyStr]) -> None:
         self._fd.writelines(lines)
 
-    try:
-        @copy_doc(RawIOBase.__next__)
-        def __next__(self) -> AnyStr:
-            return self._fd.__next__()
+    def __next__(self) -> AnyStr:
+        return self._fd.__next__()
 
-        @copy_doc(RawIOBase.__iter__)
-        def __iter__(self) -> Iterator[AnyStr]:
-            return self._fd.__iter__()
-    except AttributeError:
-        def __next__(self) -> AnyStr:
-            return self._fd.__next__()
+    def __iter__(self) -> Iterator[AnyStr]:
+        return self._fd.__iter__()
 
-        def __iter__(self) -> Iterator[AnyStr]:
-            return self._fd.__iter__()
-
-    @copy_doc(RawIOBase.__enter__)
     def __enter__(self):
         try:
             self._fd.__enter__()
@@ -370,84 +336,8 @@ class IOProxy(IO):
             pass
         return self
 
-    @copy_doc(RawIOBase.__exit__)
     def __exit__(self, *args, **kwargs):
         try:
             self._fd.__exit__(*args, **kwargs)
         except AttributeError:
             return
-
-
-def get_reader(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> IOProxy:
-    """
-    Get a reader for multiple format.
-
-    This function is for newbies or others who does not wish to have full control over what they opened.
-    The IO wrapper given by this function may satisfy 95% of the needs.
-
-    :param path_or_fd: Filename to be opened or IO that was opened..
-    :param is_binary: Whether to read as binary.
-    :param kwargs: Other arguments passed to underlying opener.
-
-    .. warning ::
-        Do NOT specify ``mode`` keyword arguments!
-    """
-    if type_check(path_or_fd):
-        return IOProxy(path_or_fd)
-    else:
-        path_or_fd = convert_path_to_str(path_or_fd)
-        if is_binary:
-            mode = "rb"
-        else:
-            mode = "rt"
-        return IOProxy(open(path_or_fd, mode=mode, **kwargs))
-
-
-def get_writer(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> IOProxy:
-    """
-    Get a writer for multiple format.
-
-    This function is for newbies or others who does not wish to have full control over what they opened.
-    The IO wrapper given by this function may satisfy 95% of the needs.
-
-    :param path_or_fd: Filename to be opened or IO that was opened..
-    :param is_binary: Whether to read as binary.
-    :param kwargs: Other arguments passed to underlying opener.
-
-    .. warning ::
-        Do NOT specify ``mode`` keyword arguments!
-    """
-    if type_check(path_or_fd):
-        return IOProxy(path_or_fd)
-    else:
-        path_or_fd = convert_path_to_str(path_or_fd)
-        if is_binary:
-            mode = "wb"
-        else:
-            mode = "wt"
-        return IOProxy(open(path_or_fd, mode=mode, **kwargs))
-
-
-def get_appender(path_or_fd: PathOrFDType, is_binary: bool = False, **kwargs) -> IOProxy:
-    """
-    Get an appender for multiple format.
-
-    This function is for newbies or others who does not wish to have full control over what they opened.
-    The IO wrapper given by this function may satisfy 95% of the needs.
-
-    :param path_or_fd: Filename to be opened or IO that was opened.
-    :param is_binary: Whether to read as binary.
-    :param kwargs: Other arguments passed to underlying opener.
-
-    .. warning ::
-        Do NOT specify ``mode`` keyword arguments!
-    """
-    if type_check(path_or_fd):
-        return IOProxy(path_or_fd)
-    else:
-        path_or_fd = convert_path_to_str(path_or_fd)
-        if is_binary:
-            mode = "ab"
-        else:
-            mode = "at"
-        return IOProxy(open(path_or_fd, mode=mode, **kwargs))

@@ -84,5 +84,8 @@ dependencies:
   - tox=3.27.1
   - tox-conda=0.10.2
   - types-requests
+  - types-psutil
+  - types-jinja2
+  - types-flask
   - mypy
 

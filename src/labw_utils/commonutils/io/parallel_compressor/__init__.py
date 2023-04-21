@@ -25,12 +25,13 @@ class ParallelCompressorThreadType(threading.Thread):
         self._out_data = None
         self._compress_func = compress_func
 
-
     def run(self):
         self._out_data = self._compress_func(self._in_data)
 
     @property
     def out_data(self) -> bytes:
+        if self._out_data is None:
+            raise RuntimeError("Data not ready!")
         return self._out_data
 
 

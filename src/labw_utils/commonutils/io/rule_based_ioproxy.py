@@ -20,6 +20,7 @@ import labw_utils.commonutils.io as cio
 from labw_utils.commonutils.io import PathOrFDType, IOProxy
 from labw_utils.commonutils.io import determine_line_endings as raw_determine_line_endings
 from labw_utils.commonutils.io.rules import FileRuleRing
+from labw_utils.typing_importer import AnyStr
 
 _ILLEGAL_READONLY_IO_EXCEPTION = OSError("Illegal operation on Sequential Read-Only IO")
 
@@ -31,7 +32,7 @@ def determine_line_endings(file_path_or_fd: PathOrFDType) -> str:
     return raw_determine_line_endings(RuleBasedIOProxy(file_path_or_fd))
 
 
-class RuleBasedIOProxy(IOProxy):
+class RuleBasedIOProxy(IOProxy[AnyStr]):
 
     def __init__(
             self,
@@ -51,7 +52,7 @@ class RuleBasedIOProxy(IOProxy):
             super().__init__(FileRuleRing.open(path_or_fd, *args, **kwargs))
 
 
-class RuleBasedSequentialReader(RuleBasedIOProxy):
+class RuleBasedSequentialReader(RuleBasedIOProxy[AnyStr]):
     """
     A sequential reader that is based on :py:class:`RuleBasedIOProxy`
     which does not support random-access functions like :py:func:`seek`

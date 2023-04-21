@@ -101,4 +101,4 @@ extensions = [
 [tool.mypy]
 mypy_path = "src"
 follow_imports = "silent"
-
+ignore_missing_imports = true

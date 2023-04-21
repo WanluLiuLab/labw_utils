@@ -13,5 +13,5 @@ chr1	NA	exon	50	70	.	-	.	gene_id "UN1"; transcript_id "UN2.1"; exon_number 2
 chr1	NA	exon	80	100	.	-	.	gene_id "UN1"; transcript_id "UN2.1"; exon_number 1
 
 chr2	NA	gene	1	20	.	-	.	gene_id "UN3";
-chr1	NA	transcript	1	20	.	-	.	gene_id "UN3"; transcript_id "UN3.1"
-chr1	NA	exon	1	20	.	-	.	gene_id "UN3"; transcript_id "UN3.1"; exon_number 1
+chr2	NA	transcript	1	20	.	-	.	gene_id "UN3"; transcript_id "UN3.1"
+chr2	NA	exon	1	20	.	-	.	gene_id "UN3"; transcript_id "UN3.1"; exon_number 1
