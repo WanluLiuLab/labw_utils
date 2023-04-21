@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import abstractmethod
 
 from labw_utils.bioutils.datastructure.gv.gene import Gene
-from labw_utils.typing_importer import Iterable
+from labw_utils.typing_importer import Sequence
 
 
 class GeneContainerInterface:
@@ -15,12 +15,12 @@ class GeneContainerInterface:
 
     @property
     @abstractmethod
-    def gene_values(self) -> Iterable[Gene]:
+    def gene_values(self) -> Sequence[Gene]:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def gene_ids(self) -> Iterable[str]:
+    def gene_ids(self) -> Sequence[str]:
         raise NotImplementedError
 
     @abstractmethod

@@ -123,8 +123,8 @@ def chronolog(display_time: bool = False, log_error: bool = False):
 
 
 def create_class_init_doc_from_property(
-        text_before: Optional[str] = "",
-        text_after: Optional[str] = "",
+        text_before: str = "",
+        text_after: str = "",
 ):
     """
     Place documentations at attributes to ``__init__`` function of a class.
@@ -188,7 +188,7 @@ def create_class_init_doc_from_property(
                     continue
                 result_doc += f":param {argname}: {doc}\n"
                 break
-
+        
         init_func.__doc__ = text_before + result_doc + text_after
         return cls
 

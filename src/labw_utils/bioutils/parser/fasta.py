@@ -39,6 +39,7 @@ class FastaIterator(BaseFileIterator):
     def __iter__(self) -> Iterable[FastaRecord]:
         chr_name = ""
         seq = ""
+        it: Iterable[str]
         if self._show_tqdm:
             it = get_tqdm_line_reader(self.filename)
         else:

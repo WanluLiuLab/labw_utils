@@ -36,7 +36,7 @@ except ImportError:
 PRIMITIVE_JOB_TYPE = Union[multiprocessing.Process, threading.Thread]
 """Python built-in job types"""
 
-PROCESS_TYPE: Type
+PROCESS_TYPE = None
 """
 Process type that have a ``pid`` attribute.
 Default is :py:class:`multiprocessing.Process`, :py:class:`subprocess.Popen`
@@ -298,7 +298,7 @@ class ParallelJobExecutor(threading.Thread):
             yield job.job_object
 
     @property
-    def pool_size(self) -> int:
+    def pool_size(self) -> float:
         """
         How many jobs is allowed to be executed in one time.
 

@@ -87,14 +87,14 @@ class PackageSpec:
         return self._name
 
     @property
-    def conda_name(self) -> str:
+    def conda_name(self) -> Optional[str]:
         """
         Name as-is in Conda
         """
         return self._conda_name
 
     @property
-    def conda_channel(self) -> str:
+    def conda_channel(self) -> Optional[str]:
         """
         Channel name as-is in Conda
         """
@@ -102,7 +102,7 @@ class PackageSpec:
 
 
     @property
-    def pypi_name(self) -> str:
+    def pypi_name(self) -> Optional[str]:
         """
         Name as-is in PyPI
         """
@@ -134,8 +134,10 @@ class PackageSpecs:
         """
         Add a package into the list.
         """
-        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"\n    - ``{item.name}``: {item}"
         PackageSpecs._deps[item.name] = item
+        if PackageSpecs.__doc__ is None:  # Supress mypy
+            PackageSpecs.__doc__ = ""
+        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"\n    - ``{item.name}``: {item}"
 
     @staticmethod
     def iter_names() -> Iterable[str]:

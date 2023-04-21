@@ -39,6 +39,5 @@ if __name__ == "__main__":
                     pos = "N"
                 ends.loc[i, pos] += 1
 
-
     starts.to_csv("start.csv")
     ends.to_csv("ends.csv")

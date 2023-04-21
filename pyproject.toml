@@ -98,3 +98,7 @@ extensions = [
     'sphinx_design'
 ]
 
+[tool.mypy]
+mypy_path = "src"
+follow_imports = "silent"
+

@@ -66,8 +66,9 @@ __all__ = (
 )
 
 import sys
+from abc import abstractmethod
 
-from typing import Any, Optional, Union, TypeVar, IO, TextIO, BinaryIO, AnyStr, NamedTuple, Generic
+from typing import Any, Optional, Union, TypeVar, IO, TextIO, BinaryIO, AnyStr, NamedTuple, Generic, overload
 
 if sys.version_info >= (3, 9):
     from collections.abc import Callable, Iterable, Iterator, Awaitable, Coroutine, Generator, Mapping, \
@@ -141,7 +142,21 @@ class SequenceProxy(Sequence[_ItemType]):
 
     _seq: Sequence[_ItemType]
 
-    def __getitem__(self, index: Union[int, slice]) -> _ItemType:
+    def __instancecheck__(self, instance: object):
+        return isinstance(instance, Sequence)
+
+    def __subclasscheck__(self, subclass):
+        return issubclass(subclass, Sequence)
+
+    @overload
+    def __getitem__(self, index: int) -> _ItemType:
+        return self._seq[index]
+
+    @overload
+    def __getitem__(self, index: slice) -> Sequence[_ItemType]:
+        return self._seq[index]
+
+    def __getitem__(self, index: Union[int, slice]) -> Union[Sequence[_ItemType], _ItemType]:
         return self._seq[index]
 
     def __len__(self) -> int:
@@ -151,7 +166,7 @@ class SequenceProxy(Sequence[_ItemType]):
             self,
             seq: Iterable[_ItemType],
             deep_copy: Optional[bool] = None
-        ):
+    ):
         """
         Initialize the class with input sequence.
 
@@ -166,7 +181,7 @@ class SequenceProxy(Sequence[_ItemType]):
         :raises TypeError: If the input type is not :py:obj:`typing.Iterable` .
         """
         if isinstance(seq, Iterable):
-            seq = list(seq) # Force persistance over Iterable
+            seq = list(seq)  # Force persistance over Iterable
         elif not isinstance(seq, Sequence):
             raise TypeError
         if deep_copy is None:
@@ -212,7 +227,7 @@ class MappingProxy(Mapping[_KeyType, _ValueType]):
             self,
             mapping: Mapping[_KeyType, _ValueType],
             deep_copy: Optional[bool] = None
-        ):
+    ):
         """
         Load the class with input mapping.
 

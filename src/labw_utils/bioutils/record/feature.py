@@ -12,7 +12,7 @@ from functools import total_ordering
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
-from labw_utils.typing_importer import Union, Optional, Mapping, Iterable, List
+from labw_utils.typing_importer import Union, Optional, Mapping, List, Type, TypeVar, Callable, Sequence, SequenceProxy
 
 lh = get_logger(__name__)
 
@@ -42,13 +42,15 @@ Valid GTF Quoting Options. They are:
 
 DEFAULT_GTF_QUOTE_OPTIONS = "all"
 
+_OutType = TypeVar("_OutType")
 
-class _NotSet:
+
+class NotSet:
     """Not set indicator"""
     pass
 
 
-_notset = _NotSet()
+notset = NotSet()
 """Not set indicator"""
 
 
@@ -153,12 +155,15 @@ _raw_feature_type_translator = {
 
 
 class BiologicalIntervalInterface(ABC):
+    """
+    Interface representing biological intervals.
+    """
 
     @property
     @abstractmethod
     def seqname(self) -> str:
         """
-        Chromosome or Contig name.
+        Chromosome, Contig or Scaffold name.
         """
         raise NotImplementedError
 
@@ -207,7 +212,7 @@ class BiologicalIntervalInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def regional_equiv(self, other: BiologicalIntervalInterface):
+    def regional_equiv(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
         """
         Whether two BiologicalIntervalInterface is regionally equivalent.
         Requires same ``start``, ``end`` and ``strand``.
@@ -215,7 +220,7 @@ class BiologicalIntervalInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def overlaps(self, other: Feature, is_stranded: bool = False) -> bool:
+    def overlaps(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
         """
         Whether this feature overlaps with another feature.
 
@@ -225,6 +230,7 @@ class BiologicalIntervalInterface(ABC):
         raise NotImplementedError
 
 
+@total_ordering
 class FeatureInterface(BiologicalIntervalInterface):
 
     @property
@@ -275,13 +281,13 @@ class FeatureInterface(BiologicalIntervalInterface):
 
     @property
     @abstractmethod
-    def attribute_keys(self) -> Iterable[str]:
+    def attribute_keys(self) -> Sequence[str]:
         """Other attributes presented in Key-Value pair"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def attribute_values(self) -> Iterable[GtfAttributeValueType]:
+    def attribute_values(self) -> Sequence[GtfAttributeValueType]:
         """Other attributes presented in Key-Value pair"""
         raise NotImplementedError
 
@@ -291,8 +297,88 @@ class FeatureInterface(BiologicalIntervalInterface):
         """Naive length, is ``end`` - ``start`` + 1"""
         raise NotImplementedError
 
+    @abstractmethod
+    def attribute_get(
+            self,
+            name: str,
+            default: Optional[GtfAttributeValueType] = None
+    ) -> GtfAttributeValueType:
+        """
+        Get attribute with defaults and coerce.
 
-@total_ordering
+        :param name: Attribute name.
+        :param default: The default value.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def attribute_get_coerce(
+            self,
+            name: str,
+            out_type: Type[_OutType],
+            coerce_func: Optional[Callable[[Optional[GtfAttributeValueType]], _OutType]] = None,
+            default: Optional[GtfAttributeValueType] = None
+    ) -> _OutType:
+        """
+        Get attribute with defaults and coerce.
+
+        :param name: Attribute name.
+        :param out_type: Type of output.
+        :param coerce_func: Function that coerce :py:obj:`GtfAttributeValueType` to output type.
+            This function should only raise :py:class:`TypeError`.
+        :param default: The default value.
+        :raises TypeError: On coerce failures.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update(
+            self,
+            *,
+            seqname: Union[str, NotSet] = notset,
+            source: Union[Optional[str], NotSet] = notset,
+            feature: Union[Optional[str], NotSet] = notset,
+            start: Union[int, NotSet] = notset,
+            end: Union[int, NotSet] = notset,
+            score: Union[Optional[Union[int, float]], NotSet] = notset,
+            strand: Union[Optional[bool], NotSet] = notset,
+            frame: Union[Optional[int], NotSet] = notset,
+            attribute: Union[GtfAttributeType, NotSet] = notset
+    ) -> FeatureInterface:
+        """
+        Update fields or attributes of current Feature and generate a new one.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update_attribute(
+            self,
+            **attribute
+    ) -> FeatureInterface:
+        """
+        Perform :py:func:`dict.update` on attributes of current Feature and generate a new one.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def reset_attribute(self, **attribute) -> FeatureInterface:
+        """
+        Reset attributes of current Feature and generate a new one.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def keep_only_selected_attribute(self, *attribute_names) -> FeatureInterface:
+        """
+        Filter attributes of current Feature and generate a new one.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __gt__(self, other: FeatureInterface) -> bool:
+        raise NotImplementedError
+
+
 @create_class_init_doc_from_property(
     text_after="""
 
@@ -351,10 +437,10 @@ class Feature(FeatureInterface):
             if self._feature is None:
                 self._parsed_feature = FeatureType.NOT_PRESENT
             else:
-                self._parsed_feature = _raw_feature_type_translator.get(
-                    self._feature.lower(),
-                    FeatureType.UNKNOWN
-                )
+                try:
+                    self._parsed_feature = _raw_feature_type_translator[self._feature.lower()]
+                except KeyError:
+                    self._parsed_feature = FeatureType.UNKNOWN
         return self._parsed_feature
 
     @property
@@ -386,12 +472,12 @@ class Feature(FeatureInterface):
         return self._frame
 
     @property
-    def attribute_keys(self) -> Iterable[str]:
-        return self._attribute.keys()
+    def attribute_keys(self) -> Sequence[str]:
+        return SequenceProxy(self._attribute.keys())
 
     @property
-    def attribute_values(self) -> Iterable[GtfAttributeValueType]:
-        return self._attribute.values()
+    def attribute_values(self) -> Sequence[GtfAttributeValueType]:
+        return SequenceProxy(self._attribute.values())
 
     @property
     def naive_length(self) -> int:
@@ -401,7 +487,21 @@ class Feature(FeatureInterface):
         """Other attributes presented in Key-Value pair"""
         return self._attribute.get(name, default)
 
-    def overlaps(self, other: Feature, is_stranded: bool = False) -> bool:
+    def attribute_get_coerce(
+            self,
+            name: str,
+            out_type: Type[_OutType],
+            coerce_func: Optional[Callable[[Optional[GtfAttributeValueType]], _OutType]] = None,
+            default: Optional[GtfAttributeValueType] = None
+    ) -> _OutType:
+        v = self._attribute.get(name, default)
+        if isinstance(v, out_type):
+            return v
+        if coerce_func is not None:
+            return coerce_func(v)
+        raise TypeError(f"Type {type(v)} cannot be coerced to type {out_type}")
+
+    def overlaps(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
         if self.seqname != other.seqname:
             return False
         if is_stranded and self.strand != other.strand:
@@ -418,38 +518,32 @@ class Feature(FeatureInterface):
     def update(
             self,
             *,
-            seqname: Union[str, _NotSet] = _notset,
-            source: Union[Optional[str], _NotSet] = _notset,
-            feature: Union[Optional[str], _NotSet] = _notset,
-            start: Union[int, _NotSet] = _notset,
-            end: Union[int, _NotSet] = _notset,
-            score: Union[Optional[Union[int, float]], _NotSet] = _notset,
-            strand: Union[Optional[bool], _NotSet] = _notset,
-            frame: Union[Optional[int], _NotSet] = _notset,
-            attribute: Union[GtfAttributeType, _NotSet] = _notset
+            seqname: Union[str, NotSet] = notset,
+            source: Union[Optional[str], NotSet] = notset,
+            feature: Union[Optional[str], NotSet] = notset,
+            start: Union[int, NotSet] = notset,
+            end: Union[int, NotSet] = notset,
+            score: Union[Optional[Union[int, float]], NotSet] = notset,
+            strand: Union[Optional[bool], NotSet] = notset,
+            frame: Union[Optional[int], NotSet] = notset,
+            attribute: Union[GtfAttributeType, NotSet] = notset
     ) -> Feature:
-        """
-        Update fields or attributes of current Feature and generate a new one.
-        """
         return Feature(
-            seqname=self._seqname if seqname is _notset else seqname,
-            source=self._source if source is _notset else source,
-            feature=self._feature if feature is _notset else feature,
-            start=self._start if start is _notset else start,
-            end=self._end if end is _notset else end,
-            score=self._score if score is _notset else score,
-            strand=self._strand if strand is _notset else strand,
-            frame=self._frame if frame is _notset else frame,
-            attribute=self._attribute if attribute is _notset else attribute,
+            seqname=self._seqname if isinstance(seqname, NotSet) else seqname,
+            source=self._source if isinstance(source, NotSet) else source,
+            feature=self._feature if isinstance(feature, NotSet) else feature,
+            start=self._start if isinstance(start, NotSet) else start,
+            end=self._end if isinstance(end, NotSet) else end,
+            score=self._score if isinstance(score, NotSet) else score,
+            strand=self._strand if isinstance(strand, NotSet) else strand,
+            frame=self._frame if isinstance(frame, NotSet) else frame,
+            attribute=self._attribute if isinstance(attribute, NotSet) else attribute,
         )
 
     def update_attribute(
             self,
             **attribute
     ):
-        """
-        Perform :py:func:`dict.update` on attributes of current Feature and generate a new one.
-        """
         new_attribute = dict(self._attribute)
         new_attribute.update(attribute)
         return Feature(
@@ -465,9 +559,6 @@ class Feature(FeatureInterface):
         )
 
     def reset_attribute(self, **attribute) -> Feature:
-        """
-        Reset attributes of current Feature and generate a new one.
-        """
         return Feature(
             seqname=self._seqname,
             source=self._source,
@@ -481,9 +572,6 @@ class Feature(FeatureInterface):
         )
 
     def keep_only_selected_attribute(self, *attribute_names) -> Feature:
-        """
-        Filter attributes of current Feature and generate a new one.
-        """
         return Feature(
             seqname=self._seqname,
             source=self._source,
@@ -541,13 +629,14 @@ class Feature(FeatureInterface):
             list(self.attribute_keys) == list(other.attribute_keys) and \
             list(self.attribute_values) == list(other.attribute_values)
 
-    def regional_equiv(self, other: BiologicalIntervalInterface):
+    def regional_equiv(self, other: BiologicalIntervalInterface, is_stranded: bool = True):
+        if is_stranded and self._strand != other.strand:
+            return False
         return self._start == other.start and \
             self._end == other.end and \
-            self._seqname == other.seqname and \
-            self._strand == other.strand
+            self._seqname == other.seqname
 
-    def __gt__(self, other: Feature):
+    def __gt__(self, other: FeatureInterface):
         if self.seqname != other.seqname:
             return self.seqname > other.seqname
         if self.start != other.start:
@@ -563,13 +652,13 @@ class Feature(FeatureInterface):
         """
         return {
             "seqname": self.seqname,
-            "source": self.source,
-            "feature": self.feature,
+            "source": self.source if self.source is not None else ".",
+            "feature": self.feature if self.feature is not None else ".",
             "start": str(self.start),
             "end": str(self.end),
             "score": str(self.score),
-            "strand": str(self.strand),
-            "frame": str(self.frame),
+            "strand": strand_repr(self.strand),
+            "frame": str(self.frame) if self.frame is not None else ".",
             "attribute": self._attribute
         }
 

@@ -4,19 +4,23 @@ gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Dat
 
 from __future__ import annotations
 
-__all__ = [
-    'BaseFeatureProxy'
-]
+__all__ = (
+    'BaseFeatureProxy',
+    "update_gene_id",
+    "update_transcript_id",
+)
 
-from labw_utils.bioutils.datastructure.gv import CanCheckInterface
-from labw_utils.bioutils.record.feature import Feature, FeatureType, GtfAttributeValueType, FeatureInterface, \
-    BiologicalIntervalInterface
+from labw_utils.bioutils.datastructure.gv import CanCheckInterface, generate_unknown_gene_id, \
+    generate_unknown_transcript_id
+from labw_utils.bioutils.record.feature import FeatureType, GtfAttributeValueType, FeatureInterface, \
+    BiologicalIntervalInterface, NotSet, GtfAttributeType, notset
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Optional, Iterable, TypeVar, Union
+from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, SequenceProxy, Tuple
 
 lh = get_logger(__name__)
 
 _T = TypeVar("_T")
+_OutType = TypeVar("_OutType")
 
 
 class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
@@ -24,15 +28,58 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
     Base class of Feature Proxy.
     """
 
-    __slots__ = [
+    def update(
+            self,
+            *,
+            seqname: Union[str, NotSet] = notset,
+            source: Union[Optional[str], NotSet] = notset,
+            feature: Union[Optional[str], NotSet] = notset,
+            start: Union[int, NotSet] = notset,
+            end: Union[int, NotSet] = notset,
+            score: Union[Optional[Union[int, float]], NotSet] = notset,
+            strand: Union[Optional[bool], NotSet] = notset,
+            frame: Union[Optional[int], NotSet] = notset,
+            attribute: Union[GtfAttributeType, NotSet] = notset
+    ) -> BaseFeatureProxy:
+        return BaseFeatureProxy(
+            data=self._data.update(
+                seqname=seqname,
+                source=source,
+                feature=feature,
+                start=start,
+                end=end,
+                score=score,
+                strand=strand,
+                frame=frame,
+                attribute=attribute
+            ),
+            is_checked=self._is_checked
+        )
+
+    def update_attribute(self, **attribute) -> BaseFeatureProxy:
+        return BaseFeatureProxy(
+            data=self._data.update_attribute(**attribute),
+            is_checked=self._is_checked
+        )
+
+    def reset_attribute(self, **attribute) -> BaseFeatureProxy:
+        return BaseFeatureProxy(
+            data=self._data.reset_attribute(**attribute),
+            is_checked=self._is_checked
+        )
+
+    def keep_only_selected_attribute(self, *attribute_names) -> BaseFeatureProxy:
+        pass
+
+    __slots__ = (
         "_data",
-    ]
-    _data: Feature
+    )
+    _data: FeatureInterface
 
     def __init__(
             self,
             *,
-            data: Feature,
+            data: FeatureInterface,
             is_checked: bool,
             **kwargs
     ):
@@ -54,23 +101,11 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
             raise TypeError
         return self._data == other._data
 
-    def __ne__(self, other: BaseFeatureProxy) -> bool:
-        return self._data != other._data
+    def __gt__(self, other: FeatureInterface) -> bool:
+        return self._data > other
 
-    def __gt__(self, other: BaseFeatureProxy) -> bool:
-        return self._data > other._data
-
-    def __ge__(self, other: BaseFeatureProxy) -> bool:
-        return self._data >= other._data
-
-    def __lt__(self, other: BaseFeatureProxy) -> bool:
-        return self._data < other._data
-
-    def __le__(self, other: BaseFeatureProxy) -> bool:
-        return self._data <= other._data
-
-    def overlaps(self, other: BaseFeatureProxy, is_stranded: bool = False) -> bool:
-        return self._data.overlaps(other._data, is_stranded=is_stranded)
+    def overlaps(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
+        return self._data.overlaps(other, is_stranded=is_stranded)
 
     @property
     def naive_length(self) -> int:
@@ -93,7 +128,7 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
         return self._data.end0b
 
     @property
-    def feature(self) -> str:
+    def feature(self) -> Optional[str]:
         return self._data.feature
 
     @property
@@ -121,18 +156,61 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
         return self._data.frame
 
     @property
-    def attribute_values(self) -> Iterable[GtfAttributeValueType]:
-        return self._data.attribute_values
+    def attribute_values(self) -> SequenceProxy[GtfAttributeValueType]:
+        return SequenceProxy(self._data.attribute_values)
 
     @property
-    def attribute_keys(self) -> Iterable[str]:
-        return self._data.attribute_keys
+    def attribute_keys(self) -> SequenceProxy[str]:
+        return SequenceProxy(self._data.attribute_keys)
 
-    def attribute_get(self, name: str, default: Optional[GtfAttributeValueType] = None) -> GtfAttributeValueType:
+    def attribute_get(
+            self,
+            name: str,
+            default: Optional[GtfAttributeValueType] = None
+    ) -> GtfAttributeValueType:
         return self._data.attribute_get(name, default)
 
-    def get_data(self) -> Feature:
+    def attribute_get_coerce(
+            self,
+            name: str,
+            out_type: Type[_OutType],
+            coerce_func: Optional[Callable[[Optional[GtfAttributeValueType]], _OutType]] = None,
+            default: Optional[GtfAttributeValueType] = None
+    ) -> _OutType:
+        return self._data.attribute_get_coerce(name, out_type, coerce_func, default)
+
+    def get_data(self) -> FeatureInterface:
         return self._data
 
-    def regional_equiv(self, other: BiologicalIntervalInterface):
-        return self._data.regional_equiv(other)
+    def regional_equiv(self, other: BiologicalIntervalInterface, is_stranded: bool = True):
+        return self._data.regional_equiv(other, is_stranded)
+
+
+def update_gene_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:
+    gene_id = data.attribute_get("gene_id")
+    if gene_id is None:
+        gene_id = generate_unknown_gene_id()
+        data = data.update_attribute(gene_id=gene_id)
+    elif not isinstance(gene_id, str):
+        gene_id = data.attribute_get_coerce(
+            "gene_id",
+            str,
+            str
+        )
+        data = data.update_attribute(gene_id=gene_id)
+    return gene_id, data
+
+
+def update_transcript_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:
+    transcript_id = data.attribute_get("transcript_id")
+    if transcript_id is None:
+        transcript_id = generate_unknown_transcript_id()
+        data = data.update_attribute(transcript_id=transcript_id)
+    elif not isinstance(transcript_id, str):
+        transcript_id = data.attribute_get_coerce(
+            "transcript_id",
+            str,
+            str
+        )
+        data = data.update_attribute(transcript_id=transcript_id)
+    return transcript_id, data

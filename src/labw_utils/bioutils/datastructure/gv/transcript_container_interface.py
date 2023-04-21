@@ -2,8 +2,14 @@ from __future__ import annotations
 
 from abc import abstractmethod
 
+from labw_utils.bioutils.datastructure.gv import GVPError
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
-from labw_utils.typing_importer import Iterable
+from labw_utils.typing_importer import Sequence
+
+
+class DuplicatedTranscriptIDError(GVPError):
+    def __init__(self, transcript_id: str):
+        super().__init__(f"Transcript ID {transcript_id} duplicated")
 
 
 class TranscriptContainerInterface:
@@ -15,12 +21,12 @@ class TranscriptContainerInterface:
 
     @property
     @abstractmethod
-    def transcript_values(self) -> Iterable[Transcript]:
+    def transcript_values(self) -> Sequence[Transcript]:
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def transcript_ids(self) -> Iterable[str]:
+    def transcript_ids(self) -> Sequence[str]:
         raise NotImplementedError
 
     @abstractmethod

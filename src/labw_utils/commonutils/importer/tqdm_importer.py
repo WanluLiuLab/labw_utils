@@ -9,9 +9,13 @@ will use a home-made fallback which is more silent.
 import os
 import sys
 
+from labw_utils.typing_importer import Type
+
 __all__ = (
     "tqdm",
 )
+
+tqdm: Type
 
 if os.getenv("SPHINX_BUILD") is not None:
     from labw_utils.commonutils.importer._silent_tqdm import tqdm as tqdm

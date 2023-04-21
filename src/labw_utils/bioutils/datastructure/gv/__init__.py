@@ -3,18 +3,11 @@ from __future__ import annotations
 import uuid
 from abc import abstractmethod, ABC
 
-from labw_utils.typing_importer import Callable
+from labw_utils.typing_importer import Callable, List
 
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
 DEFAULT_SORT_EXON_EXON_STRAND_POLICY = "unstranded"
 SequenceFuncType = Callable[[str, int, int], str]
-
-
-class _NotSet:
-    pass
-
-
-_notset = _NotSet()
 
 
 def generate_unknown_transcript_id() -> str:
@@ -32,7 +25,7 @@ class GVPError(ValueError):
 
 
 class CanTranscribeInterface(ABC):
-    __slots__ = []
+    __slots__: List[str] = []
 
     @abstractmethod
     def transcribe(self, sequence_func: SequenceFuncType) -> str:

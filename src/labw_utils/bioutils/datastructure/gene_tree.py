@@ -5,14 +5,15 @@ from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.gene import Gene
 from labw_utils.bioutils.datastructure.gv.gene_container_interface import GeneContainerInterface
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
-from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface
+from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface, \
+    DuplicatedTranscriptIDError
 from labw_utils.bioutils.parser.gtf import GtfIterator
-from labw_utils.bioutils.record.feature import Feature, FeatureType
+from labw_utils.bioutils.record.feature import Feature, FeatureInterface, FeatureType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.io.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.commonutils.io.file_system import should_regenerate
-from labw_utils.typing_importer import Iterable, Dict, Iterator
+from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, SequenceProxy, Optional, Mapping
 
 _lh = get_logger(__name__)
 
@@ -39,49 +40,60 @@ class GeneTree(
     _transcript_ids_to_gene_ids_index: Dict[str, str]
     """transcript_id -> gene_id"""
 
+    _transcripts: Optional[Sequence[Transcript]]
+
     @property
     def number_of_genes(self) -> int:
         return len(self._gene_id_to_gene_index)
 
     @property
-    def gene_values(self) -> Iterable[Gene]:
-        return self._gene_id_to_gene_index.values()
+    def gene_values(self) -> Sequence[Gene]:
+        return SequenceProxy(self._gene_id_to_gene_index.values())
 
     @property
-    def gene_ids(self) -> Iterable[str]:
-        return self._gene_id_to_gene_index.keys()
+    def gene_ids(self) -> Sequence[str]:
+        return SequenceProxy(self._gene_id_to_gene_index.keys())
 
     @property
     def number_of_transcripts(self) -> int:
-        return sum(gene.number_of_transcripts for gene in self.gene_values)
+        return len(self.transcript_values)
 
     @property
-    def transcript_values(self) -> Iterable[Transcript]:
-        for gene in self.gene_values:
-            yield from gene.transcript_values
+    def transcript_values(self) -> Sequence[Transcript]:
+        if self._transcripts is None:
+            self._transcripts = tuple(
+                self.get_transcript(transcript_id) for transcript_id in self.transcript_ids
+            )
+        return SequenceProxy(self._transcripts)
 
     @property
-    def transcript_ids(self) -> Iterable[str]:
-        return iter(self._transcript_ids_to_gene_ids_index.keys())
+    def transcript_ids(self) -> Sequence[str]:
+        return SequenceProxy(self._transcript_ids_to_gene_ids_index.keys())
 
     def __init__(
             self,
             *,
             keep_sorted: bool,
             is_checked: bool,
-            gene_id_to_gene_index: Dict[str, Gene],
-            transcript_ids_to_gene_ids_index: Dict[str, str]
+            shortcut: bool,
+            gene_id_to_gene_index: Mapping[str, Gene],
+            transcript_ids_to_gene_ids_index: Mapping[str, str]
     ):
         self._is_sorted = keep_sorted
         self._is_checked = is_checked
-        self._gene_id_to_gene_index = dict(gene_id_to_gene_index)
-        self._transcript_ids_to_gene_ids_index = transcript_ids_to_gene_ids_index
+        if not shortcut:
+            self._gene_id_to_gene_index = dict(gene_id_to_gene_index)
+            self._transcript_ids_to_gene_ids_index = dict(transcript_ids_to_gene_ids_index)
+        else:
+            self._gene_id_to_gene_index = gene_id_to_gene_index  # type: ignore
+            self._transcript_ids_to_gene_ids_index = transcript_ids_to_gene_ids_index  # type: ignore
+        self._transcripts = None
 
     def get_gene(self, gene_id: str) -> Gene:
         return self._gene_id_to_gene_index[gene_id]
 
     def add_gene(self, gene: Gene) -> GeneTree:
-        if self._is_checked and gene.gene_id in self._gene_id_to_gene_index:
+        if not self._is_checked and gene.gene_id in self._gene_id_to_gene_index:
             raise DuplicatedGeneIDError(gene.gene_id)
         new_gene_id_to_gene_index = dict(self._gene_id_to_gene_index)
         new_transcript_ids_to_gene_ids_index = dict(self._transcript_ids_to_gene_ids_index)
@@ -91,6 +103,7 @@ class GeneTree(
         return GeneTree(
             keep_sorted=self._is_sorted,
             is_checked=self._is_checked,
+            shortcut=True,
             gene_id_to_gene_index=new_gene_id_to_gene_index,
             transcript_ids_to_gene_ids_index=new_transcript_ids_to_gene_ids_index
         )
@@ -104,6 +117,7 @@ class GeneTree(
         return GeneTree(
             keep_sorted=self._is_sorted,
             is_checked=self._is_checked,
+            shortcut=True,
             gene_id_to_gene_index=new_gene_id_to_gene_index,
             transcript_ids_to_gene_ids_index=new_transcript_ids_to_gene_ids_index
         )
@@ -168,53 +182,7 @@ class GeneTree(
     def del_exon(self, transcript_id: str, exon_index: int) -> GeneTree:
         return self.replace_transcript(self.get_transcript(transcript_id).del_exon(exon_index))
 
-    def _add(self, feature: Feature) -> GeneTree:
-        if feature.parsed_feature == FeatureType.EXON:
-            return self.add_exon(Exon(
-                data=feature,
-                is_checked=self._is_checked,
-                shortcut=False
-            ))
-        elif feature.parsed_feature == FeatureType.TRANSCRIPT:
-            return self.add_transcript(Transcript(
-                data=feature,
-                is_checked=self._is_checked,
-                keep_sorted=self._is_sorted,
-                exons=[],
-                is_inferred=False,
-                shortcut=False
-            ))
-        elif feature.parsed_feature == FeatureType.GENE:
-            return self.add_gene(Gene(
-                data=feature,
-                is_checked=self._is_checked,
-                keep_sorted=self._is_sorted,
-                transcripts=[],
-                transcript_ids=[],
-                is_inferred=False,
-                shortcut=False
-            ))
-        else:
-            return self
-
-    @classmethod
-    def from_feature_iterator_legacy(
-            cls,
-            feature_iterator: Iterable[Feature],
-            keep_sorted: bool = False,
-            is_checked: bool = False,
-    ):
-        new_instance = cls(
-            keep_sorted=keep_sorted,
-            is_checked=is_checked,
-            gene_id_to_gene_index={},
-            transcript_ids_to_gene_ids_index={}
-        )
-        for feature in feature_iterator:
-            new_instance = new_instance._add(feature)
-        return new_instance
-
-    def to_feature_iterator(self) -> Iterator[Feature]:
+    def to_feature_iterator(self) -> Iterator[FeatureInterface]:
         for gene in self._gene_id_to_gene_index.values():
             yield gene
             for transcript in gene.transcript_values:
@@ -229,11 +197,12 @@ class GeneTree(
             is_checked: bool = False,
     ):
         feature_list = list(feature_iterator)
-        exons = list(
+        _lh.info("Filtering for gene, transcript and exon definition...")
+        initially_added_exons = list(
             Exon(data=feature, is_checked=is_checked, shortcut=False) for feature in
             filter(lambda feature: feature.parsed_feature == FeatureType.EXON, feature_list)
         )
-        transcripts = list(
+        initially_added_transcripts = list(
             Transcript(
                 data=feature,
                 exons=[],
@@ -244,7 +213,7 @@ class GeneTree(
             ) for feature in
             filter(lambda feature: feature.parsed_feature == FeatureType.TRANSCRIPT, feature_list)
         )
-        genes = list(
+        initially_added_genes = list(
             Gene(
                 data=feature,
                 transcripts=[],
@@ -256,8 +225,15 @@ class GeneTree(
             ) for feature in
             filter(lambda feature: feature.parsed_feature == FeatureType.GENE, feature_list)
         )
-        transcript_ids = set(transcript.transcript_id for transcript in transcripts)
-        for exon in tqdm(exons, desc="Scanning for missing transcript definitions..."):
+
+        # Normalize transcript IDs
+
+        transcript_ids = set()
+        for transcript in tqdm(initially_added_transcripts, desc="Scanning for duplicated transcript definitions..."):
+            if transcript.transcript_id in transcript_ids:
+                raise DuplicatedTranscriptIDError(transcript.transcript_id)
+            transcript_ids.add(transcript.transcript_id)
+        for exon in tqdm(initially_added_exons, desc="Scanning for missing transcript definitions..."):
             if exon.transcript_id not in transcript_ids:
                 _lh.warning("Transcript %s inferred from exon!", exon.transcript_id)
                 new_transcript = Transcript(
@@ -268,21 +244,29 @@ class GeneTree(
                     keep_sorted=keep_sorted,
                     shortcut=False
                 )
-                transcripts.append(new_transcript)
+                initially_added_transcripts.append(new_transcript)
                 transcript_ids.add(new_transcript.transcript_id)
+
         transcript_id_to_transcript_index: Dict[str, Transcript] = {
             transcript.transcript_id: transcript
-            for transcript in transcripts
+            for transcript in initially_added_transcripts
         }
-        for exon in tqdm(exons, desc="Adding exons to transcript..."):
+        for exon in tqdm(initially_added_exons, desc="Adding exons to transcript..."):
             transcript_id_to_transcript_index[exon.transcript_id] = \
                 transcript_id_to_transcript_index[exon.transcript_id].add_exon(exon)
 
-        transcripts = transcript_id_to_transcript_index.values()
-        gene_ids = set(gene.gene_id for gene in genes)
-        for transcript in tqdm(transcripts, desc="Scanning for missing gene definitions..."):
+        finalized_transcripts = transcript_id_to_transcript_index.values()
+
+        # Normalize Gene IDs
+
+        gene_ids = set()
+        for gene in tqdm(initially_added_genes, desc="Scanning for duplicated gene definitions..."):
+            if gene.gene_id in gene_ids:
+                raise DuplicatedGeneIDError(gene.gene_id)
+            gene_ids.add(gene.gene_id)
+        for transcript in tqdm(finalized_transcripts, desc="Scanning for missing gene definitions..."):
             if transcript.gene_id not in gene_ids:
-                _lh.warning("Gene %s inferred from transcript %s!", transcript.gene_id, transcript.transcript_id)
+                # _lh.warning("Gene %s inferred from transcript %s!", transcript.gene_id, transcript.transcript_id)
                 new_gene = Gene(
                     data=transcript.get_data(),
                     transcripts=[],
@@ -292,21 +276,23 @@ class GeneTree(
                     keep_sorted=keep_sorted,
                     shortcut=False
                 )
-                genes.append(new_gene)
+                initially_added_genes.append(new_gene)
                 gene_ids.add(new_gene.gene_id)
         gene_id_to_gene_index: Dict[str, Gene] = {
             gene.gene_id: gene
-            for gene in genes
+            for gene in initially_added_genes
         }
-        for transcript in tqdm(transcripts, desc="Adding transcripts to gene..."):
+        for transcript in tqdm(finalized_transcripts, desc="Adding transcripts to gene..."):
             gene_id_to_gene_index[transcript.gene_id] = \
                 gene_id_to_gene_index[transcript.gene_id].add_transcript(transcript)
+
         return cls(
             gene_id_to_gene_index=gene_id_to_gene_index,
             transcript_ids_to_gene_ids_index={
                 transcript.transcript_id: transcript.gene_id
-                for transcript in transcripts
+                for transcript in finalized_transcripts
             },
+            shortcut=True,
             is_checked=is_checked,
             keep_sorted=keep_sorted
         )
@@ -316,7 +302,7 @@ class GeneTree(
             cls,
             gtf_file_path: str,
             keep_sorted: bool = False,
-            is_checked: bool=False
+            is_checked: bool = False
     ):
         gtf_index_file_path = f"{gtf_file_path}.{GVPKL_VERSION}.gvpkl.xz"
         if should_regenerate(gtf_file_path, gtf_index_file_path):
@@ -339,3 +325,9 @@ class GeneTree(
             return new_instance
 
 
+if __name__ == "__main__":
+    gtfi = GeneTree.from_feature_iterator(
+        GtfIterator(
+            "/home/yuzj/Documents/labw_utils/explore/describe_reference_genome/gtf/hg38.ncbiRefSeq.gtf"
+        )
+    )

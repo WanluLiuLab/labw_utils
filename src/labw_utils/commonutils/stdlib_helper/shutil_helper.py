@@ -53,6 +53,7 @@ def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     :param opener: Function to open this file. I.e., return an IO object.
     :return: Line number.
     """
+    fd: IO
     if opener is None:
         fd = get_reader(filename, is_binary=True)
     else:
@@ -68,6 +69,7 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     :param opener: Function to open this file. I.e., return an IO object.
     :return: File length.
     """
+    fd: IO
     if opener is None:
         fd = get_reader(filename, is_binary=True)
     else:
