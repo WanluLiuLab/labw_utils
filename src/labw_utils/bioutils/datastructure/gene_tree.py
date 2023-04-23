@@ -10,7 +10,7 @@ from labw_utils.bioutils.datastructure.gv.transcript_container_interface import 
 from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import Feature, FeatureInterface, FeatureType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.file_system import should_regenerate
+from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, SequenceProxy, Optional, Mapping

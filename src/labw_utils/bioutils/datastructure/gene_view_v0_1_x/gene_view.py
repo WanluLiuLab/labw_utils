@@ -15,7 +15,7 @@ from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator, GtfWriter, Gff3Iterator
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord, FeatureType, Gff3Record
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.file_system import file_exists
+from labw_utils.commonutils.lwio.file_system import file_exists
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Optional, Dict, Iterator, Union, Type, Iterable

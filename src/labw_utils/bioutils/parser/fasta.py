@@ -6,8 +6,8 @@ __all__ = (
 
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
-from labw_utils.commonutils.io.safe_io import get_writer, get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_line_reader
+from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
+from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.typing_importer import Iterable, Final
 
 

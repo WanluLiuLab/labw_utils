@@ -2,7 +2,7 @@
 tqdm_reader.py -- Reader with Progress Bar
 
 Here are wrappings for basic IO classes & functions in
-:py:mod:`labw_utils.commonutils.io` with additional progress bar.
+:py:mod:`labw_utils.commonutils.lwio` with additional progress bar.
 """
 
 __all__ = (
@@ -12,23 +12,21 @@ __all__ = (
     "get_tqdm_line_reader"
 )
 
-import labw_utils.commonutils.io as cio
+import labw_utils.commonutils.lwio as cio
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.rule_based_ioproxy import RuleBasedIOProxy, RuleBasedSequentialReader, get_reader
+from labw_utils.commonutils.lwio import get_reader, AbstractReader
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 from labw_utils.devutils.decorators import copy_doc
 from labw_utils.typing_importer import Iterator, AnyStr, List
 
 
-class _BaseTqdmReader(RuleBasedSequentialReader):
+class _BaseTqdmReader(AbstractReader):
     _tqdm: tqdm
 
-    @copy_doc(RuleBasedIOProxy.__enter__)
     def __enter__(self, *args, **kwargs):
         self._tqdm.__enter__(*args, **kwargs)
         return self
 
-    @copy_doc(RuleBasedIOProxy.__exit__)
     def __exit__(self, *args, **kwargs):
         return self._tqdm.__exit__(*args, **kwargs)
 

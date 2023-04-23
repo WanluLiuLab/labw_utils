@@ -62,11 +62,11 @@ __all__ = (
     "Generic",
     "Sized",
     "SequenceProxy",
-    "MappingProxy"
+    "MappingProxy",
+    "overload"
 )
 
 import sys
-from abc import abstractmethod
 
 from typing import Any, Optional, Union, TypeVar, IO, TextIO, BinaryIO, AnyStr, NamedTuple, Generic, overload
 

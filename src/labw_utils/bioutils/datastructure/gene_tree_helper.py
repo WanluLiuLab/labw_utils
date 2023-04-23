@@ -7,7 +7,7 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.datastructure.gene_tree import GeneTree
 from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.lwio.safe_io import get_writer
 
 
 def transcribe(

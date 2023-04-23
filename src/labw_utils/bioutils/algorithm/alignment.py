@@ -19,7 +19,7 @@ try:
 except ImportError:
     raise UnmetDependenciesError("numpy")
 
-from labw_utils.commonutils.io.safe_io import get_reader
+from labw_utils.commonutils.lwio.safe_io import get_reader
 
 
 class SubstMatrix:

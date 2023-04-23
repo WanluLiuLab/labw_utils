@@ -16,7 +16,7 @@ from collections import defaultdict
 
 from labw_utils import UnmetDependenciesError, PackageSpecs, PackageSpec
 from labw_utils.commonutils import libfrontend
-from labw_utils.commonutils.io.file_system import should_regenerate
+from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.typing_importer import Optional, Callable

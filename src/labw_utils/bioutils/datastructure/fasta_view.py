@@ -3,11 +3,11 @@ fasta_view.py -- General FASTA reader
 
 Can provide random access to FASTA files, compressed or non-compressed.
 
-Highlights: This utility can read all format supported by :py:mod:`commonutils.io`,
+Highlights: This utility can read all format supported by :py:mod:`commonutils.lwio`,
 while others require Block GZipped ones.
 
 .. note::
-    Although this module supports all format supported by :py:mod:`commonutils.io`,
+    Although this module supports all format supported by :py:mod:`commonutils.lwio`,
     it is recommended for user to compress their files using ``bgzip`` and index them using ``tabix``.
 
 .. warning::
@@ -31,8 +31,8 @@ from abc import abstractmethod, ABC
 from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.bioutils.parser.fasta import FastaIterator
-from labw_utils.commonutils.io.file_system import file_exists
-from labw_utils.commonutils.io.safe_io import get_reader, get_writer
+from labw_utils.commonutils.lwio.file_system import file_exists
+from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
 from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable, Any

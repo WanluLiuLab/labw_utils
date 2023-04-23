@@ -2,7 +2,7 @@
 file_system.py -- Basic Filesystem Functions
 
 Here are very low-level filesystem functions used by other Python modules,
-like :py:mod:`commonutils.io.safe_io` or :py:mod:`commonutils.stdlib_helper.shutil_helper`.
+like :py:mod:`commonutils.lwio.safe_io` or :py:mod:`commonutils.stdlib_helper.shutil_helper`.
 """
 
 __all__ = (
