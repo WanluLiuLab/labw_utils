@@ -51,7 +51,7 @@ def main(args: List[str]):
         tmp_tid = gtf_record.attribute.get("transcript_id", None)
         if tmp_tid is not None:
             transcript_ids.add(tmp_tid)
-    transcript_ids = random.sample(list(transcript_ids), len(transcript_ids) * args.percent // 100)
+    transcript_ids = random.sample(list(transcript_ids), int(len(transcript_ids) * args.percent / 100))
 
     subset_gtf_by_attribute_value(
         attribute_values=transcript_ids,

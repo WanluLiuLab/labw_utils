@@ -97,6 +97,8 @@ class tqdm(Iterable[_VarType]):
         self._iterable = iterable
 
     def __iter__(self) -> Iterator[_VarType]:
+        if self._iterable is None:
+            raise TypeError
         for item in self._iterable:
             yield item
             self.update(1)

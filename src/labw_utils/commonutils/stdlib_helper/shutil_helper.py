@@ -17,10 +17,11 @@ import os
 import shutil
 import time
 
+from labw_utils.commonutils.io import FDType
 from labw_utils.commonutils.io.file_system import get_abspath, file_exists, is_soft_link
 from labw_utils.commonutils.io.rule_based_ioproxy import get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import IO, Callable, Optional
+from labw_utils.typing_importer import IO, Callable, Optional, Union
 
 _lh = get_logger(__name__)
 
@@ -53,6 +54,7 @@ def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     :param opener: Function to open this file. I.e., return an IO object.
     :return: Line number.
     """
+    fd: IO
     if opener is None:
         fd = get_reader(filename, is_binary=True)
     else:
@@ -68,6 +70,7 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     :param opener: Function to open this file. I.e., return an IO object.
     :return: File length.
     """
+    fd: FDType
     if opener is None:
         fd = get_reader(filename, is_binary=True)
     else:
@@ -75,7 +78,7 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     return wc_c_io(fd)
 
 
-def wc_l_io(fd: IO, block_size: int = 4096) -> int:
+def wc_l_io(fd: FDType, block_size: int = 4096) -> int:
     """
     Count lines in a file.
 
@@ -100,21 +103,21 @@ def wc_l_io(fd: IO, block_size: int = 4096) -> int:
                 block = fd.read(block_size)
                 if len(block) == 0:
                     break
-                reti += block.count("\n")
+                reti += block.count("\n")  # type: ignore
         else:
             reti += block.count(b"\n")
             while True:
                 block = fd.read(block_size)
                 if len(block) == 0:
                     break
-                reti += block.count(b"\n")
+                reti += block.count(b"\n")  # type: ignore
     if fd.tell() != 0 and reti == 0:
         reti = 1  # To keep similar behaviour to GNU WC
     fd.seek(curr_pos)
     return reti
 
 
-def wc_c_io(fd: IO) -> int:
+def wc_c_io(fd: FDType) -> int:
     """
     Count the number of chars inside a file, i.e. File length.
 
@@ -139,6 +142,8 @@ def touch(
 ) -> None:
     """
     touch: ensure the existence of a file, just like GNU CoreUtils touch.
+
+    .. seealso :: :manpage:`touch(1)`
 
     :param filename: The filename you wish to touch.
     :param change_m_time: Whether to change modification time.

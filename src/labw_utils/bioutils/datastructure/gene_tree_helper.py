@@ -5,7 +5,6 @@ import os
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.datastructure.gene_tree import GeneTree
-from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.io.safe_io import get_writer
@@ -43,7 +42,6 @@ def transcribe(
         else:
             it = gt.transcript_values
         for transcript_value in it:
-            transcript_value: Transcript
             cdna_seq = transcript_value.transcribe(sequence_func=fv.sequence)
             if len(cdna_seq) == 0:
                 continue

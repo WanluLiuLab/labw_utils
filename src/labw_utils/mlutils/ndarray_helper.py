@@ -45,7 +45,7 @@ def scale_np_array(
     """
     Scale a Numpy array to specific range.
 
-    See also: :py:func:`scale_torch_array`
+    .. seealso :: :py:func:`scale_torch_array`
 
     Example:
 
@@ -66,7 +66,7 @@ if torch is not None:
         """
         Scale a Torch array to specific range.
 
-        See also: :py:func:`scale_np_array`
+        .. seealso :: :py:func:`scale_np_array`
 
         Example:
 

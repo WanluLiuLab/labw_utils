@@ -101,20 +101,20 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             choices_str = ', '.join([str(c) for c in params['choices']])
             params['choices'] = choices_str
 
-        help_str = action.help
+        help_str = action.help if action.help is not None else ""
 
         if action.required:
             req_opt_prefix = "[REQUIRED] "
         else:
             req_opt_prefix = "[OPTIONAL] "
 
-        if action.type is None:
+        if not hasattr(action.type, "__name__"):
             dtype_prefix = ""
         else:
-            dtype_prefix = "Type: " + action.type.__name__ + "; "
+            dtype_prefix = "Type: " + action.type.__name__ + "; " # type: ignore
 
         default_prefix = ""
-        if '%(default)' not in action.help:
+        if '%(default)' not in help_str:
             if action.default is not argparse.SUPPRESS:
                 defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
                 if action.option_strings or action.nargs in defaulting_nargs:
@@ -144,7 +144,8 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
 _ACTION_GROUP_TILE_REPLACEMENT_DICT = {
     "optional arguments": "OPTIONS",  # Python < 3.10
     "options": "OPTIONS",  # Python >= 3.10
-    "positional arguments": "PARAMETERS"
+    "positional arguments": "PARAMETERS",
+    None: ""
 }
 
 

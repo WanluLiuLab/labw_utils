@@ -61,4 +61,5 @@ tox:
 mypy:
 	mypy src \
 		--html-report pytest/mypy.html \
-		--follow-imports=silent
+		--follow-imports=silent \
+		--ignore-missing-imports

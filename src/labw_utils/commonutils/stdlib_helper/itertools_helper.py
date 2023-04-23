@@ -22,7 +22,7 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InTy
 
     This function will change the elements of ``in_iterable`` with the rules specified in ``trans_dict``.
 
-    See also :py:func:`list_translate`.
+    .. seealso :: :py:func:`list_translate`.
     """
     trans_dict = dict(trans_dict)
     for old_item in in_iterable:

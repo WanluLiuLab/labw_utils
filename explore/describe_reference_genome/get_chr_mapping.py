@@ -1,16 +1,17 @@
 import io
 import json
+import os
+import sys
 
 import pandas as pd
 import requests
-import sys
 
 from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 
 
 def get_ncbi_chromosome_spec():
-    cache_path = "ncbi_chromosome_cache.csv"
+    cache_path = os.path.join(CACHE_PATH, "ncbi_chromosome_cache.csv")
     if file_exists(cache_path):
         ncbi_df = pd.read_csv(cache_path)
     else:
@@ -41,7 +42,7 @@ def get_ncbi_chromosome_spec():
 
 
 def get_ensembl_chromosome_spec():
-    cache_path = "ensembl_chromosome_cache.json"
+    cache_path = os.path.join(CACHE_PATH, "ensembl_chromosome_cache.json")
     if file_exists(cache_path):
         with get_reader(cache_path) as reader:
             decoded = json.load(reader)
@@ -60,46 +61,63 @@ def get_ensembl_chromosome_spec():
             json.dump(decoded, writer, indent=4)
 
     tlr = decoded["top_level_region"]
-    synonym_dbnames = set()
-    for contig in tlr:
-        for synonym in contig["synonyms"]:
-            synonym_dbnames.add(synonym["dbname"])
-    synonym_dbnames = list(synonym_dbnames)
-    final_table = {
-        "ens_name": [],
-        **{synonym_dbname: [] for synonym_dbname in synonym_dbnames}
-    }
-    for contig in tlr:
-        this_synonym_dbnames = list(synonym_dbnames)
-        for synonym in contig["synonyms"]:
-            if synonym["name"] != "na":
-                final_table[synonym["dbname"]].append(synonym["name"])
-                this_synonym_dbnames.remove(synonym["dbname"])
-        for na_dbname in this_synonym_dbnames:
-            final_table[na_dbname].append(None)
 
-        final_table["ens_name"].append(contig["name"])
-    final_table_df = pd.DataFrame(final_table)
     retd = {}
+    for contig in tlr:
+        ucsc_name = None
+        contig_names = [contig["name"]]
+        for synonym in contig["synonyms"]:
+            if synonym["dbname"] == "UCSC":
+                ucsc_name = synonym["name"]
+            else:
+                contig_names.append(synonym["name"])
+            if ucsc_name is not None:
+                retd.update({contig_name:ucsc_name for contig_name in contig_names})
+    return retd
 
-    synonym_dbnames_no_ucsc = list(synonym_dbnames)
-    synonym_dbnames_no_ucsc.remove("UCSC")
-    synonym_dbnames_no_ucsc.append("ens_name")
-    for df_tuple in final_table_df.itertuples():
-        ucsc_value = df_tuple.UCSC
-        if ucsc_value is not None:
-            for synonym_dbname_no_ucsc in synonym_dbnames_no_ucsc:
-                db_value = df_tuple.__getattribute__(synonym_dbname_no_ucsc)
-                if db_value is not None:
-                    retd[db_value] = ucsc_value
+
+def get_ucsc_chromosome_spec():
+    cache_path = os.path.join(CACHE_PATH, "ucsc_chromosome_cache.txt")
+    if file_exists(cache_path):
+        with get_reader(cache_path) as reader:
+            decoded = reader.read()
+    else:
+        r = requests.get(
+            "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.chromAlias.txt"
+        )
+        if not r.ok:
+            r.raise_for_status()
+            sys.exit()
+        decoded = r.text
+        with get_writer(cache_path) as writer:
+            writer.write(decoded)
+    retd = {}
+    for line in decoded.splitlines():
+        if line.startswith("#") or len(line) < 1:
+            continue
+        segments = line.split("\t")
+        for i in range(1, len(segments)):
+            if segments[i] == "":
+                continue
+            retd[segments[i]] = segments[0]
+
     return retd
 
 
 if __name__ == "__main__":
+    CACHE_PATH = "cache"
+    os.makedirs(CACHE_PATH, exist_ok=True)
     ens_chr_spec = get_ensembl_chromosome_spec()
     ncbi_chr_spec = get_ncbi_chromosome_spec()
+    ucsc_chr_spec = get_ucsc_chromosome_spec()
     final_spec = {}
     final_spec.update(ens_chr_spec)
     final_spec.update(ncbi_chr_spec)
+    final_spec.update(ucsc_chr_spec)
+    additional_spec = {} # To solve Ensembl bugs
+    for k, v in final_spec.items():
+        if k.startswith("HSCHR"):
+            additional_spec["CHR_"+k] = v
+    final_spec.update(additional_spec)
     with get_writer("final_chromosome_spec.json") as writer:
         json.dump(final_spec, writer, indent=4)

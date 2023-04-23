@@ -6,7 +6,6 @@ Here contains codes of parsers for basic bioinformatics databases
 
 __all__ = (
     "BaseFileIterator",
-    "FileTypeNotFoundError",
     "BaseIteratorWriter"
 )
 
@@ -18,21 +17,15 @@ from labw_utils.typing_importer import Iterable, IO, Iterator, TypeVar, Generic
 _RecordType = TypeVar("_RecordType")
 
 
-class FileTypeNotFoundError(NameError):
-    """
-    Developers' Error indicating the subclass was not properly set up.
-    """
-
-    def __init__(self, class_name: str):
-        super().__init__(f"filetype of class {class_name} was set to None. Please report the bug to developer.")
-
-
 class _BaseFileIO(ABC):
     _filename: str
     _fd: IO
 
-    filetype: str
-    """File type indicator, should be FINAL class variable."""
+    @property
+    @abstractmethod
+    def filetype(self) -> str:
+        """File type indicator, should be FINAL class variable."""
+        raise NotImplementedError
 
     @property
     def filename(self) -> str:
@@ -40,16 +33,6 @@ class _BaseFileIO(ABC):
         Read-only file path.
         """
         return self._filename
-
-    def __new__(cls, *args, **kwargs):
-        """
-        Method that checks whether a subclass was properly created.
-        The subclass should have ``filetype`` attribute.
-        """
-        _new_instance = super().__new__(cls)
-        if not hasattr(_new_instance, "filetype"):
-            raise FileTypeNotFoundError(cls.__name__)
-        return _new_instance
 
     def __repr__(self) -> str:
         return f"{self.filetype} Iterator for {self._filename} @ {self.tell()}"

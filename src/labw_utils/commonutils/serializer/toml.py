@@ -55,14 +55,13 @@ from labw_utils.typing_importer import Mapping
 try:
     import pytest
 
-    tomli_w = pytest.importorskip("tomli_w")
+    
 except ImportError:
-    pytest = None
     try:
         import tomli_w
     except ImportError as e:
         raise UnmetDependenciesError("tomli_w") from e
-
+tomli_w = pytest.importorskip("tomli_w")
 
 from labw_utils.commonutils.serializer import SerializableInterface
 
@@ -107,8 +106,8 @@ def write_toml_with_metadata(
         obj: Mapping[str, Any],
         title: str,
         path: str,
-        dump_versions: Optional[Callable[[], Mapping[str, Any]]] = None,
-        dump_metadata: Optional[Callable[[], Mapping[str, Any]]] = None
+        dump_versions: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
+        dump_metadata: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None
 ) -> None:
     """
     Write TOML files with metadata.

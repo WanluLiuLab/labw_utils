@@ -47,7 +47,7 @@ class FastaIndexView:
     def __len__(self):
         return len(self._d)
 
-    def __eq__(self, other: FastaIndexView) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, FastaIndexView):
             return False
         return list(self.values()) == list(other.values())

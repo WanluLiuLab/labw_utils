@@ -1,5 +1,7 @@
 """
 rules.py -- Rule definition for Rule-based IO proxy.
+
+TODO: To be refactored
 """
 
 from __future__ import annotations

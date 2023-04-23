@@ -39,6 +39,7 @@ class FastaIterator(BaseFileIterator):
     def __iter__(self) -> Iterable[FastaRecord]:
         chr_name = ""
         seq = ""
+        it: Iterable[str]
         if self._show_tqdm:
             it = get_tqdm_line_reader(self.filename)
         else:
@@ -70,12 +71,26 @@ class FastaIterator(BaseFileIterator):
 class FastaWriter(BaseIteratorWriter):
     filetype: Final[str] = "FASTA"
 
-    def __init__(self, filename: str, **kwargs):
+    def __init__(
+            self,
+            filename: str,
+            split_at: int = 0,
+            **kwargs
+    ):
         super().__init__(filename, **kwargs)
         self._fd = get_writer(self._filename)
+        self._split_at = split_at
 
     def write(self, record: FastaRecord) -> None:
-        self._fd.write(str(record) + "\n")
+        seq_id = record.seq_id
+        chr_contents = record.sequence
+        if self._split_at != 0:
+            chr_contents = "\n".join(list(
+                chr_contents[i:i + self._split_at] for i in range(0, len(chr_contents), self._split_at)
+            ))
+        self._fd.write(
+            f">{seq_id}\n{chr_contents}\n"
+        )
 
     @staticmethod
     def write_iterator(iterable: Iterable[FastaRecord], filename: str):

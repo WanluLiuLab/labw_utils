@@ -1,0 +1,72 @@
+[
+  {
+    "name": "NCBI RefSeq",
+    "path": "GCF_000001405.40_GRCh38.p14_genomic.gtf",
+    "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.40_GRCh38.p14/GCF_000001405.40_GRCh38.p14_genomic.gtf.gz"
+  },
+  {
+    "name": "NCBI GenBank",
+    "path": "GCA_000001405.29_GRCh38.p14_genomic.gtf",
+    "url": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/GCA_000001405.29_GRCh38.p14/GCA_000001405.29_GRCh38.p14_genomic.gtf.gz"
+  },
+  {
+    "name": "GenCode PA",
+    "path": "gencode.v43.primary_assembly.annotation.gtf",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.primary_assembly.annotation.gtf.gz"
+  },
+  {
+    "name": "GenCode",
+    "path": "gencode.v43.chr_patch_hapl_scaff.annotation.gtf",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.chr_patch_hapl_scaff.annotation.gtf.gz"
+  },
+  {
+    "name": "GenCode PA BASIC",
+    "path": "gencode.v43.primary_assembly.basic.annotation.gtf",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.primary_assembly.basic.annotation.gtf.gz"
+  },
+  {
+    "name": "GenCode BASIC",
+    "path": "gencode.v43.chr_patch_hapl_scaff.basic.annotation.gtf",
+    "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.chr_patch_hapl_scaff.basic.annotation.gtf.gz"
+  },
+  {
+    "name": "UCSC ensGene",
+    "path": "hg38.ensGene.gtf",
+    "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ensGene.gtf.gz"
+  },
+  {
+    "name": "UCSC knownGene",
+    "path": "hg38.knownGene.gtf",
+    "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.knownGene.gtf.gz"
+  },
+  {
+    "name": "UCSC ncbiRefSeq",
+    "path": "hg38.ncbiRefSeq.gtf",
+    "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.ncbiRefSeq.gtf.gz"
+  },
+  {
+    "name": "UCSC refGene",
+    "path": "hg38.refGene.gtf",
+    "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/genes/hg38.refGene.gtf.gz"
+  },
+  {
+    "name": "Ensembl",
+    "path": "Homo_sapiens.GRCh38.109.gtf",
+    "url": "http://ftp.ensembl.org/pub/release-109/gtf/homo_sapiens/Homo_sapiens.GRCh38.109.gtf.gz"
+  },
+  {
+    "name": "RMSK GenCode",
+    "path": "GRCh38_GENCODE_rmsk_TE.gtf",
+    "url": "http://labshare.cshl.edu/shares/mhammelllab/www-data/TEtranscripts/TE_GTF/GRCh38_GENCODE_rmsk_TE.gtf.gz"
+  },
+  {
+    "name": "RMSK Ensembl",
+    "path": "GRCh38_Ensembl_rmsk_TE.gtf",
+    "url": "https://labshare.cshl.edu/shares/mhammelllab/www-data/TEtranscripts/TE_GTF/GRCh38_Ensembl_rmsk_TE.gtf.gz"
+  },
+  {
+    "name": "CellRanger",
+    "path": "refdata-gex-GRCh38-2020-A.gtf",
+    "url": "https://cf.10xgenomics.com/supp/cell-exp/refdata-gex-GRCh38-2020-A.tar.gz"
+  }
+]

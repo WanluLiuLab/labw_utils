@@ -45,8 +45,9 @@ def preprocess(
                         continue
                 not_recognized_chr.add(chr_name)
                 n_filtered_no_recognized_chr += 1
-    with get_writer(dst_path + ".norecognized.txt") as writer:
-        writer.write("\n".join(list(not_recognized_chr)))
+    if len(not_recognized_chr) > 0:
+        with get_writer(dst_path + ".norecognized.txt") as writer:
+            writer.write("\n".join(list(not_recognized_chr)))
     print(f"{src_path} -> {dst_path}: SUCCESS {n_pass} NO_RECOGNIZED_CHR {n_filtered_no_recognized_chr}")
 
 

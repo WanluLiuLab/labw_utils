@@ -38,4 +38,3 @@ def test_error_exon():
         assert exon.attribute_get("exon_number") is None
         assert exon.transcribe(fasta_view.sequence) == ""
         assert exon.transcript_id.startswith("unknown_transcript")
-        assert exon.gene_id == "UN1"

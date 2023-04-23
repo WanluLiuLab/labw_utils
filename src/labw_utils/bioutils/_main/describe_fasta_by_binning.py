@@ -15,9 +15,7 @@ import os.path
 from collections import defaultdict
 
 from labw_utils import UnmetDependenciesError
-from labw_utils.typing_importer import List, Dict
 from labw_utils.bioutils.accession_matcher import infer_accession_type
-from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
@@ -25,6 +23,7 @@ from labw_utils.commonutils.io.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Any
+from labw_utils.typing_importer import List, Dict
 
 try:
     import numpy as np
@@ -78,10 +77,6 @@ def create_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def sdi(abundance_data: npt.ArrayLike) -> float:
-    return 1 - np.sum(np.power(abundance_data / np.sum(abundance_data), 2))
-
-
 def main(args: List[str]) -> None:
     out_metadata = {}
     args = create_parser().parse_args(args)
@@ -115,7 +110,7 @@ def main(args: List[str]) -> None:
     )
 
     with get_writer(f"{args.out}.json") as metadata_writer:
-        json.dump(out_metadata, metadata_writer)
+        json.dump(out_metadata, metadata_writer, indent=4)
     if args.metadata_only:
         return
     out_dataframe: List[Dict[str, Any]] = []
@@ -127,7 +122,7 @@ def main(args: List[str]) -> None:
             if seq_len < nbins:
                 _lh.warning("Contig '%s' omitted: too short", chr_name)
             if seq_len < 20 * nbins:
-                nbins = seq_len / 20
+                nbins = seq_len // 20
             segment_length = seq_len // nbins
             for start in range(0, seq_len - segment_length, segment_length):
                 end = start + segment_length
@@ -135,12 +130,11 @@ def main(args: List[str]) -> None:
                 nt_counts = defaultdict(lambda: 0)
                 stats_dict = {
                     "chr_name": chr_name,
-                    "start": start,
-                    "gc": get_gc_percent(seq)
+                    "start": start
                 }
                 for nt in seq:
                     nt_counts[nt] += 1
-                stats_dict["sdi"] = sdi(list(nt_counts.values()))
+                stats_dict.update(nt_counts)
                 out_dataframe.append(stats_dict)
                 pbar.update(segment_length)
     _lh.info("Finished parsing, writing to disk...")

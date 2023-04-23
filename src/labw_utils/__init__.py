@@ -1,11 +1,18 @@
 """
 labw_utils -- Utility Python functions & classes used in LabW
+
+This is the top-level package of LabW Utils.
+It also defines some commonly-used dependencies.
+
+Import of this module may raise following errors & warnings:
+
+- :py:obj:`RuntimeError`: If Python version lower than or equal to 3.6.
+- :py:obj:`UserWarning`: If Python version is 3.7.
 """
 
 from __future__ import annotations
 
 __all__ = (
-    "get_version",
     "PackageSpec",
     "PackageSpecs",
     "UnmetDependenciesError",
@@ -16,30 +23,30 @@ __version__ = "1.0.1"
 
 import sys
 import warnings
-from typing import Any
 
-from labw_utils.typing_importer import Optional, Dict
+from typing import Optional
 
 if sys.version_info <= (3, 6):
     raise RuntimeError("Python version <= 3.6, refuse to work.")
 elif sys.version_info < (3, 8):
     warnings.warn("Python version == 3.7, not recommended.")
-elif sys.version_info <= (3, 8):
-    from labw_utils.typing_importer import Iterable
+
+if sys.version_info >= (3, 9):
+    from collections.abc import Iterable
+
+    Dict = dict
 else:
-    from labw_utils.typing_importer import Iterable
-
-
-def get_version() -> str:
-    """
-    Get runtime version using function.
-    """
-    return __version__
+    from typing import Iterable, Dict
 
 
 class PackageSpec:
     """
-    Basic package specification.
+    Basic package specification. Can be used to specify packages in following package registry:
+
+    - PYPI: https://pypi.org/
+    - Conda: http://anaconda.org/
+
+    .. versionadded:: 1.0.0
     """
     _name: str
     _conda_channel: Optional[str]
@@ -74,8 +81,32 @@ class PackageSpec:
 
     @property
     def name(self) -> str:
+        """
+        Commonly-used name of that package.
+        """
         return self._name
 
+    @property
+    def conda_name(self) -> Optional[str]:
+        """
+        Name as-is in Conda
+        """
+        return self._conda_name
+
+    @property
+    def conda_channel(self) -> Optional[str]:
+        """
+        Channel name as-is in Conda
+        """
+        return self._conda_channel
+
+
+    @property
+    def pypi_name(self) -> Optional[str]:
+        """
+        Name as-is in PyPI
+        """
+        return self._pypi_name
 
 class PackageSpecs:
     """
@@ -84,7 +115,6 @@ class PackageSpecs:
     Used in :py:class:`UnmetDependenciesError`.
 
     Current recognized optional dependencies:
-
     """
     _deps: Dict[str, PackageSpec] = {}
 
@@ -104,8 +134,10 @@ class PackageSpecs:
         """
         Add a package into the list.
         """
-        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"- ``{item.name}``: {item}\n"
         PackageSpecs._deps[item.name] = item
+        if PackageSpecs.__doc__ is None:  # Supress mypy
+            PackageSpecs.__doc__ = ""
+        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"\n    - ``{item.name}``: {item}"
 
     @staticmethod
     def iter_names() -> Iterable[str]:
@@ -222,6 +254,8 @@ PackageSpecs.add(PackageSpec(
 class UnmetDependenciesError(RuntimeError):
     """
     An error indicating some additional packages should be installed.
+    
+    .. versionadded:: 1.0.0
     """
     _package_name: str
 

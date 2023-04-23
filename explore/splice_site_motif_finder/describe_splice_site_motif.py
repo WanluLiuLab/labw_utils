@@ -4,14 +4,9 @@ from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure import gene_tree
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.stdlib_helper import pickle_helper
 
 if __name__ == "__main__":
-    # gt = gene_tree.GeneTree.from_feature_iterator(
-    #     GtfIterator("ce11.ncbiRefSeq.gtf")
-    # )
-    # pickle_helper.dump(gt, "gt.gtpkl")
-    gt: gene_tree.GeneTree = pickle_helper.load("gt.gtpkl")
+    gt= gene_tree.GeneTree.from_gtf_file("ce11.ncbiRefSeq.gtf")
     fav = FastaViewFactory("ce11.fa")
     starts = pd.DataFrame(
         data=0,
@@ -43,7 +38,6 @@ if __name__ == "__main__":
                 if pos not in "AGCT":
                     pos = "N"
                 ends.loc[i, pos] += 1
-
 
     starts.to_csv("start.csv")
     ends.to_csv("ends.csv")

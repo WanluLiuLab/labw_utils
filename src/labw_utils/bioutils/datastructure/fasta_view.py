@@ -35,7 +35,7 @@ from labw_utils.commonutils.io.file_system import file_exists
 from labw_utils.commonutils.io.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
-from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable
+from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable, Any
 
 _lh = get_logger(__name__)
 
