@@ -100,13 +100,13 @@ class PackageSpec:
         """
         return self._conda_channel
 
-
     @property
     def pypi_name(self) -> Optional[str]:
         """
         Name as-is in PyPI
         """
         return self._pypi_name
+
 
 class PackageSpecs:
     """

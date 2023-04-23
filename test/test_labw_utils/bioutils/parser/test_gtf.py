@@ -3,7 +3,7 @@ import os
 from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.bioutils.record.gtf import format_string
-from labw_utils.commonutils.io.safe_io import get_reader
+from labw_utils.commonutils.lwio.safe_io import get_reader
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_gtf_path = os.path.join(TEST_DATA_DIR, "test_various_format.gtf")

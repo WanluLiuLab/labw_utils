@@ -3,7 +3,7 @@ import pathlib
 
 import pytest
 
-from labw_utils.commonutils.io import file_system
+from labw_utils.commonutils.lwio import file_system
 
 if os.name != 'nt':
     pytest.skip("System is not NT", allow_module_level=True)

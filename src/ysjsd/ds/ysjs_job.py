@@ -93,7 +93,7 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
 
     def send_signal(self, _signal: int):
         if self._p is None:
-            raise # TODO
+            raise  # TODO
         self._p.send_signal(_signal)
 
     @property
@@ -114,7 +114,7 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
         Recursively terminate a process tree
         """
         if self._p is None:
-            raise # TODO
+            raise  # TODO
 
         def _kill(_signal: int):
             try:

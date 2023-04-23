@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
-from labw_utils.bioutils.datastructure.gv import SequenceFuncType, generate_unknown_transcript_id, \
-    CanTranscribeInterface
+from labw_utils.bioutils.datastructure.gv import SequenceFuncType, CanTranscribeInterface
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_transcript_id
 from labw_utils.bioutils.record.feature import FeatureInterface
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -38,7 +37,7 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
         if not shortcut:
             self._transcript_id, data = update_transcript_id(data)
         else:
-            self._transcript_id = data.attribute_get("transcript_id") # type: ignore
+            self._transcript_id = data.attribute_get("transcript_id")  # type: ignore
         BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 
     def __repr__(self):

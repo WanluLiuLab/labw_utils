@@ -2,15 +2,15 @@ import json
 import multiprocessing
 import os
 
-from labw_utils.typing_importer import Mapping
 from labw_utils.bioutils.accession_matcher import infer_accession_type
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.libfrontend import setup_basic_logger
+from labw_utils.commonutils.lwio.safe_io import get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Mapping
 
 setup_basic_logger()
 

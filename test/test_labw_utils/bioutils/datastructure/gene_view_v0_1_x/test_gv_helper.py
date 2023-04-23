@@ -5,7 +5,7 @@ import pytest
 
 import labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper as gvh
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
-from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.lwio.safe_io import get_writer
 
 gene_gtf = """
 1	StringTie	transcript	14361	29359	1000	-	.	gene_id "STRG.3"; transcript_id "STRG.3.1"; cov "14.715067"; FPKM "1.148767"; TPM "1.453300";

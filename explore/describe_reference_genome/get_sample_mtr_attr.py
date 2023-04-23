@@ -10,7 +10,7 @@ import os.path
 import pandas as pd
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_writer
+from labw_utils.commonutils.lwio.safe_io import get_writer
 
 if __name__ == "__main__":
     retd = {}

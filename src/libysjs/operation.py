@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 
 from labw_utils import UnmetDependenciesError
-from labw_utils.typing_importer import Mapping, Union
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+from labw_utils.typing_importer import Mapping, Union
 from libysjs.ds.ysjs_submission import YSJSSubmission
 from libysjs.ds.ysjsd_config import YSJSDConfig
 from libysjs.ds.ysjsd_status import YSJSDStatus

@@ -7,7 +7,7 @@ from labw_utils import UnmetDependenciesError
 try:
     import pytest
 
-    torch= pytest.importorskip("torch")
+    torch = pytest.importorskip("torch")
 except ImportError:
     pytest = None
     try:

@@ -12,7 +12,7 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, Fasta
     ChromosomeNotFoundError, \
     FromGreaterThanToError, DuplicatedChromosomeNameError
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
-from labw_utils.commonutils.io.safe_io import get_writer, get_reader
+from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
 from labw_utils.commonutils.stdlib_helper import logger_helper
 from test_labw_utils.bioutils import TEST_DATA_DIR
 

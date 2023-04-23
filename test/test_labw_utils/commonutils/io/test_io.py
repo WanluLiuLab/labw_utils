@@ -5,8 +5,8 @@ import tempfile
 
 import pytest
 
-from labw_utils.commonutils.lwio import get_reader, get_writer
-from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader, TqdmReader
+from labw_utils.commonutils.lwio import get_reader, get_writer, TqdmReaderProxy, TqdmLineReaderProxy
+from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
 
@@ -17,41 +17,41 @@ def assess_binary_archive_io(filename: str):
     available_chars = string.printable
 
     contents = bytes(
-        "".join((random.choice(available_chars) for _ in range(CONTENT_SIZE))),
+        "".join((random.choices(available_chars, k=CONTENT_SIZE))),
         encoding="UTF-8"
     )
     len_contents = len(contents)
 
     shutil_helper.rm_rf(filename)
-    with get_writer(filename, is_binary=True, compression_level = 9) as writer:
+    with get_writer(filename, is_binary=True, compression_level=9) as writer:
         writer.write(contents)
     with get_reader(filename, is_binary=True) as reader:
         assert reader.read(len_contents) == contents
     with get_tqdm_reader(filename, is_binary=True) as reader:
-        reader: TqdmReader
+        reader: TqdmReaderProxy
         assert reader.read(len_contents) == contents
         assert reader._tqdm._total == len(contents)
     assert filename.endswith("txt") == (os.path.getsize(filename) == len_contents)
 
 
 def assess_text_archive_io(filename: str):
-    available_chars = string.printable
+    available_chars = string.ascii_letters + "\n"
 
-    contents = "".join((random.choice(available_chars) for _ in range(CONTENT_SIZE))).replace('\r', '')
+    contents = "".join(random.choices(available_chars, k=CONTENT_SIZE))
     len_contents = len(contents)
 
     contents_list = contents.split('\n')
     shutil_helper.rm_rf(filename)
-    with get_writer(filename, encoding="UTF-8", newline='\n', compression_level = 9) as writer:
+    with get_writer(filename, is_binary=False, newline='\n', compression_level=9) as writer:
         writer.write(contents)
-    with get_reader(filename, encoding="UTF-8", newline='\n') as reader:
+    with get_reader(filename, is_binary=False, newline='\n') as reader:
         assert reader.read(len_contents) == contents
-    with get_tqdm_reader(filename, encoding="UTF-8", newline='\n') as reader:
-        reader: TqdmReader
+    with get_tqdm_reader(filename, newline='\n') as reader:
+        reader: TqdmReaderProxy
         assert reader.read(len_contents) == contents
         assert reader._tqdm._total == len(contents)
-    with get_tqdm_line_reader(filename, encoding="UTF-8", newline='\n') as reader:
-        reader: TqdmReader
+    with get_tqdm_line_reader(filename, newline='\n') as reader:
+        reader: TqdmLineReaderProxy
         i = 0
         assert reader._tqdm._total == len(contents_list)
         for line in reader:

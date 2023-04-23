@@ -2,8 +2,8 @@ import json
 import os
 import shutil
 
-from labw_utils.commonutils.io.safe_io import get_reader
 from labw_utils.commonutils.libfrontend import setup_basic_logger
+from labw_utils.commonutils.lwio.safe_io import get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 setup_basic_logger()

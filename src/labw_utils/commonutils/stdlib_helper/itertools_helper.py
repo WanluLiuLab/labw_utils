@@ -32,7 +32,8 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InTy
             yield old_item
 
 
-def dict_translate(in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InType, _InType]) -> Mapping[_InType, _VarType]:
+def dict_translate(in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InType, _InType]) -> Mapping[
+    _InType, _VarType]:
     """
     Dictionary Translator.
 

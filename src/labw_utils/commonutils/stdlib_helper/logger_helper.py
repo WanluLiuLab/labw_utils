@@ -37,8 +37,8 @@ def trace(self, msg, *args, **kwargs):
 
 
 logging.addLevelName(TRACE, "TRACE")
-logging.Logger.trace = trace # type: ignore
-logging.trace = trace # type: ignore
+logging.Logger.trace = trace  # type: ignore
+logging.trace = trace  # type: ignore
 
 
 def get_formatter(level: Union[int, str]) -> logging.Formatter:

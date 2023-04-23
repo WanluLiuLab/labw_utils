@@ -7,7 +7,7 @@ from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy,
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface, \
     DuplicatedTranscriptIDError
-from labw_utils.bioutils.record.feature import Feature, FeatureType, FeatureInterface
+from labw_utils.bioutils.record.feature import FeatureType, FeatureInterface
 from labw_utils.typing_importer import List, Optional, Iterable, Sequence, SequenceProxy
 
 

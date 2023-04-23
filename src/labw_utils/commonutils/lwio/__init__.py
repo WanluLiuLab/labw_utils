@@ -68,6 +68,7 @@ import lzma
 import os
 from abc import abstractmethod, ABC
 
+from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 from labw_utils.typing_importer import Iterator, Iterable, List, Union, IO, Optional, AnyStr, Generic, Literal, \
     overload, Dict, Tuple, Type
@@ -234,6 +235,16 @@ def convert_path_to_str(path: PathType) -> str:
         return path
     else:
         raise TypeError(f"Type {type(path)} not supported!")
+
+
+@overload
+def type_check(obj: FDType) -> Literal[True]:
+    ...
+
+
+@overload
+def type_check(obj: PathType) -> Literal[False]:
+    ...
 
 
 def type_check(obj: object) -> bool:
@@ -622,11 +633,11 @@ class BinaryWriterProxy(AbstractWriter[bytes]):
         if is_textio(fd):
             raise TypeError(f"Type {type(fd)} is not BinaryIO!")
 
-    def write(self, s: bytes) -> int:
+    def write(self, s: bytes) -> int:  # type: ignore
         self._ensure_open()
         return self._fd.write(s)
 
-    def writelines(self, lines: Iterable[bytes]) -> None:
+    def writelines(self, lines: Iterable[bytes]) -> None:  # type: ignore
         self._ensure_open()
         self._fd.writelines(lines)
 
@@ -654,6 +665,87 @@ class CompressedReaderProxy(AbstractReader):
     @abstractmethod
     def create(cls, fd: FDType):
         raise NotImplementedError
+
+
+class TqdmReaderProxy(AbstractReader[AnyStr], Generic[AnyStr]):
+    _tqdm: tqdm
+
+    def __init__(self, fd: FDType):
+        super().__init__(fd)
+        self._tqdm = tqdm(
+            desc=f"Reading from {fd}",
+            total=shutil_helper.wc_c_io(self._fd),
+            unit='B',
+            unit_scale=True,
+            unit_divisor=1024
+        )
+
+    def read(self, size: int = -1) -> AnyStr:
+        self._ensure_open()
+        update_bytes = self._fd.read(size)
+        self._tqdm.update(len(update_bytes))
+        return update_bytes
+
+    def readline(self, limit: int = -1) -> AnyStr:
+        self._ensure_open()
+        update_bytes = self._fd.readline(limit)
+        self._tqdm.update(len(update_bytes))
+        return update_bytes
+
+    def readlines(self, hint: int = -1) -> List[AnyStr]:
+        self._ensure_open()
+        update_bytes_arr = self._fd.readlines(hint)
+        self._tqdm.update(sum(map(len, update_bytes_arr)))
+        return update_bytes_arr
+
+
+class LineReaderProxy(AbstractReader[AnyStr], Generic[AnyStr]):
+
+    def read(self, *args, **kwargs):
+        self._ensure_open()
+        raise TypeError(f"Type {type(self._fd)} is Line Reader!")
+
+    def readline(self, *args, **kwargs) -> AnyStr:
+        self._ensure_open()
+        return self._fd.readline(-1)  # Size limit canceled.
+
+    def __iter__(self) -> Iterator[AnyStr]:
+        """Iterator over lines with removal of trailing line feed (``LF``, ``\n``)/carriage return (``CR``, ``\r``)"""
+        self._ensure_open()
+        line = self.readline()
+        if not line:
+            return
+        else:
+            if isinstance(line, bytes):
+                strip_content = b'\r\n'
+            else:
+                strip_content = '\r\n'
+            yield line.rstrip(strip_content)
+        while True:
+            line = self.readline()
+            if not line:
+                break
+            yield line.rstrip(strip_content)
+
+
+class TqdmLineReaderProxy(LineReaderProxy[AnyStr], Generic[AnyStr]):
+    _tqdm: tqdm
+
+    def __init__(self, fd: FDType):
+        super().__init__(fd)
+        self._tqdm = tqdm(
+            desc=f"Reading from {fd}",
+            total=shutil_helper.wc_l_io(self._fd) + 1,
+            unit='L',
+            unit_scale=True,
+            unit_divisor=1000
+        )
+
+    def readline(self, *args, **kwargs) -> AnyStr:
+        self._ensure_open()
+        update_bytes = self._fd.readline(-1)
+        self._tqdm.update(1)
+        return update_bytes
 
 
 class CompressedWriterProxy(AbstractWriter):
@@ -793,7 +885,7 @@ def file_open(
     ...
 
 
-def file_open(
+def file_open(  # type: ignore
         file_path: str,
         mode: ModeEnum = ModeEnum.READ,
         is_binary: bool = False,
@@ -801,6 +893,7 @@ def file_open(
         compression: Optional[str] = "inferred",
         newline: Optional[str] = None,
         compression_level: int = 0,
+        tqdm_reader_by_line: Optional[bool] = None,
         parallel_compression: int = 0
 ) -> IOProxy:
     if newline is None:
@@ -819,13 +912,19 @@ def file_open(
             open(file_path, "rb")
         )
         if is_binary:
-            return BinaryReaderProxy(rfd)
+            rfd = BinaryReaderProxy(rfd)
         else:
-            return TextReaderProxy(io.TextIOWrapper(
+            rfd = TextReaderProxy(io.TextIOWrapper(
                 rfd,
                 encoding=encoding,
                 newline=newline
             ))
+        if tqdm_reader_by_line is True:
+            return TqdmLineReaderProxy(rfd)
+        elif tqdm_reader_by_line is False:
+            return TqdmReaderProxy(rfd)
+        else:
+            return rfd
 
     elif mode == ModeEnum.WRITE:
         shutil_helper.touch(file_path)
@@ -886,7 +985,7 @@ def get_reader(
         path_or_fd: PathOrFDType,
         is_binary: Literal[False],
         **kwargs
-) -> IOProxy[bytes]:
+) -> IOProxy[str]:
     ...
 
 
@@ -895,55 +994,19 @@ def get_reader(
         path_or_fd: PathOrFDType,
         is_binary: Literal[True],
         **kwargs
-) -> IOProxy[str]:
-    ...
-
-
-@overload
-def get_writer(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False],
-        **kwargs
 ) -> IOProxy[bytes]:
-    ...
-
-
-@overload
-def get_writer(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[True],
-        **kwargs
-) -> IOProxy[str]:
-    ...
-
-
-@overload
-def get_appender(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False],
-        **kwargs
-) -> IOProxy[bytes]:
-    ...
-
-
-@overload
-def get_appender(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[True],
-        **kwargs
-) -> IOProxy[str]:
     ...
 
 
 def get_reader(
         path_or_fd: PathOrFDType,
-        is_binary: bool = False,
+        is_binary: Literal[False, True] = False,
         **kwargs
 ) -> IOProxy:
     if type_check(path_or_fd):
-        return wrap_io(path_or_fd)
+        return wrap_io(path_or_fd)  # type: ignore
     else:
-        path_or_fd = convert_path_to_str(path_or_fd)
+        path_or_fd = convert_path_to_str(path_or_fd)  # type: ignore
         return file_open(
             path_or_fd,
             mode=ModeEnum.READ,
@@ -952,15 +1015,33 @@ def get_reader(
         )
 
 
+@overload
 def get_writer(
         path_or_fd: PathOrFDType,
-        is_binary: bool = False,
+        is_binary: Literal[False],
+        **kwargs
+) -> IOProxy[str]:
+    ...
+
+
+@overload
+def get_writer(
+        path_or_fd: PathOrFDType,
+        is_binary: Literal[True],
+        **kwargs
+) -> IOProxy[bytes]:
+    ...
+
+
+def get_writer(
+        path_or_fd: PathOrFDType,
+        is_binary: Literal[False, True] = False,
         **kwargs
 ) -> IOProxy:
     if type_check(path_or_fd):
-        return wrap_io(path_or_fd)
+        return wrap_io(path_or_fd)  # type: ignore
     else:
-        path_or_fd = convert_path_to_str(path_or_fd)
+        path_or_fd = convert_path_to_str(path_or_fd)  # type: ignore
         return file_open(
             path_or_fd,
             mode=ModeEnum.WRITE,
@@ -969,15 +1050,33 @@ def get_writer(
         )
 
 
+@overload
 def get_appender(
         path_or_fd: PathOrFDType,
-        is_binary: bool = False,
+        is_binary: Literal[False],
+        **kwargs
+) -> IOProxy[str]:
+    ...
+
+
+@overload
+def get_appender(
+        path_or_fd: PathOrFDType,
+        is_binary: Literal[True],
+        **kwargs
+) -> IOProxy[bytes]:
+    ...
+
+
+def get_appender(
+        path_or_fd: PathOrFDType,
+        is_binary: Literal[False, True] = False,
         **kwargs
 ) -> IOProxy:
     if type_check(path_or_fd):
-        return wrap_io(path_or_fd)
+        return wrap_io(path_or_fd)  # type: ignore
     else:
-        path_or_fd = convert_path_to_str(path_or_fd)
+        path_or_fd = convert_path_to_str(path_or_fd)  # type: ignore
         return file_open(
             path_or_fd,
             mode=ModeEnum.APPEND,

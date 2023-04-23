@@ -12,7 +12,7 @@ import os
 if os.name == 'nt':
     def is_user_admin() -> int:
         try:
-            return ctypes.windll.shell32.IsUserAnAdmin() # type: ignore
+            return ctypes.windll.shell32.IsUserAnAdmin()  # type: ignore
         except AttributeError:
             return -1
 

@@ -12,6 +12,7 @@ This also defines :py:class:`SequenceProxy` and :py:class:`MappingProxy` to crea
 """
 
 from __future__ import annotations
+
 import copy
 
 __all__ = (
@@ -89,18 +90,13 @@ else:
         MutableMapping, Sequence, MutableSequence, Counter, OrderedDict, DefaultDict, ChainMap, ByteString, MappingView, \
         KeysView, ItemsView, ValuesView, Sized, Hashable
 
-if sys.version_info < (3, 8):
-    # For Python 3.7 only
-    class _Subscriptable:
-        def __getitem__(self, item):
-            ...
-
-
-    Final = _Subscriptable()
-    Literal = _Subscriptable()
-
-else:
+try:
     from typing import Literal, Final
+
+except ImportError:
+    # For Python 3.7 only
+    Final = type(Optional)()
+    Literal = type(Optional)()
 
 _ItemType = TypeVar("_ItemType")
 _KeyType = TypeVar("_KeyType")

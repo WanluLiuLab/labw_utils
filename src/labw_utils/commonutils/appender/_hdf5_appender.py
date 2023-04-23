@@ -13,7 +13,6 @@ except ImportError:
     except (ImportError, AttributeError) as e:
         raise UnmetDependenciesError("pytables") from e
 
-
 try:
     import pandas as pd
 except ImportError:

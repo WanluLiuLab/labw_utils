@@ -35,7 +35,7 @@ from labw_utils.commonutils.lwio.file_system import file_exists
 from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
-from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable, Any
+from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable
 
 _lh = get_logger(__name__)
 
@@ -362,8 +362,9 @@ class _DiskAccessFastaView(_BaseFastaView):
 
         if (to_pos % chr_fai.line_blen) == 0:
             lines_to_read -= 1
+
         rets = self._fd.read(
-            to_pos - from_pos + lines_to_read
+            to_pos - from_pos + lines_to_read * len_newline
         ).replace('\n', '').replace('\r', '')
         return rets
 

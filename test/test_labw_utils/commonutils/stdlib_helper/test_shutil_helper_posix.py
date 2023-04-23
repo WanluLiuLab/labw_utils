@@ -3,7 +3,7 @@ import os
 import pytest
 
 import conftest
-from labw_utils.commonutils.io.file_system import get_abspath
+from labw_utils.commonutils.lwio.file_system import get_abspath
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 
 if os.name != 'posix':

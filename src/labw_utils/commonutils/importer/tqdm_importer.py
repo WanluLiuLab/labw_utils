@@ -9,24 +9,21 @@ will use a home-made fallback which is more silent.
 import os
 import sys
 
-from labw_utils.typing_importer import Type
-
 __all__ = (
-    "tqdm",
+    "tqdm"
 )
 
-tqdm: Type
+from labw_utils.commonutils.importer import _silent_tqdm
 
 if os.getenv("SPHINX_BUILD") is not None:
-    from labw_utils.commonutils.importer._silent_tqdm import tqdm as tqdm
-else:
     try:
         import tqdm as _external_tqdm
     except ImportError:
         _external_tqdm = None
-    from labw_utils.commonutils.importer._silent_tqdm import tqdm as _silent_tqdm
+else:
+    _external_tqdm = None
 
-    if sys.stderr.isatty() and _external_tqdm is not None:
-        tqdm = _external_tqdm.tqdm
-    else:
-        tqdm = _silent_tqdm
+if sys.stderr.isatty() and _external_tqdm is not None:
+    tqdm = _external_tqdm.tqdm
+else:
+    tqdm = _silent_tqdm.tqdm

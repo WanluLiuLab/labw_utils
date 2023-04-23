@@ -11,8 +11,8 @@ from abc import abstractmethod, ABC
 import pandas as pd
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.io.safe_io import get_reader
-from labw_utils.commonutils.io.tqdm_reader import get_tqdm_reader
+from labw_utils.commonutils.lwio.safe_io import get_reader
+from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_reader
 from labw_utils.typing_importer import Tuple, List, Iterable
 
 IntervalType = Tuple[str, int, int]

@@ -96,7 +96,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
                 del params[name]
         for name in list(params):
             if hasattr(params[name], '__name__'):
-                params[name] = params[name].__name__ # type: ignore
+                params[name] = params[name].__name__  # type: ignore
         if params.get('choices') is not None:
             choices_str = ', '.join([str(c) for c in params['choices']])
             params['choices'] = choices_str
@@ -111,7 +111,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
         if not hasattr(action.type, "__name__"):
             dtype_prefix = ""
         else:
-            dtype_prefix = "Type: " + action.type.__name__ + "; " # type: ignore
+            dtype_prefix = "Type: " + action.type.__name__ + "; "  # type: ignore
 
         default_prefix = ""
         if '%(default)' not in help_str:

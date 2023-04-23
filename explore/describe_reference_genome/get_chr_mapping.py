@@ -6,8 +6,8 @@ import sys
 import pandas as pd
 import requests
 
-from labw_utils.commonutils.io.file_system import file_exists
-from labw_utils.commonutils.io.safe_io import get_reader, get_writer
+from labw_utils.commonutils.lwio.file_system import file_exists
+from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 
 
 def get_ncbi_chromosome_spec():
@@ -72,7 +72,7 @@ def get_ensembl_chromosome_spec():
             else:
                 contig_names.append(synonym["name"])
             if ucsc_name is not None:
-                retd.update({contig_name:ucsc_name for contig_name in contig_names})
+                retd.update({contig_name: ucsc_name for contig_name in contig_names})
     return retd
 
 
@@ -114,10 +114,10 @@ if __name__ == "__main__":
     final_spec.update(ens_chr_spec)
     final_spec.update(ncbi_chr_spec)
     final_spec.update(ucsc_chr_spec)
-    additional_spec = {} # To solve Ensembl bugs
+    additional_spec = {}  # To solve Ensembl bugs
     for k, v in final_spec.items():
         if k.startswith("HSCHR"):
-            additional_spec["CHR_"+k] = v
+            additional_spec["CHR_" + k] = v
     final_spec.update(additional_spec)
     with get_writer("final_chromosome_spec.json") as writer:
         json.dump(final_spec, writer, indent=4)

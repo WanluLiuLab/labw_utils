@@ -6,7 +6,7 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
 if __name__ == "__main__":
-    gt= gene_tree.GeneTree.from_gtf_file("ce11.ncbiRefSeq.gtf")
+    gt = gene_tree.GeneTree.from_gtf_file("ce11.ncbiRefSeq.gtf")
     fav = FastaViewFactory("ce11.fa")
     starts = pd.DataFrame(
         data=0,
@@ -28,12 +28,12 @@ if __name__ == "__main__":
             if not transcript.strand:
                 start_seq = reverse_complement(start_seq)
                 end_seq = reverse_complement(end_seq)
-            for i, pos in enumerate(start_seq, start = -100):
+            for i, pos in enumerate(start_seq, start=-100):
                 pos = pos.upper()
                 if pos not in "AGCT":
                     pos = "N"
                 starts.loc[i, pos] += 1
-            for i, pos in enumerate(end_seq, start = -100):
+            for i, pos in enumerate(end_seq, start=-100):
                 pos = pos.upper()
                 if pos not in "AGCT":
                     pos = "N"

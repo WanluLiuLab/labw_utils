@@ -5,7 +5,7 @@ import tempfile
 import pytest
 
 import conftest
-from labw_utils.commonutils.io.file_system import file_exists
+from labw_utils.commonutils.lwio.file_system import file_exists
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 
 

@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from labw_utils.commonutils.io import file_system
+from labw_utils.commonutils.lwio import file_system
 
 if os.name != 'posix':
     pytest.skip("System is NOT POSIX", allow_module_level=True)

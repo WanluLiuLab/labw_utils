@@ -55,7 +55,7 @@ from labw_utils.typing_importer import Mapping
 try:
     import pytest
 
-    
+
 except ImportError:
     try:
         import tomli_w

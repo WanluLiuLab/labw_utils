@@ -15,7 +15,7 @@ import types
 import uuid
 
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
-from labw_utils.typing_importer import Any, TypeVar, Optional, Callable, Type
+from labw_utils.typing_importer import Any, TypeVar, Callable
 
 _InType = TypeVar("_InType")
 
@@ -188,7 +188,7 @@ def create_class_init_doc_from_property(
                     continue
                 result_doc += f":param {argname}: {doc}\n"
                 break
-        
+
         init_func.__doc__ = text_before + result_doc + text_after
         return cls
 

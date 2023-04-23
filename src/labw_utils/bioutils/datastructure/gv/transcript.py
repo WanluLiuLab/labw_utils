@@ -118,9 +118,9 @@ class Transcript(
                 data = data.update(feature="transcript")
             self._exons = list(exons)
         else:
-            self._transcript_id = data.attribute_get("transcript_id") # type: ignore
-            self._gene_id = data.attribute_get("gene_id") # type: ignore
-            self._exons = exons # type: ignore
+            self._transcript_id = data.attribute_get("transcript_id")  # type: ignore
+            self._gene_id = data.attribute_get("gene_id")  # type: ignore
+            self._exons = exons  # type: ignore
         BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
 
     def __repr__(self):

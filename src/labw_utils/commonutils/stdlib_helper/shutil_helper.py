@@ -20,7 +20,7 @@ import time
 from labw_utils.commonutils.lwio import FDType, get_reader
 from labw_utils.commonutils.lwio.file_system import get_abspath, file_exists, is_soft_link
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import IO, Callable, Optional, Union
+from labw_utils.typing_importer import IO, Callable, Optional
 
 _lh = get_logger(__name__)
 

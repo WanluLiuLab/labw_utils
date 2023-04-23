@@ -1,5 +1,3 @@
-import pytest
-
 from labw_utils.bioutils.parser import BaseFileIterator
 from labw_utils.typing_importer import Iterator, Any
 

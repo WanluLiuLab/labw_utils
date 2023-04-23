@@ -26,7 +26,7 @@ from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
 from labw_utils.typing_importer import Iterable
-from labw_utils.typing_importer import Union, Optional, TypeVar, Callable, Type, List
+from labw_utils.typing_importer import Union, Optional, TypeVar, Callable, List
 
 try:
     import joblib
