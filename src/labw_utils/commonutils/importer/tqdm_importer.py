@@ -13,15 +13,20 @@ __all__ = (
     "tqdm",
 )
 
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.importer import _silent_tqdm
 
-if os.getenv("SPHINX_BUILD") is not None:
+_lh = get_logger(__name__)
+
+if os.getenv("SPHINX_BUILD") is None:
     try:
         import tqdm as _external_tqdm
     except ImportError:
         _external_tqdm = None
+        _lh.warning("Import official tqdm failed! will use builtin instead")
 else:
     _external_tqdm = None
+    _lh.warning("Sphinx environment detected!")
 
 if sys.stderr.isatty() and _external_tqdm is not None:
     tqdm = _external_tqdm.tqdm

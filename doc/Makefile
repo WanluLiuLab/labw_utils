@@ -1,4 +1,4 @@
-#!/usr/bin/env make
+export SPHINX_BUILD := 1
 
 SPHINX_OPTS := -j auto
 

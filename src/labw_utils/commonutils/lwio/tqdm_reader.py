@@ -16,12 +16,13 @@ import labw_utils.commonutils.lwio as cio
 def get_tqdm_reader(*args, **kwargs) -> cio.IOProxy:
     return cio.get_reader(
         *args, **kwargs,
-        tqdm_reader_by_line=False
+        tqdm_reader=True
     )
 
 
 def get_tqdm_line_reader(*args, **kwargs) -> cio.IOProxy:
     return cio.get_reader(
         *args, **kwargs,
-        tqdm_reader_by_line=True
+        tqdm_reader=True,
+        line_reader=True
     )

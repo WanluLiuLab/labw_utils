@@ -5,7 +5,7 @@ import tempfile
 
 import pytest
 
-from labw_utils.commonutils.lwio import get_reader, get_writer, TqdmReaderProxy, TqdmLineReaderProxy
+from labw_utils.commonutils.lwio import get_reader, get_writer, ReadOnlyIOProxyWithTqdm, ByLineReadOnlyIOProxyWithTqdm
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_reader, get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper import shutil_helper
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
@@ -28,7 +28,7 @@ def assess_binary_archive_io(filename: str):
     with get_reader(filename, is_binary=True) as reader:
         assert reader.read(len_contents) == contents
     with get_tqdm_reader(filename, is_binary=True) as reader:
-        reader: TqdmReaderProxy
+        reader: ReadOnlyIOProxyWithTqdm
         assert reader.read(len_contents) == contents
         assert reader._tqdm._total == len(contents)
     assert filename.endswith("txt") == (os.path.getsize(filename) == len_contents)
@@ -47,11 +47,11 @@ def assess_text_archive_io(filename: str):
     with get_reader(filename, is_binary=False, newline='\n') as reader:
         assert reader.read(len_contents) == contents
     with get_tqdm_reader(filename, newline='\n') as reader:
-        reader: TqdmReaderProxy
+        reader: ReadOnlyIOProxyWithTqdm
         assert reader.read(len_contents) == contents
         assert reader._tqdm._total == len(contents)
     with get_tqdm_line_reader(filename, newline='\n') as reader:
-        reader: TqdmLineReaderProxy
+        reader: ByLineReadOnlyIOProxyWithTqdm
         i = 0
         assert reader._tqdm._total == len(contents_list)
         for line in reader:

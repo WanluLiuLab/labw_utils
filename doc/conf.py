@@ -78,7 +78,10 @@ manpages_url = 'https://manpages.debian.org/{path}'
 
 # myst-nb settings
 nb_execution_timeout = 1200
-nb_execution_mode = "cache"
+if os.getenv("NO_NB") is not None:
+    nb_execution_mode = "off"
+else:
+    nb_execution_mode = "cache"
 nb_merge_streams = True
 
 # BibTeX setting

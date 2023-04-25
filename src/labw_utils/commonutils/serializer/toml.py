@@ -54,14 +54,13 @@ from labw_utils.typing_importer import Mapping
 
 try:
     import pytest
-
+    tomli_w = pytest.importorskip("tomli_w")
 
 except ImportError:
     try:
         import tomli_w
     except ImportError as e:
         raise UnmetDependenciesError("tomli_w") from e
-tomli_w = pytest.importorskip("tomli_w")
 
 from labw_utils.commonutils.serializer import SerializableInterface
 

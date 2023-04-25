@@ -249,6 +249,12 @@ PackageSpecs.add(PackageSpec(
     pypi_name="scipy",
     conda_channel="conda-forge"
 ))
+PackageSpecs.add(PackageSpec(
+    name="snappy",
+    conda_name="python-snappy",
+    pypi_name="python-snappy",
+    conda_channel="conda-forge"
+))
 
 
 class UnmetDependenciesError(RuntimeError):

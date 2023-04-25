@@ -5,7 +5,8 @@ labw_utils.devutils.decorators -- Decorators for miscellaneous features.
 __all__ = (
     "copy_doc",
     "chronolog",
-    "create_class_init_doc_from_property"
+    "create_class_init_doc_from_property",
+    "supress_inherited_doc"
 )
 
 import inspect
@@ -64,6 +65,22 @@ def copy_doc(source: Any) -> Callable:
         return func
 
     return wrapper
+
+
+def supress_inherited_doc(obj):
+    if os.getenv("SPHINX_BUILD") is not None:
+        mro_defined = {"__init__"}
+        for mro in obj.__mro__:
+            for mro_attr in dir(mro):
+                if not mro_attr.startswith("_"):
+                    mro_defined.add(mro_attr)
+        for inside_obj_name in dir(obj):
+            if inside_obj_name in mro_defined:
+                try:
+                    delattr(obj, inside_obj_name)
+                except (AttributeError, TypeError):
+                    pass
+    return obj
 
 
 def chronolog(display_time: bool = False, log_error: bool = False):

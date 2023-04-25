@@ -1,7 +1,6 @@
 """
-labw_utils.devutils.sphinx_helper -- Helpers of Sphinx documentation system
+myst_nb_helper -- Helpers of Sphinx documentation system
 """
-from __future__ import annotations
 
 __all__ = (
     "convert_ipynb_to_myst",
@@ -19,7 +18,7 @@ from labw_utils.commonutils import libfrontend
 from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.stdlib.cpy311 import tomllib
-from labw_utils.typing_importer import Optional, Callable
+from labw_utils.typing_importer import Optional, Callable, List
 
 PackageSpecs.add(PackageSpec(
     name="jupytext",
@@ -36,8 +35,10 @@ PackageSpecs.add(PackageSpec(
 
 try:
     import pytest
-
+    jupytext = pytest.importorskip("jupytext")
+    nbf = pytest.importorskip("nbformat")
 except ImportError:
+    pytest = None
     try:
         import jupytext
     except ImportError as e:
@@ -47,8 +48,7 @@ except ImportError:
     except ImportError as e:
         raise UnmetDependenciesError("nbformat") from e
 
-jupytext = pytest.importorskip("jupytext")
-nbf = pytest.importorskip("nbformat")
+
 
 _lh = get_logger(__name__)
 
@@ -80,7 +80,7 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
 
 def convert_ipynb_to_myst(
         source_dir: str,
-        hooks: Optional[list[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
+        hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
 ):
     if hooks is None:
         hooks = []
@@ -100,8 +100,8 @@ def convert_ipynb_to_myst(
                     fp=dst_fn,
                     fmt="md:myst"
                 )
-            except Exception as e:
-                _lh.warning(f"CONVERT {fn} -> {dst_fn}: ERR", exc_info=e)
+            except Exception as _e:
+                _lh.warning(f"CONVERT {fn} -> {dst_fn}: ERR", exc_info=_e)
             _lh.info(f"CONVERT {fn} -> {dst_fn}: FIN")
         else:
             _lh.info(f"CONVERT {fn} -> {dst_fn}: REFUSE TO OVERWRITE NEWER FILE")

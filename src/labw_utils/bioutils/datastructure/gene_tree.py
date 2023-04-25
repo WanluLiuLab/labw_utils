@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import itertools
-import multiprocessing
 from abc import abstractmethod, ABC
 from collections import defaultdict
 
@@ -399,7 +398,7 @@ class GeneTree(BaseGeneTree):
             it = tqdm(
                 it,
                 desc="Scanning for duplicated gene definitions..."
-        )
+            )
         for gene in it:
             if gene.gene_id in gene_ids:
                 raise DuplicatedGeneIDError(gene.gene_id)
@@ -409,7 +408,7 @@ class GeneTree(BaseGeneTree):
             it = tqdm(
                 it,
                 desc="Scanning for missing gene definitions..."
-        )
+            )
         for transcript in it:
             if transcript.gene_id not in gene_ids:
                 # _lh.warning("Gene %s inferred from transcript %s!", transcript.gene_id, transcript.transcript_id)
@@ -433,7 +432,7 @@ class GeneTree(BaseGeneTree):
             it = tqdm(
                 it,
                 desc="Scanning for missing gene definitions..."
-        )
+            )
         for transcript in it:
             gene_id_to_gene_index[transcript.gene_id] = \
                 gene_id_to_gene_index[transcript.gene_id].add_transcript(transcript)

@@ -87,5 +87,6 @@ dependencies:
   - types-psutil
   - types-jinja2
   - types-flask
+  - types-docutils
   - mypy
 
