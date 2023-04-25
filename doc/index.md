@@ -7,7 +7,7 @@ This contains documentation for Users and Developers.
 :glob:
 :maxdepth: 2
 
-_root/Readme
+_root/Readme.incoming
 src/tutorial/index
 apidoc_index
 _root/Copying

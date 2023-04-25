@@ -10,7 +10,7 @@ import os
 import sys
 
 __all__ = (
-    "tqdm"
+    "tqdm",
 )
 
 from labw_utils.commonutils.importer import _silent_tqdm

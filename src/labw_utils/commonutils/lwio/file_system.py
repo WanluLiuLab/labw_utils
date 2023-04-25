@@ -16,6 +16,10 @@ __all__ = (
 import os
 import stat
 
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
+
+_lh = get_logger(__name__)
+
 
 def get_abspath(path: str) -> str:
     """
@@ -64,14 +68,25 @@ def is_soft_link(path: str) -> bool:
     return stat.S_ISLNK(os.stat(path, follow_symlinks=False)[0])
 
 
-def should_regenerate(src_path: str, dst_path: str) -> bool:
+def should_regenerate(
+        src_path: str,
+        dst_path: str,
+        verbose: bool = True
+) -> bool:
     """
     This function assumes ``dst_path`` is generated from ``src_path``
     and determine whether re-generation is necessary.
 
     :param src_path: The source path.
     :param dst_path: The destination path.
+    :param verbose: Whether to be verbose. Will print logs at INFO level.
     """
     if file_exists(dst_path):
-        return os.path.getmtime(dst_path) - os.path.getmtime(src_path) < 0
-    return True
+        if os.path.getmtime(dst_path) - os.path.getmtime(src_path) > 0:
+            return False
+        elif verbose:
+            _lh.info("REGEN %s -> %s: New older than source", src_path, dst_path)
+            return True
+    elif verbose:
+        _lh.info("REGEN %s -> %s: File does not exist", src_path, dst_path)
+        return True

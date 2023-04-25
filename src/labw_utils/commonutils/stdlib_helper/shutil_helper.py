@@ -17,7 +17,7 @@ import os
 import shutil
 import time
 
-from labw_utils.commonutils.lwio import FDType, get_reader
+from labw_utils.commonutils.lwio import FDType, get_reader, wc_c_io, wc_l_io
 from labw_utils.commonutils.lwio.file_system import get_abspath, file_exists, is_soft_link
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import IO, Callable, Optional
@@ -75,62 +75,6 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     else:
         fd = opener(filename)
     return wc_c_io(fd)
-
-
-def wc_l_io(fd: FDType, block_size: int = 4096) -> int:
-    """
-    Count lines in a file.
-
-    :param fd: A finite seekable block IO object.
-    :param block_size: Number of bytes to read at once.
-    :return: Line number. -1 if not seekable.
-    """
-    if fd.seekable():
-        curr_pos = fd.tell()
-    else:
-        return -1
-    reti = 0
-    fd.seek(0)
-    block = fd.read(block_size)
-    """Assume 4k aligned filesystem"""
-    if len(block) == 0:
-        return 0
-    else:
-        if isinstance(block, str):
-            reti += block.count("\n")
-            while True:
-                block = fd.read(block_size)
-                if len(block) == 0:
-                    break
-                reti += block.count("\n")  # type: ignore
-        else:
-            reti += block.count(b"\n")
-            while True:
-                block = fd.read(block_size)
-                if len(block) == 0:
-                    break
-                reti += block.count(b"\n")  # type: ignore
-    if fd.tell() != 0 and reti == 0:
-        reti = 1  # To keep similar behaviour to GNU WC
-    fd.seek(curr_pos)
-    return reti
-
-
-def wc_c_io(fd: FDType) -> int:
-    """
-    Count the number of chars inside a file, i.e. File length.
-
-    :param fd: A finite seekable IO object.
-    :return: File length. -1 if not seekable.
-    """
-    if fd.seekable():
-        curr_pos = fd.tell()
-        fd.seek(0, 2)
-        reti = fd.tell()
-        fd.seek(curr_pos)
-        return reti
-    else:
-        return -1
 
 
 def touch(

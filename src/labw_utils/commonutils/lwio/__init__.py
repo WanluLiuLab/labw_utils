@@ -49,53 +49,97 @@ True
 
 from __future__ import annotations
 
-__all__ = (
-    "determine_line_endings",
-    "PathType",
-    "PathOrFDType",
-    "FDType",
-    "IOProxy",
-    "is_io",
-    "is_path",
-    "type_check"
-)
-
 import bz2
 import enum
 import gzip
 import io
 import lzma
 import os
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
-from labw_utils.commonutils.stdlib_helper import shutil_helper
 from labw_utils.typing_importer import Iterator, Iterable, List, Union, IO, Optional, AnyStr, Generic, Literal, \
     overload, Dict, Tuple, Type
 
 
-class SupportsRead(ABC, Generic[AnyStr]):
-    @abstractmethod
-    def read(self, size: int = 0) -> AnyStr:
-        raise NotImplementedError
+def wc_l_io(fd: FDType, block_size: int = 4096) -> int:
+    """
+    Count lines in a file.
 
-    def __instancecheck__(self, instance):
-        return hasattr(instance, "read")
+    :param fd: A finite seekable block IO object.
+    :param block_size: Number of bytes to read at once.
+    :return: Line number. -1 if not seekable.
+    """
+    if fd.seekable():
+        curr_pos = fd.tell()
+    else:
+        return -1
+    reti = 0
+    fd.seek(0)
+    block = fd.read(block_size)
+    """Assume 4k aligned filesystem"""
+    if len(block) == 0:
+        return 0
+    else:
+        if isinstance(block, str):
+            reti += block.count("\n")
+            while True:
+                block = fd.read(block_size)
+                if len(block) == 0:
+                    break
+                reti += block.count("\n")  # type: ignore
+        else:
+            reti += block.count(b"\n")
+            while True:
+                block = fd.read(block_size)
+                if len(block) == 0:
+                    break
+                reti += block.count(b"\n")  # type: ignore
+    if fd.tell() != 0 and reti == 0:
+        reti = 1  # To keep similar behaviour to GNU WC
+    fd.seek(curr_pos)
+    return reti
 
-    def __subclasscheck__(self, subclass):
-        return hasattr(subclass, "read")
+
+def wc_c_io(fd: FDType) -> int:
+    """
+    Count the number of chars inside a file, i.e. File length.
+
+    :param fd: A finite seekable IO object.
+    :return: File length. -1 if not seekable.
+    """
+    if fd.seekable():
+        curr_pos = fd.tell()
+        fd.seek(0, 2)
+        reti = fd.tell()
+        fd.seek(curr_pos)
+        return reti
+    else:
+        return -1
 
 
-class SupportsWrite(ABC, Generic[AnyStr]):
-    @abstractmethod
-    def write(self, size: int = 0) -> AnyStr:
-        raise NotImplementedError
-
-    def __instancecheck__(self, instance):
-        return hasattr(instance, "write")
-
-    def __subclasscheck__(self, subclass):
-        return hasattr(subclass, "write")
+# class SupportsRead(ABC, Generic[AnyStr]):
+#     @abstractmethod
+#     def read(self, size: int = 0) -> AnyStr:
+#         raise NotImplementedError
+#
+#     def __instancecheck__(self, instance):
+#         return hasattr(instance, "read")
+#
+#     def __subclasscheck__(self, subclass):
+#         return hasattr(subclass, "read")
+#
+#
+# class SupportsWrite(ABC, Generic[AnyStr]):
+#     @abstractmethod
+#     def write(self, size: int = 0) -> AnyStr:
+#         raise NotImplementedError
+#
+#     def __instancecheck__(self, instance):
+#         return hasattr(instance, "write")
+#
+#     def __subclasscheck__(self, subclass):
+#         return hasattr(subclass, "write")
 
 
 PathType = Union[str, bytes, os.PathLike]
@@ -104,24 +148,86 @@ PathOrFDType = Union[PathType, FDType]
 
 
 class ModeEnum(enum.Enum):
+    """Simple read- or write-only mode enum."""
     READ = 0
+    """To open a file read-only"""
     WRITE = 1
+    """To open a file write-only. Will create a new file if not exist."""
     APPEND = 2
+    """To open a file write-only without truncating contents inside. Will create a new file if not exist."""
+
+
+def io_repr(fd: FDType):
+    """
+    >>> sio = io.StringIO("")
+    >>> io_repr(sio)
+    'StringIOwith {name=None, mode=None, closed=False, readable=True, writable=True, is_textio=True, encoding=None, errors=None, line_buffering=False, newlines=None}'
+    >>> sio.close()
+    """
+    if not is_io(fd):
+        return repr(fd)
+
+    repr_content = [
+        f"name={repr(getattr(fd, 'name', None))}",
+        f"mode={repr(getattr(fd, 'mode', None))}",
+        f"closed={repr(fd.closed)}",
+        f"readable={repr(fd.readable())}",
+        f"writable={repr(fd.writable())}",
+        f"is_textio={repr(is_textio(fd))}",
+    ]
+    if isinstance(fd, io.StringIO) or isinstance(fd, io.TextIOWrapper):
+        repr_content.extend([
+            f"encoding={repr(fd.encoding)}",
+            f"errors={repr(fd.errors)}",
+            f"line_buffering={repr(fd.line_buffering)}",
+            f"newlines={repr(fd.newlines)}",
+        ])
+
+    if isinstance(fd, io.TextIOWrapper):
+        repr_content.append(f"write_through={repr(fd.write_through)}")
+
+    buffer: Optional[FDType] = None
+    for possible_name in (
+            "buffer",  # used by io.TextIOWrapper
+            "_buffer",  # Used by lzma.LZMAFile
+            "fileobj",  # Used by gzip.GzipFile
+            "raw",  # Used by gzip._GZipReader
+            "_fd",  # Used by IOProxy
+            "_fp"  # Used by bz2.BZ2File
+    ):
+        try:
+            buffer = getattr(fd, possible_name)
+        except AttributeError:
+            pass
+
+    rets = fd.__class__.__name__ + "with {" + ", ".join(repr_content) + "}"
+    if buffer is not None:
+        rets += ", with buffer=<" + io_repr(buffer) + ">"
+    return
 
 
 def is_textio(fd: FDType) -> bool:
     """
     Determine whether a given IO is TextIO.
+    A TextIO is usually an instance of :py:class:`io.TextIOBase` (:py:class:`io.TextIOWrapper`).
+    Its :py:func:`read` function gnerates :py:class:`str`.
+    A BinaryIO generates :py:class:`bytes` instead
+
+    Example using :py:class:`io.StringIO`:
 
     >>> sio = io.StringIO("")
     >>> is_textio(sio)
     True
     >>> sio.close()
 
+    Example using :py:class:`io.BytesIO`:
+
     >>> bio = io.BytesIO(b"")
     >>> is_textio(bio)
     False
     >>> bio.close()
+
+    Example using File IO in text mode:
 
     >>> fio = open(__file__,"r")
     >>> is_textio(fio)
@@ -132,6 +238,8 @@ def is_textio(fd: FDType) -> bool:
     >>> is_textio(fsio)
     True
     >>> fsio.close()
+
+    Example using File IO in binary mode:
 
     >>> fbio = open(__file__,"rb")
     >>> is_textio(fbio)
@@ -160,7 +268,7 @@ def is_io(obj: object) -> bool:
     """
     Determine whether a give object is IO.
 
-    Supports: :py:class:`IO`, :py:class:`io.IOBase` and subclasses.
+    Supports: :py:class:`typing.IO`, :py:class:`io.IOBase` and subclasses.
 
     >>> fio = open(__file__,"r")
     >>> is_io(fio)
@@ -177,6 +285,11 @@ def is_io(obj: object) -> bool:
     True
     >>> bio.close()
 
+    >>> lzio = lzma.open(io.BytesIO(b"AAAA"))
+    >>> is_io(lzio)
+    True
+    >>> lzio.close()
+
     >>> is_io("AAA")
     False
     """
@@ -190,7 +303,7 @@ def is_io(obj: object) -> bool:
 
 def is_path(obj: object) -> bool:
     """
-    Check whether a given object is path.
+    Check whether a given object is a valid path.
 
     Supports: :py:class:`str`, :py:class:`bytes`, :py:class:`os.PathLike` and subclasses.
 
@@ -292,10 +405,11 @@ def type_check(obj: object) -> bool:
 
 def determine_line_endings(fd: FDType) -> str:
     """
-    Determine line endings. If failed, will return OS default.
+    Determine line endings of a file descriptor. If failed, will return OS default.
 
     This accepts both binary and text IO while return type would always in string.
 
+    :param fd: Input file descriptor.
     :return: One of ``\\r``, ``\\n``, ``\\r\\n``, ``\\n\\r``.
     """
     find_cr = False
@@ -353,14 +467,21 @@ class IOProxy(IO[AnyStr]):
             raise TypeError(f"Type {type(fd)} not supported!")
         self._fd = fd  # type: ignore
 
+    def __repr__(self):
+        return f"IOProxy of IO <" + repr(self._fd) + ">"
+
     @property
     def mode(self) -> str:
         """
+        Give the modestring of underlying file descriptor.
+
         .. warning ::
             This function not always give a string! See following situation:
 
             >>> import io, gzip
             >>> sio = io.StringIO()
+            >>> sio.mode
+            'NA'
             >>> csio = gzip.open(sio)
             >>> csio.mode
             1
@@ -673,8 +794,8 @@ class TqdmReaderProxy(AbstractReader[AnyStr], Generic[AnyStr]):
     def __init__(self, fd: FDType):
         super().__init__(fd)
         self._tqdm = tqdm(
-            desc=f"Reading from {fd}",
-            total=shutil_helper.wc_c_io(self._fd),
+            desc=f"Reading from {self.name}",
+            total=wc_c_io(self._fd),
             unit='B',
             unit_scale=True,
             unit_divisor=1024
@@ -734,8 +855,8 @@ class TqdmLineReaderProxy(LineReaderProxy[AnyStr], Generic[AnyStr]):
     def __init__(self, fd: FDType):
         super().__init__(fd)
         self._tqdm = tqdm(
-            desc=f"Reading from {fd}",
-            total=shutil_helper.wc_l_io(self._fd) + 1,
+            desc=f"Reading from {self.name}",
+            total=wc_l_io(self._fd) + 1,
             unit='L',
             unit_scale=True,
             unit_divisor=1000
@@ -927,7 +1048,8 @@ def file_open(  # type: ignore
             return rfd
 
     elif mode == ModeEnum.WRITE:
-        shutil_helper.touch(file_path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        open(file_path, mode="a").close()
         wfd = CompressionRuleRing.get_writer(compression).create(
             open(file_path, "wb"),
             compression_level=compression_level
@@ -941,7 +1063,8 @@ def file_open(  # type: ignore
                 newline=newline
             ))
     else:
-        shutil_helper.touch(file_path)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        open(file_path, mode="a").close()
         afd = CompressionRuleRing.get_writer(compression).create(
             open(file_path, "ab"),
             compression_level=compression_level

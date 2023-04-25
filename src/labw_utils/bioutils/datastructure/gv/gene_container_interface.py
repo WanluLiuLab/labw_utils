@@ -24,7 +24,13 @@ class GeneContainerInterface:
         raise NotImplementedError
 
     @abstractmethod
-    def get_gene(self, gene_id: str) -> Gene:
+    def get_gene(self, gene_id: str) -> Sequence[Gene]:
+        """
+        Get gene by Gene ID.
+
+        :return: Read-only Sequence of gene definitions with this gene ID.
+            Will return empty sequence if not found.
+        """
         raise NotImplementedError
 
     @abstractmethod

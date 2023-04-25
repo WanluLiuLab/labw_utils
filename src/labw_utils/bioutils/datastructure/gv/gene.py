@@ -135,3 +135,34 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterf
 
     def __repr__(self):
         return f"Gene {self.gene_id}"
+
+
+class DumbGene(Gene):
+
+    def __init__(
+            self,
+            *,
+            data: FeatureInterface,
+            is_checked: bool,
+            keep_sorted: bool,
+            shortcut: bool,
+            transcripts: Optional[Iterable[Transcript]],
+            transcript_ids: Optional[Iterable[str]],
+            is_inferred: bool
+    ):
+        _ = is_checked, keep_sorted
+        del is_checked, keep_sorted
+
+        Gene.__init__(
+            self,
+            data=data,
+            is_checked=True,
+            keep_sorted=False,
+            shortcut=shortcut,
+            transcripts=transcripts,
+            transcript_ids=transcript_ids,
+            is_inferred=is_inferred
+        )
+
+    def __repr__(self):
+        return f"DumbGene {self.gene_id}"

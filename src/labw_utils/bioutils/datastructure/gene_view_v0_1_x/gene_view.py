@@ -241,7 +241,7 @@ class BaseGeneView(GeneViewType, ABC):
                 lh.error("Gene index broken or too old, will rebuild one.")
         new_instance = cls._from_own_filetype(filename, fast=fast)
         if not not_save_index:
-            new_instance.to_gvpkl(index_filename)
+            new_instance.to_fvpkl(index_filename)
         return new_instance
 
     @classmethod

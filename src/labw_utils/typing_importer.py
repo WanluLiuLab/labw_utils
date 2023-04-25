@@ -187,6 +187,13 @@ class SequenceProxy(Sequence[_ItemType]):
         else:
             self._seq = copy.deepcopy(list(seq))
 
+    @classmethod
+    def empty(cls):
+        """
+        Generate sequence proxy of empty list.
+        """
+        return cls([])
+
 
 class MappingProxy(Mapping[_KeyType, _ValueType]):
     """
