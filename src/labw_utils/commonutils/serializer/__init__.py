@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
+from labw_utils.commonutils import lwio
 from labw_utils.typing_importer import Mapping
 from labw_utils.typing_importer import Optional, Any
 
@@ -20,20 +21,20 @@ class SerializableInterface(ABC):
     """
 
     @classmethod
-    def load(cls, path: str, **kwargs):
+    def load(cls, path_of_fd: lwio.PathOrFDType, **kwargs):
         """
         Load configuration from a file.
 
-        :param path: Filename to read from.
+        :param path_of_fd: Filename or buffer to read from.
         :return: New instance of corresponding class.
         """
         raise NotImplementedError
 
-    def save(self, path: str, **kwargs) -> None:
+    def save(self, path_of_fd: lwio.PathOrFDType, **kwargs) -> None:
         """
         Save the class contents with metadata.
 
-        :param path: Filename to write to.
+        :param path_of_fd: Filename or buffer to write to.
         """
         raise NotImplementedError
 

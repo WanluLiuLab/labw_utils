@@ -128,6 +128,7 @@ def wc_c_io(fd: FDType) -> int:
 #     def __subclasscheck__(self, subclass):
 #         return hasattr(subclass, "write")
 
+
 def _get_buff(fd: FDType):
     buffer: Optional[FDType] = None
     for possible_name in (
@@ -145,13 +146,20 @@ def _get_buff(fd: FDType):
     return buffer
 
 
+def _trace_buffer(fd: FDType) -> Iterable[FDType]:
+    fd = _get_buff(fd)
+    while fd is not None:
+        yield fd
+        fd = _get_buff(fd)
+
+
 def io_repr(fd: FDType):
     """
     Generate rich ``repr`` for an IO object.
 
     >>> sio = io.StringIO("")
     >>> io_repr(sio)
-    'StringIOwith {name=None, mode=None, closed=False, readable=True, writable=True, is_textio=True, encoding=None, errors=None, line_buffering=False, newlines=None}'
+    'StringIO with {name=None, mode=None, closed=False, readable=True, writable=True, is_textio=True, encoding=None, errors=None, line_buffering=False, newlines=None}'
     >>> sio.close()
     """
     if not is_io(fd):
@@ -177,7 +185,7 @@ def io_repr(fd: FDType):
         repr_content.append(f"write_through={repr(fd.write_through)}")
 
     buffer = _get_buff(fd)
-    rets = fd.__class__.__name__ + "with {" + ", ".join(repr_content) + "}"
+    rets = fd.__class__.__name__ + " with {" + ", ".join(repr_content) + "}"
     if buffer is not None:
         rets += ", with buffer=<" + io_repr(buffer) + ">"
     return rets
@@ -504,10 +512,10 @@ class IOProxy(IO[AnyStr]):
             This function not always give a string! See following situation:
 
             >>> import io, gzip
-            >>> sio = io.StringIO()
+            >>> sio = IOProxy(io.StringIO())
             >>> sio.mode
             'NA'
-            >>> csio = gzip.open(sio)
+            >>> csio = IOProxy(gzip.open(sio))
             >>> csio.mode
             1
             >>> csio.close()
@@ -659,6 +667,9 @@ class IOProxy(IO[AnyStr]):
         return self
 
     def __exit__(self, *args, **kwargs):
+        if not self.closed:
+            self.flush()
+            self.close()
         try:
             self._fd.__exit__(*args, **kwargs)
         except AttributeError:
@@ -980,6 +991,11 @@ class CompressedReadOnlyIOProxy(ReadOnlyBinaryIOProxy):
 
     Supports binary IO only.
     """
+    _llfd: FDType
+
+    def __init__(self, fd: FDType, llfd: FDType):
+        super().__init__(fd)
+        self._llfd = llfd
 
     @classmethod
     @abstractmethod
@@ -991,6 +1007,14 @@ class CompressedReadOnlyIOProxy(ReadOnlyBinaryIOProxy):
         """
         raise NotImplementedError
 
+    def close(self) -> None:
+        # Python would not automatically close file descriptor.
+        self._fd.close()
+        try:
+            self._llfd.close()
+        except ValueError:
+            pass
+
 
 class CompressedWriteOnlyIOProxy(WriteOnlyBinaryIOProxy):
     """
@@ -998,6 +1022,11 @@ class CompressedWriteOnlyIOProxy(WriteOnlyBinaryIOProxy):
 
     Supports binary IO only.
     """
+    _llfd: FDType
+
+    def __init__(self, fd: FDType, llfd: FDType):
+        super().__init__(fd)
+        self._llfd = llfd
 
     @classmethod
     @abstractmethod
@@ -1011,6 +1040,14 @@ class CompressedWriteOnlyIOProxy(WriteOnlyBinaryIOProxy):
         """
         raise NotImplementedError
 
+    def close(self) -> None:
+        # Python would not automatically close file descriptor.
+        self._fd.close()
+        try:
+            self._llfd.close()
+        except ValueError:
+            pass
+
 
 @supress_inherited_doc
 class DumbCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
@@ -1020,7 +1057,7 @@ class DumbCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType):
-        return cls(fd)
+        return cls(fd, fd)
 
 
 @supress_inherited_doc
@@ -1033,7 +1070,7 @@ class DumbCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     def create(cls, fd: FDType, compression_level: int):
         _ = compression_level
         del compression_level
-        return cls(fd)
+        return cls(fd, fd)
 
 
 @supress_inherited_doc
@@ -1044,7 +1081,7 @@ class GZipCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType):
-        return cls(gzip.open(fd, "rb"))  # type: ignore
+        return cls(gzip.open(fd, "rb"), fd)  # type: ignore
 
 
 @supress_inherited_doc
@@ -1055,7 +1092,7 @@ class GZipCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType, compression_level: int):
-        return cls(gzip.open(fd, "wb", compresslevel=compression_level))  # type: ignore
+        return cls(gzip.open(fd, "wb", compresslevel=compression_level), fd)  # type: ignore
 
 
 @supress_inherited_doc
@@ -1066,7 +1103,7 @@ class LZMACompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType):
-        return cls(lzma.open(fd, "rb"))  # type: ignore
+        return cls(lzma.open(fd, "rb"), fd)  # type: ignore
 
 
 @supress_inherited_doc
@@ -1082,7 +1119,7 @@ class LZMACompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
             "wb",
             preset=compression_level,
             format=lzma.FORMAT_ALONE
-        ))
+        ), fd)
 
 
 @supress_inherited_doc
@@ -1098,7 +1135,7 @@ class XZCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
             "wb",
             preset=compression_level,
             format=lzma.FORMAT_XZ
-        ))
+        ), fd)
 
 
 @supress_inherited_doc
@@ -1109,7 +1146,7 @@ class BZ2CompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType):
-        return cls(bz2.open(fd, "rb"))  # type: ignore
+        return cls(bz2.open(fd, "rb"), fd)  # type: ignore
 
 
 @supress_inherited_doc
@@ -1120,7 +1157,7 @@ class BZ2CompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType, compression_level: int):
-        return cls(bz2.open(fd, "wb", compresslevel=compression_level))  # type: ignore
+        return cls(bz2.open(fd, "wb", compresslevel=compression_level), fd)  # type: ignore
 
 
 class CompressionRuleRing:
@@ -1247,7 +1284,7 @@ def file_open(
 def file_open(  # type: ignore
         file_path: str,
         mode: ModeEnum = ModeEnum.READ,
-        is_binary: bool = False,
+        is_binary: Literal[True, False] = False,
         encoding: str = "UTF-8",
         newline: Optional[str] = None,
         compression: Optional[str] = "inferred",

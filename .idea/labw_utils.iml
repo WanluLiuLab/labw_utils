@@ -47,8 +47,9 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_fa" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_gtf" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_mtr" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_gtf_bedtools_sorted" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.8 (labw_utils)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

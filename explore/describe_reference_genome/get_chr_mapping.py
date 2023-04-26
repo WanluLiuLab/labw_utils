@@ -24,8 +24,10 @@ def get_ncbi_chromosome_spec():
         ncbi_df = pd.read_table(
             io.StringIO(r.text),
             comment="#",
-            names="NCBIName	SequenceRole	AssignedMolecule	AssignedMolecule-Location	GenBankAccn	Relationship	RefSeqAccn	AssemblyUnit	SequenceLength	UCSC".split(
-                "\t")
+            names="NCBIName	SequenceRole	AssignedMolecule	AssignedMolecule-Location	GenBankAccn	"
+                  "Relationship	RefSeqAccn	AssemblyUnit	SequenceLength	UCSC".split(
+                "\t"
+            )
         )
         ncbi_df.to_csv(cache_path, index=False)
     retd = {}
@@ -76,15 +78,16 @@ def get_ensembl_chromosome_spec():
     return retd
 
 
-def get_ucsc_chromosome_spec():
-    cache_path = os.path.join(CACHE_PATH, "ucsc_chromosome_cache.txt")
+def get_ucsc_chromosome_spec(
+        cache_file: str,
+        url: str
+):
+    cache_path = os.path.join(CACHE_PATH, cache_file)
     if file_exists(cache_path):
         with get_reader(cache_path) as reader:
             decoded = reader.read()
     else:
-        r = requests.get(
-            "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.chromAlias.txt"
-        )
+        r = requests.get(url)
         if not r.ok:
             r.raise_for_status()
             sys.exit()
@@ -109,11 +112,19 @@ if __name__ == "__main__":
     os.makedirs(CACHE_PATH, exist_ok=True)
     ens_chr_spec = get_ensembl_chromosome_spec()
     ncbi_chr_spec = get_ncbi_chromosome_spec()
-    ucsc_chr_spec = get_ucsc_chromosome_spec()
+    ucsc_chr_spec_hg38 = get_ucsc_chromosome_spec(
+        "ucsc_chromosome_cache_hg38.txt",
+        "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/latest/hg38.chromAlias.txt"
+    )
+    ucsc_chr_spec_hs1 = get_ucsc_chromosome_spec(
+        "ucsc_chromosome_cache_hs1.txt",
+        "https://hgdownload.soe.ucsc.edu/goldenPath/hs1/bigZips/hs1.chromAlias.txt"
+    )
     final_spec = {}
     final_spec.update(ens_chr_spec)
     final_spec.update(ncbi_chr_spec)
-    final_spec.update(ucsc_chr_spec)
+    final_spec.update(ucsc_chr_spec_hg38)
+    final_spec.update(ucsc_chr_spec_hs1)
     additional_spec = {}  # To solve Ensembl bugs
     for k, v in final_spec.items():
         if k.startswith("HSCHR"):

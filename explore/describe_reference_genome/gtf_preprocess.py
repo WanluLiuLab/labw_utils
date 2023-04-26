@@ -57,7 +57,7 @@ if __name__ == "__main__":
     os.makedirs("pre_processed_gtf", exist_ok=True)
 
     ppool = []
-    for fn in glob.glob(os.path.join("gtf", "*.gtf")):
+    for fn in ["gtf/Homo_sapiens-GCA_009914755.4-2022_07-genes.gtf" ]: # glob.glob(os.path.join("gtf", "*.gtf")):
         dst_fn = os.path.join("pre_processed_gtf", os.path.basename(fn))
         ppool.append(multiprocessing.Process(target=preprocess, args=(fn, dst_fn)))
         ppool[-1].start()

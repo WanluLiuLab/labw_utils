@@ -18,9 +18,9 @@ def test():
     )
     assert list(gt.transcript_ids) == ['UN1.1', 'UN1.2', 'UN2.1', 'UN3.1']
     assert list(gt.gene_ids) == ['UN1', 'UN2', 'UN3']
-    assert list(gt.get_gene('UN1').transcript_ids) == ['UN1.1', 'UN1.2']
-    assert list(gt.get_gene('UN2').transcript_ids) == ['UN2.1']
-    assert list(gt.get_gene('UN3').transcript_ids) == ['UN3.1']
+    assert list(gt.get_gene('UN1')[0].transcript_ids) == ['UN1.1', 'UN1.2']
+    assert list(gt.get_gene('UN2')[0].transcript_ids) == ['UN2.1']
+    assert list(gt.get_gene('UN3')[0].transcript_ids) == ['UN3.1']
     gt = gt.replace_transcript(gt.get_transcript('UN2.1').update_exon_number(
         exon_number_policy="stranded"
     ))

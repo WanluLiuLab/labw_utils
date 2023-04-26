@@ -117,5 +117,26 @@
     "url": "https://hgdownload.soe.ucsc.edu/goldenPath/hs1/bigZips/hs1.fa.gz",
     "coordinate": "chm13-t2t-v2",
     "institute": "UCSC"
+  },
+  {
+    "name": "Ensembl CHM13-T2T v2 SM",
+    "path": "Homo_sapiens-GCA_009914755.4-softmasked.fa",
+    "url": "https://ftp.ensembl.org/pub/rapid-release/species/Homo_sapiens/GCA_009914755.4/ensembl/genome/Homo_sapiens-GCA_009914755.4-softmasked.fa.gz",
+    "coordinate": "chm13-t2t-v2",
+    "institute": "Ensembl"
+  },
+  {
+    "name": "Ensembl CHM13-T2T v2 RM",
+    "path": "Homo_sapiens-GCA_009914755.4-hardmasked.fa",
+    "url": "https://ftp.ensembl.org/pub/rapid-release/species/Homo_sapiens/GCA_009914755.4/ensembl/genome/Homo_sapiens-GCA_009914755.4-hardmasked.fa.gz",
+    "coordinate": "chm13-t2t-v2",
+    "institute": "Ensembl"
+  },
+  {
+    "name": "Ensembl CHM13-T2T v2",
+    "path": "Homo_sapiens-GCA_009914755.4-unmasked.fa",
+    "url": "https://ftp.ensembl.org/pub/rapid-release/species/Homo_sapiens/GCA_009914755.4/ensembl/genome/Homo_sapiens-GCA_009914755.4-unmasked.fa.gz",
+    "coordinate": "chm13-t2t-v2",
+    "institute": "Ensembl"
   }
 ]

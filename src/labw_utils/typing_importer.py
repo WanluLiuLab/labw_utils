@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import copy
 import os
+import typing
+import collections.abc
 
 if os.getenv("SPHINX_BUILD") is not None:
     __all__ = (
@@ -76,34 +78,99 @@ else:
 
 import sys
 
-from typing import Any, Optional, Union, TypeVar, IO, TextIO, BinaryIO, AnyStr, NamedTuple, Generic, overload
+Any = typing.Any
+Optional = typing.Optional
+Union = typing.Union
+TypeVar = typing.TypeVar
+TextIO = typing.TextIO
+IO = typing.IO
+BinaryIO = typing.BinaryIO
+AnyStr = typing.AnyStr
+NamedTuple = typing.NamedTuple
+Generic = typing.Generic
+overload = typing.overload
 
 if sys.version_info >= (3, 9):
-    from collections.abc import Callable, Iterable, Iterator, Awaitable, Coroutine, Generator, Mapping, \
-        AsyncIterable, AsyncIterator, AsyncGenerator, Reversible, Container, Collection, MutableSet, MutableMapping, \
-        Sequence, MutableSequence, ByteString, MappingView, KeysView, ItemsView, ValuesView, Sized, Hashable
-    from collections import Counter, OrderedDict, defaultdict, ChainMap, deque
+    Callable = collections.abc.Callable
+    Iterable = collections.abc.Iterable
+    Iterator = collections.abc.Iterator
+    Awaitable = collections.abc.Awaitable
+    Coroutine = collections.abc.Coroutine
+    Generator = collections.abc.Generator
+    Mapping = collections.abc.Mapping
+    AsyncIterable = collections.abc.AsyncIterable
+    AsyncIterator = collections.abc.AsyncIterator
+    AsyncGenerator = collections.abc.AsyncGenerator
+    Reversible = collections.abc.Reversible
+    Container = collections.abc.Container
+    Collection = collections.abc.Collection
+    MutableSet = collections.abc.MutableSet
+    MutableMapping = collections.abc.MutableMapping
+    MutableSequence = collections.abc.MutableSequence
+    Sequence = collections.abc.Sequence
+    ByteString = collections.abc.ByteString
+    MappingView = collections.abc.MappingView
+    KeysView = collections.abc.KeysView
+    ItemsView = collections.abc.ItemsView
+    ValuesView = collections.abc.ValuesView
+    Sized = collections.abc.Sized
+    Hashable = collections.abc.Hashable
 
+    Counter = collections.Counter
+    OrderedDict = collections.OrderedDict
+    ChainMap = collections.ChainMap
     List = list
     Dict = dict
     Set = set
     Tuple = tuple
     Type = type
-    Deque = deque
-    DefaultDict = defaultdict
+    Deque = collections.deque
+    DefaultDict = collections.defaultdict
 else:
-    from typing import List, Dict, Set, Tuple, Type, Callable, Deque, Iterable, Iterator, Awaitable, Coroutine, \
-        Generator, Mapping, AsyncIterable, AsyncIterator, AsyncGenerator, Reversible, Container, Collection, MutableSet, \
-        MutableMapping, Sequence, MutableSequence, Counter, OrderedDict, DefaultDict, ChainMap, ByteString, MappingView, \
-        KeysView, ItemsView, ValuesView, Sized, Hashable
+    
+    Callable = typing.Callable
+    Iterable = typing.Iterable
+    Iterator = typing.Iterator
+    Awaitable = typing.Awaitable
+    Coroutine = typing.Coroutine
+    Generator = typing.Generator
+    Mapping = typing.Mapping
+    AsyncIterable = typing.AsyncIterable
+    AsyncIterator = typing.AsyncIterator
+    AsyncGenerator = typing.AsyncGenerator
+    Reversible = typing.Reversible
+    Container = typing.Container
+    Collection = typing.Collection
+    MutableSet = typing.MutableSet
+    MutableMapping = typing.MutableMapping
+    MutableSequence = typing.MutableSequence
+    Sequence = typing.Sequence
+    ByteString = typing.ByteString
+    MappingView = typing.MappingView
+    KeysView = typing.KeysView
+    ItemsView = typing.ItemsView
+    ValuesView = typing.ValuesView
+    Sized = typing.Sized
+    Hashable = typing.Hashable
 
+    Counter = typing.Counter
+    OrderedDict = typing.OrderedDict
+    ChainMap = typing.ChainMap
+    List = typing.List
+    Dict = typing.Dict
+    Set = typing.Set
+    Tuple = typing.Tuple
+    Type = typing.Type
+    Deque = typing.Deque
+    DefaultDict = typing.DefaultDict
 try:
-    from typing import Literal, Final
+    Literal = typing.Literal
+    Final = typing.Final
 
-except ImportError:
+except AttributeError:
     # For Python 3.7 only
-    Final = type(Optional)()
-    Literal = type(Optional)()
+    Final = typing._SpecialForm('Union', doc="")
+    Literal = typing._SpecialForm('Union', doc="")
 
 _ItemType = TypeVar("_ItemType")
 _KeyType = TypeVar("_KeyType")

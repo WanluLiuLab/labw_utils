@@ -40,3 +40,17 @@ python gtf_preprocess.py
 python gtf_to_mtr.py
 python get_sample_mtr_attr.py
 python get_chr_cnt_preprocessed_gtf.py >gtf_chr_cnt.tsv
+
+mkdir -p pre_processed_gtf_bedtools_sorted
+for fn in pre_processed_gtf/*.gtf; do
+    bedtools sort -i "${fn}" > pre_processed_gtf_bedtools_sorted/"$(basename "${fn}")" &
+done
+wait
+
+printf "F1\tF2\tJaccard\n"
+for afn in pre_processed_gtf_bedtools_sorted/*.gtf; do
+    for bfn in pre_processed_gtf_bedtools_sorted/*.gtf; do
+        printf "%s\t%s\t" "${afn}" "${bfn}"
+        bedtools jaccard -s -a "${afn}" -b "${bfn}" | tail -n 1 | cut -f 3
+    done
+done
