@@ -47,10 +47,10 @@ for fn in pre_processed_gtf/*.gtf; do
 done
 wait
 
-printf "F1\tF2\tJaccard\n"
+printf "F1\tF2\tJaccard\n" > bedtools_jaccard.tsv
 for afn in pre_processed_gtf_bedtools_sorted/*.gtf; do
     for bfn in pre_processed_gtf_bedtools_sorted/*.gtf; do
-        printf "%s\t%s\t" "${afn}" "${bfn}"
-        bedtools jaccard -s -a "${afn}" -b "${bfn}" | tail -n 1 | cut -f 3
+        printf "%s\t%s\t" "${afn}" "${bfn}" > bedtools_jaccard.tsv
+        bedtools jaccard -s -a "${afn}" -b "${bfn}" | tail -n 1 | cut -f 3 > bedtools_jaccard.tsv
     done
 done

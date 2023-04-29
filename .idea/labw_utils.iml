@@ -48,8 +48,13 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_gtf" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_mtr" />
       <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/pre_processed_gtf_bedtools_sorted" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/rsync_data" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/converted_parquet" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_exon.parquet.d" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_genes.parquet.d" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_transcripts.parquet.d" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (labw_utils)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="labw_utils_ensembl_data_dump" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

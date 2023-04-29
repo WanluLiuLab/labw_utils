@@ -4,6 +4,7 @@ import bisect
 import math
 import operator
 
+from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.datastructure.gv import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, GVPError, CanTranscribeInterface, \
     SortedContainerInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
@@ -12,7 +13,7 @@ from labw_utils.bioutils.record.feature import FeatureInterface, FeatureType
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List, Optional, Iterable, Tuple, Union, Callable, SequenceProxy
 
-lh = get_logger(__name__)
+_lh = get_logger(__name__)
 
 
 class ExonInATranscriptOnDifferentChromosomeError(GVPError):
@@ -35,12 +36,14 @@ class Transcript(
     __slots__ = [
         "_exons",
         "_cdna",
+        "_cdna_unspliced",
         "_is_inferred",
         "_transcript_id",
         "_gene_id"
     ]
     _exons: List[Exon]
     _cdna: Optional[str]
+    _cdna_unspliced: Optional[str]
     _is_inferred: bool
     _exon_boundaries: Optional[List[Tuple[int, int]]]
     _splice_sites: Optional[List[Tuple[int, int]]]
@@ -108,6 +111,7 @@ class Transcript(
     ):
         self._is_sorted = keep_sorted
         self._cdna = None
+        self._cdna_unspliced = None
         self._exon_boundaries = None
         self._splice_sites = None
         self._is_inferred = is_inferred
@@ -256,8 +260,24 @@ class Transcript(
             else:
                 self._cdna = "".join(exon.transcribe(sequence_func) for exon in self._exons)
             if len(self._cdna) != self.transcribed_length:
-                lh.warning(
+                _lh.warning(
                     f"Transcript {self.transcript_id} " +
                     f"cdna_len({len(self._cdna)}) != transcribed_len ({self.transcribed_length})."
                 )
         return self._cdna
+
+    def transcribe_unspliced(self, sequence_func: Callable[[str, int, int], str]) -> str:
+        if self._cdna_unspliced is None:
+            try:
+                self._cdna_unspliced = sequence_func(self.seqname, self.start0b, self.end0b)
+                if len(self._cdna_unspliced) != self.naive_length:
+                    _lh.warning(
+                        f"{self.transcript_id}: Different unspliced transcript length at {self}: " +
+                        f"cdna ({len(self._cdna_unspliced)}) != transcript ({self.transcribed_length})"
+                    )
+                if self.strand is False:
+                    self._cdna_unspliced = reverse_complement(self._cdna_unspliced)
+            except Exception as e:
+                _lh.warning(f"{self.transcript_id}: Failed to get cDNA sequence at exon ({self.start, self.end}) {e}")
+                self._cdna_unspliced = ""
+        return self._cdna_unspliced

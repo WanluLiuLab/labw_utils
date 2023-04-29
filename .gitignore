@@ -449,3 +449,4 @@ pypy_venv/
 *.txt
 *pkl
 *.tar
+*.parquet.d

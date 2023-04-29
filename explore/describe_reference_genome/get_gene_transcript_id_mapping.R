@@ -4,6 +4,8 @@ library("biomaRt")
 
 ensembl <- useEnsembl(biomart = "genes", dataset = "hsapiens_gene_ensembl")
 
+attrs <- listAttributes(ensembl) %>% as_tibble()
+
 getBM(
     attributes = c("ensembl_gene_id_version", "ensembl_transcript_id_version"),
     mart = ensembl
@@ -22,26 +24,20 @@ getBM(
 ) %>%
     arrow::write_parquet("ens_hgnc_transcript_map.parquet")
 
-getBM(
-    attributes = c(
-        "ensembl_transcript_id_version",
-        "refseq_mrna",
-        "refseq_ncrna",
-        "refseq_peptide"
-    ),
-    mart = ensembl
-) %>%
-    arrow::write_parquet("ens_refseq_transcript_map.parquet")
-# ENST00000641006.1
-getBM(
-    attributes = c(
-        "ensembl_transcript_id_version",
-        "refseq_mrna_predicted",
-        "refseq_ncrna_predicted",
-        "refseq_peptide_predicted"
-    ),
-    mart = ensembl
-) %>%
-    arrow::write_parquet("ens_refseq_predicted_transcript_map.parquet")
-
-
+for (refseq_name in c(
+    "refseq_mrna",
+    "refseq_ncrna",
+    "refseq_mrna_predicted",
+    "refseq_ncrna_predicted",
+    "refseq_peptide_predicted",
+    "refseq_peptide"
+)) {
+    getBM(
+        attributes = c(
+            "ensembl_transcript_id_version",
+            refseq_name
+        ),
+        mart = ensembl
+    ) %>%
+        arrow::write_parquet(sprintf("ens_%s_transcript_map.parquet", refseq_name))
+}

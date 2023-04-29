@@ -60,7 +60,7 @@ class GeneTreeInterface(
             is_checked: bool = False,
             show_tqdm: bool = True,
             gene_implementation: Literal[Gene, DumbGene] = Gene
-    ):
+    ) -> GeneTreeInterface:
         raise NotImplementedError
 
     @classmethod
@@ -71,14 +71,14 @@ class GeneTreeInterface(
             keep_sorted: bool = False,
             show_tqdm: bool = True,
             is_checked: bool = False
-    ):
+    ) -> GeneTreeInterface:
         raise NotImplementedError
 
     @classmethod
     def from_gvpkl(
             cls,
             gtf_index_file_path: str
-    ):
+    ) -> GeneTreeInterface:
         raise NotImplementedError
 
     def to_gvpkl(self, gtf_index_file_path: str):
@@ -109,7 +109,7 @@ class BaseGeneTree(GeneTreeInterface, ABC):
             is_checked: bool = False,
             show_tqdm: bool = True,
             gene_implementation: Literal[Gene, DumbGene] = Gene
-    ):
+    ) -> GeneTreeInterface:
         gtf_index_file_path = f"{gtf_file_path}.{GVPKL_VERSION}.gvpkl.xz"
         if not should_regenerate(gtf_file_path, gtf_index_file_path):
             try:
