@@ -54,3 +54,15 @@ for afn in pre_processed_gtf_bedtools_sorted/*.gtf; do
         bedtools jaccard -s -a "${afn}" -b "${bfn}" | tail -n 1 | cut -f 3 > bedtools_jaccard.tsv
     done
 done
+
+# shellcheck disable=SC2155
+export SPARK_CONF_DIR="$(pwd)"
+spark-submit \
+    --executor-memory 5G \
+    --driver-memory 20G \
+    --files "$(pwd)/log4j.properties" \
+    --conf spark.driver.extraJavaOptions="-Dlog4j.configuration=file://$(pwd)/log4j.properties" \
+    --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=file://$(pwd)/log4j.properties" \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --packages com.esotericsoftware:kryo:4.0.2 \
+    mtr_comp.py

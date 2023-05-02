@@ -53,6 +53,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_exon.parquet.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_genes.parquet.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_transcripts.parquet.d" />
+      <excludeFolder url="file://$MODULE_DIR$/explore/describe_reference_genome/summary_mtr_eq.parquet.d" />
     </content>
     <orderEntry type="jdk" jdkName="labw_utils_ensembl_data_dump" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

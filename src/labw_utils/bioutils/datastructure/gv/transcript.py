@@ -269,7 +269,11 @@ class Transcript(
     def transcribe_unspliced(self, sequence_func: Callable[[str, int, int], str]) -> str:
         if self._cdna_unspliced is None:
             try:
-                self._cdna_unspliced = sequence_func(self.seqname, self.start0b, self.end0b)
+                self._cdna_unspliced = sequence_func(
+                    self.seqname,
+                    min(exon.start0b for exon in self.exons),
+                    max(exon.end0b for exon in self.exons)
+                )
                 if len(self._cdna_unspliced) != self.naive_length:
                     _lh.warning(
                         f"{self.transcript_id}: Different unspliced transcript length at {self}: " +
