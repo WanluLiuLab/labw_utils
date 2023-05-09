@@ -494,7 +494,7 @@ class DiploidGeneTree(BaseGeneTree):
     @classmethod
     def from_feature_iterator(
             cls,
-            feature_iterator: Iterable[Feature],
+            feature_iterator: Iterable[FeatureInterface],
             shortcut: bool = False,
             keep_sorted: bool = False,
             is_checked: bool = False,

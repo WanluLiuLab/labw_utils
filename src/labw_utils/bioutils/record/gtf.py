@@ -7,8 +7,8 @@ __all__ = (
     "parse_record"
 )
 
-from labw_utils.bioutils.record.feature import Feature, DEFAULT_GTF_QUOTE_OPTIONS, VALID_GTF_QUOTE_OPTIONS, \
-    feature_repr, GtfAttributeValueType, strand_repr
+from labw_utils.bioutils.record.feature import FeatureInterface, DEFAULT_GTF_QUOTE_OPTIONS, VALID_GTF_QUOTE_OPTIONS, \
+    feature_repr, GtfAttributeValueType, strand_repr, Feature
 from labw_utils.commonutils.str_utils import to_dict
 from labw_utils.typing_importer import List, Optional
 
@@ -39,7 +39,7 @@ def _format_attribute_str(
 
 
 def format_string(
-        feature: Feature,
+        feature: FeatureInterface,
         quote: str = DEFAULT_GTF_QUOTE_OPTIONS
 ):
     """
@@ -73,7 +73,7 @@ def parse_record(
         in_str: str,
         skip_fields: Optional[List[str]] = None,
         included_attributes: Optional[List[str]] = None,
-) -> Feature:
+) -> FeatureInterface:
     """
     Parse record string to :py:class:`Feature`.
 

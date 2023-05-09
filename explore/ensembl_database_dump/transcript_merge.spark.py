@@ -7,12 +7,12 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger()
 
-pk = "ensdb_pk_transcript_id"
 
 PRIMIARY_KEY_RENAME_TABLE = {
-    "transcript_id": pk,
+    "transcript_id": "ensdb_pk_transcript_id",
     "gene_id": "ensdb_pk_gene_id",
-    "exon_id": "ensdb_pk_exon_id"
+    "exon_id": "ensdb_pk_exon_id",
+    "repeat_feature_id": "ensdb_pk_repeat_feature_id"
 }
 
 setup_basic_logger()
@@ -25,10 +25,53 @@ gene_table = spark.read.parquet(os.path.join("converted_parquet", "gene.parquet"
 exon_table = spark.read.parquet(os.path.join("converted_parquet", "exon.parquet"))
 exon_transcript_table = spark.read.parquet(os.path.join("converted_parquet", "exon_transcript.parquet"))
 ens_hgnc_gene_map_table = spark.read.parquet("ens_hgnc_gene_map.parquet")
+repeat_feature_table = spark.read.parquet(os.path.join("converted_parquet", "repeat_feature.parquet"))
+repeat_consensus_table = spark.read.parquet(os.path.join("converted_parquet", "repeat_consensus.parquet"))
+
+seq_region_synonym_converter = (
+    seq_region_synonym_table.
+    select(
+        "seq_region_id",
+        "external_db_id",
+        "synonym"
+    ).
+    join(
+        external_db_table.
+        select("external_db_id", "db_name").
+        filter("db_name = 'UCSC'"),
+        on="external_db_id"
+    ).
+    select(
+        "seq_region_id",
+        "synonym"
+    )
+)
 
 
 def merge_gene():
     global ens_hgnc_gene_map_table
+    _lh.info("Merging genes...")
+    final_locus = (
+        transcript_table.
+        select(
+            "gene_id",
+            "seq_region_id",
+            "seq_region_start",
+            "seq_region_end",
+            "seq_region_strand"
+        ).
+        join(
+            seq_region_synonym_converter,
+            on="seq_region_id",
+            how="inner"
+        ).
+        drop("seq_region_id").
+        withColumnRenamed("synonym", "seqname").
+        withColumnRenamed("seq_region_start", "start").
+        withColumnRenamed("seq_region_end", "end").
+        withColumnRenamed("seq_region_strand", "strand").
+        withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
+    )
     final_ens_hgnc_gene_map_table = (
         ens_hgnc_gene_map_table.
         withColumnRenamed("ensembl_gene_id", "ensdb_gene_id").
@@ -51,18 +94,22 @@ def merge_gene():
     )
     (
         final_gene.
+        join(final_locus, on="ensdb_pk_gene_id", how="inner").
         join(
             final_ens_hgnc_gene_map_table,
             on=["ensdb_gene_id", "ensdb_gene_version"],
             how="leftouter"
+        ).
+        write.
+        parquet(
+            "ensdb_genes.parquet.d",
+            mode="overwrite"
         )
-    ).write.parquet(
-        "ensdb_genes.parquet.d",
-        mode="overwrite"
     )
 
 
 def merge_transcripts():
+    _lh.info("Merging transcripts...")
     final_locus = (
         transcript_table.
         select(
@@ -73,21 +120,7 @@ def merge_transcripts():
             "seq_region_strand"
         ).
         join(
-            (
-                seq_region_synonym_table.
-                select(
-                    "seq_region_id", "external_db_id", "synonym"
-                ).
-                join(
-                    external_db_table.
-                    select("external_db_id", "db_name").
-                    filter("db_name = 'UCSC'"),
-                    on="external_db_id"
-                ).
-                select(
-                    "seq_region_id", "synonym"
-                )
-            ),
+            seq_region_synonym_converter,
             on="seq_region_id",
             how="inner"
         ).
@@ -116,17 +149,19 @@ def merge_transcripts():
         withColumnRenamed("modified_date", "ensdb_transcript_modified_date").
         withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
     )
-
     (
         final_locus.
-        join(final_misc, on=pk, how="outer")
-    ).write.parquet(
-        "ensdb_transcripts.parquet.d",
-        mode="overwrite"
+        join(final_misc, on="ensdb_pk_transcript_id", how="outer").
+        write.
+        parquet(
+            "ensdb_transcripts.parquet.d",
+            mode="overwrite"
+        )
     )
 
 
 def merge_exons():
+    _lh.info("Merging exons...")
     final_locus = (
         exon_table.
         select(
@@ -137,21 +172,7 @@ def merge_exons():
             "seq_region_strand"
         ).
         join(
-            (
-                seq_region_synonym_table.
-                select(
-                    "seq_region_id", "external_db_id", "synonym"
-                ).
-                join(
-                    external_db_table.
-                    select("external_db_id", "db_name").
-                    filter("db_name = 'UCSC'"),
-                    on="external_db_id"
-                ).
-                select(
-                    "seq_region_id", "synonym"
-                )
-            ),
+            seq_region_synonym_converter,
             on="seq_region_id",
             how="inner"
         ).
@@ -189,10 +210,62 @@ def merge_exons():
     (
         final_locus.
         join(final_mapping, on="ensdb_pk_exon_id", how="outer").
-        join(final_misc, on="ensdb_pk_exon_id", how="outer")
-    ).write.parquet(
-        "ensdb_exon.parquet.d",
-        mode="overwrite"
+        join(final_misc, on="ensdb_pk_exon_id", how="outer").
+        write.
+        parquet(
+            "ensdb_exons.parquet.d",
+            mode="overwrite"
+        )
+    )
+
+
+def merge_repeats():
+    _lh.info("Merging repeats...")
+    final_locus = (
+        repeat_feature_table.
+        select(
+            "repeat_feature_id",
+            "seq_region_id",
+            "seq_region_start",
+            "seq_region_end",
+            "seq_region_strand"
+        ).
+        join(
+            seq_region_synonym_converter,
+            on="seq_region_id",
+            how="inner"
+        ).
+        drop("seq_region_id").
+        withColumnRenamed("synonym", "seqname").
+        withColumnRenamed("seq_region_start", "start").
+        withColumnRenamed("seq_region_end", "end").
+        withColumnRenamed("seq_region_strand", "strand").
+        withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
+    )
+    final_misc = (
+        repeat_feature_table.
+        select(
+            "repeat_feature_id",
+            "repeat_consensus_id",
+            "score",
+            "repeat_start",
+            "repeat_end"
+        ).
+        join(
+            repeat_consensus_table.drop("repeat_consensus"),
+            on="repeat_consensus_id",
+            how="inner"
+        ).
+        withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
+    )
+    (
+        final_locus.
+        join(final_misc, on="ensdb_pk_repeat_feature_id", how="inner").
+        write.
+        parquet(
+            "ensdb_repeats.parquet.d",
+            mode="overwrite"
+        )
     )
 
 
@@ -200,3 +273,4 @@ if __name__ == "__main__":
     merge_gene()
     merge_transcripts()
     merge_exons()
+    merge_repeats()

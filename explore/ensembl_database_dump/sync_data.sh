@@ -33,6 +33,18 @@ mysqlimport \
     homo_sapiens_core_109_38 \
     -L rsync_data/*.txt
 python convert_data_from_mysql_to_parquet.py
-spark-submit transcript_merge.spark.py
+
+# shellcheck disable=SC2155
+export SPARK_CONF_DIR="$(pwd)"
+spark-submit \
+    --executor-memory 5G \
+    --driver-memory 20G \
+    --files "$(pwd)/log4j.properties" \
+    --conf spark.driver.extraJavaOptions="-Dlog4j.configuration=file://$(pwd)/log4j.properties" \
+    --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=file://$(pwd)/log4j.properties" \
+    --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
+    --packages com.esotericsoftware:kryo:4.0.2 \
+    transcript_merge.spark.py
+
 
 docker rm -f labw_utils_ensdb
