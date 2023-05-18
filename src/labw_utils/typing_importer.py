@@ -226,8 +226,14 @@ class SequenceProxy(Sequence[_ItemType]):
     def __getitem__(self, index: slice) -> Sequence[_ItemType]:
         return self._seq[index]
 
-    def __getitem__(self, index: Union[int, slice]) -> Union[Sequence[_ItemType], _ItemType]:
+    def __getitem__(self, index):
         return self._seq[index]
+
+    def __repr__(self):
+        return repr(self._seq)
+
+    def __str__(self):
+        return repr(self)
 
     def __len__(self) -> int:
         return len(self._seq)

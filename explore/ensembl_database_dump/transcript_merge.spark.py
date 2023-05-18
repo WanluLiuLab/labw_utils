@@ -7,7 +7,6 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger()
 
-
 PRIMIARY_KEY_RENAME_TABLE = {
     "transcript_id": "ensdb_pk_transcript_id",
     "gene_id": "ensdb_pk_gene_id",
@@ -24,7 +23,6 @@ external_db_table = spark.read.parquet(os.path.join("converted_parquet", "extern
 gene_table = spark.read.parquet(os.path.join("converted_parquet", "gene.parquet"))
 exon_table = spark.read.parquet(os.path.join("converted_parquet", "exon.parquet"))
 exon_transcript_table = spark.read.parquet(os.path.join("converted_parquet", "exon_transcript.parquet"))
-ens_hgnc_gene_map_table = spark.read.parquet("ens_hgnc_gene_map.parquet")
 repeat_feature_table = spark.read.parquet(os.path.join("converted_parquet", "repeat_feature.parquet"))
 repeat_consensus_table = spark.read.parquet(os.path.join("converted_parquet", "repeat_consensus.parquet"))
 
@@ -52,7 +50,7 @@ def merge_gene():
     global ens_hgnc_gene_map_table
     _lh.info("Merging genes...")
     final_locus = (
-        transcript_table.
+        gene_table.
         select(
             "gene_id",
             "seq_region_id",
@@ -72,11 +70,6 @@ def merge_gene():
         withColumnRenamed("seq_region_strand", "strand").
         withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
     )
-    final_ens_hgnc_gene_map_table = (
-        ens_hgnc_gene_map_table.
-        withColumnRenamed("ensembl_gene_id", "ensdb_gene_id").
-        withColumnRenamed("version", "ensdb_gene_version")
-    )
     final_gene = (
         gene_table.
         select(
@@ -92,20 +85,12 @@ def merge_gene():
         withColumnRenamed("modified_date", "ensdb_gene_modified_date").
         withColumnRenamed("gene_id", "ensdb_pk_gene_id")
     )
-    (
-        final_gene.
-        join(final_locus, on="ensdb_pk_gene_id", how="inner").
-        join(
-            final_ens_hgnc_gene_map_table,
-            on=["ensdb_gene_id", "ensdb_gene_version"],
-            how="leftouter"
-        ).
-        write.
-        parquet(
-            "ensdb_genes.parquet.d",
-            mode="overwrite"
-        )
+    joint_table = final_gene.join(final_locus, on="ensdb_pk_gene_id", how="inner")
+    joint_table.write.parquet(
+        "ensdb_genes.parquet.d",
+        mode="overwrite"
     )
+    return joint_table
 
 
 def merge_transcripts():
@@ -149,15 +134,12 @@ def merge_transcripts():
         withColumnRenamed("modified_date", "ensdb_transcript_modified_date").
         withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
     )
-    (
-        final_locus.
-        join(final_misc, on="ensdb_pk_transcript_id", how="outer").
-        write.
-        parquet(
-            "ensdb_transcripts.parquet.d",
-            mode="overwrite"
-        )
+    joint_table = final_locus.join(final_misc, on="ensdb_pk_transcript_id", how="inner")
+    joint_table.write.parquet(
+        "ensdb_transcripts.parquet.d",
+        mode="overwrite"
     )
+    return joint_table
 
 
 def merge_exons():
@@ -207,16 +189,16 @@ def merge_exons():
         withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
     )
 
-    (
+    joint_table = (
         final_locus.
-        join(final_mapping, on="ensdb_pk_exon_id", how="outer").
-        join(final_misc, on="ensdb_pk_exon_id", how="outer").
-        write.
-        parquet(
+        join(final_mapping, on="ensdb_pk_exon_id", how="inner").
+        join(final_misc, on="ensdb_pk_exon_id", how="inner")
+    )
+    joint_table.write.parquet(
             "ensdb_exons.parquet.d",
             mode="overwrite"
         )
-    )
+    return joint_table
 
 
 def merge_repeats():
@@ -258,19 +240,18 @@ def merge_repeats():
         ).
         withColumnsRenamed(PRIMIARY_KEY_RENAME_TABLE)
     )
-    (
-        final_locus.
-        join(final_misc, on="ensdb_pk_repeat_feature_id", how="inner").
-        write.
-        parquet(
+    joint_table = final_locus.join(final_misc, on="ensdb_pk_repeat_feature_id", how="inner")
+    joint_table.write.parquet(
             "ensdb_repeats.parquet.d",
             mode="overwrite"
         )
-    )
+    return joint_table
+
 
 
 if __name__ == "__main__":
-    merge_gene()
-    merge_transcripts()
-    merge_exons()
-    merge_repeats()
+    gene_table = merge_gene()
+    transcripts_table = merge_transcripts()
+    exons_table = merge_exons()
+    repeats_table = merge_repeats()
+
