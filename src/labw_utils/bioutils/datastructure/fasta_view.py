@@ -40,6 +40,11 @@ from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, I
 _lh = get_logger(__name__)
 
 QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
+FASTA_SPLIT_SEQNAME_OPTIONS = (
+    "error",
+    "convert",
+    "skip"
+)
 
 
 class FastaViewError(ValueError):
@@ -375,45 +380,40 @@ class _DiskAccessFastaView(_BaseFastaView):
             pass
 
 
-class FastaViewFactory:
-    """
-    The major Fasta handler class, supporting multiple backends.
-    """
-
-    def __new__(
-            cls,
+def FastaViewFactory(
             filename: str,
             full_header: bool = False,
             read_into_memory: Optional[bool] = None,
             show_tqdm: bool = True
-    ) -> FastaViewType:
-        """
-        Initialize a _DiskFasta interface using multiple backends.
+        ) -> FastaViewType:
+    """
+    Initialize a _DiskFasta interface using multiple backends.
 
-        :param filename: The file you wish to open.
-        :param full_header: Whether to read full headers.
-        :param read_into_memory: Whether to read into memory.
-        :param show_tqdm: Whether to display a progress bar.
-        """
-        if read_into_memory is None:
-            read_into_memory = wc_c(filename) > 10 * 1024 * 1024
-        if read_into_memory:
-            return _MemoryAccessFastaView(
-                filename=filename,
-                full_header=full_header,
-                show_tqdm=show_tqdm
-            )
-        else:
-            return _DiskAccessFastaView(
-                filename=filename,
-                full_header=full_header,
-                show_tqdm=show_tqdm
-            )
+    :param filename: The file you wish to open.
+    :param full_header: Whether to read full headers.
+    :param read_into_memory: Whether to read into memory.
+    :param show_tqdm: Whether to display a progress bar.
+    """
+    if read_into_memory is None:
+        read_into_memory = wc_c(filename) > 10 * 1024 * 1024
+    if read_into_memory:
+        return _MemoryAccessFastaView(
+            filename=filename,
+            full_header=full_header,
+            show_tqdm=show_tqdm
+        )
+    else:
+        return _DiskAccessFastaView(
+            filename=filename,
+            full_header=full_header,
+            show_tqdm=show_tqdm
+        )
 
 
-def split_fasta(
+def split_fasta(  # TODO: Add to commandline params
         fav: FastaViewType,
-        out_dir_path: Optional[str] = None
+        out_dir_path: Optional[str] = None,
+        safe_seqname: str = "convert"
 ):
     """
     Split input FASTA file into one-line FASTAs with one file per contig.
@@ -425,7 +425,7 @@ def split_fasta(
     os.makedirs(out_dir_path, exist_ok=True)
 
     for seqname in fav.chr_names:
-        seqname = (
+        safe_seqname = (
             seqname.
             replace(" ", "_").
             replace("\t", "_").
@@ -438,6 +438,14 @@ def split_fasta(
             replace(">", "_").
             replace("|", "_")
         )
-        transcript_output_fasta = os.path.join(out_dir_path, f"{seqname}.fa")
+        if seqname != safe_seqname:
+            if safe_seqname == "convert":
+                _lh.warning("seqname '%s' is not safe -- Converted to '%s'", seqname, safe_seqname)
+            elif safe_seqname == "error":
+                raise ValueError # TODO
+            elif safe_seqname == "skip":
+                _lh.warning("seqname '%s' is not safe -- skipped", seqname)
+                continue
+        transcript_output_fasta = os.path.join(out_dir_path, f"{safe_seqname}.fa")
         with get_writer(transcript_output_fasta) as single_transcript_writer:
             single_transcript_writer.write(f">{seqname}\n{fav.sequence(seqname)}\n")
