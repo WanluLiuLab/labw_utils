@@ -57,6 +57,7 @@ Following is an example using enhanced formatter:
 >>> parser = ArgumentParserWithEnhancedFormatHelp(prog="prog", description="description")
 >>> _ = parser.add_argument("p", type=int, help="p-value")
 >>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
+>>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
 >>> _ = parser.add_argument("--flag", action="store_true", help="flag")
 >>> print(parser.format_help())
 description
@@ -79,6 +80,49 @@ OPTIONS:
               [OPTIONAL] Default: False
               flag
 <BLANKLINE>
+
+Following is an example on how it deals with :py:class:`enum.Enum`:
+
+>>> class SampleEnum(enum.Enum):
+...     \"\"\"SampleEnum docstring\"\"\"
+...     A = 1
+...     B = 2
+...
+...     @classmethod
+...     def from_name(cls, in_name: str) -> \'SampleEnum\':
+...         for choices in cls:
+...             if choices.name == in_name:
+...                 return choices
+...         raise TypeError
+>>> SampleEnum.A.__doc__ = "A doc"
+>>> SampleEnum.B.__doc__ = None
+>>> parser = ArgumentParserWithEnhancedFormatHelp(prog="prog", description="description")
+>>> _ = parser.add_argument(
+...     "-e",
+...     required=True,
+...     type=SampleEnum.from_name,
+...     choices=SampleEnum,
+...     help="output filename",
+...     default=SampleEnum.A
+... )
+>>> print(parser.format_help())
+description
+<BLANKLINE>
+SYNOPSIS: prog [-h] -e {A,B}
+<BLANKLINE>
+OPTIONS:
+  -h, --help
+              [OPTIONAL]
+              show this help message and exit
+  -e {A,B}
+              [REQUIRED] Type: SampleEnum; Default: A
+              output filename
+              CHOICES:
+                  A -- A doc
+                  B -- None
+<BLANKLINE>
+>>> parser.parse_args(["-e", "A"])
+Namespace(e=<SampleEnum.A: 1>)
 """
 
 __all__ = (
@@ -86,6 +130,10 @@ __all__ = (
 )
 
 import argparse
+import enum
+import inspect
+
+from labw_utils.typing_importer import Sequence, Type, Iterable, Callable
 
 
 class _EnhancedHelpFormatter(argparse.HelpFormatter):
@@ -97,9 +145,18 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
         for name in list(params):
             if hasattr(params[name], '__name__'):
                 params[name] = params[name].__name__  # type: ignore
-        if params.get('choices') is not None:
-            choices_str = ', '.join([str(c) for c in params['choices']])
-            params['choices'] = choices_str
+        if action.choices is not None:
+            choices_str = "\nCHOICES:"
+            if isinstance(action.choices, enum.EnumMeta):
+                for c in action.choices:
+                    choices_str += f"\n    {c.name} -- {c.__doc__}"
+            elif isinstance(action.choices, Iterable):
+                for c in action.choices:
+                    choices_str += f"\n    {c}"
+            else:
+                raise TypeError(f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable")
+        else:
+            choices_str = ""
 
         help_str = action.help if action.help is not None else ""
 
@@ -107,9 +164,11 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             req_opt_prefix = "[REQUIRED] "
         else:
             req_opt_prefix = "[OPTIONAL] "
-
         if not hasattr(action.type, "__name__"):
             dtype_prefix = ""
+        elif isinstance(action.type, Callable):
+            reta = inspect.signature(action.type).return_annotation
+            dtype_prefix = "Type: " + str(reta) + "; "  # type: ignore
         else:
             dtype_prefix = "Type: " + action.type.__name__ + "; "  # type: ignore
 
@@ -118,8 +177,33 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             if action.default is not argparse.SUPPRESS:
                 defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
                 if action.option_strings or action.nargs in defaulting_nargs:
-                    default_prefix = f'Default: {action.default} '
-        return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params
+                    if isinstance(action.default, enum.Enum):
+                        default_prefix = f'Default: {action.default.name} '
+                    else:
+                        default_prefix = f'Default: {action.default} '
+        return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params + choices_str
+
+    def _metavar_formatter(self, action, default_metavar):
+        if action.metavar is not None:
+            result = action.metavar
+        elif action.choices is not None:
+            if isinstance(action.choices, enum.EnumMeta):
+                choice_strs = [str(choice.name) for choice in action.choices]
+            elif isinstance(action.choices, Iterable):
+                choice_strs = [str(choice) for choice in action.choices]
+            else:
+                raise TypeError(f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable")
+
+            result = '{%s}' % ','.join(choice_strs)
+        else:
+            result = default_metavar
+
+        def format(tuple_size):
+            if isinstance(result, tuple):
+                return result
+            else:
+                return (result, ) * tuple_size
+        return format
 
     def _format_action(self, action):
         help_position = min(
@@ -168,3 +252,21 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
 
         formatter.add_text(self.epilog)
         return formatter.format_help()
+
+
+def enum_to_choices(
+        src_enum: Type[enum.Enum]
+) -> Sequence[str]:
+    """
+    Convert an enum to choices.
+
+    >>> class sample_enum(enum.Enum):
+    ...     A = 1
+    ...     B = 2
+    >>> enum_to_choices(sample_enum)
+    ['A', 'B']
+    """
+    retl = []
+    for v in src_enum:
+        retl.append(v.name)
+    return retl

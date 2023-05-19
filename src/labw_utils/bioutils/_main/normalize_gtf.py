@@ -38,7 +38,7 @@ def create_parser() -> argparse.ArgumentParser:
         nargs='?',
         type=str,
         action='store',
-        choices=VALID_GTF_QUOTE_OPTIONS,
+        choices=VALID_GTF_QUOTE_OPTIONS,  # TODO: Change to Enum
         default=DEFAULT_GTF_QUOTE_OPTIONS
     )
     parser.add_argument(
@@ -48,7 +48,7 @@ def create_parser() -> argparse.ArgumentParser:
         nargs='?',
         type=str,
         action='store',
-        choices=VALID_SORT_EXON_EXON_STRAND_POLICY,
+        choices=VALID_SORT_EXON_EXON_STRAND_POLICY,  # TODO: Change to Enum
         default=DEFAULT_SORT_EXON_EXON_STRAND_POLICY
     )
     parser.add_argument(
