@@ -201,6 +201,14 @@ Use `lscmd` as subcommand with no options to see available subcommands.
 """
 
 
+def add_file_handler_to_root_logger_handler(default_log_filename: str):
+    log_filename = os.environ.get("LOG_FILE_NAME", default_log_filename)
+    file_handler = logging.FileHandler(filename=log_filename)
+    file_handler.setLevel(logger_helper.TRACE)
+    file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
+    logging.root.addHandler(file_handler)
+
+
 def setup_frontend(
         package_main_name: str,
         one_line_description: str,
@@ -218,11 +226,7 @@ def setup_frontend(
     _lh.info(f'Called by: {" ".join(argv)}')
     parsed_args = _parse_args(argv[1:])
     if use_root_logger:
-        log_filename = os.environ.get("LOG_FILE_NAME", default_log_filename)
-        file_handler = logging.FileHandler(filename=log_filename)
-        file_handler.setLevel(logger_helper.TRACE)
-        file_handler.setFormatter(logger_helper.get_formatter(logger_helper.TRACE))
-        logging.root.addHandler(file_handler)
+        add_file_handler_to_root_logger_handler(default_log_filename)
     if parsed_args.input_subcommand_name == "lscmd":
         get_subcommands_verbose = True
     else:

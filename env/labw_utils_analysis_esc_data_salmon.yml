@@ -1,5 +1,0 @@
-name: labw_utils_analysis_esc_data_salmon
-channels:
-  - defaults
-dependencies:
-  - salmon[version='>=1']

@@ -116,7 +116,8 @@ def describe(array: _Tensor) -> str:
         _quantiles_str = f"quantiles={_quantiles}"
     else:
         _quantiles_str = f"uniques={_unique}"
-    return f"{type(array).__name__}[{array.dtype}] with shape={_shape}; {_quantiles_str}"
+    _mean = array.mean()
+    return f"{type(array).__name__}[{array.dtype}] with shape={_shape}; {_quantiles_str}; mean={_mean}"
 
 
 class DimensionMismatchException(ValueError):

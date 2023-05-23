@@ -44,7 +44,7 @@ spark-submit \
     --conf spark.executor.extraJavaOptions="-Dlog4j.configuration=file://$(pwd)/log4j.properties" \
     --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
     --packages com.esotericsoftware:kryo:4.0.2 \
-    transcript_merge.spark.py
+    src/fitk/flitkdb/__init__.py
 
 
 docker rm -f labw_utils_ensdb
