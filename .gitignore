@@ -450,3 +450,4 @@ pypy_venv/
 *pkl
 *.tar
 *.parquet.d
+*.pstat

@@ -274,3 +274,12 @@ class UnmetDependenciesError(RuntimeError):
     def package_name(self) -> str:
         """Name of the missing package"""
         return self._package_name
+
+# Optimizers
+
+try:
+    import pyjion
+
+    pyjion.enable()
+except ImportError:
+    pyjion = None
