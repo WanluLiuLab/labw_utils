@@ -8,5 +8,5 @@ if os.name != 'nt':
     pytest.skip("System is NOT NT", allow_module_level=True)
 
 
-def test_wc_c(initialize_module):
+def test_wc_c():
     assert shutil_helper.wc_c('nul') == 0
