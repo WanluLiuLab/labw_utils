@@ -35,6 +35,7 @@ PackageSpecs.add(PackageSpec(
 
 try:
     import pytest
+
     jupytext = pytest.importorskip("jupytext")
     nbf = pytest.importorskip("nbformat")
 except ImportError:
@@ -47,8 +48,6 @@ except ImportError:
         import nbformat as nbf
     except ImportError as e:
         raise UnmetDependenciesError("nbformat") from e
-
-
 
 _lh = get_logger(__name__)
 

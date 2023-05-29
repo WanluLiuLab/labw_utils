@@ -28,7 +28,16 @@ else:
     _external_tqdm = None
     _lh.warning("Sphinx environment detected!")
 
-if sys.stderr.isatty() and _external_tqdm is not None:
+if os.getenv("TQDM_IMPL") == "EXTERNAL":
+    pass
+elif os.getenv("TQDM_IMPL") == "SILENT":
+    _external_tqdm = None
+else:
+    if not sys.stderr.isatty():
+        _lh.warning("STDERR is not TTY!")
+        _external_tqdm = None
+
+if _external_tqdm is not None:
     tqdm = _external_tqdm.tqdm
 else:
     tqdm = _silent_tqdm.tqdm

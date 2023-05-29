@@ -9,7 +9,9 @@ __all__ = (
     "get_subcommands",
     "get_argparser_from_subcommand",
     "get_main_func_from_subcommand",
-    "get_doc_from_subcommand"
+    "get_doc_from_subcommand",
+    "setup_basic_logger",
+    "add_file_handler_to_root_logger_handler"
 )
 
 import argparse

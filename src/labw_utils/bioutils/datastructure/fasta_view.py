@@ -381,11 +381,11 @@ class _DiskAccessFastaView(_BaseFastaView):
 
 
 def FastaViewFactory(
-            filename: str,
-            full_header: bool = False,
-            read_into_memory: Optional[bool] = None,
-            show_tqdm: bool = True
-        ) -> FastaViewType:
+        filename: str,
+        full_header: bool = False,
+        read_into_memory: Optional[bool] = None,
+        show_tqdm: bool = True
+) -> FastaViewType:
     """
     Initialize a _DiskFasta interface using multiple backends.
 
@@ -442,7 +442,7 @@ def split_fasta(  # TODO: Add to commandline params
             if safe_seqname == "convert":
                 _lh.warning("seqname '%s' is not safe -- Converted to '%s'", seqname, safe_seqname)
             elif safe_seqname == "error":
-                raise ValueError # TODO
+                raise ValueError  # TODO
             elif safe_seqname == "skip":
                 _lh.warning("seqname '%s' is not safe -- skipped", seqname)
                 continue
