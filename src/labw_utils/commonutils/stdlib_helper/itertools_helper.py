@@ -10,7 +10,7 @@ __all__ = (
     "dict_translate"
 )
 
-from labw_utils.typing_importer import Iterable, TypeVar, Mapping, List
+from labw_utils.typing_importer import Iterable, TypeVar, Mapping, List, Literal, Tuple, Optional
 
 _InType = TypeVar("_InType")
 _VarType = TypeVar("_VarType")
@@ -69,3 +69,45 @@ def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]
     :return: Translated dictionary.
     """
     return list(iterable_translate(iter(in_list), trans_dict))
+
+
+def window(
+        it: Iterable[_InType],
+        size: int,
+        last_action: Literal["padd_front", "padd_back", "error", "export", "truncate"] = "export",
+        padding: Optional[_InType] = None
+) -> Iterable[Tuple[_InType, ...]]:
+    """
+    Complex windowing support.
+
+    TODO: test
+
+    :param it: An iterable.
+    :param size: Window size.
+    :param last_action: What to do on insufficient last element.
+    :param padding: What to pad if ``last_action`` is ``"padd_*"``.
+    :return: Iterable of windows.
+    """
+    curr_list = []
+    for item in it:
+        curr_list.append(item)
+        if len(curr_list) == size:
+            yield tuple(curr_list)
+            curr_list = []
+    if len(curr_list) == size:
+        yield tuple(curr_list)
+    elif len(curr_list) == 0:
+        return
+    else:
+        if last_action == "error":
+            raise ValueError
+        elif last_action == "truncate":
+            return
+        elif last_action == "padd_front":
+            while len(curr_list) < size:
+                curr_list.insert(0, padding)
+        elif last_action == "padd_back":
+            while len(curr_list) < size:
+                curr_list.append(padding)
+        yield tuple(curr_list)
+        return

@@ -114,10 +114,12 @@ def main(args: List[str]):
             def mask(start: float, end: float):
                 start, end = int(start), int(end)
                 chr_contents[start: end] = ["N"] * int(end - start)
-
-            mask(0, args.chr_len * args.n_5p)
-            mask(args.chr_len - args.chr_len * args.n_3p, args.chr_len)
-            mask(args.chr_len * args.centromere_offset, args.chr_len * (args.centromere_offset + args.centromere_len))
+            if args.n_5p != 0:
+                mask(0, args.chr_len * args.n_5p)
+            if args.n_3p != 0:
+                mask(args.chr_len - args.chr_len * args.n_3p, args.chr_len)
+            if args.centromere_len != 0:
+                mask(args.chr_len * args.centromere_offset, args.chr_len * (args.centromere_offset + args.centromere_len))
             chr_contents = "".join(chr_contents)
             if args.split_at != 0:
                 chr_contents = "\n".join(list(
