@@ -7,10 +7,10 @@ from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.fastq import FastqRecord
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
-from labw_utils.typing_importer import Iterator, Final
+from labw_utils.typing_importer import Iterator, Final, Iterable
 
 
-class FastqIterator(BaseFileIterator):
+class FastqIterator(BaseFileIterator, Iterable[FastqRecord]):
     filetype: Final[str] = "FASTQ"
 
     def __init__(self, filename: str, show_tqdm: bool = True):
@@ -23,7 +23,7 @@ class FastqIterator(BaseFileIterator):
     def __iter__(self) -> Iterator[FastqRecord]:
         while True:
             lines = [self._fd.readline(-1) for _ in range(4)]
-            if '' in lines:
+            if '' in lines or len(lines) != 4:
                 break
             yield FastqRecord.from_str(lines)
         self._fd.close()

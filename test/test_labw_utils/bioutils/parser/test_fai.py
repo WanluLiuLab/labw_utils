@@ -8,6 +8,7 @@ from labw_utils.bioutils.parser.fai import FastaBasedFastaIndexIterator, FAIBase
     FastaIndexNotWritableError, FastaIndexWriter, DuplicatedFastaNameError
 from labw_utils.bioutils.record.fai import FastaIndexRecord
 from labw_utils.typing_importer import List
+from test_labw_utils import NULL_PATH
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_fasta_path = os.path.join(TEST_DATA_DIR, "test.fasta")
@@ -51,3 +52,8 @@ def test_fasta_to_fai():
 def test_duplicated_fasta():
     with pytest.raises(DuplicatedFastaNameError):
         _ = list(FastaBasedFastaIndexIterator(test_dup_fasta_path, full_header=False))
+
+
+def test_empty_file():
+    assert len(list(FastaBasedFastaIndexIterator(NULL_PATH))) == 0
+    assert len(list(FAIBasedFastaIndexIterator(NULL_PATH))) == 0

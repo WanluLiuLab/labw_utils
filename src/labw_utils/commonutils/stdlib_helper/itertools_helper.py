@@ -74,13 +74,25 @@ def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]
 def window(
         it: Iterable[_InType],
         size: int,
-        last_action: Literal["padd_front", "padd_back", "error", "export", "truncate"] = "export",
+        last_action: Literal["padd_front", "padd_back", "error", "ignore", "truncate"] = "ignore",
         padding: Optional[_InType] = None
 ) -> Iterable[Tuple[_InType, ...]]:
     """
     Complex windowing support.
 
-    TODO: test
+    >>> list(window([1, 2, 3], 2, "padd_front", 0))
+    [(1, 2), (0, 3)]
+    >>> list(window([1, 2, 3], 2, "padd_back", 0))
+    [(1, 2), (3, 0)]
+    >>> list(window([1, 2, 3], 2, "error", 0))
+    Traceback (most recent call last):
+        ...
+    ValueError
+    >>> list(window([1, 2, 3], 2, "ignore", 0))
+    [(1, 2), (3,)]
+    >>> list(window([1, 2, 3], 2, "truncate", 0))
+    [(1, 2)]
+
 
     :param it: An iterable.
     :param size: Window size.

@@ -32,7 +32,7 @@ class FastaIndexNotWritableError(FastaIndexParserError):
         )
 
 
-class FAIBasedFastaIndexIterator(BaseFileIterator):
+class FAIBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord]):
     filetype: Final[str] = "FAI (FAI based)"
 
     def __init__(self, filename: str, show_tqdm: bool = True):
@@ -53,7 +53,7 @@ class FAIBasedFastaIndexIterator(BaseFileIterator):
         self._fd.close()
 
 
-class FastaBasedFastaIndexIterator(BaseFileIterator):
+class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord]):
     filetype: Final[str] = "FAI (FASTA based)"
     _full_header: bool
     _name: str
@@ -75,8 +75,8 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
         self._line_len = 0
         self._line_blen = 0
         self._length = 0
+        # Here required binary to deal with line endings
         if self._show_tqdm:
-            # Here required binary to deal with line endings
             self._fd = get_tqdm_line_reader(self.filename, is_binary=True)
         else:
             self._fd = get_reader(self.filename, is_binary=True)
@@ -96,7 +96,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator):
             line_len=self._line_len
         )
 
-    def __iter__(self) -> Iterable[FastaIndexRecord]:
+    def __iter__(self) -> Iterator[FastaIndexRecord]:
         while True:
             line = str(self._fd.readline(), encoding="utf-8")
             if not line:

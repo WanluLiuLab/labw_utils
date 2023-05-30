@@ -404,7 +404,7 @@ def determine_line_endings(fd: FDType) -> str:
     curr_pos = fd.tell()
     while True:
         c = fd.read(1)
-        if c is None:
+        if c is None or len(c) == 0:
             break
         elif c == '\r' or c == b'\r':
             find_cr = True
@@ -1360,7 +1360,7 @@ def file_open(  # type: ignore
 
     else:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        open(file_path, mode="a").close()
+        open(file_path, mode="ab").close()
         if mode == ModeEnum.WRITE:
             wfd = open(file_path, "wb")
         else:

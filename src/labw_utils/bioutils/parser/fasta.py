@@ -8,7 +8,7 @@ from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.lwio.safe_io import get_writer, get_reader
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
-from labw_utils.typing_importer import Iterable, Final
+from labw_utils.typing_importer import Iterable, Final, Iterator
 
 
 def extract_fasta_name(line: str, full_header: bool) -> str:
@@ -18,7 +18,7 @@ def extract_fasta_name(line: str, full_header: bool) -> str:
         return line[1:].strip().split(' ')[0].split('\t')[0]
 
 
-class FastaIterator(BaseFileIterator):
+class FastaIterator(BaseFileIterator, Iterable[FastaRecord]):
     filetype: Final[str] = "FASTA"
     _full_header: bool
 
@@ -36,7 +36,7 @@ class FastaIterator(BaseFileIterator):
             self._fd = get_reader(self.filename, is_binary=True)
         self._full_header = full_header
 
-    def __iter__(self) -> Iterable[FastaRecord]:
+    def __iter__(self) -> Iterator[FastaRecord]:
         chr_name = ""
         seq = ""
         it: Iterable[str]
@@ -93,7 +93,7 @@ class FastaWriter(BaseIteratorWriter):
         )
 
     @staticmethod
-    def write_iterator(iterable: Iterable[FastaRecord], filename: str):
+    def write_iterator(iterable: Iterable[FastaRecord], filename: str, **kwargs):
         with FastaWriter(filename) as writer:
             for fastq_record in iterable:
                 writer.write(fastq_record)

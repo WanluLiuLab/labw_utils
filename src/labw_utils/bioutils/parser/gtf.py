@@ -31,7 +31,8 @@ class GtfIteratorWriter(BaseIteratorWriter):
             iterable: Iterable[FeatureInterface],
             filename: str,
             prefix_annotations: Iterable[str] = None,
-            quote: str = DEFAULT_GTF_QUOTE_OPTIONS
+            quote: str = DEFAULT_GTF_QUOTE_OPTIONS,
+            **kwargs
     ):
         with GtfIteratorWriter(filename, quote) as writer:
             if prefix_annotations is not None:
