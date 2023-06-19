@@ -127,7 +127,6 @@ if sys.version_info >= (3, 9):
     Deque = collections.deque
     DefaultDict = collections.defaultdict
 else:
-
     Callable = typing.Callable
     Iterable = typing.Iterable
     Iterator = typing.Iterator

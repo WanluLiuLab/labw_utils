@@ -79,17 +79,6 @@ def test_ext(ext: str):
         assess_binary_archive_io(filename)
         rm_rf(filename)
 
-
-#         mode: Literal[ModeEnum.READ],
-#         is_binary: Literal[False],
-#         encoding: str = "UTF-8",
-#         newline: Optional[str] = None,
-#         compression: Optional[str] = "Inferred",
-#         compression_level: int = 0,
-#         parallel_compression: int = 0,
-#         line_reader: bool = False,
-#         tqdm_reader: bool = False,
-
 READ_MODES = (
     {"mode": ModeEnum.READ, "is_binary": False, "line_reader": True, "tqdm_reader": True},
     {"mode": ModeEnum.READ, "is_binary": False, "line_reader": True, "tqdm_reader": False},
