@@ -155,7 +155,10 @@ def setup_globals(config: ServerSideYSJSDConfig):
     global_flask_app.logger.addHandler(frontend_logger_file_handler)
     signal.signal(signal.SIGINT, lambda x, y: stop())
     signal.signal(signal.SIGTERM, lambda x, y: stop())
-    signal.signal(signal.SIGHUP, lambda x, y: stop())
+    try:
+        signal.signal(signal.SIGHUP, lambda x, y: stop())
+    except AttributeError:
+        pass
     global_server = pywsgi.WSGIServer(
         ("0.0.0.0", int(global_config.ysjs_port)),
         application=global_flask_app,

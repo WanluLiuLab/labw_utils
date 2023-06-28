@@ -397,27 +397,36 @@ def determine_line_endings(fd: FDType) -> str:
     :param fd: Input file descriptor.
     :return: One of ``\\r``, ``\\n``, ``\\r\\n``, ``\\n\\r``.
     """
+    if not fd.seekable():
+        return os.linesep
     find_cr = False
     find_lf = False
+    curr_pos = fd.tell()
     while True:
         c = fd.read(1)
-        if c is None:
+        if c is None or len(c) == 0:
             break
         elif c == '\r' or c == b'\r':
             find_cr = True
             if find_lf:
+                fd.seek(curr_pos)
                 return '\n\r'
         elif c == '\n' or c == b'\n':
             find_lf = True
             if find_cr:
+                fd.seek(curr_pos)
                 return '\r\n'
         else:
             if find_cr:
+                fd.seek(curr_pos)
                 return '\r'
             if find_lf:
+                fd.seek(curr_pos)
                 return '\n'
             find_cr = False
             find_lf = False
+
+    fd.seek(curr_pos)
     return os.linesep
 
 
@@ -1317,8 +1326,6 @@ def file_open(  # type: ignore
     _ = kwargs, parallel_compression
     del kwargs, parallel_compression
     file_path = os.path.abspath(file_path)
-    if newline is None:
-        newline = os.linesep
     if compression == "inferred":
         compression = file_path.split(".")[-1]
     elif compression is None:
@@ -1332,6 +1339,8 @@ def file_open(  # type: ignore
         rfd = CompressionRuleRing.get_reader(compression).create(
             open(file_path, "rb")
         )
+        if newline is None and not is_binary:
+            newline = determine_line_endings(rfd)
         if is_binary:
             rfd = ReadOnlyBinaryIOProxy(rfd)
         else:
@@ -1351,7 +1360,7 @@ def file_open(  # type: ignore
 
     else:
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        open(file_path, mode="a").close()
+        open(file_path, mode="ab").close()
         if mode == ModeEnum.WRITE:
             wfd = open(file_path, "wb")
         else:

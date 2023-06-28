@@ -13,10 +13,10 @@ This also defines :py:class:`SequenceProxy` and :py:class:`MappingProxy` to crea
 
 from __future__ import annotations
 
+import collections.abc
 import copy
 import os
 import typing
-import collections.abc
 
 if os.getenv("SPHINX_BUILD") is not None:
     __all__ = (
@@ -127,7 +127,6 @@ if sys.version_info >= (3, 9):
     Deque = collections.deque
     DefaultDict = collections.defaultdict
 else:
-    
     Callable = typing.Callable
     Iterable = typing.Iterable
     Iterator = typing.Iterator
@@ -330,3 +329,9 @@ class MappingProxy(Mapping[_KeyType, _ValueType]):
             self._mapping = copy.copy(dict(mapping))
         else:
             self._mapping = copy.deepcopy(dict(mapping))
+
+    def __repr__(self):
+        return repr(self._mapping)
+
+    def __str__(self):
+        return repr(self)

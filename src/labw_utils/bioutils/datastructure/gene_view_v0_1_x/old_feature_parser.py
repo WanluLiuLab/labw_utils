@@ -34,7 +34,7 @@ from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.typing_importer import Dict, Iterator, Union, Optional, List, TextIO, Iterable, Final
 
 
-class GtfIterator(BaseFileIterator):
+class GtfIterator(BaseFileIterator, Iterable[GtfRecord]):
     filetype: Final[str] = "GTF"
     record_type = GtfRecord
 
@@ -46,7 +46,7 @@ class GtfIterator(BaseFileIterator):
             yield GtfRecord.from_string(line)
 
 
-class Gff3Iterator(BaseFileIterator):
+class Gff3Iterator(BaseFileIterator, Iterable[Gff3Record]):
     filetype: Final[str] = "GFF3"
     record_type = Gff3Record
 

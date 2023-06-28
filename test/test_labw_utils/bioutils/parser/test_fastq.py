@@ -5,6 +5,7 @@ import tempfile
 from labw_utils.bioutils.parser.fastq import FastqIterator, FastqWriter
 from labw_utils.bioutils.record.fastq import FastqRecord
 from labw_utils.typing_importer import List
+from test_labw_utils import NULL_PATH
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_fastq_path = os.path.join(TEST_DATA_DIR, "test.fastq")
@@ -23,3 +24,7 @@ def test():
         out_fq_path = os.path.join(tmpdir, "tmp.fq")
         FastqWriter.write_iterator(sampled_fql, out_fq_path)
         assert len(list(iter(FastqIterator(out_fq_path)))) == 3
+
+
+def test_empty_file():
+    assert len(list(FastqIterator(NULL_PATH))) == 0

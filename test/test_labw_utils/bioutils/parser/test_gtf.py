@@ -4,6 +4,7 @@ from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.bioutils.record.gtf import format_string
 from labw_utils.commonutils.lwio.safe_io import get_reader
+from test_labw_utils import NULL_PATH
 from test_labw_utils.bioutils import TEST_DATA_DIR
 
 test_gtf_path = os.path.join(TEST_DATA_DIR, "test_various_format.gtf")
@@ -32,5 +33,9 @@ def test_gtf_reader():
 
     with get_reader(test_gtf_path) as reader:
         assert list(map(format_string, featl)) == list(map(str.strip, reader.readlines()))
+
+
+def test_empty_file():
+    assert len(list(GtfIterator(NULL_PATH))) == 0
 
 # TODO: Writer test

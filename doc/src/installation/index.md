@@ -31,21 +31,21 @@ conda 23.3.1
 :::{tab-item} pip
 :sync: ts_k_pip
 
-To use PYPA [`pip`](https://pip.pypa.io/), you should install Python intepreter first. Check your Python version using:
+To use PYPA [`pip`](https://pip.pypa.io/), you should install Python interpreter first.
+
+Firstly, make sure that you're using correct interpreter using:
+
+```console
+$ which python
+/home/yuzj/conda/envs/labw_utils/bin/python
+```
+
+Check your Python version using:
 
 ```console
 $ python --version
 Python 3.8.15
 ```
-
-or:
-
-```console
-$ python3 --version
-Python 3.8.15
-```
-
-if your operating system reserves `python` for Python 2.
 
 If the command is failed or if the version is too low, get one from [Official Site](https://www.python.org) or your package management systems.
 
@@ -57,6 +57,10 @@ pip 23.0.1 from /home/yuzj/conda/envs/labw_utils/lib/python3.8/site-packages/pip
 ```
 
 If failed, you may either install `pip` using package manager (If you installed Python that way) or use script from <https://bootstrap.pypa.io/get-pip.py>.
+
+```{warning}
+Recommended to use `python -m pip` instead of `pip` directly since the first `pip` your Shell found may belongs to another Python intepreter.
+```
 
 :::
 
@@ -141,8 +145,6 @@ Suppose you're developing a software package named `foo` using Python 3.8 and wi
     - bioconda
     - main
     - free
-    - pytorch
-    - nvidia
 
     dependencies:
     # Core libraries
@@ -196,7 +198,7 @@ The default installation requires following packages:
 
 ### Non-Default Installation with Optional Extras
 
-Although the default packing stratergy can satisfy most biological uses, you may see errors like:
+Although the default packing strategy can satisfy most biological uses, you may see errors like:
 
 ```pycon
 >>> from labw_utils.mlutils import torch_layers
@@ -214,7 +216,7 @@ Traceback (most recent call last):
 labw_utils.UnmetDependenciesError: torch not installed; Use ``conda install -c pytorch pytorch``; Use ``pip install torch``
 ```
 
-in place where default stratergy fails. You can use pip's "optional extra" function to install other dependencies. For example, to perform installation with `bioutils` extra, you should:
+in place where default strategy fails. You can use pip's "optional extra" function to install other dependencies. For example, to perform installation with `bioutils` extra, you should:
 
 ```shell
 pip install labw_utils[bioutils]~=[VERSION]

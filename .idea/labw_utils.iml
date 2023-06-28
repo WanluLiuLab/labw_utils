@@ -57,7 +57,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_repeats.parquet.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/reference_generator/data_dl" />
     </content>
-    <orderEntry type="jdk" jdkName="labw_utils_ensembl_data_dump" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="labw_utils" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

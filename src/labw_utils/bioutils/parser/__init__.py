@@ -59,7 +59,7 @@ class _BaseFileIO(ABC):
             pass
 
 
-class BaseFileIterator(_BaseFileIO, Generic[_RecordType]):
+class BaseFileIterator(_BaseFileIO, Iterable[_RecordType]):
     """
     Iterate something from a file.
     """
