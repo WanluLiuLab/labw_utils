@@ -10,12 +10,16 @@ __all__ = (
     "update_transcript_id",
 )
 
+from abc import abstractmethod
+
 from labw_utils.bioutils.datastructure.gv import CanCheckInterface, generate_unknown_gene_id, \
-    generate_unknown_transcript_id
+    generate_unknown_transcript_id, SequenceFuncType, LegalizeRegionFuncType, dumb_legalize_region_func
 from labw_utils.bioutils.record.feature import FeatureType, GtfAttributeValueType, FeatureInterface, \
     BiologicalIntervalInterface, NotSet, GtfAttributeType, notset
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, SequenceProxy, Tuple
+from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, Tuple, Literal
+
+from labw_utils.typing_importer import SequenceProxy
 
 lh = get_logger(__name__)
 
@@ -184,6 +188,26 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
 
     def regional_equiv(self, other: BiologicalIntervalInterface, is_stranded: bool = True):
         return self._data.regional_equiv(other, is_stranded)
+
+    def flanking_sequence(
+            self,
+            direction: Literal["left", "right"],
+            length: int,
+            sequence_func: SequenceFuncType,
+            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func,
+    ) -> str:
+        if direction == "left":
+            return sequence_func(
+                *legalize_region_func(self.seqname, self.start0b - length, self.start0b)
+            )
+        else:
+            return sequence_func(
+                *legalize_region_func(self.seqname, self.end0b, self.end0b + length)
+            )
+
+    @abstractmethod
+    def gc(self):
+        raise NotImplementedError
 
 
 def update_gene_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:

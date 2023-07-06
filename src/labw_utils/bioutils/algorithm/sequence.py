@@ -288,6 +288,8 @@ def get_gc_percent(seq: str) -> float:
 
     by 12 percent.
     """
+    if seq is None:
+        return None
     if len(seq) == 0:
         return 0
     gc = 0

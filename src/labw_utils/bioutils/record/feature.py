@@ -12,7 +12,10 @@ from functools import total_ordering
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
-from labw_utils.typing_importer import Union, Optional, Mapping, List, Type, TypeVar, Callable, Sequence, SequenceProxy
+from labw_utils.typing_importer import Union, Optional, Mapping, List, Type, TypeVar, Callable, Sequence
+
+from labw_utils.typing_importer import SequenceProxy
+
 
 lh = get_logger(__name__)
 
@@ -294,7 +297,7 @@ class FeatureInterface(BiologicalIntervalInterface):
     @property
     @abstractmethod
     def naive_length(self) -> int:
-        """Naive length, is ``end`` - ``start`` + 1"""
+        """Naive length, is ``self.end0b - self.start0b``"""
         raise NotImplementedError
 
     @abstractmethod

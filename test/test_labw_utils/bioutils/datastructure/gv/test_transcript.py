@@ -20,7 +20,6 @@ standard_transcript = Transcript(
     exons=[],
     is_checked=True,
     is_inferred=False,
-    keep_sorted=False,
     shortcut=False
 )
 
@@ -32,7 +31,6 @@ def test_transcript():
             exons=standard_transcript.exons,
             is_checked=True,
             is_inferred=False,
-            keep_sorted=False,
             shortcut=False
         )
         assert transcript.transcript_id == "UN1.1"
@@ -46,9 +44,9 @@ def test_transcript():
         assert transcript.transcribe(fasta_view.sequence) == "NNNNNNNATCGTTACCAT"
         assert transcript.span_length == 26
         assert transcript.naive_length == 31
-        assert list(transcript.exon_boundaries) == [(5, 10), (15, 20), (25, 30)]
-        assert list(transcript.splice_sites) == [(10, 15), (20, 25)]
-        assert transcript.get_intron_length(0) == 5
+        assert list(transcript.exon_boundaries) == [(4, 10), (14, 20), (24, 30)]
+        assert list(transcript.splice_sites) == [(10, 14), (20, 24)]
+        assert transcript.get_intron_length(0) == 6
         assert transcript.get_intron_length(3) == math.inf
 
 
@@ -60,7 +58,6 @@ def test_infer_names():
         exons=[],
         is_checked=True,
         is_inferred=False,
-        keep_sorted=False,
         shortcut=False
     )
     assert transcript.transcript_id.startswith("unknown_transcript")
@@ -75,7 +72,6 @@ def test_transcript_from_exon():
         exons=[],
         is_checked=True,
         is_inferred=False,
-        keep_sorted=False,
         shortcut=False
     )
     transcript_from_exon = Transcript(
@@ -83,7 +79,6 @@ def test_transcript_from_exon():
         exons=[],
         is_checked=True,
         is_inferred=True,
-        keep_sorted=False,
         shortcut=False
     )
     for exon in exons:
@@ -110,7 +105,6 @@ def test_exon_number():
         exons=standard_transcript.exons,
         is_checked=True,
         is_inferred=False,
-        keep_sorted=False,
         shortcut=False
     )
     for exon in unnumbered_exons:
@@ -138,7 +132,6 @@ def test_exon_number_rev():
         exons=standard_transcript.exons,
         is_checked=True,
         is_inferred=False,
-        keep_sorted=True,
         shortcut=False
     )
     for exon in unnumbered_exons:
@@ -155,7 +148,6 @@ def test_del_exon():
         exons=standard_transcript.exons,
         is_checked=True,
         is_inferred=False,
-        keep_sorted=True,
         shortcut=False
     )
     for exon in exons:

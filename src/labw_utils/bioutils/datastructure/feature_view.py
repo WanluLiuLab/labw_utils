@@ -5,7 +5,10 @@ from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import Feature
 from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper import pickle_helper
-from labw_utils.typing_importer import Iterable, Iterator, List, Sequence, SequenceProxy
+from labw_utils.typing_importer import Iterable, Iterator, List, Sequence
+
+from labw_utils.typing_importer import SequenceProxy
+
 
 FVPKL_VERSION = "1.0.0"
 

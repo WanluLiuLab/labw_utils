@@ -99,31 +99,31 @@ class FeatureType(ABC):
 
     @abstractmethod
     def __eq__(self, other: object):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def overlaps(self, other: FeatureType) -> bool:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __gt__(self, other: FeatureType):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __ge__(self, other: FeatureType):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __lt__(self, other: FeatureType):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __le__(self, other: FeatureType):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def format_string(self, **kwargs) -> str:
-        pass
+        raise NotImplementedError
 
 
 class Feature(FeatureType):
@@ -226,7 +226,7 @@ class Feature(FeatureType):
 
     @abstractmethod
     def format_string(self, **kwargs) -> str:
-        pass
+        raise NotImplementedError
 
     def __repr__(self):
         return self.format_string()

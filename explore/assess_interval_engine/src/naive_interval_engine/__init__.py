@@ -61,7 +61,7 @@ class IntervalEngineType:
 
     @abstractmethod
     def match(self, query_interval: IntervalType) -> Iterable[int]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def matches(
@@ -69,11 +69,11 @@ class IntervalEngineType:
             query_intervals: Iterable[IntervalType],
             show_tqdm: bool = True
     ) -> Iterable[List[int]]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def overlap(self, query_interval: IntervalType) -> Iterable[int]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def overlaps(
@@ -81,11 +81,11 @@ class IntervalEngineType:
             query_intervals: Iterable[IntervalType],
             show_tqdm: bool = True
     ) -> Iterable[List[int]]:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __iter__(self) -> Iterable[IntervalType]:
-        pass
+        raise NotImplementedError
 
 
 class BaseNaiveIntervalEngine(IntervalEngineType, ABC):

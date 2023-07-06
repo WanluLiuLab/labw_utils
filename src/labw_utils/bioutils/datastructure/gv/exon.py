@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
-from labw_utils.bioutils.datastructure.gv import SequenceFuncType, CanTranscribeInterface
+from labw_utils.bioutils.datastructure.gv import SequenceFuncType, CanTranscribeInterface, dumb_legalize_region_func, \
+    LegalizeRegionFuncType
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_transcript_id
 from labw_utils.bioutils.record.feature import FeatureInterface
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -43,10 +44,16 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
     def __repr__(self):
         return f"Exon ({self.start, self.end}) of Transcript {self.transcript_id}"
 
-    def transcribe(self, sequence_func: SequenceFuncType) -> str:
+    def transcribe(
+            self,
+            sequence_func: SequenceFuncType,
+            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+    ) -> str:
         if self._cdna is None:
             try:
-                self._cdna = sequence_func(self.seqname, self.start0b, self.end0b)
+                self._cdna = sequence_func(
+                    *legalize_region_func(self.seqname, self.start0b, self.end0b)
+                )
                 if len(self._cdna) != self.transcribed_length:
                     _lh.warning(
                         f"{self.transcript_id}: Different exon length at {self}: " +
@@ -58,3 +65,6 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
                 _lh.warning(f"{self.transcript_id}: Failed to get cDNA sequence at exon ({self.start, self.end}) {e}")
                 self._cdna = ""
         return self._cdna
+
+    def gc(self):
+        self._cdna = None

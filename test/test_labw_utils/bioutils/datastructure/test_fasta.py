@@ -35,6 +35,7 @@ def _public_asserts(fa: FastaViewType) -> None:
     assert fa.sequence('chr3', 2, 15) == 'TANNTGNATNATG'  # At line end
     assert fa.sequence('chr3', 2, 16) == 'TANNTGNATNATGN'  # Cross the line
     assert fa.sequence('chr2') == 'NNNNNNNNNNNNNNNATCGTTACGTACCATATACTATATCTTAGTCTAGTCTAACGTCTTTTTCTNNNNNNNNN'
+    # Overflow
     assert fa.sequence('chr2') == fa.sequence('chr2', 0)
     assert fa.sequence('chr2') == fa.sequence('chr2', 0, -1)
     assert fa.sequence('chr4') == 'AAAAAAAAAACCCCCC'

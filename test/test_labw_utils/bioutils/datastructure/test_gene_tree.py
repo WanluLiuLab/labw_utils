@@ -13,8 +13,7 @@ test_gtf_path = os.path.join(TEST_DATA_DIR, "test.gtf")
 # FIXME
 def test():
     gt = GeneTree.from_feature_iterator(
-        GtfIterator(test_gtf_path),
-        keep_sorted=True
+        GtfIterator(test_gtf_path)
     )
     assert list(gt.transcript_ids) == ['UN1.1', 'UN1.2', 'UN2.1', 'UN3.1']
     assert list(gt.gene_ids) == ['UN1', 'UN2', 'UN3']

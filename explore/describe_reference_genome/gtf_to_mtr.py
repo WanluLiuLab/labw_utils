@@ -18,7 +18,6 @@ import pandas as pd
 from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
-from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.libfrontend import setup_basic_logger
 from labw_utils.commonutils.lwio.safe_io import get_reader

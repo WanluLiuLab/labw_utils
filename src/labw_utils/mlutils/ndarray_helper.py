@@ -90,10 +90,10 @@ def describe(array: _Tensor) -> str:
     ...
 
     >>> describe(np.array([0, 0, 1, 1]))
-    'ndarray[int64] with shape=(4,); uniques=[0 1]'
+    'ndarray[int64] with shape=(4,); uniques=[0 1]; mean=0.5'
 
     >>> describe(np.array(np.random.uniform(0, 21, size=12000), dtype=int))
-    "ndarray[int64] with shape=(12000,); quantiles=['0.00', '5.00', '10.00', '15.00', '20.00']"
+    "ndarray[int64] with shape=(12000,); quantiles=['0.00', '5.00', '10.00', '15.00', '20.00']; mean=..."
 
     :param array: The Numpy array or pyTorch Tensor to be described.
     :return: Description of the array.

@@ -25,6 +25,7 @@ __all__ = (
     "split_fasta"
 )
 
+import functools
 import os
 from abc import abstractmethod, ABC
 
@@ -94,7 +95,7 @@ class FastaViewType:
     @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         """
-        Get sequence from FASTA with 0-based [) indexes
+        Get sequence from FASTA with 0-based [) indexes.
 
         To read until end, use -1.
 
@@ -102,14 +103,14 @@ class FastaViewType:
         :param from_pos: From which position
         :param to_pos: To which position, use -1 for end
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_chr_length(self, chromosome: str) -> int:
         """
         Get length of specific chromosome.
         """
-        pass
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -117,7 +118,7 @@ class FastaViewType:
         """
         get chromosome names
         """
-        pass
+        raise NotImplementedError
 
     def __str__(self) -> str:
         return repr(self)
@@ -130,40 +131,40 @@ class FastaViewType:
         :raises SeekTooFarError: Raise this error if region is not valid.
         :raises ChromosomeNotFoundError: Raise this error if region is not valid.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def close(self):
         """
         Safely close a Fasta.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self) -> int:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __repr__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __del__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def to_file(self, output_filename: str):
         """
         Write content of this FASTA view to file
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def query(self, query: QueryTupleType) -> str:
         """
         :py:func:`sequence` with another interface.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def subset_to_file(
@@ -172,15 +173,22 @@ class FastaViewType:
             querys: Iterable[QueryTupleType],
             output_chr_names: Optional[Iterable[str]] = None
     ):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __enter__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        raise NotImplementedError
+
+    @abstractmethod
+    def legalize_region_best_effort(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> QueryTupleType:
+        """
+        # TODO
+        """
+        raise NotImplementedError
 
 
 class _BaseFastaView(FastaViewType, ABC):
@@ -249,6 +257,22 @@ class _BaseFastaView(FastaViewType, ABC):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def legalize_region_best_effort(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> QueryTupleType:
+        if chromosome not in self.chr_names:
+            raise ChromosomeNotFoundError(chromosome)
+        chr_len = self.get_chr_length(chromosome)
+        if from_pos < 0:
+            from_pos = 0
+        elif from_pos > chr_len:
+            from_pos = chr_len
+        if to_pos == -1:
+            to_pos = chr_len
+        elif to_pos < 0:
+            to_pos = 0
+        elif to_pos > chr_len:
+            to_pos = chr_len
+        return chromosome, from_pos, to_pos
+
 
 class _MemoryAccessFastaView(_BaseFastaView):
     """
@@ -265,6 +289,7 @@ class _MemoryAccessFastaView(_BaseFastaView):
     def chr_names(self) -> List[str]:
         return list(self._all_dict.keys())
 
+    @functools.lru_cache(maxsize=256, typed=True)
     def get_chr_length(self, chromosome: str) -> int:
         return len(self._all_dict[chromosome])
 
@@ -310,6 +335,7 @@ class _DiskAccessFastaView(_BaseFastaView):
 
     _fai: FastaIndexView
 
+    @functools.lru_cache(maxsize=256, typed=True)
     def get_chr_length(self, chromosome: str) -> int:
         return self._fai[chromosome].length
 

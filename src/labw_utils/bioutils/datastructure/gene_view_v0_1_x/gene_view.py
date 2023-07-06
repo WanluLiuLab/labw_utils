@@ -47,7 +47,7 @@ class GeneViewType:
         """
         Generate index de novo.
         """
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
@@ -63,7 +63,7 @@ class GeneViewType:
         * If failed, build and index from file by calling :py:func:`_from_own_filetype` and save it.
             set ``not_save_index`` to ``True`` to prevent this behaviour.
         """
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
@@ -71,48 +71,48 @@ class GeneViewType:
         """
         Build GeneView from an iterable of FeatureType.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def iter_transcripts(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def iter_transcript_ids(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_transcript(self, transcript_id: str) -> Transcript:
-        pass
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def number_of_transcripts(self) -> int:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def iter_genes(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def iter_gene_ids(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_gene(self, gene_id: str) -> Gene:
-        pass
+        raise NotImplementedError
 
     @property
     @abstractmethod
     def number_of_genes(self) -> int:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def to_gvpkl(self, index_filename: str):
         """
         Save current GeneView object to GVPKL.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def standardize(
@@ -132,14 +132,14 @@ class GeneViewType:
         normalize its starting and ending position to its span length.
         2. Same things to be done for gene.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_iterator(self) -> Iterator[FeatureType]:
         """
         Get iterator for Gene-Transcript-Exon Three-Tier Structure.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def transcript_sort_exons(
@@ -150,25 +150,25 @@ class GeneViewType:
         """
         Re-index and sort exons of a transcript
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def to_file(self, output_filename: str):
         """
         Write GeneView to corresponding file.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def del_gene(self, gene_id: str):
         """
         Remove a gene.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def del_exon(self, transcript_id: str, exon_number: int):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def del_transcript(self, transcript_id: str, auto_remove_empty_gene: bool = True):
@@ -176,14 +176,14 @@ class GeneViewType:
         Remove a transcript.
         If this is the last transcript of a gene, the gene will be removed as well.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def add_gene(self, gene: Gene):
         """
         Register a new gene.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def duplicate_transcript(self, transcript_id: str) -> str:
@@ -192,28 +192,28 @@ class GeneViewType:
 
         :return: New transcript ID.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def add_transcript(self, transcript: Transcript, fast: bool = False):
         """
         Register a new transcript. Will register corresponding gene if not exist.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def add_exon(self, exon: Exon, fast: bool = False):
         """
         Register a new exon. Will register corresponding gene or transcript if not exist.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self) -> int:
         """
         Get number of records inside.
         """
-        pass
+        raise NotImplementedError
 
 
 class BaseGeneView(GeneViewType, ABC):

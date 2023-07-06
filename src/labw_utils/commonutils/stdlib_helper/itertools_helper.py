@@ -123,3 +123,23 @@ def window(
                 curr_list.append(padding)
         yield tuple(curr_list)
         return
+
+
+def head(it: Iterable[_VarType], n: int = 10) -> Iterable[_InType]:
+    i = 0
+    for item in it:
+        i += 1
+        if i == n:
+            return
+        yield item
+
+
+def tail(it: Iterable[_VarType], n: int = 10) -> Iterable[_InType]:
+    retl = []
+    for item in it:
+        if len(retl) < n:
+            retl.append(item)
+        else:
+            retl.pop(0)
+            retl.append(item)
+    return iter(retl)

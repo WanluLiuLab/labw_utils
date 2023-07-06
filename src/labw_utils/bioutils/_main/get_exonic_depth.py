@@ -28,7 +28,7 @@ except ImportError:
     except ImportError as e:
         raise UnmetDependenciesError("pysam") from e
 
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import merge_intervals
+from labw_utils.bioutils.algorithm.utils import merge_intervals
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
