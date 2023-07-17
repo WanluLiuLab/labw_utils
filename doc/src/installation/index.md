@@ -295,7 +295,7 @@ Following is a list of tested alternate Python implementations and versions usin
 
 | Implementation | Version | Python API | ALL                | DEFAULT            |
 |----------------|---------|------------|--------------------|--------------------|
-| CPython        | NA      | 3.6        | NOT TESTED         | FAIL               |
+| CPython        | NA      | 3.6        | NOT TESTED         | NOT TESTED         |
 | CPython        | 3.7.12  | 3.7        | PASS               | PASS               |
 | CPython        | 3.8.16  | 3.8        | PASS               | PASS               |
 | CPython        | 3.9.16  | 3.9        | PASS               | PASS               |
@@ -303,16 +303,16 @@ Following is a list of tested alternate Python implementations and versions usin
 | CPython        | 3.11.3  | 3.11       | UNMET DEPENDENCIES | PASS               |
 | CPython        | NA      | 3.12       | NOT TESTED         | NOT TESTED         |
 | PyPy           | NA      | 3.6        | NOT TESTED         | NOT TESTED         |
-| PyPy           | 7.3.7   | 3.7        | FAILED             | FAILED             |
+| PyPy           | 7.3.7   | 3.7        | PASS               | PASS               |
 | PyPy           | 7.3.11  | 3.8        | UNMET DEPENDENCIES | FAILED             |
 | PyPy           | NA      | 3.9        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
-| GraalPy        |         | 3.8        | NOT TESTED         | NOT TESTED         |
+| GraalPy        |         | 3.8        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
 
 Side-loaded acceleration techniques:
 
-| Implementation | Version | Python API | ALL                | DEFAULT            |
-|----------------|---------|------------|--------------------|--------------------|
-| Pyston         |         | 3.8        | NOT TESTED         | NOT TESTED         |
-| Pyjion         | 1.2.6   | 3.10       | FAILED             | FAILED             |
+| Implementation | Version | Python API | ALL   | DEFAULT |
+|----------------|---------|------------|-------|---------|
+| Pyston         | 2.3.4   | 3.8        | PASS  | PASS    |
+| Pyjion         | 1.2.6   | 3.10       | PASS  | FAILED  |
 
 Python API supported by [Jython](https://www.jython.org) and [IronPython](https://ironpython.net) is too low, so not assessed.
