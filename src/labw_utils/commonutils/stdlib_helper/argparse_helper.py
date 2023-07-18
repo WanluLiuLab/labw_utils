@@ -121,7 +121,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
                     default_prefix = f'Default: {action.default} '
         return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params
 
-    def _format_action(self, action):
+    def _format_action(self, action: argparse.Action):
         help_position = min(
             self._action_max_length + 2,
             self._max_help_position
@@ -168,3 +168,95 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
 
         formatter.add_text(self.epilog)
         return formatter.format_help()
+
+    def to_markdown(self) -> str:
+
+        class State:
+            current_indent = 0
+            current_buff = ""
+
+        s = State()
+
+        def append(line: str):
+            if line is None:
+                line = ""
+            s.current_buff += " " * (s.current_indent * 4)
+            s.current_buff += line.strip()
+            s.current_buff += "\n"
+
+        def indent():
+            s.current_indent += 1
+
+        def dedent():
+            if s.current_indent > 0:
+                s.current_indent -= 1
+
+        def bold(instr: str) -> str:
+            return "**" + instr.replace("*", "\\*") + "**"
+
+        def italic(instr: str) -> str:
+            return "*" + instr.replace("*", "\\*") + "*"
+
+
+        def code(instr: str) -> str:
+            assert "`" not in instr
+            return "`" + instr + "`"
+
+        append(self.description)
+        append("")
+        formatter = _EnhancedHelpFormatter(prog=self.prog)
+        formatter._width = 10240  # Now you're long enough
+        usage = bold("SYNOPSIS:") + " " + code(formatter._format_usage(
+            usage=self.usage,
+            actions=self._actions,
+            groups=self._mutually_exclusive_groups,
+            prefix="",
+        ).strip())
+        append(usage)
+        append("")
+
+        for action_group in self._action_groups:
+            if not action_group._group_actions:
+                continue
+            append(bold(_ACTION_GROUP_TILE_REPLACEMENT_DICT.get(action_group.title, action_group.title) + ":"))
+            append("")
+
+            for action in action_group._group_actions:
+                ah = action.help if action.help is not None else "NO HELP"
+
+                required_str = italic("[REQUIRED]") if action.required else italic("[OPTIONAL]")
+                if not action.option_strings:
+                    append("- " + code(action.dest) + " " + required_str + ": " + ah)
+                else:
+                    append("- " + ", ".join(map(code, action.option_strings)) + " " + required_str + ": " + ah)
+
+                indent()
+                append("")
+                if not hasattr(action.type, "__name__"):
+                    dtype_prefix = ""
+                else:
+                    dtype_prefix = bold("Type:") + " " + code(action.type.__name__)  # type: ignore
+                append(dtype_prefix)
+
+                append("")
+                default_prefix = ""
+                if action.default is not argparse.SUPPRESS:
+                    defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
+                    if action.option_strings or action.nargs in defaulting_nargs:
+                        default_prefix = bold("Default:") + " " + code(repr(action.default))
+                append(default_prefix)
+
+                append("")
+                if action.choices is not None:
+                    append(bold("Choices:"))
+                    append("")
+                    for c in action.choices:
+                        append("- " + code(repr(c)))
+
+                dedent()
+
+            append("")
+
+        append(self.epilog)
+        append("")
+        return s.current_buff

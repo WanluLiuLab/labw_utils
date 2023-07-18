@@ -118,10 +118,10 @@ def generate_cli_docs(
     for main_module in config_toml["names"]:
         for subcommand in libfrontend.get_subcommands(main_module):
             parser = libfrontend.get_argparser_from_subcommand(main_module, subcommand)
-            this_help_path = os.path.join(dest_dir_path, f"{main_module}.{subcommand}.txt")
+            this_help_path = os.path.join(dest_dir_path, f"{main_module}.{subcommand}.md")
             if parser is not None:
                 with open(this_help_path, "w") as writer:
-                    writer.write(parser.format_help())
+                    writer.write(parser.to_markdown())
                 arg_parsers[main_module].append(subcommand)
             else:
                 doc = libfrontend.get_doc_from_subcommand(main_module, subcommand)
@@ -140,5 +140,5 @@ def generate_cli_docs(
             for subcommand in subcommands:
                 index_writer.write(f"### `{subcommand}`\n\n")
                 index_writer.write(
-                    "```{literalinclude} " + f"{main_module}.{subcommand}.txt" + "\n:language: text\n```\n\n"
+                    "```{include} " + f"{main_module}.{subcommand}.md" + "\n```\n\n"
                 )
