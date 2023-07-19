@@ -127,6 +127,8 @@ Namespace(e=<SampleEnum.A: 1>)
 .. versionchanged:: 1.0.3
     Support of enumns added.
 
+    .. warning:: Highly experimental!
+
 .. todo:: Markdown support.
 """
 
@@ -171,6 +173,8 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             req_opt_prefix = "[OPTIONAL] "
         if not hasattr(action.type, "__name__"):
             dtype_prefix = ""
+        elif isinstance(action.type, type):
+            dtype_prefix = "Type: " + action.type.__name__ + "; "  # type: ignore
         elif isinstance(action.type, Callable):
             reta = inspect.signature(action.type).return_annotation
             dtype_prefix = "Type: " + str(reta) + "; "  # type: ignore

@@ -215,7 +215,7 @@ def _parse_args(
 
 def _format_help_info(prefix: str, package_main_name: str) -> str:
     return f"""
-This is frontend of `{package_main_name.split('.')[0].strip()}` provided by `commonutils.libfrontend`.
+This is frontend of `{package_main_name.split('.')[0].strip()}` provided by `{__name__}`.
 
 SYNOPSYS: {prefix} [[SUBCOMMAND] [ARGS_OF SUBCOMMAND] ...] [-h|--help] [-v|--version]
 

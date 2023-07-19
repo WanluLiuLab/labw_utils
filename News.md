@@ -10,5 +10,6 @@ Initial released version is [`1.0.2`](https://pypi.org/project/labw-utils/1.0.2/
 
 - `1.0.3`:
   - Documentation enhancements for `labw_utils.PackageSpecs`.
-  - Miscellaneous bug fixes.
   - A command-line interface added to `labw_utils.commonutils`
+  - Enum support added to `labw_utils.commonutils.stdlib_helper.argparse_helper`.
+  - Miscellaneous bug fixes.
