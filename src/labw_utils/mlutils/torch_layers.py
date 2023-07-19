@@ -1,5 +1,7 @@
 """
-labw_utils.mlutils.torch_layers -- Additional pyTorch layers.
+``labw_utils.mlutils.torch_layers`` -- Simple pyTorch layers.
+
+.. versionadded:: 1.0.2
 """
 
 from labw_utils import UnmetDependenciesError
@@ -24,6 +26,10 @@ class Describe(torch.nn.Module):
     The Describe Layer of PyTorch Module.
 
     Prints the description of matrix generated from last layer and pass the matrix without modification.
+
+    .. seealso :: :py:func:`labw_utils.mlutils.ndarray_helper.describe`.
+
+    .. versionadded:: 1.0.2
     """
 
     def __init__(self, prefix: str = ""):
@@ -31,14 +37,12 @@ class Describe(torch.nn.Module):
         The initializer
 
         :param prefix: Prefix of the printed message. Recommended to be the name of previous layer.
-
-        .. seealso :: :py:func:`labw_utils.mlutils.ndarray_helper.describe`.
         """
         super().__init__()
         self._prefix = prefix
         self._lh = get_logger(__name__)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """"""
+        """Forward propogation that does nothing except from emitting a log."""
         self._lh.debug(self._prefix + describe(x))
         return x

@@ -1,5 +1,5 @@
 """
-labw_utils.mlutils.io_helper -- Compressed serialization formats.
+``labw_utils.mlutils.io_helper`` -- Compressed serialization formats.
 
 Here provides compressed readers and writers for Numpy and serialization formats,
 which can significantly reduce disk size.
@@ -11,7 +11,9 @@ The compression algorithm would be Lempel-Ziv Markov Chain Algorithm (LZMA) vers
 
 .. warning::
     Since Python's standard LZMA implementation is single-threaded,
-    it might be extremely slow to compress large objects!
+    it might be extremely slow when compressing large objects!
+
+.. versionadded:: 1.0.0
 
 .. versionchanged:: 1.0.1
     Serialization of Torch :py:class:`torch.Tensor` was removed as it is compressed natively.
@@ -32,12 +34,20 @@ import numpy.typing as npt
 
 
 def read_np_xz(path: str) -> npt.NDArray:
-    """Reader of compressed Numpy serialization format"""
+    """
+    Reader of compressed Numpy serialization format
+    
+    .. versionadded:: 1.0.0
+    """
     with lzma.open(path, "rb") as reader:
         return npy_format.read_array(reader)
 
 
 def write_np_xz(array: npt.NDArray, path: str) -> None:
-    """Writer of compressed Numpy serialization format"""
+    """
+    Writer of compressed Numpy serialization format
+    
+    .. versionadded:: 1.0.0
+    """
     with lzma.open(path, "wb", preset=9) as writer:
         npy_format.write_array(writer, np.asanyarray(array))
