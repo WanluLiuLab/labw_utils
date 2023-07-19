@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/explore/assess_interval_engine/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/explore/assess_interval_engine/test" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src_pending" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/ZeppelinRemoteNotebooks" />
       <excludeFolder url="file://$MODULE_DIR$/doc/_apidoc" />
       <excludeFolder url="file://$MODULE_DIR$/doc/_build" />

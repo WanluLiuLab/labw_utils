@@ -1,5 +1,7 @@
 """
 This module copies :py:func:`pkgutil.resolve_name` (3.10 implementation) for Python >= 3.7, < 3.9
+
+.. versionadded:: 1.0.2
 """
 
 import importlib
