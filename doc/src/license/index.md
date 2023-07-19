@@ -1,5 +1,6 @@
-# Licenses used by Third-Party Software that is Used in YASIM
+# License
 
+Here contains licenses used by thirdparty projects whose code was imported into labw-utils.
 
 ```{toctree}
 :caption: 'Contents:'

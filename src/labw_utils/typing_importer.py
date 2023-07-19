@@ -19,6 +19,7 @@ import os
 import typing
 
 if os.getenv("SPHINX_BUILD") is not None:
+    # Prevent Sphinx from building Python's internal docs
     __all__ = (
         "SequenceProxy",
         "MappingProxy",

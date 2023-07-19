@@ -8,6 +8,9 @@ Import of this module may raise following errors & warnings:
 
 - :py:obj:`RuntimeError`: If Python version lower than or equal to 3.6.
 - :py:obj:`UserWarning`: If Python version is 3.7.
+
+.. versionadded:: 1.0.2
+    Initial release.
 """
 
 from __future__ import annotations
@@ -115,6 +118,8 @@ class PackageSpecs:
     Used in :py:class:`UnmetDependenciesError`.
 
     Current recognized optional dependencies:
+
+    .. versionadded:: 1.0.0
     """
     _deps: Dict[str, PackageSpec] = {}
 
@@ -274,12 +279,3 @@ class UnmetDependenciesError(RuntimeError):
     def package_name(self) -> str:
         """Name of the missing package"""
         return self._package_name
-
-# Optimizers
-
-try:
-    import pyjion
-
-    pyjion.enable()
-except ImportError:
-    pyjion = None

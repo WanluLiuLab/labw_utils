@@ -26,7 +26,7 @@ apidoc:
 
 .PHONY: preconfigure
 preconfigure: src
-	python preconfigure.py
+	python3 preconfigure.py
 
 .PHONY: src
 src:
