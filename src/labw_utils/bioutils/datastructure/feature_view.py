@@ -1,5 +1,7 @@
 """
-gtf_view -- Ordered list of GTF records.
+``labw_utils.bioutils.datastructure.feature_view`` -- Ordered list of GTF records.
+
+.. versionadded:: 1.0.2
 """
 from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import Feature
@@ -11,9 +13,18 @@ from labw_utils.typing_importer import SequenceProxy
 
 
 FVPKL_VERSION = "1.0.0"
+"""
+TODO: docs
 
+.. versionadded:: 1.0.2
+"""
 
 class FeatureView(Iterable[Feature]):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     _l: List[Feature]
 
     def __init__(

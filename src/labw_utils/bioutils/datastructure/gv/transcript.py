@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 import bisect
@@ -20,10 +25,20 @@ _lh = get_logger(__name__)
 
 
 class ExonInATranscriptOnDifferentChromosomeError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 class ExonInATranscriptOnDifferentStrandError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
@@ -33,6 +48,8 @@ class Transcript(
 ):
     """
     Transcript is a list of exons, always sorted.
+
+    .. versionadded:: 1.0.2
     """
 
     __slots__ = [

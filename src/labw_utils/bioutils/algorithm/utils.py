@@ -1,5 +1,7 @@
 """
-Utilities that may be helpful.
+``labw_utils.bioutils.algorithm.utils`` -- Utilities that may be helpful.
+
+ .. versionadded:: 1.0.2
 """
 from __future__ import annotations
 
@@ -16,6 +18,8 @@ def euclid_distance(d1: CoordinateType, d2: CoordinateType) -> float:
 
     >>> euclid_distance((0, 0), (3, 4))
     5.0
+
+     .. versionadded:: 1.0.2
     """
     return math.sqrt((d1[0] - d2[0]) ** 2 + (d1[1] - d2[1]) ** 2)
 
@@ -26,6 +30,8 @@ def manhattan_distance(d1: CoordinateType, d2: CoordinateType) -> float:
 
     >>> manhattan_distance((0, 0), (3, 4))
     7
+
+     .. versionadded:: 1.0.2
     """
     return abs(d1[0] - d2[0]) + abs(d1[1] - d2[1])
 
@@ -33,6 +39,8 @@ def manhattan_distance(d1: CoordinateType, d2: CoordinateType) -> float:
 def merge_intervals(arr: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     """
     See: <https://www.geeksforgeeks.org/merging-intervals/>
+
+     .. versionadded:: 1.0.2
     """
     # Sorting based on the increasing order
     # of the start intervals

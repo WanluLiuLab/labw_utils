@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 import os
@@ -17,6 +22,11 @@ def transcribe(
         show_tqdm: bool = True,
         write_single_transcript: bool = True
 ):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     intermediate_fasta_dir = ""
     if write_single_transcript:
         intermediate_fasta_dir = dst_fasta_path + ".d"

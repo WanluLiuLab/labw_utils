@@ -1,5 +1,7 @@
 """
-gene_view_proy -- GTF/GFF3/BED Record Proxy for Features in GeneView without Data Loss
+TODO: docs
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -30,6 +32,8 @@ _OutType = TypeVar("_OutType")
 class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
     """
     Base class of Feature Proxy.
+
+    .. versionadded:: 1.0.2
     """
 
     def update(
@@ -211,6 +215,11 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
 
 
 def update_gene_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     gene_id = data.attribute_get("gene_id")
     if gene_id is None:
         gene_id = generate_unknown_gene_id()
@@ -226,6 +235,11 @@ def update_gene_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:
 
 
 def update_transcript_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     transcript_id = data.attribute_get("transcript_id")
     if transcript_id is None:
         transcript_id = generate_unknown_transcript_id()

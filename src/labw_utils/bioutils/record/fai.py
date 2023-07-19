@@ -1,7 +1,9 @@
 """
-labw_utils.bioutils.record.fai -- Record of Fasta Index (``*.fai``)
+``labw_utils.bioutils.record.fai`` -- Record of Fasta Index (``*.fai``)
 
 This data structure wraps one FAI record.
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -20,6 +22,8 @@ class FastaIndexRecordParserError(ValueError):
 
     1. the FAI record have incorrect number of fields.
     2. the FAI record contains non-integer in integer fields.
+
+    .. versionadded:: 1.0.2
     """
 
     def __init__(self, reason: str):
@@ -30,6 +34,8 @@ class FastaIndexRecordParserError(ValueError):
 class FastaIndexRecord:
     """
     An entry from ``.fai`` files
+
+    .. versionadded:: 1.0.2
     """
 
     _name: str

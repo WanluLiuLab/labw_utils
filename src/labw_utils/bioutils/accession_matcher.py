@@ -1,5 +1,5 @@
 """
-accession_matcher -- Describe accession information.
+``labw_utils.bioutils.accession_matcher`` -- Describe accession information.
 
 This module can identify accession information from its name.
 You can see source database and other related information, if possible.
@@ -58,6 +58,10 @@ NCBI RefSeq, with {'TYPE': 'Chromosome in Reference Assembly', 'VERSION': None}
              'VERSION': '1'},
  'toplevel': 'Analysis Set Placed Scaffold'}
 
+.. warning::
+    Is not finished.
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -70,7 +74,7 @@ __all__ = (
 import re
 from abc import abstractmethod, ABC
 
-from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.devutils.decorators import create_class_init_doc_from_property, supress_inherited_doc
 from labw_utils.typing_importer import Union, Optional, Type, Final, Any, Callable, Mapping, Iterable, List
 
 
@@ -78,6 +82,8 @@ from labw_utils.typing_importer import Union, Optional, Type, Final, Any, Callab
 class AccessionMatchResult:
     """
     Accession match result.
+
+    .. versionadded:: 1.0.2
     """
     _toplevel: str
     _details: Mapping[str, AccessionMatchResult]
@@ -113,14 +119,35 @@ class AccessionMatchResult:
 
 
 class AccessionMatcherRuleType(ABC):
+    """
+    Abstract rules.
+
+    .. versionadded:: 1.0.2
+    """
 
     @abstractmethod
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
+        """
+        To be overridden by developers.
+        """
         raise NotImplementedError
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class ChainAccessionMatcherRuleType(AccessionMatcherRuleType):
+    """
+    A rule matcher that would try all rules in pre-defined order and report result of the first match.
+
+    .. versionadded:: 1.0.2
+    """
     _rule_chain: List[Type[AccessionMatcherRuleType]]
+
+    def __init__(self):
+        """
+        :raises TypeError: If ``_rule_chain`` class variable was not set.
+        """
+        if getattr(self, "_rule_chain", None) is None:
+            raise TypeError
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
         for rule in self._rule_chain:
@@ -130,7 +157,12 @@ class ChainAccessionMatcherRuleType(AccessionMatcherRuleType):
         return None
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class MasterEnsembleIDMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _regex = re.compile(r"^ENS([A-Z_]+)?(G|T|E|P|R|FM|GT)\d+(\.\d+)?$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -161,7 +193,12 @@ class MasterEnsembleIDMatcher(AccessionMatcherRuleType):
         return AccessionMatchResult("Ensemble ID", details_dict)
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class NCBIRefSeqMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _regex_dict = {
         "Protein-Coding Transcript": re.compile(r"^NM_\d+(\.\d+)?$"),
         "Non-Protein-Coding Transcript": re.compile(r"^NR_\d+(\.\d+)?$"),
@@ -198,7 +235,12 @@ class NCBIRefSeqMatcher(AccessionMatcherRuleType):
         return None
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class AnalysisSetChromosomeHLA(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _regex = re.compile(r"^HLA-(.+)$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -215,9 +257,12 @@ class AnalysisSetChromosomeHLA(AccessionMatcherRuleType):
         )
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class NCBIGenBankAccessionMatchingEngine:
     """
     TODO: add protein support
+
+    .. versionadded:: 1.0.2
     """
     _regex_dict: Optional[Mapping[re.Pattern, Callable[[str], Mapping[str, Any]]]]
 
@@ -592,7 +637,13 @@ class NCBIGenBankAccessionMatchingEngine:
 ncbi_genbank_accession_matching_engine = NCBIGenBankAccessionMatchingEngine()
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class NCBIGenBankAccessionMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
+
     def __init__(self):
         self._regex_dict = ncbi_genbank_accession_matching_engine.regex_dict
 
@@ -605,7 +656,12 @@ class NCBIGenBankAccessionMatcher(AccessionMatcherRuleType):
                 )
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class AnalysisSetChromosomePlacedGenbankMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _regex = re.compile(r"^chr(\d+|X|Y|M)_(.+)v(\d+)?(_alt|_random|_fix)?$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -630,7 +686,12 @@ class AnalysisSetChromosomePlacedGenbankMatcher(AccessionMatcherRuleType):
         )
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class AnalysisSetChromosomeUnplacedGenbankMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _regex = re.compile(r"^chrUn_(.+)v(\d+)(_decoy)?$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -650,7 +711,12 @@ class AnalysisSetChromosomeUnplacedGenbankMatcher(AccessionMatcherRuleType):
         )
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class AnalysisSetChromosomeMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _regex = re.compile(r"^chr(\d+|X|Y|M|EBV)$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -672,7 +738,12 @@ class AnalysisSetChromosomeMatcher(AccessionMatcherRuleType):
         )
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class AnalysisSetContigMatcher(ChainAccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _rule_chain: Final[list[AccessionMatcherRuleType]] = [
         AnalysisSetChromosomeMatcher,
         AnalysisSetChromosomeUnplacedGenbankMatcher,
@@ -681,7 +752,12 @@ class AnalysisSetContigMatcher(ChainAccessionMatcherRuleType):
     ]
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class IntegerMatcher(AccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _int_regex = re.compile(r"^\d+$")
     _roman_int_regex = re.compile(r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$")
 
@@ -695,7 +771,12 @@ class IntegerMatcher(AccessionMatcherRuleType):
         return None
 
 
+@supress_inherited_doc(modify_overwritten=True)
 class MasterAccessionMatcher(ChainAccessionMatcherRuleType):
+    """
+
+    .. versionadded:: 1.0.2
+    """
     _rule_chain: Final[list[AccessionMatcherRuleType]] = [
         MasterEnsembleIDMatcher,
         NCBIRefSeqMatcher,
@@ -709,6 +790,8 @@ def infer_accession_type(accession: str) -> Optional[AccessionMatchResult]:
     """
     :param accession: Input accession.
     :return: Identified information. :py:obj:`None` if failed.
+
+    .. versionadded:: 1.0.2
     """
     mam = MasterAccessionMatcher()
     return mam.match(accession)

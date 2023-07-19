@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.feature import FeatureInterface, DEFAULT_GTF_QUOTE_OPTIONS
 from labw_utils.bioutils.record.gtf import parse_record, format_string
@@ -7,6 +12,11 @@ from labw_utils.typing_importer import Iterable, Iterator
 
 
 class GtfIterator(BaseFileIterator, Iterable[FeatureInterface]):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: str = "GTF"
     record_type = FeatureInterface
 
@@ -18,6 +28,11 @@ class GtfIterator(BaseFileIterator, Iterable[FeatureInterface]):
 
 
 class GtfIteratorWriter(BaseIteratorWriter):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: str = "GTF"
     record_type = FeatureInterface
 

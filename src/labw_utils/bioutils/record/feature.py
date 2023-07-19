@@ -1,7 +1,9 @@
 """
-labw_utils.bioutils.record.feature -- General-Purposed GTF/GFF3/BED Record that Represents a Genomic Feature
+``labw_utils.bioutils.record.feature`` -- General-Purposed GTF/GFF3/BED Record that Represents a Genomic Feature
 
 This module includes GTF/GFF3/BED record datastructure and their one-line parsers.
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -17,16 +19,24 @@ from labw_utils.typing_importer import Union, Optional, Mapping, List, Type, Typ
 from labw_utils.typing_importer import SequenceProxy
 
 
-lh = get_logger(__name__)
+_lh = get_logger(__name__)
 
 GtfAttributeValueType = Union[
     str, int, float, bool, None,
     List[str], List[int], List[float], List[bool], List[None]
 ]
-"""Type of GTF/GFF attributes"""
+"""
+Type of GTF/GFF attributes
+
+.. versionadded:: 1.0.2
+"""
 
 GtfAttributeType = Mapping[str, GtfAttributeValueType]
-"""Type of GTF/GFF fields"""
+"""
+Type of GTF/GFF fields
+
+.. versionadded:: 1.0.2
+"""
 
 VALID_GTF_QUOTE_OPTIONS = (
     "none",
@@ -41,20 +51,33 @@ Valid GTF Quoting Options. They are:
 * ``blank``: Quote if blanks (\\r, \\n, \\t, space, etc.) found inside.
 * ``string``: Quote if the field have type string. Will not quote for numeric types.
 * ``all``: Quote all fields.
+
+.. versionadded:: 1.0.2
 """
 
 DEFAULT_GTF_QUOTE_OPTIONS = "all"
+"""
+.. versionadded:: 1.0.2
+"""
 
 _OutType = TypeVar("_OutType")
 
 
 class NotSet:
-    """Not set indicator"""
+    """
+    Not set indicator
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 notset = NotSet()
-"""Not set indicator"""
+"""
+Not set indicator
+
+.. versionadded:: 1.0.2
+"""
 
 
 def feature_repr(v: GtfAttributeValueType) -> str:
@@ -75,6 +98,8 @@ def feature_repr(v: GtfAttributeValueType) -> str:
     Traceback (most recent call last):
         ...
     TypeError: <class 'list'> is not supported!
+
+    .. versionadded:: 1.0.2
     """
     if v is None:
         attr_str = "."
@@ -88,7 +113,11 @@ def feature_repr(v: GtfAttributeValueType) -> str:
 
 
 def strand_repr(strand: Optional[bool]) -> str:
-    """Convert strand in bool to strand in str."""
+    """
+    Convert strand in bool to strand in str.
+
+    .. versionadded:: 1.0.2
+    """
     if strand is None:
         return "."
     if strand:
@@ -99,6 +128,8 @@ def strand_repr(strand: Optional[bool]) -> str:
 class FeatureParserError(ValueError):
     """
     General feature parsing errors.
+
+    .. versionadded:: 1.0.2
     """
     pass
 
@@ -109,6 +140,8 @@ class RegionError(FeatureParserError):
 
     1. ``start`` less than 1
     2. ``end`` less than ``start``
+
+    .. versionadded:: 1.0.2
     """
 
     def __init__(self, *args):
@@ -118,6 +151,8 @@ class RegionError(FeatureParserError):
 class FeatureType(enum.IntEnum):
     """
     Type of genomic feature.
+
+    .. versionadded:: 1.0.2
     """
 
     NOT_PRESENT = -1
@@ -160,6 +195,8 @@ _raw_feature_type_translator = {
 class BiologicalIntervalInterface(ABC):
     """
     Interface representing biological intervals.
+
+    .. versionadded:: 1.0.2
     """
 
     @property
@@ -235,6 +272,11 @@ class BiologicalIntervalInterface(ABC):
 
 @total_ordering
 class FeatureInterface(BiologicalIntervalInterface):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @property
     @abstractmethod
@@ -396,6 +438,8 @@ class Feature(FeatureInterface):
 
     .. warning::
         Ensembl uses different way to represent 5'UTR.
+
+    .. versionadded:: 1.0.2
     """
 
     __slots__ = (

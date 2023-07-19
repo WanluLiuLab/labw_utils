@@ -110,7 +110,7 @@ def supress_inherited_doc(
     >>> print(A.f.__doc__)
     Woa
     >>> print(B.f.__doc__)
-    Inherited from :py:mod:`decorators.A.f`
+    Inherited from :py:mod:`labw_utils.devutils.decorators.A.f`
     >>> print(C.f.__doc__)
     Woa
     >>> print(D.f.__doc__)
@@ -118,7 +118,7 @@ def supress_inherited_doc(
     >>> print(E.f.__doc__)
     Woee
     >>> print(F.f.__doc__)
-    Inherited from :py:mod:`decorators.A.f`
+    Inherited from :py:mod:`labw_utils.devutils.decorators.A.f`
 
     :param force: Proceed even if not in Sphinx build environment.
     :param modify_overwritten: Proceed even if this method was overewritten.
@@ -133,9 +133,9 @@ def supress_inherited_doc(
         Usage on other member types (e.g., constants of arbitrary type) not tested.
     """
 
-    def empty_function():
-        def f():
-            ...
+    def empty_function(orig_func:Callable):
+        def f(*args, **kwargs):
+            return orig_func(*args, **kwargs)
 
         return f
 
@@ -145,9 +145,9 @@ def supress_inherited_doc(
             def _perform(require_del: bool):
                 old_member = getattr(obj, member_name)
                 if inspect.isfunction(old_member) or inspect.ismethod(old_member):
-                    _new_attr = empty_function()
+                    _new_attr = empty_function(old_member)
                 elif isinstance(old_member, property):
-                    _new_attr = property()
+                    _new_attr = property() # FIXME: Function loss!
                 else:
                     _new_attr = type(old_member.__class__.__name__, (object, ), {})()  # FIXME: Add unit tests.
                 if require_del:
@@ -161,7 +161,13 @@ def supress_inherited_doc(
             mro_name_member: Mapping[str: List[str]] = {}
             mro_name_object: Mapping[str: str] = {}
             for mro in obj.__mro__[1:]:  # Exclude myself
-                mro_fullname = ".".join((getattr(inspect.getmodule(mro), "__name__", ""), getattr(mro, "__name__", "")))
+                mro_mod = inspect.getmodule(mro)
+                if mro_mod is None:
+                    raise TypeError
+                mro_fullname = ".".join((
+                    mro_mod.__name__,  # FIXME: bugs! Not fully qualified name!
+                    getattr(mro, "__name__", "")
+                ))
                 mro_name_member[mro_fullname] = set()
                 mro_name_object[mro_fullname] = mro
                 for member_name in dir(mro):
@@ -184,6 +190,34 @@ def supress_inherited_doc(
         def real_decorator(obj: _InType) -> _InType:
             return obj
     return real_decorator
+
+
+def doc_del_attr(
+        attr_names: List[str],
+        force: bool = False,
+):
+    """
+    Delete attribute from object.
+
+    :param force: Proceed even if not in Sphinx build environment.
+    :param attr_names: Attributes to be removed.
+    :return: The object with attributes deleted
+
+    .. versionadded:: 1.0.3
+    """
+    if os.getenv("SPHINX_BUILD") is not None or force:
+        def real_decorator(obj: _InType) -> _InType:
+            for attr_name in attr_names:
+                try:
+                    delattr(obj, attr_name)
+                except AttributeError:
+                    pass  # TODO: Inherited not overwritten
+            return obj
+    else:
+        def real_decorator(obj: _InType) -> _InType:
+            return obj
+    return real_decorator
+
 
 
 def chronolog(display_time: bool = False, log_error: bool = False):

@@ -1,5 +1,5 @@
 """
-fasta_view.py -- General FASTA reader
+``labw_utils.bioutils.datastructure.fasta_view`` -- General FASTA reader
 
 Can provide random access to FASTA files, compressed or non-compressed.
 
@@ -12,6 +12,8 @@ while others require Block GZipped ones.
 
 .. warning::
     This module uses 0-based ``[)`` indexing!
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -49,29 +51,59 @@ FASTA_SPLIT_SEQNAME_OPTIONS = (
 
 
 class FastaViewError(ValueError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 class DuplicatedChromosomeNameError(FastaViewError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, name: str):
         super().__init__(f"Chromosome name {name} duplicated")
 
 
 class FastaViewInvalidRegionError(FastaViewError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 class SeekTooFarError(FastaViewInvalidRegionError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, chromosome: str, pos: int, chr_len: int):
         super().__init__(f"Seek {pos}@{chromosome} too far, valid is -1, [0, {chr_len})")
 
 
 class ChromosomeNotFoundError(FastaViewInvalidRegionError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, chromosome: str):
         super().__init__(f"Requested chromosome '{chromosome}' not found")
 
 
 class FromGreaterThanToError(FastaViewInvalidRegionError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, from_pos: int, to_pos: int):
         super().__init__(f"Requested from_pos {from_pos} > to_pos {to_pos} not allowed!")
 
@@ -79,6 +111,8 @@ class FromGreaterThanToError(FastaViewInvalidRegionError):
 class FastaViewType:
     """
     Abstract class of factories.
+
+    .. versionadded:: 1.0.2
     """
     filename: str
     """
@@ -278,6 +312,8 @@ class _MemoryAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequences are read into memory.
     Extremely fast but need lots of memory. Suitable for small files.
+
+    .. versionadded:: 1.0.2
     """
 
     _all_dict: Dict[str, str]
@@ -326,6 +362,8 @@ class _DiskAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequence is NOT read into memory.
     Slow but memory-efficient.
+
+    .. versionadded:: 1.0.2
     """
 
     _fd: IO
@@ -419,6 +457,8 @@ def FastaViewFactory(
     :param full_header: Whether to read full headers.
     :param read_into_memory: Whether to read into memory.
     :param show_tqdm: Whether to display a progress bar.
+
+    .. versionadded:: 1.0.2
     """
     if read_into_memory is None:
         read_into_memory = wc_c(filename) > 10 * 1024 * 1024
@@ -446,6 +486,8 @@ def split_fasta(  # TODO: Add to commandline params
 
     :param fav: Source FASTA view.
     :param out_dir_path: Output directory.
+
+    .. versionadded:: 1.0.2
     """
     out_dir_path = fav.filename + ".d" if out_dir_path is None else out_dir_path
     os.makedirs(out_dir_path, exist_ok=True)

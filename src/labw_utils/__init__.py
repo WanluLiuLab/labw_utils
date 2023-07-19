@@ -10,7 +10,6 @@ Import of this module may raise following errors & warnings:
 - :py:obj:`UserWarning`: If Python version is 3.7.
 
 .. versionadded:: 1.0.2
-    Initial release.
 """
 
 from __future__ import annotations

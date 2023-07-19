@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
@@ -12,6 +17,11 @@ _lh = get_logger(__name__)
 
 
 class Exon(BaseFeatureProxy, CanTranscribeInterface):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     __slots__ = (
         "_cdna",
         "_transcript_id"

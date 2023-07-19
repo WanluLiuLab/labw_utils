@@ -1,3 +1,9 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
+
 __all__ = (
     "FastqIterator",
     "FastqWriter"
@@ -11,6 +17,12 @@ from labw_utils.typing_importer import Iterator, Final, Iterable
 
 
 class FastqIterator(BaseFileIterator, Iterable[FastqRecord]):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
+
     filetype: Final[str] = "FASTQ"
 
     def __init__(self, filename: str, show_tqdm: bool = True):
@@ -30,6 +42,12 @@ class FastqIterator(BaseFileIterator, Iterable[FastqRecord]):
 
 
 class FastqWriter(BaseIteratorWriter):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
+
     filetype: Final[str] = "FASTQ"
 
     @staticmethod

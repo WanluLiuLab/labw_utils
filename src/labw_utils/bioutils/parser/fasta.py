@@ -1,3 +1,9 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
+
 __all__ = (
     "FastaIterator",
     "extract_fasta_name",
@@ -12,6 +18,11 @@ from labw_utils.typing_importer import Iterable, Final, Iterator
 
 
 def extract_fasta_name(line: str, full_header: bool) -> str:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     if full_header:
         return line[1:].strip()
     else:
@@ -19,6 +30,11 @@ def extract_fasta_name(line: str, full_header: bool) -> str:
 
 
 class FastaIterator(BaseFileIterator, Iterable[FastaRecord]):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: Final[str] = "FASTA"
     _full_header: bool
 
@@ -69,6 +85,11 @@ class FastaIterator(BaseFileIterator, Iterable[FastaRecord]):
 
 
 class FastaWriter(BaseIteratorWriter):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: Final[str] = "FASTA"
 
     def __init__(

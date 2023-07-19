@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 from labw_utils import UnmetDependenciesError
@@ -28,6 +33,8 @@ class NumpyIntervalEngine:
     Store data in an NDArray with schema:
 
     [[s, e], [s, e], [s, e,], ...]
+
+    .. versionadded:: 1.0.2
     """
     _chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]
 

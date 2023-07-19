@@ -180,6 +180,8 @@ def lscmd(
         if doc.find("--") != -1:
             doc = doc.split("--")[1].strip()
         name_doc_dict[item] = doc
+    sys.stderr.flush()
+    sys.stdout.flush()
     for item, doc in name_doc_dict.items():  # To prevent logger from polluting outout
         print(f"{item} -- {doc}")
     sys.exit(0)

@@ -1,5 +1,7 @@
 """
-fastq.py -- An In-Memory Fastq Record.
+``labw_utils.bioutils.record.fastq`` -- An In-Memory Fastq Record.
+
+.. versionadded:: 1.0.2
 
 Construct from 4 lines:
 
@@ -43,20 +45,38 @@ __all__ = (
     "FastqRecord"
 )
 
-from labw_utils.devutils.decorators import create_class_init_doc_from_property
+from labw_utils.devutils.decorators import create_class_init_doc_from_property, doc_del_attr
 from labw_utils.typing_importer import List
 
 
+@doc_del_attr(["__init__"])
 class FastqRecordParserError(ValueError):
+    """
+    Generic Fastq parsing error.
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
+@doc_del_attr(["__init__"])
 class MisFormattedFastqRecordError(FastqRecordParserError):
+    """
+    .. versionadded:: 1.0.2
+    """
+
     def __init__(self, reason: str):
         super().__init__(reason)
 
 
+@doc_del_attr(["__init__"])
 class SequenceQualityLengthMismatchError(FastqRecordParserError):
+    """
+    Error raised when sequence length and quality mismatches.
+
+    .. versionadded:: 1.0.2
+    """
+
     def __init__(self, seq_id: str, sequence: str, quality: str):
         super().__init__(
             f"Illegal FASTQ record '{seq_id}': sequence '{sequence}' and quality '{quality}' length not equal."
@@ -67,6 +87,7 @@ class SequenceQualityLengthMismatchError(FastqRecordParserError):
     text_after="""
 
 :raises SequenceQualityLengthMismatchError: On illegal record.
+.. versionadded:: 1.0.2
 """
 )
 class FastqRecord:

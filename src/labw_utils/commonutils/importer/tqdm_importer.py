@@ -1,10 +1,24 @@
 """
-tqdm_importer.py -- Import `tqdm` without messing up stderr
+``labw_utils.commonutils.importer.tqdm_importer`` -- Import ``tqdm`` without messing up stderr
 
-This module imports `tqdm`, the progress bar implementation on Python.
+This module imports `tqdm <https://tqdm.github.io/>`_, the progress bar implementation in Python.
 
 If import is failed or stderr is not a Pseudo Terminal,
 will use a home-made fallback which is more silent.
+
+Supports :envvar:`TQDM_IMPL` environment variable to override the defaults.
+
+List of environment variables:
+
+.. envvar:: TQDM_IMPL
+
+Allowed values:
+
+- ``EXTERNAL``: To use official ``tqdm``.
+- ``SILENT``: Use internal one.
+- others: Auto decide.
+
+.. versionadded:: 1.0.2
 """
 import os
 import sys
@@ -25,8 +39,8 @@ if os.getenv("SPHINX_BUILD") is None:
         _external_tqdm = None
         _lh.warning("Import official tqdm failed! will use builtin instead")
 else:
+    # Force use internal when building docs
     _external_tqdm = None
-    _lh.warning("Sphinx environment detected!")
 
 if os.getenv("TQDM_IMPL") == "EXTERNAL":
     pass

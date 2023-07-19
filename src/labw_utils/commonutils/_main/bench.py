@@ -1,4 +1,9 @@
-"""Not finished -- do not use"""
+"""
+Benchmark Python interpreter.
+
+.. warning::
+    Not finished -- do not use
+"""
 import concurrent.futures
 import functools
 import gc
@@ -87,7 +92,7 @@ def sqrt_babylonian(n: float, precision: float):
     return x
 
 
-if __name__ == "__main__":
+def main(_):
     with profile.Profile() as pf:
         print("init")
         t1 = time.time_ns()

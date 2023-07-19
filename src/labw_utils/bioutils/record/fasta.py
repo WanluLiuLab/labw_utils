@@ -1,5 +1,7 @@
 """
-labw_utils.bioutils.record.fasta -- An In-Memory Fasta Record
+``labw_utils.bioutils.record.fasta`` -- An In-Memory Fasta Record
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -13,6 +15,8 @@ from labw_utils.devutils.decorators import create_class_init_doc_from_property
 class FastaRecord:
     """
     A naive in-memory FASTQ record.
+
+    .. versionadded:: 1.0.2
     """
 
     __slots__ = (

@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -8,11 +13,21 @@ from labw_utils.typing_importer import Sequence
 
 
 class DuplicatedTranscriptIDError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, transcript_id: str):
         super().__init__(f"Transcript ID {transcript_id} duplicated")
 
 
 class TranscriptContainerInterface:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @property
     @abstractmethod

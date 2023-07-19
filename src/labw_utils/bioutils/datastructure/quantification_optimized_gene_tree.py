@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 from labw_utils.bioutils.datastructure.region_indexer import NumpyIntervalEngine
@@ -6,6 +11,11 @@ from labw_utils.typing_importer import Iterable, List, Tuple, Optional
 
 
 class QuantificationOptimizedGeneTree:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     _feature_ids: List[str]
     _feature_boundary: NumpyIntervalEngine
     _chromosome_names: List[str]

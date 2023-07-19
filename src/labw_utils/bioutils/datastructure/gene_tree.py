@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 import itertools
@@ -33,10 +38,16 @@ Changes:
 
 - 1.1: Added gc() and multiple transcribe_* alternative to Transcript.
 
+.. versionadded:: 1.0.2
 """
 
 
 class DuplicatedGeneIDError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, gene_id: str):
         super().__init__(f"Gene ID {gene_id} duplicated")
 
@@ -46,6 +57,11 @@ class GeneTreeInterface(
     TranscriptContainerInterface,
     CanCheckInterface
 ):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @abstractmethod
     def add_exon(self, exon: Exon) -> GeneTreeInterface:
@@ -97,6 +113,11 @@ class GeneTreeInterface(
 
 
 class BaseGeneTree(GeneTreeInterface, ABC):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @classmethod
     def from_gvpkl(
@@ -141,6 +162,11 @@ class BaseGeneTree(GeneTreeInterface, ABC):
 
 
 class GeneTree(BaseGeneTree):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     __slots__ = (
         "_gene_id_to_gene_index",
         "_transcript_ids_to_gene_ids_index",
@@ -451,6 +477,11 @@ class GeneTree(BaseGeneTree):
 
 
 class DiploidGeneTree(BaseGeneTree):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     _chr_gt_idx: Dict[str, GeneTreeInterface]
 
     def __init__(

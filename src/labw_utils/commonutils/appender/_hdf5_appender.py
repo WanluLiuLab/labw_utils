@@ -22,6 +22,7 @@ from labw_utils.commonutils.appender._base_pandas_dict_table_appender import Bas
 
 
 class HDF5TableAppender(BasePandasDictBufferAppender):
+    """Append to HDF5 format. Requires PyTables and Pandas."""
 
     def _get_real_filename_hook(self) -> str:
         return ".".join((self.filename, "hdf5"))

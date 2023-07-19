@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 import bisect
@@ -17,6 +22,11 @@ from labw_utils.typing_importer import SequenceProxy
 
 
 class TranscriptInAGeneOnDifferentChromosomeError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, transcript: Transcript, gene_seqname: str):
         super().__init__(
             f"{transcript}: "
@@ -26,6 +36,11 @@ class TranscriptInAGeneOnDifferentChromosomeError(GVPError):
 
 
 class TranscriptInAGeneOnDifferentStrandError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, transcript: Transcript, gene_strand: Optional[bool]):
         super().__init__(
             f"{transcript}: "
@@ -35,6 +50,11 @@ class TranscriptInAGeneOnDifferentStrandError(GVPError):
 
 
 class Gene(BaseFeatureProxy, TranscriptContainerInterface):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     __slots__ = (
         "_transcripts",
         "_transcript_ids",
@@ -205,6 +225,11 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
 # TODO: How to find rootkit
 
 class DumbGene(Gene):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     def __init__(
             self,

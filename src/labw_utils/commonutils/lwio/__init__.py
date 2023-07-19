@@ -1,12 +1,21 @@
 """
-lwio -- Enhanced Python IO Functions/Classes
+``labw_utils.commonutils.lwio`` -- Enhanced Python IO Functions/Classes
+
+.. warning:
+    This module is not finished.
+
+.. warning:
+    This module is a complete piece of sh*t. Avoid using it.
 
 This module includes some enhanced IO functions,
 like IO that automatically creates missing intermediate directories or IO with progress bar.
 
 It also supports Python standard archive types like ``bz2``, ``gzip`` or ``lzma``
 like is implemented in :py:mod:`fileinput` module.
+
+.. versionadded:: 1.0.2
 """
+# TODO: Fix docs
 
 from __future__ import annotations
 
