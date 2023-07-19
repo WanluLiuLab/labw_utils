@@ -1,5 +1,10 @@
 """
-myst_nb_helper -- Helpers of Sphinx documentation system
+``labw_utils.devutils.myst_nb_helper`` -- Helpers of Sphinx documentation system
+
+TODO: This module is largely unfinished.
+
+.. warning::
+    UNSTABLE -- SUBJECT TO CHANGE!
 """
 
 __all__ = (

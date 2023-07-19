@@ -1,5 +1,7 @@
 """
-labw_utils.devutils.decorators -- Decorators for miscellaneous features.
+``labw_utils.devutils.decorators`` -- Decorators for miscellaneous features.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -16,7 +18,7 @@ import types
 import uuid
 
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name
-from labw_utils.typing_importer import Any, TypeVar, Callable
+from labw_utils.typing_importer import Any, List, Mapping, TypeVar, Callable
 
 _InType = TypeVar("_InType")
 
@@ -56,6 +58,8 @@ def copy_doc(source: Any) -> Callable:
     ...         self._A.foo()
     >>> AProxy.foo.__doc__
     'Woa'
+
+    .. versionadded:: 1.0.2
     """
     if isinstance(source, str):
         source = resolve_name(source)
@@ -67,20 +71,119 @@ def copy_doc(source: Any) -> Callable:
     return wrapper
 
 
-def supress_inherited_doc(obj):
-    if os.getenv("SPHINX_BUILD") is not None:
-        mro_defined = {"__init__"}
-        for mro in obj.__mro__:
-            for mro_attr in dir(mro):
-                if not mro_attr.startswith("_"):
-                    mro_defined.add(mro_attr)
-        for inside_obj_name in dir(obj):
-            if inside_obj_name in mro_defined:
-                try:
-                    delattr(obj, inside_obj_name)
-                except (AttributeError, TypeError):
-                    pass
-    return obj
+def supress_inherited_doc(
+        force: bool = False,
+        modify_overwritten: bool = False
+):
+    """
+    Stripping inhereited documentations from an object.
+
+    >>> class A:
+    ...     def f(self):
+    ...         \"\"\"Woa\"\"\"
+    ...         ...
+    ...
+    >>> @supress_inherited_doc(force=True)
+    ... class B(A):
+    ...     ...
+    ...
+    >>> class C(A):
+    ...     ...
+    ...
+    >>> class D(A):
+    ...     def f(self):
+    ...         \"\"\"Woee\"\"\"
+    ...         ...
+    ...
+    >>> @supress_inherited_doc(force=True, modify_overwritten=False)
+    ... class E(A):
+    ...     def f(self):
+    ...         \"\"\"Woee\"\"\"
+    ...         ...
+    ...
+    >>> @supress_inherited_doc(force=True, modify_overwritten=True)
+    ... class F(A):
+    ...     def f(self):
+    ...         \"\"\"Woee\"\"\"
+    ...         ...
+    ...
+    >>> print(A.f.__doc__)
+    Woa
+    >>> print(B.f.__doc__)
+    Inherited from :py:mod:`decorators.A.f`
+    >>> print(C.f.__doc__)
+    Woa
+    >>> print(D.f.__doc__)
+    Woee
+    >>> print(E.f.__doc__)
+    Woee
+    >>> print(F.f.__doc__)
+    Inherited from :py:mod:`decorators.A.f`
+
+    :param force: Proceed even if not in Sphinx build environment.
+    :param modify_overwritten: Proceed even if this method was overewritten.
+    :return: The object without stripped documentation.
+
+    .. versionadded:: 1.0.0
+    .. versionchanged:: 1.0.2
+        The decorator becomes parameterized.
+    .. warning::
+        This method is well-tested. Use with care!
+        Currently it works with methods and :py:class:`builtin,property` objects.
+        Usage on other member types (e.g., constants of arbitrary type) not tested.
+    """
+
+    def empty_function():
+        def f():
+            ...
+
+        return f
+
+    if os.getenv("SPHINX_BUILD") is not None or force:
+        def real_decorator(obj: _InType) -> _InType:
+
+            def _perform(require_del: bool):
+                old_member = getattr(obj, member_name)
+                if inspect.isfunction(old_member) or inspect.ismethod(old_member):
+                    _new_attr = empty_function()
+                elif isinstance(old_member, property):
+                    _new_attr = property()
+                else:
+                    _new_attr = type(old_member.__class__.__name__, (object, ), {})()  # FIXME: Add unit tests.
+                if require_del:
+                    delattr(obj, member_name)
+                setattr(obj, member_name, _new_attr)
+                setattr(
+                    getattr(obj, member_name),
+                    "__doc__", f"Inherited from :py:mod:`{mro_fullname}.{member_name}`"
+                )
+
+            mro_name_member: Mapping[str: List[str]] = {}
+            mro_name_object: Mapping[str: str] = {}
+            for mro in obj.__mro__[1:]:  # Exclude myself
+                mro_fullname = ".".join((getattr(inspect.getmodule(mro), "__name__", ""), getattr(mro, "__name__", "")))
+                mro_name_member[mro_fullname] = set()
+                mro_name_object[mro_fullname] = mro
+                for member_name in dir(mro):
+                    if not member_name.startswith("_"):
+                        mro_name_member[mro_fullname].add(member_name)
+            obj_dir = filter(lambda x: not x.startswith("_"), dir(obj))
+            for member_name in obj_dir:
+                for mro_fullname, mro_member_names in mro_name_member.items():
+                    mro = mro_name_object[mro_fullname]
+                    if member_name in mro_member_names:
+                        if getattr(obj, member_name) is not getattr(mro, member_name):
+                            # Overwritten
+                            if modify_overwritten:
+                                _perform(require_del=True)
+                        else:
+                            _perform(require_del=False)
+                        break
+            return obj
+    else:
+        def real_decorator(obj: _InType) -> _InType:
+            return obj
+    return real_decorator
 
 
 def chronolog(display_time: bool = False, log_error: bool = False):
@@ -97,6 +200,8 @@ def chronolog(display_time: bool = False, log_error: bool = False):
 
     :param display_time: Whether to display calling time, arguments and return value in log level.
     :param log_error: Whether add error captured
+
+    .. versionadded:: 1.0.2
     """
 
     def msg_decorator(f: types.FunctionType) -> Callable:
@@ -186,6 +291,8 @@ def create_class_init_doc_from_property(
     ...         ...
     >>> print(TestInitDoc.__init__.__doc__)
     <BLANKLINE>
+
+    .. versionadded:: 1.0.2
     """
 
     def inner_dec(cls: _InType) -> _InType:
