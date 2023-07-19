@@ -1,8 +1,10 @@
 """
-alignment.py -- Python-Implemented Alignment Algorithms
+``labw_utils.bioutils.algorithm.alignment`` -- Python-Implemented Alignment Algorithms
 
 Some Python-Implemented alignment functions, including Smith-Waterman,
 with other utilities like edit distance
+
+.. versionadded:: 1.0.2
 """
 
 import functools
@@ -23,6 +25,11 @@ from labw_utils.commonutils.lwio.safe_io import get_reader
 
 
 class SubstMatrix:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     _real_mtx: Dict[str, Dict[str, int]]
 
     def __init__(self, real_mtx: Dict[str, Dict[str, int]]):
@@ -63,11 +70,21 @@ _SUBST_MTX_PATHS = {
 
 
 def get_subst_mtx_names() -> Iterable[str]:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     return iter(_SUBST_MTX_PATHS.keys())
 
 
 @functools.lru_cache()
 def get_subst_mtx(mtx_name: str) -> SubstMatrix:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     return SubstMatrix.parse(_SUBST_MTX_PATHS[mtx_name])
 
 
@@ -87,6 +104,8 @@ class SmithWatermanAligner:
     '>aln:seq1:qual:seq2:10\\n-JHBGTYBY-T-J-AA\\nI=DD=D=DDI=I=I==\\nYJ--G-Y--JTVJYAA'
     >>> SmithWatermanAligner('TATATATGCGGGTAATTTAGGGCGGATCATGA', 'ATGCGGC').get_backtrack()[0]
     '>aln:seq1:qual:seq2:30\\nTATATATGCGGGTAATTTAGGGCGGATCATGA\\nD==DDDD====MDDDDDDDDDDDDDDDDDDDD\\n-AT----GCGGC--------------------'
+
+    .. versionadded:: 1.0.2
     """
 
     seq1: str
@@ -302,6 +321,8 @@ def hamming_distance(str1: str, str2: str) -> int:
 
     >>> hamming_distance("AAAA", "AATA")
     1
+
+    .. versionadded:: 1.0.2
     """
     if len(str1) != len(str2):
         raise ValueError(f"Length of input string 1={str1}, 2={str2} is not equal.")
@@ -326,6 +347,8 @@ def editing_distance(str1: str, str2: str) -> int:
     0
     >>> editing_distance("", "A")
     1
+
+    .. versionadded:: 1.0.2
     """
     l1 = len(str1)
     l2 = len(str2)

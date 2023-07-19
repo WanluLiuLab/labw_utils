@@ -1,6 +1,6 @@
 from labw_utils import __version__
 from labw_utils.commonutils.libfrontend import setup_frontend
-from labw_utils.bioutils import __doc__ as doc
+from labw_utils.commonutils import __doc__ as doc
 
 if __name__ == '__main__':
     setup_frontend(

@@ -1,3 +1,9 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
+
 __all__ = (
     "FastaIndexParserError",
     "DuplicatedFastaNameError",
@@ -16,15 +22,30 @@ from labw_utils.typing_importer import Iterator, Iterable, Final, List
 
 
 class FastaIndexParserError(ValueError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 class DuplicatedFastaNameError(FastaIndexParserError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, name: str):
         super().__init__(f"FAI seqname {name} had occurred more than once")
 
 
 class FastaIndexNotWritableError(FastaIndexParserError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, name: str):
         super().__init__(
             f"FAI seqname '{name}' is valid in-memory not valid on disk\n"
@@ -33,6 +54,11 @@ class FastaIndexNotWritableError(FastaIndexParserError):
 
 
 class FAIBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord]):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: Final[str] = "FAI (FAI based)"
 
     def __init__(self, filename: str, show_tqdm: bool = True):
@@ -54,6 +80,11 @@ class FAIBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord]):
 
 
 class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord]):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: Final[str] = "FAI (FASTA based)"
     _full_header: bool
     _name: str
@@ -125,6 +156,11 @@ class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord])
 
 
 class FastaIndexWriter(BaseIteratorWriter):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     filetype: Final[str] = "FAI"
 
     def __init__(self, filename: str, **kwargs):

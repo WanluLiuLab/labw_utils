@@ -1,7 +1,9 @@
 """
-parser -- Basic bioinformatics database parsers
+``labw_utils.bioutils.parser`` -- Basic bioinformatics database parsers
 
 Here contains codes of parsers for basic bioinformatics databases
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -62,6 +64,8 @@ class _BaseFileIO(ABC):
 class BaseFileIterator(_BaseFileIO, Iterable[_RecordType]):
     """
     Iterate something from a file.
+
+    .. versionadded:: 1.0.2
     """
 
     @abstractmethod
@@ -75,6 +79,9 @@ class BaseFileIterator(_BaseFileIO, Iterable[_RecordType]):
 
 
 class BaseIteratorWriter(_BaseFileIO, Generic[_RecordType]):
+    """
+    .. versionadded:: 1.0.2
+    """
 
     @staticmethod
     @abstractmethod

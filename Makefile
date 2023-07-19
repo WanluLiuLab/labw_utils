@@ -43,7 +43,7 @@ serve-doc:
 
 .PHONY: test
 test:
-	sh -c "PYTHONPATH=$(CURDIR)/src:$(CURDIR)/test pytest ."
+	pytest .
 
 .PHONY: pytype
 pytype:

@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 import itertools
@@ -5,7 +10,7 @@ from abc import abstractmethod, ABC
 from collections import defaultdict
 
 from labw_utils.bioutils.datastructure.feature_view import FeatureView
-from labw_utils.bioutils.datastructure.gv import GVPError, SortedContainerInterface, CanCheckInterface
+from labw_utils.bioutils.datastructure.gv import GVPError, CanCheckInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.datastructure.gv.gene import Gene, DumbGene
@@ -18,15 +23,31 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, SequenceProxy, Optional, Mapping, Literal
+from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, Optional, Mapping, Literal
+
+from labw_utils.typing_importer import SequenceProxy
+
 
 _lh = get_logger(__name__)
 
-GVPKL_VERSION = "1.0"
-"""Current version of GVPKL standard."""
+GVPKL_VERSION = "1.1"
+"""
+Current version of GVPKL standard.
+
+Changes:
+
+- 1.1: Added gc() and multiple transcribe_* alternative to Transcript.
+
+.. versionadded:: 1.0.2
+"""
 
 
 class DuplicatedGeneIDError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, gene_id: str):
         super().__init__(f"Gene ID {gene_id} duplicated")
 
@@ -34,9 +55,13 @@ class DuplicatedGeneIDError(GVPError):
 class GeneTreeInterface(
     GeneContainerInterface,
     TranscriptContainerInterface,
-    SortedContainerInterface,
     CanCheckInterface
 ):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @abstractmethod
     def add_exon(self, exon: Exon) -> GeneTreeInterface:
@@ -56,7 +81,6 @@ class GeneTreeInterface(
             cls,
             feature_iterator: Iterable[Feature],
             shortcut: bool = False,
-            keep_sorted: bool = False,
             is_checked: bool = False,
             show_tqdm: bool = True,
             gene_implementation: Literal[Gene, DumbGene] = Gene
@@ -68,7 +92,6 @@ class GeneTreeInterface(
     def from_gtf_file(
             cls,
             gtf_file_path: str,
-            keep_sorted: bool = False,
             show_tqdm: bool = True,
             is_checked: bool = False
     ) -> GeneTreeInterface:
@@ -84,8 +107,17 @@ class GeneTreeInterface(
     def to_gvpkl(self, gtf_index_file_path: str):
         raise NotImplementedError
 
+    @abstractmethod
+    def gc(self):
+        raise NotImplementedError
+
 
 class BaseGeneTree(GeneTreeInterface, ABC):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @classmethod
     def from_gvpkl(
@@ -105,7 +137,6 @@ class BaseGeneTree(GeneTreeInterface, ABC):
     def from_gtf_file(
             cls,
             gtf_file_path: str,
-            keep_sorted: bool = False,
             is_checked: bool = False,
             show_tqdm: bool = True,
             gene_implementation: Literal[Gene, DumbGene] = Gene
@@ -118,7 +149,6 @@ class BaseGeneTree(GeneTreeInterface, ABC):
                 pass
         new_instance = cls.from_feature_iterator(
             FeatureView.from_gtf(gtf_file_path, show_tqdm=show_tqdm),
-            keep_sorted=keep_sorted,
             is_checked=is_checked,
             gene_implementation=gene_implementation,
             show_tqdm=show_tqdm
@@ -126,8 +156,17 @@ class BaseGeneTree(GeneTreeInterface, ABC):
         new_instance.to_gvpkl(gtf_index_file_path)
         return new_instance
 
+    def gc(self):
+        for gene in self.gene_values:
+            gene.gc()
+
 
 class GeneTree(BaseGeneTree):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     __slots__ = (
         "_gene_id_to_gene_index",
         "_transcript_ids_to_gene_ids_index",
@@ -170,13 +209,11 @@ class GeneTree(BaseGeneTree):
     def __init__(
             self,
             *,
-            keep_sorted: bool,
             is_checked: bool,
             shortcut: bool,
             gene_id_to_gene_index: Mapping[str, Gene],
             transcript_ids_to_gene_ids_index: Mapping[str, str]
     ):
-        self._is_sorted = keep_sorted
         self._is_checked = is_checked
         if not shortcut:
             self._gene_id_to_gene_index = dict(gene_id_to_gene_index)
@@ -201,7 +238,6 @@ class GeneTree(BaseGeneTree):
         for transcript_id in gene.transcript_ids:
             new_transcript_ids_to_gene_ids_index[transcript_id] = gene.gene_id
         return GeneTree(
-            keep_sorted=self._is_sorted,
             is_checked=self._is_checked,
             shortcut=True,
             gene_id_to_gene_index=new_gene_id_to_gene_index,
@@ -215,7 +251,6 @@ class GeneTree(BaseGeneTree):
             k: v for k, v in self._transcript_ids_to_gene_ids_index.items() if v != gene_id
         }
         return GeneTree(
-            keep_sorted=self._is_sorted,
             is_checked=self._is_checked,
             shortcut=True,
             gene_id_to_gene_index=new_gene_id_to_gene_index,
@@ -243,7 +278,6 @@ class GeneTree(BaseGeneTree):
                     data=transcript.get_data(),
                     is_checked=self._is_checked,
                     is_inferred=True,
-                    keep_sorted=self._is_sorted,
                     shortcut=False,
                     transcripts=[],
                     transcript_ids=[]
@@ -274,7 +308,6 @@ class GeneTree(BaseGeneTree):
                     exons=[],
                     is_inferred=True,
                     is_checked=self._is_checked,
-                    keep_sorted=self._is_sorted,
                     shortcut=False
                 )
             ).add_exon(exon)
@@ -294,7 +327,6 @@ class GeneTree(BaseGeneTree):
     def from_feature_iterator(
             cls,
             feature_iterator: Iterable[Feature],
-            keep_sorted: bool = False,
             shortcut: bool = False,
             is_checked: bool = False,
             show_tqdm: bool = True,
@@ -318,7 +350,6 @@ class GeneTree(BaseGeneTree):
                 exons=[],
                 is_checked=is_checked,
                 is_inferred=False,
-                keep_sorted=keep_sorted,
                 shortcut=False
             ) for feature in
             filter(
@@ -333,7 +364,6 @@ class GeneTree(BaseGeneTree):
                 transcript_ids=[],
                 is_checked=is_checked,
                 is_inferred=False,
-                keep_sorted=keep_sorted,
                 shortcut=False
             ) for feature in
             filter(
@@ -369,7 +399,6 @@ class GeneTree(BaseGeneTree):
                     exons=[],
                     is_checked=is_checked,
                     is_inferred=True,
-                    keep_sorted=keep_sorted,
                     shortcut=False
                 )
                 initially_added_transcripts.append(new_transcript)
@@ -418,7 +447,6 @@ class GeneTree(BaseGeneTree):
                     transcript_ids=[],
                     is_checked=is_checked,
                     is_inferred=True,
-                    keep_sorted=keep_sorted,
                     shortcut=False
                 )
                 initially_added_genes.append(new_gene)
@@ -444,23 +472,25 @@ class GeneTree(BaseGeneTree):
                 for transcript in finalized_transcripts
             },
             shortcut=True,
-            is_checked=is_checked,
-            keep_sorted=keep_sorted
+            is_checked=is_checked
         )
 
 
 class DiploidGeneTree(BaseGeneTree):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     _chr_gt_idx: Dict[str, GeneTreeInterface]
 
     def __init__(
             self,
             *,
-            keep_sorted: bool,
             is_checked: bool,
             shortcut: bool,
             chr_gt_idx: Mapping[str, GeneTreeInterface]
     ):
-        self._is_sorted = keep_sorted
         self._is_checked = is_checked
         if not shortcut:
             self._chr_gt_idx = dict(chr_gt_idx)
@@ -473,7 +503,6 @@ class DiploidGeneTree(BaseGeneTree):
                 gene_id_to_gene_index={},
                 transcript_ids_to_gene_ids_index={},
                 shortcut=True,
-                keep_sorted=self.is_sorted,
                 is_checked=self.is_checked
             )
         return self._chr_gt_idx[feature.seqname]
@@ -496,7 +525,6 @@ class DiploidGeneTree(BaseGeneTree):
             cls,
             feature_iterator: Iterable[FeatureInterface],
             shortcut: bool = False,
-            keep_sorted: bool = False,
             is_checked: bool = False,
             show_tqdm: bool = True,
             gene_implementation: Literal[Gene, DumbGene] = Gene
@@ -517,14 +545,12 @@ class DiploidGeneTree(BaseGeneTree):
             chr_gt_idx[k] = GeneTree.from_feature_iterator(
                 v,
                 shortcut=True,
-                keep_sorted=keep_sorted,
                 is_checked=is_checked,
                 gene_implementation=gene_implementation,
                 show_tqdm=False
             )
         return cls(
             chr_gt_idx=chr_gt_idx,
-            keep_sorted=keep_sorted,
             is_checked=is_checked,
             shortcut=True
         )

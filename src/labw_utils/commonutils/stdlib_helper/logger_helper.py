@@ -1,10 +1,12 @@
 """
-labw_utils.stdlib_helper.logger_helper -- Additional logging facilities.
+``labw_utils.stdlib_helper.logger_helper`` -- Additional logging facilities.
 
 It performs the following:
 
 - Addition of a ``TRACE`` level, which is ``8`` and less than ``DEBUG``.
 - An easy-to-use logger setup facility.
+
+.. versionadded:: 1.0.2
 """
 
 import logging
@@ -25,7 +27,11 @@ __all__ = (
 )
 
 TRACE = 8
-"""New logging level"""
+"""
+New logging level
+
+.. versionadded:: 1.0.2
+"""
 
 
 def trace(self, msg, *args, **kwargs):
@@ -50,6 +56,8 @@ def get_formatter(level: Union[int, str]) -> logging.Formatter:
       - ``%(asctime)s\t[%(levelname)s] %(message)s`` if level is larger than debug.
       - ``%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s`` otherwise.
     :raises ValueError: If level does not exist.
+
+    .. versionadded:: 1.0.2
     """
     if isinstance(level, str):
         level = logging.getLevelName(level)
@@ -87,6 +95,8 @@ def get_logger(
       one from ``log_stderr_level``.
     :return: The logger handler.
     :raises ValueError: If level does not exist.
+    
+    .. versionadded:: 1.0.2
     """
     if name is None:
         return logging.getLogger()

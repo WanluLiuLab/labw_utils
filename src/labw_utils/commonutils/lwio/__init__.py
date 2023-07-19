@@ -1,12 +1,21 @@
 """
-lwio -- Enhanced Python IO Functions/Classes
+``labw_utils.commonutils.lwio`` -- Enhanced Python IO Functions/Classes
+
+.. warning:
+    This module is not finished.
+
+.. warning:
+    This module is a complete piece of sh*t. Avoid using it.
 
 This module includes some enhanced IO functions,
 like IO that automatically creates missing intermediate directories or IO with progress bar.
 
 It also supports Python standard archive types like ``bz2``, ``gzip`` or ``lzma``
 like is implemented in :py:mod:`fileinput` module.
+
+.. versionadded:: 1.0.2
 """
+# TODO: Fix docs
 
 from __future__ import annotations
 
@@ -685,7 +694,7 @@ class IOProxy(IO[AnyStr]):
             return
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class ReadOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
     """
     The read-only version of :py:class:`IOProxy`.
@@ -717,7 +726,7 @@ class ReadOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
         raise TypeError("Write operation on Read-Only IOProxy not supported!")
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class WriteOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
     """
     The write-only version of :py:class:`IOProxy`.
@@ -766,7 +775,7 @@ class WriteOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
         raise TypeError("Read operation on Write-Only IOProxy not supported!")
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class TextIOProxy(IOProxy[str]):
     """
     The text (string)-based version of :py:class:`IOProxy`.
@@ -782,7 +791,7 @@ class TextIOProxy(IOProxy[str]):
             raise TypeError(f"Type {type(fd)} is not TextIO!")
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class BinaryIOProxy(IOProxy[bytes]):
     """
     The binary (bytes)-based version of :py:class:`IOProxy`.
@@ -798,7 +807,7 @@ class BinaryIOProxy(IOProxy[bytes]):
             raise TypeError(f"Type {type(fd)} is not BinaryIO!")
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class ReadOnlyTextIOProxy(ReadOnlyIOProxy[str]):
 
     def __init__(self, fd: FDType):
@@ -829,7 +838,7 @@ class ReadOnlyTextIOProxy(ReadOnlyIOProxy[str]):
         return self._fd.__iter__()
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class ReadOnlyBinaryIOProxy(ReadOnlyIOProxy[bytes]):
 
     def __init__(self, fd: FDType):
@@ -860,7 +869,7 @@ class ReadOnlyBinaryIOProxy(ReadOnlyIOProxy[bytes]):
         return self._fd.__iter__()
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class WriteOnlyBinaryIOProxy(WriteOnlyIOProxy[bytes]):
 
     def __init__(self, fd: FDType):
@@ -879,7 +888,7 @@ class WriteOnlyBinaryIOProxy(WriteOnlyIOProxy[bytes]):
         self._fd.writelines(lines)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class WriteOnlyTextIOProxy(WriteOnlyIOProxy[str]):
 
     def __init__(self, fd: FDType):
@@ -898,7 +907,7 @@ class WriteOnlyTextIOProxy(WriteOnlyIOProxy[str]):
         self._fd.writelines(lines)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class ReadOnlyIOProxyWithTqdm(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
     """
     :py:class:`ReadOnlyIOProxy` with progress bar.
@@ -934,7 +943,7 @@ class ReadOnlyIOProxyWithTqdm(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
         return update_bytes_arr
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class ByLineReadOnlyIOProxy(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
     """
     :py:class:`ReadOnlyIOProxy` with different `__iter__` method.
@@ -970,7 +979,7 @@ class ByLineReadOnlyIOProxy(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
             yield line.rstrip(strip_content)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class ByLineReadOnlyIOProxyWithTqdm(ByLineReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
     """
     :py:class:`ByLineReadOnlyIOProxy` with progress bar.
@@ -1058,7 +1067,7 @@ class CompressedWriteOnlyIOProxy(WriteOnlyBinaryIOProxy):
             pass
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class DumbCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Pass-through dumb decompressor.
@@ -1069,7 +1078,7 @@ class DumbCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(fd, fd)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class DumbCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Pass-through dumb compressor.
@@ -1082,7 +1091,7 @@ class DumbCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
         return cls(fd, fd)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class GZipCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Read using :py:func:`gzip.open`.
@@ -1093,7 +1102,7 @@ class GZipCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(gzip.open(fd, "rb"), fd)  # type: ignore
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class GZipCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Write using :py:func:`gzip.open`.
@@ -1104,7 +1113,7 @@ class GZipCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
         return cls(gzip.open(fd, "wb", compresslevel=compression_level), fd)  # type: ignore
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class LZMACompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Read using :py:func:`lzma.open`.
@@ -1115,7 +1124,7 @@ class LZMACompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(lzma.open(fd, "rb"), fd)  # type: ignore
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class LZMACompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Write using :py:func:`lzma.open`.
@@ -1131,7 +1140,7 @@ class LZMACompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
         ), fd)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class XZCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Write using :py:func:`lzma.open`.
@@ -1147,7 +1156,7 @@ class XZCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
         ), fd)
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class BZ2CompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Read using :py:func:`bz2.open`.
@@ -1158,7 +1167,7 @@ class BZ2CompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(bz2.open(fd, "rb"), fd)  # type: ignore
 
 
-@supress_inherited_doc
+@supress_inherited_doc(modify_overwritten = True)
 class BZ2CompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Read using :py:func:`bz2.open`.

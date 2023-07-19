@@ -282,7 +282,6 @@ The `all` installation installs all above.
 
 ## Alternate Python Implementation and Low Python Versions
 
-
 Although using Python 3.8 is recommended, it is also possible to use most function of `labw_utils` on Python 3.7. You need to specify `--ignore-requires-python` flag in PIP.
 
 Known limitations are:
@@ -296,7 +295,7 @@ Following is a list of tested alternate Python implementations and versions usin
 
 | Implementation | Version | Python API | ALL                | DEFAULT            |
 |----------------|---------|------------|--------------------|--------------------|
-| CPython        | NA      | 3.6        | NOT TESTED         | FAIL               |
+| CPython        | NA      | 3.6        | NOT TESTED         | NOT TESTED         |
 | CPython        | 3.7.12  | 3.7        | PASS               | PASS               |
 | CPython        | 3.8.16  | 3.8        | PASS               | PASS               |
 | CPython        | 3.9.16  | 3.9        | PASS               | PASS               |
@@ -305,15 +304,15 @@ Following is a list of tested alternate Python implementations and versions usin
 | CPython        | NA      | 3.12       | NOT TESTED         | NOT TESTED         |
 | PyPy           | NA      | 3.6        | NOT TESTED         | NOT TESTED         |
 | PyPy           | 7.3.7   | 3.7        | PASS               | PASS               |
-| PyPy           | 7.3.11  | 3.8        | UNMET DEPENDENCIES | PASS               |
+| PyPy           | 7.3.11  | 3.8        | UNMET DEPENDENCIES | FAILED             |
 | PyPy           | NA      | 3.9        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
-| GraalPy        |         | 3.8        | NOT TESTED         | NOT TESTED         |
+| GraalPy        |         | 3.8        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
 
 Side-loaded acceleration techniques:
 
-| Implementation | Version | Python API | ALL                | DEFAULT            |
-|----------------|---------|------------|--------------------|--------------------|
-| Pyston         |         | 3.8        | NOT TESTED         | NOT TESTED         |
-| Pyjion         | 1.2.6   | 3.10       | PASS               | NOT TESTED         |
+| Implementation | Version | Python API | ALL   | DEFAULT |
+|----------------|---------|------------|-------|---------|
+| Pyston         | 2.3.4   | 3.8        | PASS  | PASS    |
+| Pyjion         | 1.2.6   | 3.10       | PASS  | FAILED  |
 
 Python API supported by [Jython](https://www.jython.org) and [IronPython](https://ironpython.net) is too low, so not assessed.

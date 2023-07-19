@@ -41,7 +41,7 @@ license-files = ["License.md", "Copying.md"]
 
 [tool.setuptools.dynamic]
 version = { attr = "labw_utils.__version__" }
-readme = { file = "Readme.md" }
+readme = { file = "Readme.md" , content-type = "text/markdown"}
 dependencies = { file = "requirements.txt" }
 
 [tool.setuptools.dynamic.optional-dependencies]
@@ -89,7 +89,7 @@ html_theme = 'furo'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
-    'sphinx.ext.intersphinx',
+#    'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     "sphinx.ext.viewcode",
     'myst_nb',

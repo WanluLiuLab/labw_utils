@@ -1,5 +1,7 @@
 """
-labw_utils.mlutils -- General-purposed machine- and deep-learning utilities.
+``labw_utils.mlutils`` -- General-purposed machine- and deep-learning utilities.
+
+.. versionadded:: 1.0.2
 """
 
 from labw_utils import UnmetDependenciesError

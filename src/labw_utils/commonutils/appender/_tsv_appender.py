@@ -2,6 +2,7 @@ from labw_utils.commonutils.appender._base_dict_buffer_appender import BaseDictB
 
 
 class TSVTableAppender(BaseDictBufferAppender):
+    """Append to TSV."""
 
     def _get_real_filename_hook(self) -> str:
         return ".".join((self.filename, "tsv"))

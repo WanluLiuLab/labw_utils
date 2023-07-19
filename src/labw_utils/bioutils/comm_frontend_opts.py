@@ -1,5 +1,7 @@
 """
-comm_frontend_opts.py -- Common-used frontend options.
+``labw_utils.bioutils.comm_frontend_opts`` -- Common-used frontend options.
+
+.. versionadded::1.0.2
 
 Existing argument parsers::
 

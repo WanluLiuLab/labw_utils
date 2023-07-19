@@ -1,5 +1,5 @@
 """
-_silent_tqdm.py -- A silent tqdm that does not pollutes stderr
+A silent tqdm that does not pollutes stderr
 """
 
 import sys
@@ -39,6 +39,8 @@ class tqdm(Iterable[_VarType]):
     ...        pbar.update(1)
     >>> out_list
     [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    .. versionadded:: 1.0.2
     """
     __slots__ = ('_iterable', '_total', '_desc', '_n', '_quarters')
 

@@ -1,9 +1,11 @@
 """
-labw_utils.stdlib_helper.tty_helper -- ANSI colors
+``labw_utils.stdlib_helper.tty_helper`` -- ANSI colors
 
 .. note ::
     Please make sure that the file descriptor you wish to apply is a Tele-TypeWriter (TTY)
     before applying ANSI colors! Convenient checking by :py:func:`os.isatty`.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -36,7 +38,11 @@ STANDARD_ANSI_OPERATORS = {
     "BG_WHITE": "\033[47m",
     "BG_DEFAULT": "\033[49m",
 }
-"""A subset of standard ANSI operations"""
+"""
+A subset of standard ANSI operations
+
+.. versionadded:: 1.0.2
+"""
 
 
 def get_ansi_rgb(r: int, g: int, b: int, is_fg: bool = True) -> str:
@@ -48,6 +54,8 @@ def get_ansi_rgb(r: int, g: int, b: int, is_fg: bool = True) -> str:
     :param b: Blue color, 0 to 255.
     :param is_fg: Whether it is frontend or backend.
     :return: Generated ANSI control sequence.
+
+    .. versionadded:: 1.0.2
     """
     if is_fg:
         return f"\x1b[38;2;{r};{g};{b}m"

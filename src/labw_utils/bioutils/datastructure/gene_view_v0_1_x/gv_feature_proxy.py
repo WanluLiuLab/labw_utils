@@ -11,6 +11,7 @@ import uuid
 from abc import abstractmethod
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
+from labw_utils.bioutils.algorithm.utils import merge_intervals
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_errors import _all as _gve_all
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord, Feature, FeatureType, \
@@ -20,7 +21,7 @@ from labw_utils.typing_importer import List, Callable, Optional, Iterable, Tuple
 __all__ = [
     'VALID_SORT_EXON_EXON_STRAND_POLICY',
     'DEFAULT_SORT_EXON_EXON_STRAND_POLICY',
-    'Exon', 'Transcript', 'Gene'
+    'Exon', 'Transcript', 'Gene', 'merge_intervals'
 ]
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -28,39 +29,6 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 __all__.extend(_gve_all)
 
 lh = get_logger(__name__)
-
-
-def merge_intervals(arr: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
-    """
-    See: <https://www.geeksforgeeks.org/merging-intervals/>
-    """
-    # Sorting based on the increasing order
-    # of the start intervals
-    if not arr:
-        return []
-    arr = list(list(it) for it in arr)
-    arr.sort(key=lambda x: x[0])
-
-    # Stores index of last element
-    # in output array (modified arr[])
-    index = 0
-
-    # Traverse all input Intervals starting from
-    # second interval
-    for i in range(1, len(arr)):
-
-        # If this is not first Interval and overlaps
-        # with the previous one, Merge previous and
-        # current Intervals
-        if arr[index][1] >= arr[i][0]:
-            arr[index][1] = max(arr[index][1], arr[i][1])
-        else:
-            index = index + 1
-            arr[index] = arr[i]
-    retl = []
-    for i in range(index + 1):
-        retl.append(arr[i])
-    return retl
 
 
 def unknown_transcript_id() -> str:
@@ -168,14 +136,14 @@ class BaseFeatureProxy(FeatureType):
         """
         This method prepares underlying method to set the record up for GTF
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def _setup_gff3(self) -> None:
         """
         This method prepares underlying method to set the record up for GFF3
         """
-        pass
+        raise NotImplementedError
 
     def _setup(self):
         """
@@ -237,7 +205,7 @@ class BaseFeatureProxy(FeatureType):
     @property
     @abstractmethod
     def transcribed_length(self):
-        pass
+        raise NotImplementedError
 
 
 class Exon(BaseFeatureProxy):

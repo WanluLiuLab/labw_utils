@@ -1,5 +1,7 @@
 """
-labw_utils.stdlib_helper.itertools_helper -- Some general-purposed functions on iterables.
+`labw_utils.stdlib_helper.itertools_helper` -- Some general-purposed functions on iterables.
+    
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -23,6 +25,8 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InTy
     This function will change the elements of ``in_iterable`` with the rules specified in ``trans_dict``.
 
     .. seealso :: :py:func:`list_translate`.
+
+    .. versionadded:: 1.0.2
     """
     trans_dict = dict(trans_dict)
     for old_item in in_iterable:
@@ -47,6 +51,8 @@ def dict_translate(in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InT
 
     :param in_dict: The input dictionary.
     :param trans_dict: The translator.
+
+    .. versionadded:: 1.0.2
     """
     trans_dict = dict(trans_dict)
     return {k: v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
@@ -67,6 +73,8 @@ def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]
     :param trans_dict: The translator.
     :type trans_dict: dict
     :return: Translated dictionary.
+
+    .. versionadded:: 1.0.2
     """
     return list(iterable_translate(iter(in_list), trans_dict))
 
@@ -99,6 +107,8 @@ def window(
     :param last_action: What to do on insufficient last element.
     :param padding: What to pad if ``last_action`` is ``"padd_*"``.
     :return: Iterable of windows.
+
+    .. versionadded:: 1.0.2
     """
     curr_list = []
     for item in it:
@@ -123,3 +133,33 @@ def window(
                 curr_list.append(padding)
         yield tuple(curr_list)
         return
+
+
+def head(it: Iterable[_VarType], n: int = 10) -> Iterable[_InType]:
+    """
+    Get the first ``n`` element of an iterable.
+
+    .. versionadded:: 1.0.2
+    """
+    i = 0
+    for item in it:
+        i += 1
+        if i == n:
+            return
+        yield item
+
+
+def tail(it: Iterable[_VarType], n: int = 10) -> Iterable[_InType]:
+    """
+    Get the last ``n`` element of an iterable.
+
+    .. versionadded:: 1.0.2
+    """
+    retl = []
+    for item in it:
+        if len(retl) < n:
+            retl.append(item)
+        else:
+            retl.pop(0)
+            retl.append(item)
+    return iter(retl)

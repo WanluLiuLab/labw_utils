@@ -4,6 +4,7 @@ from labw_utils.commonutils.appender._tsv_appender import TSVTableAppender
 
 
 class LZMATSVTableAppender(TSVTableAppender):
+    """Append to XZipped TSV."""
 
     def _get_real_filename_hook(self) -> str:
         return ".".join((self.filename, "tsv", "xz"))

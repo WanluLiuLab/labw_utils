@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+ .. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 __all__ = (
@@ -11,6 +16,11 @@ from labw_utils.typing_importer import Dict
 
 
 class FastaIndexView:
+    """
+    TODO: docs
+
+     .. versionadded:: 1.0.2
+    """
     _d: Dict[str, FastaIndexRecord]
     _full_header: bool
     _filename: str
@@ -67,6 +77,11 @@ def create_fai_from_fasta(
         full_header: bool = True,
         show_tqdm: bool = True
 ):
+    """
+    TODO: docs
+
+     .. versionadded:: 1.0.2
+    """
     FastaIndexView.from_fasta(
         filename=fasta_filename,
         full_header=full_header,

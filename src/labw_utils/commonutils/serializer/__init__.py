@@ -1,18 +1,27 @@
 """
-serializer -- Configuration serialization interfaces.
+``labw_utils.commonutils.serializer`` -- Configuration serialization interfaces.
+
+Is not finished -- do not use.
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import os
 
 from labw_utils.commonutils import lwio
 from labw_utils.typing_importer import Mapping
 from labw_utils.typing_importer import Optional, Any
 
-__all__ = (
-    "SerializableInterface",
-)
+# TODO: Finish this module
+if os.getenv("SPHINX_BUILD") is not None:
+    __all__ = []
+else:
+    __all__ = (
+        "SerializableInterface",
+    )
 
 
 class SerializableInterface(ABC):

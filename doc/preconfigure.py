@@ -3,6 +3,7 @@ import os
 import shutil
 
 from labw_utils.devutils import myst_nb_helper
+from labw_utils.typing_importer import List
 
 os.environ['SPHINX_BUILD'] = '1'  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -16,7 +17,7 @@ def scan_dir(path_to_scan: str):
     <https://www.sethserver.com/python/recursively-list-files.html>
     """
 
-    files = []
+    files: List[str] = []
     dirlist = [path_to_scan]
     while len(dirlist) > 0:
         for (dirpath, dirnames, filenames) in os.walk(dirlist.pop()):

@@ -1,5 +1,5 @@
 """
-fasta_view.py -- General FASTA reader
+``labw_utils.bioutils.datastructure.fasta_view`` -- General FASTA reader
 
 Can provide random access to FASTA files, compressed or non-compressed.
 
@@ -12,6 +12,8 @@ while others require Block GZipped ones.
 
 .. warning::
     This module uses 0-based ``[)`` indexing!
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -25,6 +27,7 @@ __all__ = (
     "split_fasta"
 )
 
+import functools
 import os
 from abc import abstractmethod, ABC
 
@@ -48,29 +51,59 @@ FASTA_SPLIT_SEQNAME_OPTIONS = (
 
 
 class FastaViewError(ValueError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 class DuplicatedChromosomeNameError(FastaViewError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, name: str):
         super().__init__(f"Chromosome name {name} duplicated")
 
 
 class FastaViewInvalidRegionError(FastaViewError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 class SeekTooFarError(FastaViewInvalidRegionError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, chromosome: str, pos: int, chr_len: int):
         super().__init__(f"Seek {pos}@{chromosome} too far, valid is -1, [0, {chr_len})")
 
 
 class ChromosomeNotFoundError(FastaViewInvalidRegionError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, chromosome: str):
         super().__init__(f"Requested chromosome '{chromosome}' not found")
 
 
 class FromGreaterThanToError(FastaViewInvalidRegionError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, from_pos: int, to_pos: int):
         super().__init__(f"Requested from_pos {from_pos} > to_pos {to_pos} not allowed!")
 
@@ -78,6 +111,8 @@ class FromGreaterThanToError(FastaViewInvalidRegionError):
 class FastaViewType:
     """
     Abstract class of factories.
+
+    .. versionadded:: 1.0.2
     """
     filename: str
     """
@@ -94,7 +129,7 @@ class FastaViewType:
     @abstractmethod
     def sequence(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> str:
         """
-        Get sequence from FASTA with 0-based [) indexes
+        Get sequence from FASTA with 0-based [) indexes.
 
         To read until end, use -1.
 
@@ -102,14 +137,14 @@ class FastaViewType:
         :param from_pos: From which position
         :param to_pos: To which position, use -1 for end
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_chr_length(self, chromosome: str) -> int:
         """
         Get length of specific chromosome.
         """
-        pass
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -117,7 +152,7 @@ class FastaViewType:
         """
         get chromosome names
         """
-        pass
+        raise NotImplementedError
 
     def __str__(self) -> str:
         return repr(self)
@@ -130,40 +165,40 @@ class FastaViewType:
         :raises SeekTooFarError: Raise this error if region is not valid.
         :raises ChromosomeNotFoundError: Raise this error if region is not valid.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def close(self):
         """
         Safely close a Fasta.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __len__(self) -> int:
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __repr__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __del__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def to_file(self, output_filename: str):
         """
         Write content of this FASTA view to file
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def query(self, query: QueryTupleType) -> str:
         """
         :py:func:`sequence` with another interface.
         """
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def subset_to_file(
@@ -172,15 +207,22 @@ class FastaViewType:
             querys: Iterable[QueryTupleType],
             output_chr_names: Optional[Iterable[str]] = None
     ):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __enter__(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        raise NotImplementedError
+
+    @abstractmethod
+    def legalize_region_best_effort(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> QueryTupleType:
+        """
+        # TODO
+        """
+        raise NotImplementedError
 
 
 class _BaseFastaView(FastaViewType, ABC):
@@ -249,11 +291,29 @@ class _BaseFastaView(FastaViewType, ABC):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def legalize_region_best_effort(self, chromosome: str, from_pos: int = 0, to_pos: int = -1) -> QueryTupleType:
+        if chromosome not in self.chr_names:
+            raise ChromosomeNotFoundError(chromosome)
+        chr_len = self.get_chr_length(chromosome)
+        if from_pos < 0:
+            from_pos = 0
+        elif from_pos > chr_len:
+            from_pos = chr_len
+        if to_pos == -1:
+            to_pos = chr_len
+        elif to_pos < 0:
+            to_pos = 0
+        elif to_pos > chr_len:
+            to_pos = chr_len
+        return chromosome, from_pos, to_pos
+
 
 class _MemoryAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequences are read into memory.
     Extremely fast but need lots of memory. Suitable for small files.
+
+    .. versionadded:: 1.0.2
     """
 
     _all_dict: Dict[str, str]
@@ -265,6 +325,7 @@ class _MemoryAccessFastaView(_BaseFastaView):
     def chr_names(self) -> List[str]:
         return list(self._all_dict.keys())
 
+    @functools.lru_cache(maxsize=256, typed=True)
     def get_chr_length(self, chromosome: str) -> int:
         return len(self._all_dict[chromosome])
 
@@ -301,6 +362,8 @@ class _DiskAccessFastaView(_BaseFastaView):
     """
     Fasta whose sequence is NOT read into memory.
     Slow but memory-efficient.
+
+    .. versionadded:: 1.0.2
     """
 
     _fd: IO
@@ -310,6 +373,7 @@ class _DiskAccessFastaView(_BaseFastaView):
 
     _fai: FastaIndexView
 
+    @functools.lru_cache(maxsize=256, typed=True)
     def get_chr_length(self, chromosome: str) -> int:
         return self._fai[chromosome].length
 
@@ -393,6 +457,8 @@ def FastaViewFactory(
     :param full_header: Whether to read full headers.
     :param read_into_memory: Whether to read into memory.
     :param show_tqdm: Whether to display a progress bar.
+
+    .. versionadded:: 1.0.2
     """
     if read_into_memory is None:
         read_into_memory = wc_c(filename) > 10 * 1024 * 1024
@@ -420,6 +486,8 @@ def split_fasta(  # TODO: Add to commandline params
 
     :param fav: Source FASTA view.
     :param out_dir_path: Output directory.
+
+    .. versionadded:: 1.0.2
     """
     out_dir_path = fav.filename + ".d" if out_dir_path is None else out_dir_path
     os.makedirs(out_dir_path, exist_ok=True)

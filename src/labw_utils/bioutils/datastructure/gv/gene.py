@@ -1,17 +1,32 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 import bisect
+import itertools
 
-from labw_utils.bioutils.datastructure.gv import GVPError, SortedContainerInterface
+from labw_utils.bioutils.algorithm.utils import merge_intervals
+from labw_utils.bioutils.datastructure.gv import GVPError
+from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_gene_id
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import TranscriptContainerInterface, \
     DuplicatedTranscriptIDError
 from labw_utils.bioutils.record.feature import FeatureType, FeatureInterface
-from labw_utils.typing_importer import List, Optional, Iterable, Sequence, SequenceProxy
+from labw_utils.typing_importer import List, Optional, Iterable, Sequence
+
+from labw_utils.typing_importer import SequenceProxy
 
 
 class TranscriptInAGeneOnDifferentChromosomeError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, transcript: Transcript, gene_seqname: str):
         super().__init__(
             f"{transcript}: "
@@ -21,6 +36,11 @@ class TranscriptInAGeneOnDifferentChromosomeError(GVPError):
 
 
 class TranscriptInAGeneOnDifferentStrandError(GVPError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     def __init__(self, transcript: Transcript, gene_strand: Optional[bool]):
         super().__init__(
             f"{transcript}: "
@@ -29,7 +49,12 @@ class TranscriptInAGeneOnDifferentStrandError(GVPError):
         )
 
 
-class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterface):
+class Gene(BaseFeatureProxy, TranscriptContainerInterface):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     __slots__ = (
         "_transcripts",
         "_transcript_ids",
@@ -63,13 +88,11 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterf
             *,
             data: FeatureInterface,
             is_checked: bool,
-            keep_sorted: bool,
             shortcut: bool,
             transcripts: Optional[Iterable[Transcript]],
             transcript_ids: Optional[Iterable[str]],
             is_inferred: bool
     ):
-        self._is_sorted = keep_sorted
         self._is_inferred = is_inferred
         if transcripts is None:
             transcripts = []
@@ -97,17 +120,12 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterf
                 raise DuplicatedTranscriptIDError(transcript.transcript_id)
         new_transcripts = list(self._transcripts)
         new_transcript_ids = list(self._transcript_ids)
-        if self._is_sorted:
-            new_pos = bisect.bisect_left(self._transcripts, transcript)
-            new_transcripts.insert(new_pos, transcript)
-            new_transcript_ids.insert(new_pos, transcript.transcript_id)
-        else:
-            new_transcripts.append(transcript)
-            new_transcript_ids.append(transcript.transcript_id)
+        new_pos = bisect.bisect_left(self._transcripts, transcript)
+        new_transcripts.insert(new_pos, transcript)
+        new_transcript_ids.insert(new_pos, transcript.transcript_id)
         return Gene(
             data=self._data,
             is_checked=self._is_checked,
-            keep_sorted=self._is_sorted,
             is_inferred=self._is_inferred,
             transcripts=new_transcripts,
             transcript_ids=new_transcript_ids,
@@ -123,7 +141,6 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterf
         return Gene(
             data=self._data,
             is_checked=self._is_checked,
-            keep_sorted=self._is_sorted,
             transcripts=new_transcripts,
             transcript_ids=new_transcript_ids,
             is_inferred=self._is_inferred,
@@ -136,28 +153,101 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface, SortedContainerInterf
     def __repr__(self):
         return f"Gene {self.gene_id}"
 
+    def collapse_transcript(
+            self,
+            skip_isoform_on_different_contig_or_strand_behaviour: bool = False
+    ) -> Transcript:
+        transcripts = []
+        contig_of_first_transcript: Optional[str] = None
+        strand_of_first_transcript: Optional[bool] = None
+        for transcript in self._transcripts:
+            if contig_of_first_transcript is None:
+                contig_of_first_transcript = transcript.seqname
+            elif contig_of_first_transcript != transcript.seqname:
+                if skip_isoform_on_different_contig_or_strand_behaviour:
+                    continue
+                else:
+                    raise ValueError
+            if strand_of_first_transcript is None:
+                strand_of_first_transcript = transcript.strand
+            elif strand_of_first_transcript != transcript.strand:
+                if skip_isoform_on_different_contig_or_strand_behaviour:
+                    continue
+                else:
+                    raise ValueError
+            transcripts.append(transcript)
+        all_exon_bondary = merge_intervals(
+            list(itertools.chain(*(list(transcript.exon_boundaries) for transcript in transcripts))))
+        exon_list = [
+            Exon(
+                data=(
+                    self._data.
+                    update(
+                        feature="exon",
+                        strand=strand_of_first_transcript,
+                        seqname=contig_of_first_transcript,
+                        start=exon_bondary[0] + 1,
+                        end=exon_bondary[1]
+                    ).
+                    update_attribute(
+                        transcript_id=self.gene_id + "_collapsed"
+                    )
+                ),
+                is_checked=self.is_checked,
+                shortcut=True,
+            )
+            for exon_bondary in all_exon_bondary
+        ]
+
+        return Transcript(
+            data=(
+                self._data.
+                update(
+                    feature="transcript",
+                    strand=strand_of_first_transcript,
+                    seqname=contig_of_first_transcript
+                ).
+                update_attribute(
+                    transcript_id=self.gene_id + "_collapsed"
+                )
+            ),
+            is_checked=self.is_checked,
+            is_inferred=True,
+            shortcut=True,
+            exons=sorted(exon_list, key=lambda e: e.start0b)
+        ).rescale_from_exon_boundaries()
+
+
+    def gc(self):
+        for transcript in self._transcripts:
+            transcript.gc()
+
+# TODO: How to find rootkit
 
 class DumbGene(Gene):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     def __init__(
             self,
             *,
             data: FeatureInterface,
             is_checked: bool,
-            keep_sorted: bool,
             shortcut: bool,
             transcripts: Optional[Iterable[Transcript]],
             transcript_ids: Optional[Iterable[str]],
             is_inferred: bool
     ):
-        _ = is_checked, keep_sorted
-        del is_checked, keep_sorted
+        _ = is_checked
+        del is_checked
 
         Gene.__init__(
             self,
             data=data,
             is_checked=True,
-            keep_sorted=False,
             shortcut=shortcut,
             transcripts=transcripts,
             transcript_ids=transcript_ids,

@@ -1,4 +1,7 @@
 """
+``labw_utils.commonutils.serializer.toml`` -- TOML serialization interfaces.
+
+Is not finished -- do not use.
 
 >>> from labw_utils.typing_importer import Final
 >>> import io
@@ -41,11 +44,18 @@ version = 1
 <BLANKLINE>
 [metadata]
 <BLANKLINE>
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import os
+
+# TODO: Finish this module
+if os.getenv("SPHINX_BUILD") is not None:
+    __all__ = []
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils import lwio

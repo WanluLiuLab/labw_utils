@@ -1,5 +1,7 @@
 """
-labw_utils.bioutils.record.gtf -- GTF parsers
+``labw_utils.bioutils.record.gtf`` -- GTF parsers
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -14,7 +16,11 @@ from labw_utils.typing_importer import List, Optional
 
 
 class GTFParsingError(ValueError):
-    """General GTF parsing errors."""
+    """
+    General GTF parsing errors.
+
+    .. versionadded:: 1.0.2
+"""
     pass
 
 
@@ -49,6 +55,8 @@ def format_string(
     :param quote: Quoting policy.
 
     :raise ValueError: On invalid quoting options.
+
+    .. versionadded:: 1.0.2
     """
     if quote not in VALID_GTF_QUOTE_OPTIONS:
         raise ValueError(f"Invalid quoting option {quote}, should be one in {VALID_GTF_QUOTE_OPTIONS}.")
@@ -82,6 +90,8 @@ def parse_record(
     :param included_attributes: Explicitly include attributes to reduce space. Other attributes are discarded.
 
     :raises GTFParsingError: On invalid record.
+
+    .. versionadded:: 1.0.2
     """
     if skip_fields is None:
         skip_fields = []

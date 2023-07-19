@@ -11,6 +11,7 @@ from labw_utils.commonutils.appender._base_pandas_dict_table_appender import Bas
 
 
 class SQLite3TableAppender(BasePandasDictBufferAppender):
+    """Append to SQLite. Requires Pandas."""
 
     def _get_real_filename_hook(self) -> str:
         return ".".join((self.filename, "sqlite3"))

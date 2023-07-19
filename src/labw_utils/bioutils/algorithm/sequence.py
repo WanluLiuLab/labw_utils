@@ -1,5 +1,7 @@
 """
-Naive sequence algorithms. e.g., complement, reverse or get GC content.
+``labw_utils.bioutils.algorithm.sequence`` -- Naive sequence algorithms. e.g., complement, reverse or get GC content.
+
+.. versionadded:: 1.0.2
 """
 import itertools
 
@@ -33,6 +35,11 @@ AA_SYMBOLS = {
     "X": "Any",
     "*": "Stp"
 }
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 
 AA_NAMES = {
     "A": "Alanine",
@@ -60,8 +67,20 @@ AA_NAMES = {
     "X": "Any",
     "*": "Stop"
 }
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
+
 
 TRANSL_TABLES_NT = list(map("".join, itertools.product(*["TCAG"] * 3)))
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
+
 
 TRANSL_TABLES = {
     1: {
@@ -169,15 +188,27 @@ TRANSL_TABLES = {
 NCBI Translation Table.
 
 This table does NOT care circumstances that a codon may encode either normal AA or STOP.
+
+.. versionadded:: 1.0.2
 """
 
 
+
 class MalformedMRNAError(ValueError):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
     pass
 
 
 def is_valid_chrname(chr_name: str) -> bool:
-    """Whether this chrname is a chromosome instead of some alt, ref, patch, etc."""
+    """
+    Whether this chrname is a chromosome instead of some alt, ref, patch, etc.
+
+    .. versionadded:: 1.0.2
+    """
     if chr_name.startswith("N"):
         if not chr_name.startswith("NC_"):
             return False
@@ -219,6 +250,7 @@ def find_orf(
     :param init_codon: Possible initiation codon.
         This is different in different organisms. You should referr to documentations at ``transl_table``.
 
+    .. versionadded:: 1.0.2
     """
     raise NotImplementedError
 
@@ -235,6 +267,8 @@ def translate_cdna(
     Translate RNA to AA.
     >>> translate_cdna("TACCGGGTTAATAGGAAACTGACATTTGGAGCCAACACTAGAGGAATCATGAAACTC")
     'YRVNRKLTFGANTRGIMKL'
+
+     .. versionadded:: 1.0.2
     """
     if len(seq) < 3:
         raise MalformedMRNAError(f"seq ('{seq}') too short")
@@ -254,6 +288,8 @@ def complement(seq: str) -> str:
 
     >>> complement("CTGACTGA")
     'GACTGACT'
+
+     .. versionadded:: 1.0.2
     """
     return seq.translate(_comp_trans)
 
@@ -264,6 +300,8 @@ def reverse_complement(seq: str) -> str:
 
     >>> reverse_complement("CTGACTGA")
     'TCAGTCAG'
+
+     .. versionadded:: 1.0.2
     """
     return complement(seq)[::-1]
 
@@ -287,7 +325,11 @@ def get_gc_percent(seq: str) -> float:
                 gc += 1
 
     by 12 percent.
+
+     .. versionadded:: 1.0.2
     """
+    if seq is None:
+        return None
     if len(seq) == 0:
         return 0
     gc = 0
@@ -300,6 +342,8 @@ def get_gc_percent(seq: str) -> float:
 def decode_phred33(seq: str) -> Iterable[int]:
     """
     Decode phred33 scores (Q-scores) in FASTQ files.
+
+     .. versionadded:: 1.0.2
     """
     for i in seq:
         yield ord(i) - 33

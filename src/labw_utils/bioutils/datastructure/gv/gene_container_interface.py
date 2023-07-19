@@ -1,3 +1,8 @@
+"""
+TODO: docs
+
+.. versionadded:: 1.0.2
+"""
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -7,6 +12,11 @@ from labw_utils.typing_importer import Sequence
 
 
 class GeneContainerInterface:
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
 
     @property
     @abstractmethod

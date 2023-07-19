@@ -1,5 +1,5 @@
 """
-labw_utils -- Utility Python functions & classes used in LabW
+``labw_utils`` -- Utility Python functions & classes used in LabW
 
 This is the top-level package of LabW Utils.
 It also defines some commonly-used dependencies.
@@ -8,6 +8,8 @@ Import of this module may raise following errors & warnings:
 
 - :py:obj:`RuntimeError`: If Python version lower than or equal to 3.6.
 - :py:obj:`UserWarning`: If Python version is 3.7.
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -19,7 +21,7 @@ __all__ = (
     "__version__"
 )
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 import sys
 import warnings
@@ -107,6 +109,25 @@ class PackageSpec:
         """
         return self._pypi_name
 
+    def to_rst(self) -> str:
+        """
+        Generate reStructuredText-compatible docs
+
+        .. versionadded:: 1.0.3
+        """
+        if self._conda_name is not None:
+            if self._conda_channel is not None:
+                conda_str = f"`Conda <https://anaconda.org/{self._conda_channel}/{self._conda_name}>`_"
+            else:
+                conda_str = f"`Conda <https://anaconda.org/main/{self._conda_name}>`_"
+        else:
+            conda_str = ""
+        if self._pypi_name is not None:
+            pypi_str = f"`PYPI <https://pypi.org/project/{self._pypi_name}>`_"
+        else:
+            pypi_str = ""
+        return f"``{self.name}``: Instalable using {conda_str}; {pypi_str}."
+
 
 class PackageSpecs:
     """
@@ -114,7 +135,10 @@ class PackageSpecs:
     Maintains a list of :py:class:`PackageSpec`.
     Used in :py:class:`UnmetDependenciesError`.
 
-    Current recognized optional dependencies:
+    .. versionadded:: 1.0.0
+
+    Current registered optional dependencies:
+
     """
     _deps: Dict[str, PackageSpec] = {}
 
@@ -137,7 +161,7 @@ class PackageSpecs:
         PackageSpecs._deps[item.name] = item
         if PackageSpecs.__doc__ is None:  # Supress mypy
             PackageSpecs.__doc__ = ""
-        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"\n    - ``{item.name}``: {item}"
+        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"\n    - {item.to_rst()}"
 
     @staticmethod
     def iter_names() -> Iterable[str]:
@@ -274,12 +298,3 @@ class UnmetDependenciesError(RuntimeError):
     def package_name(self) -> str:
         """Name of the missing package"""
         return self._package_name
-
-# Optimizers
-
-try:
-    import pyjion
-
-    pyjion.enable()
-except ImportError:
-    pyjion = None
