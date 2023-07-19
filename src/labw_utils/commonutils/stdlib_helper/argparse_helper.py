@@ -1,5 +1,5 @@
 """
-labw_utils.stdlib_helper.argparse_helper -- Argument parser with enhanced help formatter
+``labw_utils.stdlib_helper.argparse_helper`` -- Argument parser with enhanced help formatter
 
 Following is an example using "normal" formatter:
 
@@ -50,8 +50,6 @@ options:
   --flag      flag
 <BLANKLINE>
 
-# FIXME: "optional arguments" renamed to "options" in Python 3.10
-
 Following is an example using enhanced formatter:
 
 >>> parser = ArgumentParserWithEnhancedFormatHelp(prog="prog", description="description")
@@ -79,6 +77,10 @@ OPTIONS:
               [OPTIONAL] Default: False
               flag
 <BLANKLINE>
+
+.. versionadded:: 1.0.2
+
+.. todo:: Markdown support.
 """
 
 __all__ = (
@@ -150,6 +152,8 @@ _ACTION_GROUP_TILE_REPLACEMENT_DICT = {
 
 
 class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
+    """"""
+
     def format_help(self) -> str:
         formatter = _EnhancedHelpFormatter(prog=self.prog)
         formatter.add_text(self.description)
@@ -170,6 +174,7 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         return formatter.format_help()
 
     def to_markdown(self) -> str:
+        """Work in process -- do not use."""
 
         class State:
             current_indent = 0

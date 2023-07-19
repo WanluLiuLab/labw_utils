@@ -1,5 +1,5 @@
 """
-labw_utils.stdlib_helper.pickle_helper - Pickle helper with compression and progress-bar
+``labw_utils.stdlib_helper.pickle_helper`` -- Pickle helper with compression and progress-bar
 
 We may firstly generate some random sequence
 
@@ -33,6 +33,10 @@ Clean up the environment.
 
 >>> rm_rf(test_path)
 
+.. versionadded:: 1.0.2
+
+.. todo::
+    Support StringIO and friends
 """
 
 __all__ = (
@@ -55,6 +59,8 @@ def load(filename: str, with_tqdm: bool = True) -> Any:
     :param filename: Filename to be load from
     :param with_tqdm: Whether to display a progress bar.
     :return: Picked object.
+
+    .. versionadded:: 1.0.2
     """
     if with_tqdm:
         fd = get_tqdm_reader(filename, is_binary=True)
@@ -73,6 +79,8 @@ def dump(obj: Any, filename: str) -> None:
     :param obj: The object to be pickled.
     :param filename: The filename to be written to.
         If the filename have compressed suffixes like ``xz``, it will be compressed.
+
+    .. versionadded:: 1.0.2
     """
     with get_writer(filename, is_binary=True) as writer:
         pickle.dump(obj, writer)

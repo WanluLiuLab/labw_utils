@@ -1,7 +1,7 @@
 """
-str_utils.py -- String utilities
-
-This file defines ANSI color supported by most terminals.
+``labw_utils.commonutils.str_utils`` -- String utilities
+    
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -48,6 +48,8 @@ def to_dict(
                            If quoted by single and double quote, pass ``'\'\"'``.
                            Will not parse quoted by triple quotes.
     :param resolve_str: Whether to resolve strings to float or int.
+    
+    .. versionadded:: 1.0.2
     """
     retd: Dict[str, Any] = {}
     record_val: Any

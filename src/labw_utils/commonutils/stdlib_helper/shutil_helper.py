@@ -1,7 +1,9 @@
 """
-labw_utils.stdlib_helper.shutil_helper -- Enhanced :py:mod:`shutils` Module
+``labw_utils.stdlib_helper.shutil_helper`` -- Enhanced :py:mod:`shutils` Module
 
 More shell-like utilities.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -30,12 +32,13 @@ def readlink_f(path: str) -> str:
     Remove soft links out of the path and return its absolute form,
     just like what is done by GNU CoreUtils ``readlink -f``.
 
-    Can be used to trace symlink of symlink.
-
-    TODO: to be re-checked.
+    .. warning::
+        Not tested, have previously-reported bugs.
 
     :param path: Input relative path
     :return: What you get from ``readlink -f``.
+
+    .. versionadded:: 1.0.2
     """
     path = path.rstrip(os.sep)
     if path == '':
@@ -52,6 +55,8 @@ def wc_l(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     :param filename: Input filename
     :param opener: Function to open this file. I.e., return an IO object.
     :return: Line number.
+
+    .. versionadded:: 1.0.2
     """
     fd: IO
     if opener is None:
@@ -68,6 +73,8 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
     :param filename: Input filename
     :param opener: Function to open this file. I.e., return an IO object.
     :return: File length.
+
+    .. versionadded:: 1.0.2
     """
     fd: FDType
     if opener is None:
@@ -93,6 +100,8 @@ def touch(
     :param change_a_time: Whether to change access time.
     :param time_ns: Change time to this time instead of current time. Use :py:obj:`None` to use current time.
     :raises IsADirectoryError: If targeted filename is a directory.
+
+    .. versionadded:: 1.0.2
     """
     filename = get_abspath(filename)
     if os.path.isdir(filename):
@@ -120,7 +129,10 @@ def rm_rf(path: str) -> None:
 
     :param path: The path you wish to remove
 
-    Compare with :py:func:`shutil.rmtree`, this function can remove files.
+    Compare with :py:func:`shutil.rmtree`,
+    this function can remove files and things that do not exist without complaining.
+
+    .. versionadded:: 1.0.2
     """
     dbg_head = "rm(path='" + path + "')"
     try:

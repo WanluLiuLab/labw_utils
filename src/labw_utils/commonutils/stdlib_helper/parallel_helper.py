@@ -1,7 +1,9 @@
 """
-labw_utils.stdlib_helper.parallel_helper -- Helper for Multiprocessing
+``labw_utils.stdlib_helper.parallel_helper`` -- Helper for Multiprocessing
 
 This includes a very basic job pool and some helper classes
+
+.. versionadded:: 1.0.2
 """
 
 from __future__ import annotations
@@ -74,6 +76,8 @@ class Job:
 
     This class is NOT a subclass of :py:class:`threading.Thread`. It would not start new threads.
     All actions are synchronous.
+
+    .. versionadded:: 1.0.2
     """
     _job_id: int
     _job_object: PRIMITIVE_JOB_TYPE
@@ -160,6 +164,8 @@ class ParallelJobExecutor(threading.Thread):
     This executor would start a new thread.
 
     Length of the executor is defined by total number of jobs.
+
+    .. versionadded:: 1.0.2
     """
 
     _pool_size: Union[int, float]
@@ -346,6 +352,8 @@ class TimeOutKiller(threading.Thread):
     If the process is alive after 3 seconds, it will send SIGKILL (9).
 
     .. warning :: This would not check whether the PIDs are in the same round.
+
+    .. versionadded:: 1.0.2
     """
 
     _pid: int
@@ -406,6 +414,8 @@ def parallel_map(
     :param n_jobs: Number of parallel threads. Would be max available CPU number if not set.
     :param backend: The backend to be used. Recommended to use ``threading``.
     :return: Generated new iterable.
+
+    .. versionadded:: 1.0.2
     """
     it: Iterable[_OutType] = joblib.Parallel(
         n_jobs=n_jobs, backend=backend

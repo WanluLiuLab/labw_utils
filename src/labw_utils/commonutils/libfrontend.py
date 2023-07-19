@@ -1,5 +1,17 @@
 """
-libfrontend -- Helpers to setup commandline frontend that have multiple subcommands.
+``labw_utils.commonutils.libfrontend`` -- Helpers to setup commandline frontend that have multiple subcommands.
+
+.. versionadded:: 1.0.2
+
+Consumed environment variables:
+
+.. envvar:: LOG_LEVEL
+
+can either be string or integer.
+
+.. envvar:: LOG_FILE_NAME
+
+
 """
 
 from __future__ import annotations
@@ -32,6 +44,12 @@ _lh: Optional[logging.Logger] = None
 
 
 def setup_basic_logger():
+    """
+    Clear current logging configuration and setup basic command-line logging support.
+    Would respect :envvar:`LOG_LEVEL` environment variable.    
+
+    .. versionadded:: 1.0.2
+    """
     _stream_handler = logging.StreamHandler()
     _stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
     _stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
@@ -59,6 +77,9 @@ _NONE_DOC = "NONE DOC"
 def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[str]:
     """
     Get valid name of subcommands.
+    Would automatically skip import failures.
+
+    .. versionadded:: 1.0.2
     """
     for spec in pkgutil.iter_modules(
             resolve_name(package_main_name).__spec__.submodule_search_locations
@@ -81,6 +102,8 @@ def get_doc_from_subcommand(
 ) -> Optional[str]:
     """
     Return documentation of that module
+
+    .. versionadded:: 1.0.2
     """
     importlib.import_module(f'{package_main_name}.{subcommand_name}')
     i = resolve_name(f'{package_main_name}.{subcommand_name}')
@@ -95,7 +118,9 @@ def get_main_func_from_subcommand(
         subcommand_name: str
 ) -> Optional[Callable[[list[str]], int]]:
     """
-    Return a subcommands' "main" function.
+    Return a subcommands' :py:func:`main` function.
+
+    .. versionadded:: 1.0.2
     """
     importlib.import_module(f'{package_main_name}.{subcommand_name}')
     i = resolve_name(f'{package_main_name}.{subcommand_name}')
@@ -110,7 +135,9 @@ def get_argparser_from_subcommand(
         subcommand_name: str
 ) -> Optional[argparse.ArgumentParser]:
     """
-    Return result of a subcommands' "create_parser" function.
+    Return result of a subcommands' :py:func:`create_parser` function.
+
+    .. versionadded:: 1.0.2
     """
     importlib.import_module(f'{package_main_name}.{subcommand_name}')
     i = resolve_name(f'{package_main_name}.{subcommand_name}')
@@ -124,7 +151,11 @@ def lscmd(
         package_main_name: str,
         valid_subcommand_names: Iterable[str]
 ):
-    """`lscmd` frontend."""
+    """
+    ``lscmd`` frontend
+
+    .. versionadded:: 1.0.2
+    """
     name_doc_dict = {}
     if _lh is not None:
         _lh.info("Listing modules...")
@@ -204,6 +235,13 @@ Use `lscmd` as subcommand with no options to see available subcommands.
 
 
 def add_file_handler_to_root_logger_handler(default_log_filename: str):
+    """
+    Register a file handler.
+
+    Wouls respect :envvar:`LOG_FILE_NAME` environment variable.
+
+    .. versionadded:: 1.0.2
+    """
     log_filename = os.environ.get("LOG_FILE_NAME", default_log_filename)
     file_handler = logging.FileHandler(filename=log_filename)
     file_handler.setLevel(logger_helper.TRACE)
@@ -220,6 +258,19 @@ def setup_frontend(
         use_root_logger: bool = True,
         default_log_filename: str = "log.log"
 ):
+    """
+    Setup the frontend.
+
+    :param package_main_name: TODO
+    :param one_line_description: TODO
+    :param version: TODO
+    :param help_info: TODO
+    :param subcommand_help: TODO
+    :param use_root_logger: TODO
+    :param default_log_filename: TODO
+    
+    .. versionadded:: 1.0.2
+    """
     global _lh
     setup_basic_logger()
     _lh = logger_helper.get_logger(__name__)

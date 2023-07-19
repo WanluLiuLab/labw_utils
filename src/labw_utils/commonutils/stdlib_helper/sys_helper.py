@@ -1,5 +1,7 @@
 """
-labw_utils.stdlib_helper.sys_helper -- A rewritten of various sysadmin commands.
+l``abw_utils.stdlib_helper.sys_helper`` -- A rewritten of various sysadmin commands.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (
@@ -36,4 +38,6 @@ A part of this function comes from
     For Microsoft Windows users: requires Windows XP SP2 or higher!
 
 :return: 0=no, 1=yes, -1=error
+
+.. versionadded:: 1.0.2
 """
