@@ -5,9 +5,11 @@ Following is an example using "normal" formatter:
 
 >>> import sys
 >>> import pytest
+>>> import doctest
 >>> parser = argparse.ArgumentParser(prog="prog", description="description")
 >>> _ = parser.add_argument("p", type=int, help="p-value")
->>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
+>>> _ = parser.add_argument("-i", required=True, type=str, help="input filename")
+>>> _ = parser.add_argument("-o", required=False, type=str, help="output filename", default="/dev/stdout")
 >>> _ = parser.add_argument("--flag", action="store_true", help="flag")
 
 Please notice that the default format differs between Python 3.9 and 3.10.
@@ -18,7 +20,7 @@ Below is an example on how it would show on Python <= 3.9:
 ...     pytest.skip()
 ... else:
 ...     print(parser.format_help())
-usage: prog [-h] -o O [--flag] p
+usage: prog [-h] -i I [-o O] [--flag] p
 <BLANKLINE>
 description
 <BLANKLINE>
@@ -27,25 +29,7 @@ positional arguments:
 <BLANKLINE>
 optional arguments:
   -h, --help  show this help message and exit
-  -o O        output filename
-  --flag      flag
-<BLANKLINE>
-
-Below is an example on how it would show on Python >= 3.10:
-
->>> if sys.version_info < (3, 10):
-...     pytest.skip()
-... else:
-...     print(parser.format_help())
-usage: prog [-h] -o O [--flag] p
-<BLANKLINE>
-description
-<BLANKLINE>
-positional arguments:
-  p           p-value
-<BLANKLINE>
-options:
-  -h, --help  show this help message and exit
+  -i I        input filename
   -o O        output filename
   --flag      flag
 <BLANKLINE>
@@ -54,25 +38,28 @@ Following is an example using enhanced formatter:
 
 >>> parser = ArgumentParserWithEnhancedFormatHelp(prog="prog", description="description")
 >>> _ = parser.add_argument("p", type=int, help="p-value")
->>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
->>> _ = parser.add_argument("-o", required=True, type=str, help="output filename", default="/dev/stdout")
+>>> _ = parser.add_argument("-i", required=True, type=str, help="input filename")
+>>> _ = parser.add_argument("-o", required=False, type=str, help="output filename", default="/dev/stdout")
 >>> _ = parser.add_argument("--flag", action="store_true", help="flag")
 >>> print(parser.format_help())
 description
 <BLANKLINE>
-SYNOPSIS: prog [-h] -o O [--flag] p
+SYNOPSIS: prog [-h] -i I [-o O] [--flag] p
 <BLANKLINE>
 PARAMETERS:
   p
-              [REQUIRED] Type: int;
+              [REQUIRED] Type: int; No defaults
               p-value
 <BLANKLINE>
 OPTIONS:
   -h, --help
               [OPTIONAL]
               show this help message and exit
+  -i I
+              [REQUIRED] Type: str; No defaults
+              input filename
   -o O
-              [REQUIRED] Type: str; Default: /dev/stdout
+              [OPTIONAL] Type: str; Default: /dev/stdout
               output filename
   --flag
               [OPTIONAL] Default: False
@@ -97,7 +84,7 @@ Following is an example on how it deals with :py:class:`enum.Enum`:
 >>> parser = ArgumentParserWithEnhancedFormatHelp(prog="prog", description="description")
 >>> _ = parser.add_argument(
 ...     "-e",
-...     required=True,
+...     required=False,
 ...     type=SampleEnum.from_name,
 ...     choices=SampleEnum,
 ...     help="output filename",
@@ -106,14 +93,14 @@ Following is an example on how it deals with :py:class:`enum.Enum`:
 >>> print(parser.format_help())
 description
 <BLANKLINE>
-SYNOPSIS: prog [-h] -e {A,B}
+SYNOPSIS: prog [-h] [-e {A,B}]
 <BLANKLINE>
 OPTIONS:
   -h, --help
               [OPTIONAL]
               show this help message and exit
   -e {A,B}
-              [REQUIRED] Type: SampleEnum; Default: A
+              [OPTIONAL] Type: SampleEnum; Default: A
               output filename
               CHOICES:
                   A -- A doc
@@ -126,8 +113,9 @@ Namespace(e=<SampleEnum.A: 1>)
 .. versionadded:: 1.0.2
 .. versionchanged:: 1.0.3
     Support of enumns added.
+    Setting both ``required`` and ``default`` would generate :py:class:`ValueError`.
 
-    .. warning:: Highly experimental!
+.. warning:: Support of enumns highly experimental!
 
 .. todo:: Markdown support.
 """
@@ -169,6 +157,8 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
 
         if action.required:
             req_opt_prefix = "[REQUIRED] "
+            if action.default is not None and action.default is not argparse.SUPPRESS:
+                raise ValueError(f"Argument {action} setted both required and default ({action.default})!")
         else:
             req_opt_prefix = "[OPTIONAL] "
         if not hasattr(action.type, "__name__"):
@@ -184,12 +174,15 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
         default_prefix = ""
         if '%(default)' not in help_str:
             if action.default is not argparse.SUPPRESS:
-                defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
-                if action.option_strings or action.nargs in defaulting_nargs:
-                    if isinstance(action.default, enum.Enum):
-                        default_prefix = f'Default: {action.default.name} '
-                    else:
-                        default_prefix = f'Default: {action.default} '
+                if action.required is False:
+                    defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
+                    if action.option_strings or action.nargs in defaulting_nargs:
+                        if isinstance(action.default, enum.Enum):
+                            default_prefix = f'Default: {action.default.name}'
+                        else:
+                            default_prefix = f'Default: {action.default}'
+                else:
+                    default_prefix = "No defaults"
         return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params + choices_str
 
     def _metavar_formatter(self, action, default_metavar):
@@ -246,6 +239,9 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
     """"""
 
     def format_help(self) -> str:
+        """
+        :raises ValueError: If an argument set both ``required`` and ``default``.
+        """
         formatter = _EnhancedHelpFormatter(prog=self.prog)
         formatter.add_text(self.description)
 
