@@ -461,7 +461,7 @@ def FastaViewFactory(
     .. versionadded:: 1.0.2
     """
     if read_into_memory is None:
-        read_into_memory = wc_c(filename) > 10 * 1024 * 1024
+        read_into_memory = wc_c(filename) < 10 * 1024 * 1024
     if read_into_memory:
         return _MemoryAccessFastaView(
             filename=filename,
