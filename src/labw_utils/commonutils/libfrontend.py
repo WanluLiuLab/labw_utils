@@ -89,7 +89,8 @@ def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[s
             continue
         try:
             _ = resolve_name(f'{package_main_name}.{subcommand_name}')
-        except (UnmetDependenciesError, ImportError):
+            _ = get_main_func_from_subcommand(package_main_name, subcommand_name)
+        except (UnmetDependenciesError, ImportError, AttributeError):
             if verbose and _lh is not None:
                 _lh.warning("Subcommand %s have unmet dependencies!", subcommand_name)
             continue
