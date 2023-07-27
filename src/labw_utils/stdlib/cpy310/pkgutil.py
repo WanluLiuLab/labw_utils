@@ -81,6 +81,8 @@ def resolve_name(name):
                 parts.pop(0)
                 modname = s
             except ImportError:
+                 # FIXME: yuzj: this part have bugs.
+                 # ImportError may be raised by reasons other than module not found!
                 break
     # if we reach this point, mod is the module, already imported, and
     # parts is the list of parts in the object hierarchy to be traversed, or
