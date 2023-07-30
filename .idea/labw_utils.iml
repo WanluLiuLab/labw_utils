@@ -57,6 +57,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_exons.parquet.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_repeats.parquet.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/reference_generator/data_dl" />
+      <excludeFolder url="file://$MODULE_DIR$/doc_contrib/labw_utils_design_impl_cn/_minted-main" />
     </content>
     <orderEntry type="jdk" jdkName="labw_utils" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
