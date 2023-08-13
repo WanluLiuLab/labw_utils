@@ -74,13 +74,14 @@ else:
         "Sized",
         "SequenceProxy",
         "MappingProxy",
-        "overload"
+        "overload",
     )
 
 import sys
 
 Any = typing.Any
-Optional = typing.Optional
+from typing import Optional as Optional
+
 Union = typing.Union
 TypeVar = typing.TypeVar
 TextIO = typing.TextIO
@@ -108,7 +109,8 @@ if sys.version_info >= (3, 9):
     MutableSet = collections.abc.MutableSet
     MutableMapping = collections.abc.MutableMapping
     MutableSequence = collections.abc.MutableSequence
-    Sequence = collections.abc.Sequence
+    from collections.abc import Sequence as Sequence
+
     ByteString = collections.abc.ByteString
     MappingView = collections.abc.MappingView
     KeysView = collections.abc.KeysView
@@ -144,7 +146,6 @@ else:
     MutableSet = typing.MutableSet
     MutableMapping = typing.MutableMapping
     MutableSequence = typing.MutableSequence
-    Sequence = typing.Sequence
     ByteString = typing.ByteString
     MappingView = typing.MappingView
     KeysView = typing.KeysView
@@ -157,20 +158,24 @@ else:
     OrderedDict = typing.OrderedDict
     ChainMap = typing.ChainMap
     List = typing.List
-    Dict = typing.Dict
+    from typing import Dict as Dict
+    from typing import Sequence as Sequence
+
     Set = typing.Set
     Tuple = typing.Tuple
     Type = typing.Type
     Deque = typing.Deque
     DefaultDict = typing.DefaultDict
 try:
-    Literal = typing.Literal
+    from typing import Literal as Literal
+
+    # Literal = typing.Literal
     Final = typing.Final
 
 except AttributeError:
     # For Python 3.7 only
-    Final = typing._SpecialForm('Union', doc="")
-    Literal = typing._SpecialForm('Union', doc="")
+    Final = typing._SpecialForm("Union", doc="")
+    Literal = typing._SpecialForm("Union", doc="")
 
 _ItemType = TypeVar("_ItemType")
 _KeyType = TypeVar("_KeyType")
@@ -238,11 +243,7 @@ class SequenceProxy(Sequence[_ItemType]):
     def __len__(self) -> int:
         return len(self._seq)
 
-    def __init__(
-            self,
-            seq: Iterable[_ItemType],
-            deep_copy: Optional[bool] = None
-    ):
+    def __init__(self, seq: Iterable[_ItemType], deep_copy: Optional[bool] = None):
         """
         Initialize the class with input sequence.
 
@@ -295,6 +296,7 @@ class MappingProxy(Mapping[_KeyType, _ValueType]):
 
     .. versionadded:: 1.0.1
     """
+
     _mapping: Mapping[_KeyType, _ValueType]
 
     def __getitem__(self, k: _KeyType) -> _ValueType:
@@ -307,9 +309,7 @@ class MappingProxy(Mapping[_KeyType, _ValueType]):
         yield from self._mapping
 
     def __init__(
-            self,
-            mapping: Mapping[_KeyType, _ValueType],
-            deep_copy: Optional[bool] = None
+        self, mapping: Mapping[_KeyType, _ValueType], deep_copy: Optional[bool] = None
     ):
         """
         Load the class with input mapping.
