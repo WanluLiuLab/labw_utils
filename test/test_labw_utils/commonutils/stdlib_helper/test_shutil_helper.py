@@ -47,11 +47,11 @@ def test_wc_c(initialize_module):
 @pytest.mark.parametrize(
     argnames="kwargs",
     argvalues=(
-            {"text": b"", "answer": 0},
-            {"text": b"\n", "answer": 1},
-            {"text": b"A", "answer": 1},
-            {"text": b"A\n", "answer": 1},
-    )
+        {"text": b"", "answer": 0},
+        {"text": b"\n", "answer": 1},
+        {"text": b"A", "answer": 1},
+        {"text": b"A\n", "answer": 1},
+    ),
 )
 def test_wc_l(kwargs):
     with tempfile.TemporaryDirectory() as tmpdir:

@@ -63,3 +63,7 @@ mypy:
 		--html-report pytest/mypy.html \
 		--follow-imports=silent \
 		--ignore-missing-imports
+
+.PHONY: fmt
+fmt:
+	bash fmt.sh

@@ -8,11 +8,7 @@ from __future__ import annotations
 
 from labw_utils import UnmetDependenciesError
 
-__all__ = (
-    "scale_np_array",
-    "scale_torch_array",
-    "describe"
-)
+__all__ = ("scale_np_array", "scale_torch_array", "describe")
 
 import numpy as np
 import numpy.typing as npt
@@ -31,9 +27,9 @@ else:
 
 
 def _scale_impl(
-        x: _Tensor,
-        out_range: tuple[Union[int, float], Union[int, float]],
-        domain: tuple[Union[int, float], Union[int, float]]
+    x: _Tensor,
+    out_range: tuple[Union[int, float], Union[int, float]],
+    domain: tuple[Union[int, float], Union[int, float]],
 ) -> _Tensor:
     if domain[1] == domain[0]:
         return x
@@ -42,9 +38,9 @@ def _scale_impl(
 
 
 def scale_np_array(
-        x: npt.NDArray,
-        domain: Optional[tuple[Union[int, float], Union[int, float]]] = None,
-        out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
+    x: npt.NDArray,
+    domain: Optional[tuple[Union[int, float], Union[int, float]]] = None,
+    out_range: tuple[Union[int, float], Union[int, float]] = (0, 1),
 ) -> npt.NDArray:
     """
     Scale a Numpy array to specific range.
@@ -64,10 +60,11 @@ def scale_np_array(
 
 
 if torch is not None:
+
     def scale_torch_array(
-            x: torch.Tensor,
-            domain: Optional[tuple[Union[int, float], Union[int, float]]] = None,
-            out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
+        x: torch.Tensor,
+        domain: Optional[tuple[Union[int, float], Union[int, float]]] = None,
+        out_range: tuple[Union[int, float], Union[int, float]] = (0, 1),
     ) -> torch.Tensor:
         """
         Scale a Torch array to specific range.
@@ -84,11 +81,11 @@ if torch is not None:
         if domain is None:
             domain = torch.min(x).item(), torch.max(x).item()
         return _scale_impl(x, out_range, domain)
+
 else:
+
     def scale_torch_array(
-            x: Any,
-            domain: Optional[Any] = None,
-            out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
+        x: Any, domain: Optional[Any] = None, out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
     ) -> torch.Tensor:
         """
         Scale a Torch array to specific range.
@@ -105,6 +102,7 @@ else:
         _ = x, domain, out_range
         del x, domain, out_range
         raise UnmetDependenciesError("pytorch")
+
 
 def describe(array: _Tensor) -> str:
     """
@@ -156,13 +154,8 @@ class DimensionMismatchException(ValueError):
 
     .. versionadded:: 1.0.2
     """
-    def __init__(
-            self,
-            arr1: _Tensor,
-            arr2: _Tensor,
-            arr1_name: str = "arr1",
-            arr2_name: str = "arr2"
-    ):
+
+    def __init__(self, arr1: _Tensor, arr2: _Tensor, arr1_name: str = "arr1", arr2_name: str = "arr2"):
         super().__init__(
             f"Array {arr1_name} and {arr2_name}  dimension mismatch!\n"
             f"\twhere {arr1_name} is {describe(arr1)}\n"

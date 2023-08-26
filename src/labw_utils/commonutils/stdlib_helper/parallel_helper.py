@@ -8,14 +8,7 @@ This includes a very basic job pool and some helper classes
 
 from __future__ import annotations
 
-__all__ = (
-    "PRIMITIVE_JOB_TYPE",
-    "PROCESS_TYPE",
-    "Job",
-    "ParallelJobExecutor",
-    "TimeOutKiller",
-    "parallel_map"
-)
+__all__ = ("PRIMITIVE_JOB_TYPE", "PROCESS_TYPE", "Job", "ParallelJobExecutor", "TimeOutKiller", "parallel_map")
 
 import gc
 import multiprocessing
@@ -79,17 +72,18 @@ class Job:
 
     .. versionadded:: 1.0.2
     """
+
     _job_id: int
     _job_object: PRIMITIVE_JOB_TYPE
     _terminate_handler: Optional[_TERMINATE_HANDLER_TYPE]
     _callback: Optional[_CALLBACK_TYPE]
 
     def __init__(
-            self,
-            job_id: int,
-            job_object: PRIMITIVE_JOB_TYPE,
-            terminate_handler: Optional[_TERMINATE_HANDLER_TYPE] = None,
-            callback: Optional[_CALLBACK_TYPE] = None
+        self,
+        job_id: int,
+        job_object: PRIMITIVE_JOB_TYPE,
+        terminate_handler: Optional[_TERMINATE_HANDLER_TYPE] = None,
+        callback: Optional[_CALLBACK_TYPE] = None,
     ):
         self._job_id = job_id
         self._job_object = job_object
@@ -199,12 +193,12 @@ class ParallelJobExecutor(threading.Thread):
     _show_tqdm: bool
 
     def __init__(
-            self,
-            pool_name: str = "Unnamed pool",
-            pool_size: Union[int, float] = 0,
-            refresh_interval: float = 0.01,
-            delete_after_finish: bool = True,
-            show_tqdm: bool = True
+        self,
+        pool_name: str = "Unnamed pool",
+        pool_size: Union[int, float] = 0,
+        refresh_interval: float = 0.01,
+        delete_after_finish: bool = True,
+        show_tqdm: bool = True,
     ):
         super().__init__()
         self._pool_size = pool_size
@@ -272,21 +266,18 @@ class ParallelJobExecutor(threading.Thread):
             job.terminate()
 
     def append(
-            self,
-            mp_instance: PRIMITIVE_JOB_TYPE,
-            terminate_handler: Optional[_TERMINATE_HANDLER_TYPE] = None,
-            callback: Optional[_CALLBACK_TYPE] = None
+        self,
+        mp_instance: PRIMITIVE_JOB_TYPE,
+        terminate_handler: Optional[_TERMINATE_HANDLER_TYPE] = None,
+        callback: Optional[_CALLBACK_TYPE] = None,
     ):
         """
         Commit a new job to the queue
         """
         if self._is_appendable:
-            self._pending_job_queue.append(Job(
-                job_object=mp_instance,
-                job_id=self._n_jobs,
-                terminate_handler=terminate_handler,
-                callback=callback
-            ))
+            self._pending_job_queue.append(
+                Job(job_object=mp_instance, job_id=self._n_jobs, terminate_handler=terminate_handler, callback=callback)
+            )
             self._n_jobs += 1
         else:
             raise ValueError("Job queue not appendable!")
@@ -391,10 +382,10 @@ class TimeOutKiller(threading.Thread):
 
 
 def parallel_map(
-        f: Callable[[_InType], _OutType],
-        input_iterable: Iterable[_InType],
-        n_jobs: int = multiprocessing.cpu_count(),
-        backend: str = "threading",
+    f: Callable[[_InType], _OutType],
+    input_iterable: Iterable[_InType],
+    n_jobs: int = multiprocessing.cpu_count(),
+    backend: str = "threading",
 ) -> Iterable[_OutType]:
     """
     The parallel version of Python :py:func:`map` function (or, ``apply`` function in R)
@@ -417,9 +408,7 @@ def parallel_map(
 
     .. versionadded:: 1.0.2
     """
-    it: Iterable[_OutType] = joblib.Parallel(
-        n_jobs=n_jobs, backend=backend
-    )(
+    it: Iterable[_OutType] = joblib.Parallel(n_jobs=n_jobs, backend=backend)(
         joblib.delayed(f)(i) for i in input_iterable
     )
     return it

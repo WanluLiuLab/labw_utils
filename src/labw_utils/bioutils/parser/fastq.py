@@ -4,10 +4,7 @@ TODO: docs
 .. versionadded:: 1.0.2
 """
 
-__all__ = (
-    "FastqIterator",
-    "FastqWriter"
-)
+__all__ = ("FastqIterator", "FastqWriter")
 
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.fastq import FastqRecord
@@ -35,7 +32,7 @@ class FastqIterator(BaseFileIterator, Iterable[FastqRecord]):
     def __iter__(self) -> Iterator[FastqRecord]:
         while True:
             lines = [self._fd.readline(-1) for _ in range(4)]
-            if '' in lines or len(lines) != 4:
+            if "" in lines or len(lines) != 4:
                 break
             yield FastqRecord.from_str(lines)
         self._fd.close()
@@ -51,11 +48,7 @@ class FastqWriter(BaseIteratorWriter):
     filetype: Final[str] = "FASTQ"
 
     @staticmethod
-    def write_iterator(
-            iterable: Iterator[FastqRecord],
-            filename: str,
-            **kwargs
-    ):
+    def write_iterator(iterable: Iterator[FastqRecord], filename: str, **kwargs):
         with FastqWriter(filename) as writer:
             for fastq_record in iterable:
                 writer.write(fastq_record)

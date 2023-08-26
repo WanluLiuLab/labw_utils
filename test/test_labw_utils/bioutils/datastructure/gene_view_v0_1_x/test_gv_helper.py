@@ -108,34 +108,22 @@ def initialize_module() -> str:
     with tempfile.TemporaryDirectory() as tmpdir:
         with get_writer(os.path.join(tmpdir, "1.gtf.gz")) as fh:
             fh.write(gene_gtf)
-        with get_writer(os.path.join(
-                tmpdir,
-                "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
-        )) as fh:
+        with get_writer(os.path.join(tmpdir, "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf")) as fh:
             fh.write(gene_gtf_with_duplicated_transcripts_in_one_gene)
-        with get_writer(os.path.join(
-                tmpdir,
-                "gene_gtf_for_exon_supersets.gtf"
-        )) as fh:
+        with get_writer(os.path.join(tmpdir, "gene_gtf_for_exon_supersets.gtf")) as fh:
             fh.write(gene_gtf_for_exon_supersets)
         yield tmpdir
 
 
 def test_gene_gtf_with_duplicated_transcripts_in_one_gene(initialize_module):
-    file_name = os.path.join(
-        initialize_module,
-        "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
-    )
+    file_name = os.path.join(initialize_module, "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf")
     gv = GeneViewFactory.from_file(file_name)
     gvh.gv_dedup(gv, by_splice_site=True, assume_no_cross_gene_duplication=True)
     assert gv.number_of_transcripts == 2
 
 
 def test_gene_gtf_with_duplicated_transcripts_in_one_gene_by_splice_sites(initialize_module):
-    file_name = os.path.join(
-        initialize_module,
-        "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf"
-    )
+    file_name = os.path.join(initialize_module, "gene_gtf_with_duplicated_transcripts_in_one_gene.gtf")
     gv = GeneViewFactory.from_file(file_name)
     gvh.gv_dedup(gv, by_splice_site=False, assume_no_cross_gene_duplication=True)
     assert gv.number_of_transcripts == 3

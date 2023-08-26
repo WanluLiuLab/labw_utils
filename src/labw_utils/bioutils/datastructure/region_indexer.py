@@ -36,12 +36,10 @@ class NumpyIntervalEngine:
 
     .. versionadded:: 1.0.2
     """
+
     _chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]
 
-    def _select_chromosome(
-            self,
-            query_chr: Tuple[str, Optional[bool]]
-    ) -> Tuple[npt.NDArray, npt.NDArray]:
+    def _select_chromosome(self, query_chr: Tuple[str, Optional[bool]]) -> Tuple[npt.NDArray, npt.NDArray]:
         stored_values_of_selected_chromosome = self._chromosomal_split_np_index[query_chr]
         s = stored_values_of_selected_chromosome[:, 0]
         e = stored_values_of_selected_chromosome[:, 1]
@@ -54,27 +52,21 @@ class NumpyIntervalEngine:
         except KeyError:
             return None
         for it in np.nonzero(
-                functools.reduce(
-                    np.logical_or,
-                    (
-                            np.logical_and(
-                                np.asarray(s < query_s),
-                                np.asarray(query_s < e),
-                            ),
-                            np.logical_and(
-                                np.asarray(s < query_e),
-                                np.asarray(query_e < e),
-                            ),
-                            np.logical_and(
-                                np.asarray(query_s < s),
-                                np.asarray(s < query_e)
-                            ),
-                            np.logical_and(
-                                np.asarray(query_s < e),
-                                np.asarray(e < query_e)
-                            )
-                    )
-                )
+            functools.reduce(
+                np.logical_or,
+                (
+                    np.logical_and(
+                        np.asarray(s < query_s),
+                        np.asarray(query_s < e),
+                    ),
+                    np.logical_and(
+                        np.asarray(s < query_e),
+                        np.asarray(query_e < e),
+                    ),
+                    np.logical_and(np.asarray(query_s < s), np.asarray(s < query_e)),
+                    np.logical_and(np.asarray(query_s < e), np.asarray(e < query_e)),
+                ),
+            )
         )[0].tolist():
             yield it
 
@@ -95,12 +87,7 @@ class NumpyIntervalEngine:
             s, e = self._select_chromosome(query_chr)
         except KeyError:
             return None
-        match_result = np.nonzero(
-            np.logical_and(
-                np.asarray(s > query_s),
-                np.asarray(e < query_e)
-            )
-        )[0]
+        match_result = np.nonzero(np.logical_and(np.asarray(s > query_s), np.asarray(e < query_e)))[0]
         for it in match_result.tolist():
             yield it
 

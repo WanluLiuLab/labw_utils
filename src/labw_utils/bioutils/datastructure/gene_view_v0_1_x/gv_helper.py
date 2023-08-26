@@ -3,10 +3,20 @@ import re
 
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewType, GeneViewFactory
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import Transcript
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import (
+    GeneViewType,
+    GeneViewFactory,
+)
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import (
+    Transcript,
+    Gene,
+)
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import (
+    GtfIterator,
+)
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import (
+    GtfRecord,
+)
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -16,8 +26,8 @@ _lh = get_logger(__name__)
 
 
 def assert_splice_site_existence(
-        this_splice_site: List[Tuple[int, int]],
-        all_splice_sites: List[List[Tuple[int, int]]]
+    this_splice_site: List[Tuple[int, int]],
+    all_splice_sites: List[List[Tuple[int, int]]],
 ) -> bool:
     if this_splice_site in all_splice_sites:
         return True
@@ -26,10 +36,7 @@ def assert_splice_site_existence(
         return False
 
 
-def get_duplicated_transcript_ids(
-        transcripts: Iterable[Transcript],
-        by_splice_site: bool = True
-) -> Iterable[str]:
+def get_duplicated_transcript_ids(transcripts: Iterable[Transcript], by_splice_site: bool = True) -> Iterable[str]:
     all_splice_sites: List[List[Tuple[int, int]]] = []
 
     if by_splice_site:
@@ -47,9 +54,9 @@ def get_duplicated_transcript_ids(
 
 
 def gv_dedup(
-        gv: GeneViewType,
-        by_splice_site: bool = True,
-        assume_no_cross_gene_duplication: bool = True
+    gv: GeneViewType,
+    by_splice_site: bool = True,
+    assume_no_cross_gene_duplication: bool = True,
 ):
     """
     Remove duplicates in ``transcripts``.
@@ -61,15 +68,13 @@ def gv_dedup(
     if assume_no_cross_gene_duplication:
         transcript_ids_to_del = []
         for gene in tqdm(iterable=gv.iter_genes()):
-            transcript_ids_to_del.extend(get_duplicated_transcript_ids(
-                transcripts=gene.iter_transcripts(),
-                by_splice_site=by_splice_site
-            ))
+            transcript_ids_to_del.extend(
+                get_duplicated_transcript_ids(transcripts=gene.iter_transcripts(), by_splice_site=by_splice_site)
+            )
     else:
-        transcript_ids_to_del = list(get_duplicated_transcript_ids(
-            transcripts=gv.iter_transcripts(),
-            by_splice_site=by_splice_site
-        ))
+        transcript_ids_to_del = list(
+            get_duplicated_transcript_ids(transcripts=gv.iter_transcripts(), by_splice_site=by_splice_site)
+        )
     _lh.info(f"Removing {len(transcript_ids_to_del)} transcript duplicate(s) in gv...")
     for transcript_id_to_del in transcript_ids_to_del:
         gv.del_transcript(transcript_id_to_del)
@@ -77,27 +82,31 @@ def gv_dedup(
 
 
 def transcribe(
-        gv: GeneViewType,
-        output_fasta: str,
-        fv: FastaViewType,
-        show_tqdm: bool = True,
-        write_single_transcript: bool = True
+    gv: GeneViewType,
+    output_fasta: str,
+    fv: FastaViewType,
+    show_tqdm: bool = True,
+    write_single_transcript: bool = True,
 ):
     intermediate_fasta_dir = output_fasta + ".d"
     os.makedirs(intermediate_fasta_dir, exist_ok=True)
-    with get_writer(output_fasta) as fasta_writer, \
-            get_writer(output_fasta + ".stats") as stats_writer:
-        stats_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "GENE_ID",
-            "SEQNAME",
-            "START",
-            "END",
-            "STRAND",
-            "ABSOLUTE_LENGTH",
-            "TRANSCRIBED_LENGTH",
-            "GC"
-        )) + "\n")
+    with get_writer(output_fasta) as fasta_writer, get_writer(output_fasta + ".stats") as stats_writer:
+        stats_writer.write(
+            "\t".join(
+                (
+                    "TRANSCRIPT_ID",
+                    "GENE_ID",
+                    "SEQNAME",
+                    "START",
+                    "END",
+                    "STRAND",
+                    "ABSOLUTE_LENGTH",
+                    "TRANSCRIBED_LENGTH",
+                    "GC",
+                )
+            )
+            + "\n"
+        )
         if show_tqdm:
             it = tqdm(iterable=list(gv.iter_transcripts()), desc="Transcribing GTF...")
         else:
@@ -111,17 +120,22 @@ def transcribe(
             transcript_name = transcript_value.transcript_id
             fa_str = f">{transcript_name}\n{cdna_seq}\n"
             fasta_writer.write(fa_str)
-            stats_writer.write("\t".join((
-                transcript_name,
-                transcript_value.gene_id,
-                transcript_value.seqname,
-                str(transcript_value.start),
-                str(transcript_value.end),
-                transcript_value.strand,
-                str(transcript_value.end - transcript_value.start + 1),
-                str(transcript_value.transcribed_length),
-                str(round(get_gc_percent(cdna_seq) * 100, 2))
-            )) + "\n")
+            stats_writer.write(
+                "\t".join(
+                    (
+                        transcript_name,
+                        transcript_value.gene_id,
+                        transcript_value.seqname,
+                        str(transcript_value.start),
+                        str(transcript_value.end),
+                        transcript_value.strand,
+                        str(transcript_value.end - transcript_value.start + 1),
+                        str(transcript_value.transcribed_length),
+                        str(round(get_gc_percent(cdna_seq) * 100, 2)),
+                    )
+                )
+                + "\n"
+            )
             if write_single_transcript:
                 transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
                 with get_writer(transcript_output_fasta) as single_transcript_writer:
@@ -129,11 +143,11 @@ def transcribe(
 
 
 def subset_gtf_by_attribute_value(
-        attribute_values: Iterator[str],
-        attribute_name: str,
-        gtf_filename: str,
-        out_filename: str,
-        regex: bool = False
+    attribute_values: Iterator[str],
+    attribute_name: str,
+    gtf_filename: str,
+    out_filename: str,
+    regex: bool = False,
 ):
     gi = GtfIterator(gtf_filename)
     input_record_num = 0
@@ -164,7 +178,7 @@ def subset_gtf_by_attribute_value(
         "%d processed with %d (%.2f%%) records output",
         input_record_num,
         final_record_num,
-        round(final_record_num / input_record_num * 100, 2)
+        round(final_record_num / input_record_num * 100, 2),
     )
 
 
@@ -174,52 +188,82 @@ def describe(input_filename: str, out_basename: str):
     """
     gv = GeneViewFactory.from_file(input_filename, not_save_index=True)
 
-    with get_writer(f"{out_basename}.gene.tsv") as gene_writer, \
-            get_writer(f"{out_basename}.transcripts.tsv") as transcripts_writer, \
-            get_writer(f"{out_basename}.exons.tsv") as exons_writer:
-        gene_writer.write("\t".join((
-            "GENE_ID",
-            "TRANSCRIPT_NUMBER",
-            "NAIVE_LENGTH",
-            "TRANSCRIBED_LENGTH",
-            "MAPPABLE_LENGTH"
-        )) + "\n")
-        transcripts_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "GENE_ID",
-            "NAIVE_LENGTH",
-            "TRANSCRIBED_LENGTH",
-            "EXON_NUMBER"
-        )) + "\n")
-        exons_writer.write("\t".join((
-            "TRANSCRIPT_ID",
-            "EXON_NUMBER",
-            "NAIVE_LENGTH"
-        )) + "\n")
+    with get_writer(f"{out_basename}.gene.tsv") as gene_writer, get_writer(
+        f"{out_basename}.transcripts.tsv"
+    ) as transcripts_writer, get_writer(f"{out_basename}.exons.tsv") as exons_writer:
+        gene_writer.write(
+            "\t".join(
+                (
+                    "GENE_ID",
+                    "TRANSCRIPT_NUMBER",
+                    "NAIVE_LENGTH",
+                    "TRANSCRIBED_LENGTH",
+                    "MAPPABLE_LENGTH",
+                    "STRAND",
+                )
+            )
+            + "\n"
+        )
+        transcripts_writer.write(
+            "\t".join(
+                (
+                    "TRANSCRIPT_ID",
+                    "GENE_ID",
+                    "NAIVE_LENGTH",
+                    "TRANSCRIBED_LENGTH",
+                    "EXON_NUMBER",
+                    "STRAND",
+                )
+            )
+            + "\n"
+        )
+        exons_writer.write("\t".join(("TRANSCRIPT_ID", "EXON_NUMBER", "NAIVE_LENGTH", "STRAND")) + "\n")
 
-        for gene in tqdm(desc="Iterating over genes...", iterable=gv.iter_genes(), total=gv.number_of_genes):
-
-            gene_writer.write("\t".join((
-                str(gene.gene_id),
-                str(gene.number_of_transcripts),
-                str(gene.naive_length),
-                str(gene.transcribed_length),
-                str(gene.mappable_length)
-            )) + "\n")
+        for gene in tqdm(
+            desc="Iterating over genes...",
+            iterable=gv.iter_genes(),
+            total=gv.number_of_genes,
+        ):
+            gene: Gene
+            gene_writer.write(
+                "\t".join(
+                    (
+                        str(gene.gene_id),
+                        str(gene.number_of_transcripts),
+                        str(gene.naive_length),
+                        str(gene.transcribed_length),
+                        str(gene.mappable_length),
+                        gene.strand,
+                    )
+                )
+                + "\n"
+            )
 
             transcripts = list(gene.iter_transcripts())
             for t_i in range(len(transcripts)):
                 transcript = transcripts[t_i]
                 for exon in list(transcript.iter_exons()):
-                    exons_writer.write("\t".join((
-                        exon.transcript_id,
-                        str(exon.exon_number),
-                        str(exon.naive_length)
-                    )) + "\n")
-                transcripts_writer.write("\t".join((
-                    transcript.transcript_id,
-                    transcript.gene_id,
-                    str(transcript.naive_length),
-                    str(transcript.transcribed_length),
-                    str(transcript.number_of_exons)
-                )) + "\n")
+                    exons_writer.write(
+                        "\t".join(
+                            (
+                                exon.transcript_id,
+                                str(exon.exon_number),
+                                str(exon.naive_length),
+                                exon.strand,
+                            )
+                        )
+                        + "\n"
+                    )
+                transcripts_writer.write(
+                    "\t".join(
+                        (
+                            transcript.transcript_id,
+                            transcript.gene_id,
+                            str(transcript.naive_length),
+                            str(transcript.transcribed_length),
+                            str(transcript.number_of_exons),
+                            transcript.strand,
+                        )
+                    )
+                    + "\n"
+                )

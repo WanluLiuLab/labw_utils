@@ -73,10 +73,7 @@ class YSJSD(threading.Thread):
         os.makedirs(os.path.join(self._config.var_directory_path, "submission"), exist_ok=True)
         log_file_path = os.path.join(self._config.var_directory_path, "ysjsd.log")
         self._lh = logger_helper.get_logger(
-            name="YSJSD",
-            level=logger_helper.TRACE,
-            log_file_name=log_file_path,
-            log_file_level=logger_helper.TRACE
+            name="YSJSD", level=logger_helper.TRACE, log_file_name=log_file_path, log_file_level=logger_helper.TRACE
         )
         self._lh.info("Logger set up at %s", log_file_path)
 
@@ -86,17 +83,11 @@ class YSJSD(threading.Thread):
             with get_reader(self._lock_filename) as last_job_id_reader:
                 prev_pid = int(last_job_id_reader.read())
                 if psutil.pid_exists(prev_pid):
-                    self._lh.error(
-                        "Previous lock %s (pid=%d) still running!",
-                        self._lock_filename,
-                        prev_pid
-                    )
+                    self._lh.error("Previous lock %s (pid=%d) still running!", self._lock_filename, prev_pid)
                     sys.exit(1)
                 else:
                     self._lh.warning(
-                        "Previous lock %s (pid=%d) invalid; will be removed",
-                        self._lock_filename,
-                        prev_pid
+                        "Previous lock %s (pid=%d) invalid; will be removed", self._lock_filename, prev_pid
                     )
                     rm_rf(self._lock_filename)
         except (ValueError, FileNotFoundError):
@@ -117,18 +108,14 @@ class YSJSD(threading.Thread):
         # Connect to DB
         dburl = f"sqlite:///{self._config.var_directory_path}/foo.db"
         with self._db_write_lock:
-            self._dbe = sqlalchemy.engine.create_engine(
-                url=dburl
-            )
+            self._dbe = sqlalchemy.engine.create_engine(url=dburl)
             metadata = SQLAlchemyDeclarativeBase.metadata
             create_drop_params = {"bind": self._dbe, "checkfirst": True}
             metadata.tables[ServerSideYSJSDConfigTable.__tablename__].drop(**create_drop_params)
             metadata.tables[YSJSDVersionTable.__tablename__].drop(**create_drop_params)
             metadata.create_all(**create_drop_params)
             with sessionmaker(bind=self._dbe)() as session:
-                session.add(
-                    ServerSideYSJSDConfigTable(**self._config.to_dict())
-                )
+                session.add(ServerSideYSJSDConfigTable(**self._config.to_dict()))
                 for name, version in ServerSideYSJSDConfig.dump_versions().items():
                     session.add(YSJSDVersionTable(name=name, version=version))
                 session.commit()
@@ -156,22 +143,15 @@ class YSJSD(threading.Thread):
         if self._state != "running":
             raise NotAvailableException
         sid = submission.submission_id
-        with get_writer(
-                os.path.join(self._config.var_directory_path, "submission", f"{sid}.json")
-        ) as writer:
+        with get_writer(os.path.join(self._config.var_directory_path, "submission", f"{sid}.json")) as writer:
             json.dump(submission.to_dict(), writer)
         with self._db_write_lock:
             with sessionmaker(bind=self._dbe)() as session:
-                session.add(
-                    YSJSSubmissionTable(**submission.to_dict())
-                )
+                session.add(YSJSSubmissionTable(**submission.to_dict()))
                 session.commit()
         with self._job_queue_lock:
             new_job = ServerSideYSJSJob.new(
-                dbe=self._dbe,
-                db_write_lock=self._db_write_lock,
-                submission=submission,
-                job_id=self._latest_job_id
+                dbe=self._dbe, db_write_lock=self._db_write_lock, submission=submission, job_id=self._latest_job_id
             )
             self._job_queue_pending[self._latest_job_id] = new_job
             reti = self._latest_job_id
@@ -183,9 +163,11 @@ class YSJSD(threading.Thread):
     def _fetch_pending_job(self) -> Optional[ServerSideYSJSJob]:
         def _is_dependencies_cleared(_job: ServerSideYSJSJob) -> bool:
             with sessionmaker(bind=self._dbe)() as session:
-                for depend_job in session.query(YSJSJobTable.job_id).filter(
-                        YSJSJobTable.submission_id.in_(_job.submission.depends)
-                ).all():
+                for depend_job in (
+                    session.query(YSJSJobTable.job_id)
+                    .filter(YSJSJobTable.submission_id.in_(_job.submission.depends))
+                    .all()
+                ):
                     depend_job: YSJSJobTable
                     if depend_job.status != "finished":
                         return False
@@ -201,18 +183,18 @@ class YSJSD(threading.Thread):
                     return None
                 job = self._job_queue_pending[smallest_jid]
                 if (
-                        _is_dependencies_cleared(job) and
-                        job.submission.cpu < self._current_cpu and
-                        job.submission.mem < self._current_mem
+                    _is_dependencies_cleared(job)
+                    and job.submission.cpu < self._current_cpu
+                    and job.submission.mem < self._current_mem
                 ):
                     return self._job_queue_pending.pop(smallest_jid)
             elif self._config.schedule_method == "AGGRESSIVE":
                 for i in list(self._job_queue_pending.keys()):
                     job = self._job_queue_pending[i]
                     if (
-                            _is_dependencies_cleared(job) and
-                            job.submission.cpu < self._current_cpu and
-                            job.submission.mem < self._current_mem
+                        _is_dependencies_cleared(job)
+                        and job.submission.cpu < self._current_cpu
+                        and job.submission.mem < self._current_mem
                     ):
                         return self._job_queue_pending.pop(i)
         return None
@@ -257,15 +239,12 @@ class YSJSD(threading.Thread):
         except KeyError as e:
             raise JobNotExistException from e
 
-    def query(self, ) -> Iterable[int]:
+    def query(
+        self,
+    ) -> Iterable[int]:
         raise NotImplementedError
 
-    def apply(
-            self,
-            job_ids: Iterable[int],
-            operation: str,
-            **extra_params
-    ):
+    def apply(self, job_ids: Iterable[int], operation: str, **extra_params):
         job_ids = list(job_ids)
         if self._state == "starting":
             raise NotAvailableException
@@ -302,14 +281,8 @@ class YSJSD(threading.Thread):
             time.sleep(0.1)
 
         self._lh.info("Terminating")
-        self.apply(
-            self._job_queue_pending.keys(),
-            operation="cancel"
-        )
-        self.apply(
-            self._job_queue_running.keys(),
-            operation="kill"
-        )
+        self.apply(self._job_queue_pending.keys(), operation="cancel")
+        self.apply(self._job_queue_running.keys(), operation="kill")
         rm_rf(self._lock_filename)
         self._lh.info("Terminated")
 
@@ -324,7 +297,7 @@ class YSJSD(threading.Thread):
             real_total_cpu=real_total_cpu,
             real_avail_cpu=(1 - psutil.cpu_percent(1) / 100) * real_total_cpu,
             real_total_mem=psutil.virtual_memory().total,
-            real_avail_mem=psutil.virtual_memory().available
+            real_avail_mem=psutil.virtual_memory().available,
         )
 
     @property
@@ -335,5 +308,5 @@ class YSJSD(threading.Thread):
             current_mem=self._current_mem,
             pending_queue_length=len(self._job_queue_pending),
             running_queue_length=len(self._job_queue_running),
-            uptime=time.time() - self._start_time
+            uptime=time.time() - self._start_time,
         )

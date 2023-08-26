@@ -32,12 +32,19 @@ class ServerSideYSJSDConfig(YSJSDConfig, AbstractTOMLSerializable):
             if compile_time_version_value != run_time_version_value:
                 _lh.warning(
                     "Package %s have different version information: Compile (%s) != Run (%s)",
-                    version_key, compile_time_version_value, run_time_version_value
+                    version_key,
+                    compile_time_version_value,
+                    run_time_version_value,
                 )
-        for remaining_compile_time_version_key, remaining_compile_time_version_value in compile_time_version_dict.items():
+        for (
+            remaining_compile_time_version_key,
+            remaining_compile_time_version_value,
+        ) in compile_time_version_dict.items():
             _lh.warning(
                 "Package %s have different version information: Compile (%s) != Run (%s)",
-                remaining_compile_time_version_key, remaining_compile_time_version_value, None
+                remaining_compile_time_version_key,
+                remaining_compile_time_version_value,
+                None,
             )
 
     @staticmethod
@@ -47,7 +54,7 @@ class ServerSideYSJSDConfig(YSJSDConfig, AbstractTOMLSerializable):
             "ysjsd": __version__,
             "flask": flask.__version__,
             "sqlalchemy": sqlalchemy.__version__,
-            "python": ".".join(map(str, (sys.version_info.major, sys.version_info.minor, sys.version_info.micro)))
+            "python": ".".join(map(str, (sys.version_info.major, sys.version_info.minor, sys.version_info.micro))),
         }
 
     @staticmethod
@@ -60,28 +67,24 @@ class ServerSideYSJSDConfig(YSJSDConfig, AbstractTOMLSerializable):
             "time_gmt": time.asctime(time.gmtime()),
             "time_local": time.asctime(time.localtime()),
             "platform": platform.uname()._asdict(),
-            "interpreter": {
-                "executable": sys.executable,
-                "path": sys.path,
-                "implementation": sys.implementation.name
-            },
+            "interpreter": {"executable": sys.executable, "path": sys.path, "implementation": sys.implementation.name},
             "env": dict(os.environ),
-            "cwd": os.getcwd()
+            "cwd": os.getcwd(),
         }
 
     @classmethod
     def new(
-            cls,
-            config_file_path: str,
-            name: str = "ylsjs_cluster",
-            description: str = "No description",
-            ysjs_port: str = "8080",
-            var_directory_path: str = os.path.join(os.path.abspath(".."), "var"),
-            total_cpu: float = multiprocessing.cpu_count(),
-            total_mem: float = psutil.virtual_memory().total * 0.8,
-            schedule_method: str = "FIFO",
-            max_concurrent_jobs: int = 4096,
-            kill_timeout: float = 3
+        cls,
+        config_file_path: str,
+        name: str = "ylsjs_cluster",
+        description: str = "No description",
+        ysjs_port: str = "8080",
+        var_directory_path: str = os.path.join(os.path.abspath(".."), "var"),
+        total_cpu: float = multiprocessing.cpu_count(),
+        total_mem: float = psutil.virtual_memory().total * 0.8,
+        schedule_method: str = "FIFO",
+        max_concurrent_jobs: int = 4096,
+        kill_timeout: float = 3,
     ):
         return cls(
             name=name,
@@ -93,27 +96,20 @@ class ServerSideYSJSDConfig(YSJSDConfig, AbstractTOMLSerializable):
             total_mem=total_mem,
             schedule_method=schedule_method,
             max_concurrent_jobs=max_concurrent_jobs,
-            kill_timeout=kill_timeout
+            kill_timeout=kill_timeout,
         )
 
     def validate(self):
         _lh = logger_helper.get_logger("YSJSD")
         if self.schedule_method not in AVAILABLE_SCHEDULING_METHOD:
             raise ValueError(
-                f"Illegal scheule_method {self.schedule_method}, "
-                f"should be in {str(AVAILABLE_SCHEDULING_METHOD)}"
+                f"Illegal scheule_method {self.schedule_method}, " f"should be in {str(AVAILABLE_SCHEDULING_METHOD)}"
             )
         max_total_cpu = multiprocessing.cpu_count()
         if self.total_cpu > max_total_cpu:
-            _lh.warning(
-                "Configured CPU number %.2f larger than total CPU number %d",
-                self.total_cpu,
-                max_total_cpu
-            )
+            _lh.warning("Configured CPU number %.2f larger than total CPU number %d", self.total_cpu, max_total_cpu)
         recommended_total_mem = (psutil.virtual_memory().total + psutil.swap_memory().total) * 0.8
         if self.total_mem > recommended_total_mem:
             _lh.warning(
-                "Configured memory size %.2f larger than total CPU number %.2f",
-                self.total_mem,
-                recommended_total_mem
+                "Configured memory size %.2f larger than total CPU number %.2f", self.total_mem, recommended_total_mem
             )

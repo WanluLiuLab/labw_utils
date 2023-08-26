@@ -17,14 +17,14 @@ while others require Block GZipped ones.
 """
 
 __all__ = (
-    'FastaViewType',
-    'FastaViewFactory',
+    "FastaViewType",
+    "FastaViewFactory",
     "SeekTooFarError",
     "ChromosomeNotFoundError",
     "FromGreaterThanToError",
     "FastaViewInvalidRegionError",
     "DuplicatedChromosomeNameError",
-    "split_fasta"
+    "split_fasta",
 )
 
 import functools
@@ -43,11 +43,7 @@ from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, I
 _lh = get_logger(__name__)
 
 QueryTupleType = Union[Tuple[str, int, int], Tuple[str, int], Tuple[str]]
-FASTA_SPLIT_SEQNAME_OPTIONS = (
-    "error",
-    "convert",
-    "skip"
-)
+FASTA_SPLIT_SEQNAME_OPTIONS = ("error", "convert", "skip")
 
 
 class FastaViewError(ValueError):
@@ -56,6 +52,7 @@ class FastaViewError(ValueError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
@@ -65,6 +62,7 @@ class DuplicatedChromosomeNameError(FastaViewError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, name: str):
         super().__init__(f"Chromosome name {name} duplicated")
 
@@ -75,6 +73,7 @@ class FastaViewInvalidRegionError(FastaViewError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
@@ -84,6 +83,7 @@ class SeekTooFarError(FastaViewInvalidRegionError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, chromosome: str, pos: int, chr_len: int):
         super().__init__(f"Seek {pos}@{chromosome} too far, valid is -1, [0, {chr_len})")
 
@@ -94,6 +94,7 @@ class ChromosomeNotFoundError(FastaViewInvalidRegionError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, chromosome: str):
         super().__init__(f"Requested chromosome '{chromosome}' not found")
 
@@ -104,6 +105,7 @@ class FromGreaterThanToError(FastaViewInvalidRegionError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, from_pos: int, to_pos: int):
         super().__init__(f"Requested from_pos {from_pos} > to_pos {to_pos} not allowed!")
 
@@ -114,6 +116,7 @@ class FastaViewType:
 
     .. versionadded:: 1.0.2
     """
+
     filename: str
     """
     Filename to read
@@ -202,10 +205,7 @@ class FastaViewType:
 
     @abstractmethod
     def subset_to_file(
-            self,
-            output_filename: str,
-            querys: Iterable[QueryTupleType],
-            output_chr_names: Optional[Iterable[str]] = None
+        self, output_filename: str, querys: Iterable[QueryTupleType], output_chr_names: Optional[Iterable[str]] = None
     ):
         raise NotImplementedError
 
@@ -267,10 +267,7 @@ class _BaseFastaView(FastaViewType, ABC):
         return self.sequence(*query)
 
     def subset_to_file(
-            self,
-            output_filename: str,
-            querys: Iterable[QueryTupleType],
-            output_chr_names: Optional[Iterable[str]] = None
+        self, output_filename: str, querys: Iterable[QueryTupleType], output_chr_names: Optional[Iterable[str]] = None
     ):
         querys = list(querys)
         if output_chr_names is None:
@@ -342,11 +339,7 @@ class _MemoryAccessFastaView(_BaseFastaView):
         """
         Read FASTA into memory
         """
-        for fasta_record in FastaIterator(
-                show_tqdm=show_tqdm,
-                filename=self.filename,
-                full_header=self.full_header
-        ):
+        for fasta_record in FastaIterator(show_tqdm=show_tqdm, filename=self.filename, full_header=self.full_header):
             if fasta_record.seq_id in self._all_dict:
                 raise DuplicatedChromosomeNameError(fasta_record.seq_id)
             self._all_dict[fasta_record.seq_id] = fasta_record.sequence
@@ -381,12 +374,7 @@ class _DiskAccessFastaView(_BaseFastaView):
     def chr_names(self) -> List[str]:
         return list(self._fai.keys())
 
-    def __init__(
-            self,
-            filename: str,
-            full_header: bool = False,
-            show_tqdm: bool = True
-    ):
+    def __init__(self, filename: str, full_header: bool = False, show_tqdm: bool = True):
         super().__init__(filename, full_header)
         # If has prebuilt index file, read it
         self._fd = get_reader(self.filename)
@@ -399,11 +387,7 @@ class _DiskAccessFastaView(_BaseFastaView):
                 return
         else:
             _lh.warning("Index filename %s not exist", index_filename)
-        self._fai = FastaIndexView.from_fasta(
-            filename=filename,
-            full_header=full_header,
-            show_tqdm=show_tqdm
-        )
+        self._fai = FastaIndexView.from_fasta(filename=filename, full_header=full_header, show_tqdm=show_tqdm)
         try:
             self._fai.write(index_filename)
         except FastaIndexNotWritableError as e:
@@ -432,9 +416,7 @@ class _DiskAccessFastaView(_BaseFastaView):
         if (to_pos % chr_fai.line_blen) == 0:
             lines_to_read -= 1
 
-        rets = self._fd.read(
-            to_pos - from_pos + lines_to_read * len_newline
-        ).replace('\n', '').replace('\r', '')
+        rets = self._fd.read(to_pos - from_pos + lines_to_read * len_newline).replace("\n", "").replace("\r", "")
         return rets
 
     def close(self):
@@ -445,10 +427,7 @@ class _DiskAccessFastaView(_BaseFastaView):
 
 
 def FastaViewFactory(
-        filename: str,
-        full_header: bool = False,
-        read_into_memory: Optional[bool] = None,
-        show_tqdm: bool = True
+    filename: str, full_header: bool = False, read_into_memory: Optional[bool] = None, show_tqdm: bool = True
 ) -> FastaViewType:
     """
     Initialize a _DiskFasta interface using multiple backends.
@@ -463,23 +442,13 @@ def FastaViewFactory(
     if read_into_memory is None:
         read_into_memory = wc_c(filename) < 10 * 1024 * 1024
     if read_into_memory:
-        return _MemoryAccessFastaView(
-            filename=filename,
-            full_header=full_header,
-            show_tqdm=show_tqdm
-        )
+        return _MemoryAccessFastaView(filename=filename, full_header=full_header, show_tqdm=show_tqdm)
     else:
-        return _DiskAccessFastaView(
-            filename=filename,
-            full_header=full_header,
-            show_tqdm=show_tqdm
-        )
+        return _DiskAccessFastaView(filename=filename, full_header=full_header, show_tqdm=show_tqdm)
 
 
 def split_fasta(  # TODO: Add to commandline params
-        fav: FastaViewType,
-        out_dir_path: Optional[str] = None,
-        safe_seqname: str = "convert"
+    fav: FastaViewType, out_dir_path: Optional[str] = None, safe_seqname: str = "convert"
 ):
     """
     Split input FASTA file into one-line FASTAs with one file per contig.
@@ -494,17 +463,16 @@ def split_fasta(  # TODO: Add to commandline params
 
     for seqname in fav.chr_names:
         safe_seqname = (
-            seqname.
-            replace(" ", "_").
-            replace("\t", "_").
-            replace("\\", "_").
-            replace(":", "_").
-            replace("*", "_").
-            replace("?", "_").
-            replace("\"", "_").
-            replace("<", "_").
-            replace(">", "_").
-            replace("|", "_")
+            seqname.replace(" ", "_")
+            .replace("\t", "_")
+            .replace("\\", "_")
+            .replace(":", "_")
+            .replace("*", "_")
+            .replace("?", "_")
+            .replace('"', "_")
+            .replace("<", "_")
+            .replace(">", "_")
+            .replace("|", "_")
         )
         if seqname != safe_seqname:
             if safe_seqname == "convert":

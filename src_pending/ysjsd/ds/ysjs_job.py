@@ -30,9 +30,7 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
         self._db_write_lock = db_write_lock
         with self._db_write_lock:
             with sessionmaker(bind=self._dbe)() as session:
-                session.add(
-                    YSJSJobTable.from_job(self)
-                )
+                session.add(YSJSJobTable.from_job(self))
                 session.commit()
 
     def _db_update(self, update_dict: Mapping[str, Any]):
@@ -61,34 +59,23 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
             stderr = open(self._submission.stdin, "wb")
 
         self._p = subprocess.Popen(
-            args=[
-                self._submission.shell_path,
-                self._submission.script_path
-            ],
+            args=[self._submission.shell_path, self._submission.script_path],
             cwd=self._submission.cwd,
             env=self._submission.env,
             stdin=stdin,
             stdout=stdout,
             stderr=stderr,
-            close_fds=True
+            close_fds=True,
         )
         self._pid = self._p.pid
         self._start_time = time.time()
         _lh.info("Job %d running", self._job_id)
         self._status = "running"
-        self._db_update({
-            "status": self._status,
-            "pid": self._pid,
-            "start_time": self.start_time
-        })
+        self._db_update({"status": self._status, "pid": self._pid, "start_time": self.start_time})
         self._retv = self._p.wait()
         self._status = "finished"
         self._terminate_time = time.time()
-        self._db_update({
-            "status": self._status,
-            "retv": self._retv,
-            "terminate_time": self._terminate_time
-        })
+        self._db_update({"status": self._status, "retv": self._retv, "terminate_time": self._terminate_time})
         _lh.info("Job %d finished with exit value %d", self._job_id, self._retv)
 
     def send_signal(self, _signal: int):
@@ -105,9 +92,7 @@ class ServerSideYSJSJob(threading.Thread, YSJSJob):
 
     def cancel(self):
         self._status = "canceled"
-        self._db_update({
-            "status": self._status
-        })
+        self._db_update({"status": self._status})
 
     def kill(self, timeout: float):
         """

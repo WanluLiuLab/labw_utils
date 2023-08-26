@@ -8,9 +8,7 @@ import importlib
 import importlib.machinery
 import importlib.util
 
-__all__ = (
-    'resolve_name',
-)
+__all__ = ("resolve_name",)
 
 _NAME_PATTERN = None
 
@@ -53,36 +51,35 @@ def resolve_name(name):
     if _NAME_PATTERN is None:
         # Lazy import to speedup Python startup time
         import re
-        dotted_words = r'(?!\d)(\w+)(\.(?!\d)(\w+))*'
-        _NAME_PATTERN = re.compile(f'^(?P<pkg>{dotted_words})'
-                                   f'(?P<cln>:(?P<obj>{dotted_words})?)?$',
-                                   re.UNICODE)
+
+        dotted_words = r"(?!\d)(\w+)(\.(?!\d)(\w+))*"
+        _NAME_PATTERN = re.compile(f"^(?P<pkg>{dotted_words})" f"(?P<cln>:(?P<obj>{dotted_words})?)?$", re.UNICODE)
 
     m = _NAME_PATTERN.match(name)
     if not m:
-        raise ValueError(f'invalid format: {name!r}')
+        raise ValueError(f"invalid format: {name!r}")
     gd = m.groupdict()
-    if gd.get('cln'):
+    if gd.get("cln"):
         # there is a colon - a one-step import is all that's needed
-        mod = importlib.import_module(gd['pkg'])
-        parts = gd.get('obj')
-        parts = parts.split('.') if parts else []
+        mod = importlib.import_module(gd["pkg"])
+        parts = gd.get("obj")
+        parts = parts.split(".") if parts else []
     else:
         # no colon - have to iterate to find the package boundary
-        parts = name.split('.')
+        parts = name.split(".")
         modname = parts.pop(0)
         # first part *must* be a module/package.
         mod = importlib.import_module(modname)
         while parts:
             p = parts[0]
-            s = f'{modname}.{p}'
+            s = f"{modname}.{p}"
             try:
                 mod = importlib.import_module(s)
                 parts.pop(0)
                 modname = s
             except ImportError:
-                 # FIXME: yuzj: this part have bugs.
-                 # ImportError may be raised by reasons other than module not found!
+                # FIXME: yuzj: this part have bugs.
+                # ImportError may be raised by reasons other than module not found!
                 break
     # if we reach this point, mod is the module, already imported, and
     # parts is the list of parts in the object hierarchy to be traversed, or

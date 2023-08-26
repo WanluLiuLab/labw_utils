@@ -14,12 +14,7 @@ Import of this module may raise following errors & warnings:
 
 from __future__ import annotations
 
-__all__ = (
-    "PackageSpec",
-    "PackageSpecs",
-    "UnmetDependenciesError",
-    "__version__"
-)
+__all__ = ("PackageSpec", "PackageSpecs", "UnmetDependenciesError", "__version__")
 
 __version__ = "1.0.3"
 
@@ -50,6 +45,7 @@ class PackageSpec:
 
     .. versionadded:: 1.0.0
     """
+
     _name: str
     _conda_channel: Optional[str]
     _conda_name: Optional[str]
@@ -69,13 +65,7 @@ class PackageSpec:
             pypi_str = ""
         return "; ".join((conda_str, pypi_str))
 
-    def __init__(
-            self,
-            name: str,
-            conda_channel: Optional[str],
-            conda_name: Optional[str],
-            pypi_name: Optional[str]
-    ):
+    def __init__(self, name: str, conda_channel: Optional[str], conda_name: Optional[str], pypi_name: Optional[str]):
         self._name = name
         self._conda_name = conda_name
         self._pypi_name = pypi_name
@@ -140,6 +130,7 @@ class PackageSpecs:
     Current registered optional dependencies:
 
     """
+
     _deps: Dict[str, PackageSpec] = {}
 
     @staticmethod
@@ -171,122 +162,41 @@ class PackageSpecs:
         return iter(PackageSpecs._deps.keys())
 
 
-PackageSpecs.add(PackageSpec(
-    name="pandas",
-    conda_name="pandas",
-    pypi_name="pandas",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="numpy",
-    conda_name="numpy",
-    pypi_name="numpy",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="torch",
-    conda_name="pytorch",
-    pypi_name="torch",
-    conda_channel="pytorch"
-))
-PackageSpecs.add(PackageSpec(
-    name="pytables",
-    conda_name="pytables",
-    pypi_name="pytables",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="pysam",
-    conda_name="pysam",
-    pypi_name="pysam",
-    conda_channel="bioconda"
-))
-PackageSpecs.add(PackageSpec(
-    name="pyarrow",
-    conda_name="pyarrow",
-    pypi_name="pyarrow",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="fastparquet",
-    conda_name="fastparquet",
-    pypi_name="fastparquet",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="flask",
-    conda_name="flask",
-    pypi_name="flask",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="sqlalchemy",
-    conda_name="sqlalchemy",
-    pypi_name="sqlalchemy",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="psutil",
-    conda_name="psutil",
-    pypi_name="psutil",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="gevent",
-    conda_name="gevent",
-    pypi_name="gevent",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="tomli_w",
-    conda_name="tomli-w",
-    pypi_name="tomli-w",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="requests",
-    conda_name="requests",
-    pypi_name="requests",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="joblib",
-    conda_name="joblib",
-    pypi_name="joblib",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="jinja2",
-    conda_name="jinja2",
-    pypi_name="jinja2",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="matplotlib",
-    conda_name="matplotlib",
-    pypi_name="matplotlib",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="scipy",
-    conda_name="scipy",
-    pypi_name="scipy",
-    conda_channel="conda-forge"
-))
-PackageSpecs.add(PackageSpec(
-    name="snappy",
-    conda_name="python-snappy",
-    pypi_name="python-snappy",
-    conda_channel="conda-forge"
-))
+PackageSpecs.add(PackageSpec(name="pandas", conda_name="pandas", pypi_name="pandas", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="numpy", conda_name="numpy", pypi_name="numpy", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="torch", conda_name="pytorch", pypi_name="torch", conda_channel="pytorch"))
+PackageSpecs.add(PackageSpec(name="pytables", conda_name="pytables", pypi_name="pytables", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="pysam", conda_name="pysam", pypi_name="pysam", conda_channel="bioconda"))
+PackageSpecs.add(PackageSpec(name="pyarrow", conda_name="pyarrow", pypi_name="pyarrow", conda_channel="conda-forge"))
+PackageSpecs.add(
+    PackageSpec(name="fastparquet", conda_name="fastparquet", pypi_name="fastparquet", conda_channel="conda-forge")
+)
+PackageSpecs.add(PackageSpec(name="flask", conda_name="flask", pypi_name="flask", conda_channel="conda-forge"))
+PackageSpecs.add(
+    PackageSpec(name="sqlalchemy", conda_name="sqlalchemy", pypi_name="sqlalchemy", conda_channel="conda-forge")
+)
+PackageSpecs.add(PackageSpec(name="psutil", conda_name="psutil", pypi_name="psutil", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="gevent", conda_name="gevent", pypi_name="gevent", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="tomli_w", conda_name="tomli-w", pypi_name="tomli-w", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="requests", conda_name="requests", pypi_name="requests", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="joblib", conda_name="joblib", pypi_name="joblib", conda_channel="conda-forge"))
+PackageSpecs.add(PackageSpec(name="jinja2", conda_name="jinja2", pypi_name="jinja2", conda_channel="conda-forge"))
+PackageSpecs.add(
+    PackageSpec(name="matplotlib", conda_name="matplotlib", pypi_name="matplotlib", conda_channel="conda-forge")
+)
+PackageSpecs.add(PackageSpec(name="scipy", conda_name="scipy", pypi_name="scipy", conda_channel="conda-forge"))
+PackageSpecs.add(
+    PackageSpec(name="snappy", conda_name="python-snappy", pypi_name="python-snappy", conda_channel="conda-forge")
+)
 
 
 class UnmetDependenciesError(RuntimeError):
     """
     An error indicating some additional packages should be installed.
-    
+
     .. versionadded:: 1.0.0
     """
+
     _package_name: str
 
     def __init__(self, package_name: str):

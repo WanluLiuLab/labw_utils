@@ -14,14 +14,22 @@ from labw_utils.bioutils.algorithm.sequence import reverse_complement
 from labw_utils.bioutils.algorithm.utils import merge_intervals
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewInvalidRegionError
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_errors import _all as _gve_all
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import GtfRecord, Feature, FeatureType, \
-    GTFAttributeType, Gff3Record
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import (
+    GtfRecord,
+    Feature,
+    FeatureType,
+    GTFAttributeType,
+    Gff3Record,
+)
 from labw_utils.typing_importer import List, Callable, Optional, Iterable, Tuple, Type, Union
 
 __all__ = [
-    'VALID_SORT_EXON_EXON_STRAND_POLICY',
-    'DEFAULT_SORT_EXON_EXON_STRAND_POLICY',
-    'Exon', 'Transcript', 'Gene', 'merge_intervals'
+    "VALID_SORT_EXON_EXON_STRAND_POLICY",
+    "DEFAULT_SORT_EXON_EXON_STRAND_POLICY",
+    "Exon",
+    "Transcript",
+    "Gene",
+    "merge_intervals",
 ]
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -33,12 +41,12 @@ lh = get_logger(__name__)
 
 def unknown_transcript_id() -> str:
     """Generate a new unknown transcript ID"""
-    return 'unknown_transcript_id' + str(uuid.uuid4())
+    return "unknown_transcript_id" + str(uuid.uuid4())
 
 
 def unknown_gene_id() -> str:
     """Generate a new unknown gene ID"""
-    return 'unknown_gene_id' + str(uuid.uuid4())
+    return "unknown_gene_id" + str(uuid.uuid4())
 
 
 VALID_SORT_EXON_EXON_STRAND_POLICY = ("unstranded", "stranded", "none")
@@ -209,7 +217,6 @@ class BaseFeatureProxy(FeatureType):
 
 
 class Exon(BaseFeatureProxy):
-
     @property
     def transcript_id(self) -> str:
         return self._data.attribute["transcript_id"]
@@ -309,7 +316,7 @@ class Transcript(BaseFeatureProxy):
         The spanning length of all exons
         """
         exon_s_min = math.inf
-        exon_e_max = - math.inf
+        exon_e_max = -math.inf
         for exon in self._exons:
             exon_s_min = min(exon_s_min, exon.start)
             exon_e_max = max(exon_e_max, exon.end)
@@ -323,15 +330,14 @@ class Transcript(BaseFeatureProxy):
         return sum(map(lambda exon: exon.transcribed_length, self.iter_exons()))
 
     def cdna_sequence(self, sequence_func: Callable[[str, int, int], str]) -> str:
-
         def get_exon_seq(_exon: Exon) -> str:
             try:
                 _seq = sequence_func(self.seqname, _exon.start - 1, _exon.end)
                 if len(_seq) != _exon.transcribed_length:
                     lh.warning(
-                        f"{self.transcript_id}: Different exon length at {_exon}: " +
-                        f"cdna ({len(_seq)}) != exon ({_exon.transcribed_length})" +
-                        f"({_exon.get_data()})"
+                        f"{self.transcript_id}: Different exon length at {_exon}: "
+                        + f"cdna ({len(_seq)}) != exon ({_exon.transcribed_length})"
+                        + f"({_exon.get_data()})"
                     )
             except FastaViewInvalidRegionError:
                 lh.warning(f"{self.transcript_id}: Failed to get cDNA sequence at exon {_exon}")
@@ -339,11 +345,9 @@ class Transcript(BaseFeatureProxy):
             return _seq
 
         rets = ""
-        if self.strand == '-':
+        if self.strand == "-":
             for exon in self._exons[::-1]:
-                rets += reverse_complement(
-                    get_exon_seq(exon)
-                )
+                rets += reverse_complement(get_exon_seq(exon))
         else:
             for exon in self._exons:
                 rets += get_exon_seq(exon)
@@ -351,8 +355,8 @@ class Transcript(BaseFeatureProxy):
             lh.warning(f"Transcript {self.transcript_id} failed!")
         elif len(rets) != self.transcribed_length:
             lh.warning(
-                f"Transcript {self.transcript_id} " +
-                f"cdna_len({len(rets)}) != transcribed_len ({self.transcribed_length})."
+                f"Transcript {self.transcript_id} "
+                + f"cdna_len({len(rets)}) != transcribed_len ({self.transcribed_length})."
             )
         return rets
 
@@ -391,8 +395,7 @@ class Gene(BaseFeatureProxy):
     def check_whether_one_transcript_duplicates_with_others(self, transcript_id: str) -> Optional[str]:
         transcript = self.get_transcript(transcript_id)
         for other_transcript in self._transcripts:
-            if other_transcript == transcript and \
-                    other_transcript.transcript_id != transcript.transcript_id:
+            if other_transcript == transcript and other_transcript.transcript_id != transcript.transcript_id:
                 return other_transcript.transcript_id
         return None
 
@@ -417,8 +420,8 @@ class Gene(BaseFeatureProxy):
 
     @property
     def mappable_length(self) -> int:
-        all_exons: List[Exon] = list(itertools.chain(
-            *list(transcript.iter_exons() for transcript in self._transcripts))
+        all_exons: List[Exon] = list(
+            itertools.chain(*list(transcript.iter_exons() for transcript in self._transcripts))
         )
         all_intervals = list((exon.start, exon.end) for exon in all_exons)
         merged_intervals = merge_intervals(all_intervals)

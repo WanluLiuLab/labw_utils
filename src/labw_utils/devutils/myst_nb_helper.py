@@ -7,11 +7,7 @@ TODO: This module is largely unfinished.
     UNSTABLE -- SUBJECT TO CHANGE!
 """
 
-__all__ = (
-    "convert_ipynb_to_myst",
-    "shell_filter",
-    "generate_cli_docs"
-)
+__all__ = ("convert_ipynb_to_myst", "shell_filter", "generate_cli_docs")
 
 import glob
 import os
@@ -25,18 +21,8 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.typing_importer import Literal, Optional, Callable, List
 
-PackageSpecs.add(PackageSpec(
-    name="jupytext",
-    conda_name="jupytext",
-    conda_channel="conda-forge",
-    pypi_name="jupytext"
-))
-PackageSpecs.add(PackageSpec(
-    name="nbformat",
-    conda_name="nbformat",
-    conda_channel="conda-forge",
-    pypi_name="nbformat"
-))
+PackageSpecs.add(PackageSpec(name="jupytext", conda_name="jupytext", conda_channel="conda-forge", pypi_name="jupytext"))
+PackageSpecs.add(PackageSpec(name="nbformat", conda_name="nbformat", conda_channel="conda-forge", pypi_name="nbformat"))
 
 try:
     import pytest
@@ -63,7 +49,7 @@ SHOUT_SEARCH_DICT = {
     "# SKIP\n": "skip-execution",  # Remove the whole cell
     "# RMIN\n": "remove-input",  # Remove only the input
     "# RMOUT\n": "remove-output",  # Remove only the output
-    "# HIDEIN\n": "hide-input"  # Hide the input w/ a button to show
+    "# HIDEIN\n": "hide-input",  # Hide the input w/ a button to show
 }
 
 
@@ -71,20 +57,19 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
     for cell in nb.cells:
         if cell["cell_type"] != "code":
             continue
-        cell_tags = cell.get('metadata', {}).get('tags', [])
+        cell_tags = cell.get("metadata", {}).get("tags", [])
         for key, val in SHOUT_SEARCH_DICT.items():
-            if key in cell['source']:
+            if key in cell["source"]:
                 if val not in cell_tags:
                     cell_tags.append(val)
-                cell['source'] = cell['source'].replace(key, "")
+                cell["source"] = cell["source"].replace(key, "")
         if len(cell_tags) > 0:
-            cell['metadata']['tags'] = cell_tags
+            cell["metadata"]["tags"] = cell_tags
     return nb
 
 
 def convert_ipynb_to_myst(
-        source_dir: str,
-        hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
+    source_dir: str, hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
 ):
     if hooks is None:
         hooks = []
@@ -99,11 +84,7 @@ def convert_ipynb_to_myst(
                 nb = jupytext.read(fn, fmt="notebook")
                 for hook in hooks:
                     nb = hook(nb)
-                jupytext.write(
-                    nb=nb,
-                    fp=dst_fn,
-                    fmt="md:myst"
-                )
+                jupytext.write(nb=nb, fp=dst_fn, fmt="md:myst")
             except Exception as _e:
                 _lh.warning(f"CONVERT {fn} -> {dst_fn}: ERR", exc_info=_e)
             _lh.info(f"CONVERT {fn} -> {dst_fn}: FIN")
@@ -111,11 +92,7 @@ def convert_ipynb_to_myst(
             _lh.info(f"CONVERT {fn} -> {dst_fn}: REFUSE TO OVERWRITE NEWER FILE")
 
 
-def generate_cli_docs(
-        config_toml_file_path: str,
-        dest_dir_path: str,
-        format: Literal["txt", "myst.md"] = "txt"
-):
+def generate_cli_docs(config_toml_file_path: str, dest_dir_path: str, format: Literal["txt", "myst.md"] = "txt"):
     os.makedirs(dest_dir_path, exist_ok=True)
     with open(config_toml_file_path, "rb") as toml_reader:
         config_toml = tomllib.load(toml_reader)
@@ -149,9 +126,7 @@ def generate_cli_docs(
             for subcommand in subcommands:
                 index_writer.write(f"### `{main_module_correct_name}` `{subcommand}`\n\n")
                 if format == "myst.md":
-                    index_writer.write(
-                        "```{include} " + f"{main_module}.{subcommand}.{format}" + "\n```\n\n"
-                    )
+                    index_writer.write("```{include} " + f"{main_module}.{subcommand}.{format}" + "\n```\n\n")
                 elif format == "txt":
                     index_writer.write(
                         "```{literalinclude} " + f"{main_module}.{subcommand}.{format}" + "\n:language: text\n```\n\n"

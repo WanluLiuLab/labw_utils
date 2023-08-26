@@ -6,7 +6,7 @@ from __future__ import annotations
 
 __all__ = (
     "create_parser",
-    "main"
+    "main",
 )
 
 import argparse
@@ -20,7 +20,9 @@ from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Any, List, Dict
 
@@ -48,30 +50,31 @@ _lh = get_logger(__name__)
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils describe_fasta_by_binning",
-        description=__doc__.splitlines()[1]
+        description=__doc__.splitlines()[1],
     )
     parser = FrontendOptSpecs.patch(parser, "-f")
     parser.add_argument(
-        "-o", "--out",
+        "-o",
+        "--out",
         required=True,
         help="Output file basename. Will be {out}.csv or {out}.parquet if Apache Arrow is installed",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
         "--nbins",
         required=False,
         help="Number of bins for each chromosome",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=400
+        action="store",
+        default=400,
     )
     parser.add_argument(
         "--metadata_only",
         help="Dump metadata only",
-        action='store_true'
+        action="store_true",
     )
     return parser
 
@@ -82,10 +85,7 @@ def main(args: List[str]) -> None:
     nbins = args.nbins
     fasta_file_path = os.path.abspath(args.fasta)
     fa = FastaViewFactory(fasta_file_path, full_header=False, read_into_memory=False)
-    out_metadata.update({
-        "FATSA_FILE_PATH": fasta_file_path,
-        "FASTA_CHRS": []
-    })
+    out_metadata.update({"FATSA_FILE_PATH": fasta_file_path, "FASTA_CHRS": []})
 
     fail_to_idenfy = 0
     num_of_contigs = 0
@@ -96,16 +96,14 @@ def main(args: List[str]) -> None:
             inf_type = infer_accession_type(chr_name).as_dict()
         else:
             fail_to_idenfy += 1
-        out_metadata["FASTA_CHRS"].append({
-            "NAME": chr_name,
-            "LEN": fa.get_chr_length(chr_name),
-            "TYPE": inf_type
-        })
+        out_metadata["FASTA_CHRS"].append(
+            {"NAME": chr_name, "LEN": fa.get_chr_length(chr_name), "TYPE": inf_type}
+        )
     _lh.info(
         "Identified %d out of %d contigs (%.2f%%)",
         num_of_contigs - fail_to_idenfy,
         num_of_contigs,
-        (num_of_contigs - fail_to_idenfy) / num_of_contigs * 100
+        (num_of_contigs - fail_to_idenfy) / num_of_contigs * 100,
     )
 
     with get_writer(f"{args.out}.json") as metadata_writer:
@@ -127,10 +125,7 @@ def main(args: List[str]) -> None:
                 end = start + segment_length
                 seq = fa.sequence(chr_name, start, end)
                 nt_counts = defaultdict(lambda: 0)
-                stats_dict = {
-                    "chr_name": chr_name,
-                    "start": start
-                }
+                stats_dict = {"chr_name": chr_name, "start": start}
                 for nt in seq:
                     nt_counts[nt] += 1
                 stats_dict.update(nt_counts)

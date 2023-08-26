@@ -11,8 +11,14 @@ import math
 import operator
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
-from labw_utils.bioutils.datastructure.gv import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, GVPError, CanTranscribeInterface, \
-    LegalizeRegionFuncType, SequenceFuncType, dumb_legalize_region_func
+from labw_utils.bioutils.datastructure.gv import (
+    DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+    GVPError,
+    CanTranscribeInterface,
+    LegalizeRegionFuncType,
+    SequenceFuncType,
+    dumb_legalize_region_func,
+)
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_gene_id, update_transcript_id
 from labw_utils.bioutils.record.feature import FeatureInterface, FeatureType
@@ -30,6 +36,7 @@ class ExonInATranscriptOnDifferentChromosomeError(GVPError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
@@ -39,27 +46,18 @@ class ExonInATranscriptOnDifferentStrandError(GVPError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
-class Transcript(
-    BaseFeatureProxy,
-    CanTranscribeInterface
-):
+class Transcript(BaseFeatureProxy, CanTranscribeInterface):
     """
     Transcript is a list of exons, always sorted.
 
     .. versionadded:: 1.0.2
     """
 
-    __slots__ = [
-        "_exons",
-        "_cdna",
-        "_cdna_unspliced",
-        "_is_inferred",
-        "_transcript_id",
-        "_gene_id"
-    ]
+    __slots__ = ["_exons", "_cdna", "_cdna_unspliced", "_is_inferred", "_transcript_id", "_gene_id"]
     _exons: List[Exon]
     _cdna: Optional[str]
     _cdna_unspliced: Optional[str]
@@ -109,10 +107,7 @@ class Transcript(
     def splice_sites(self) -> SequenceProxy[Tuple[int, int]]:
         el = self._exons
         if self._splice_sites is None:
-            self._splice_sites = list(
-                (el[i].end0b, el[i + 1].start0b)
-                for i in range(self.number_of_exons - 1)
-            )
+            self._splice_sites = list((el[i].end0b, el[i + 1].start0b) for i in range(self.number_of_exons - 1))
         return SequenceProxy(self._splice_sites)
 
     @property
@@ -121,13 +116,7 @@ class Transcript(
         return SequenceProxy(self._exons)
 
     def __init__(
-            self,
-            *,
-            data: FeatureInterface,
-            is_checked: bool,
-            shortcut: bool,
-            exons: Iterable[Exon],
-            is_inferred: bool
+        self, *, data: FeatureInterface, is_checked: bool, shortcut: bool, exons: Iterable[Exon], is_inferred: bool
     ):
         self._cdna = None
         self._cdna_unspliced = None
@@ -161,12 +150,9 @@ class Transcript(
     def get_intron_length(self, intron_index: int) -> Union[int, float]:
         if intron_index == -1 or intron_index == self.number_of_exons:
             return math.inf
-        return - operator.sub(*self.exon_boundaries[intron_index])
+        return -operator.sub(*self.exon_boundaries[intron_index])
 
-    def update_exon_number(
-            self,
-            exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY
-    ) -> Transcript:
+    def update_exon_number(self, exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY) -> Transcript:
         """
         Renew exon numbers.
 
@@ -177,7 +163,7 @@ class Transcript(
             return Exon(
                 data=_exon.get_data().update_attribute(exon_number=target_exon_number),
                 is_checked=_exon.is_checked,
-                shortcut=True
+                shortcut=True,
             )
 
         new_exons = []
@@ -187,9 +173,7 @@ class Transcript(
                     new_exons.append(update_exon_number(self._exons[i], i + 1))
             elif self.strand is False:
                 for i in range(self.number_of_exons):
-                    new_exons.append(
-                        update_exon_number(self._exons[self.number_of_exons - i - 1], i + 1)
-                    )
+                    new_exons.append(update_exon_number(self._exons[self.number_of_exons - i - 1], i + 1))
                 new_exons.reverse()
             else:
                 raise ValueError("Unstranded exon detected!")
@@ -197,11 +181,7 @@ class Transcript(
             for i in range(self.number_of_exons):
                 new_exons.append(update_exon_number(self._exons[i], i + 1))
         return Transcript(
-            data=self._data,
-            is_checked=self._is_checked,
-            exons=new_exons,
-            shortcut=True,
-            is_inferred=False
+            data=self._data, is_checked=self._is_checked, exons=new_exons, shortcut=True, is_inferred=False
         )
 
     def rescale_from_exon_boundaries(self, force: bool = False) -> Transcript:
@@ -217,11 +197,7 @@ class Transcript(
         if self._is_inferred or force:
             new_data = self._data.update(start=self._exons[0].start, end=self._exons[-1].end)
             return Transcript(
-                data=new_data,
-                is_checked=self._is_checked,
-                exons=self._exons,
-                shortcut=True,
-                is_inferred=False
+                data=new_data, is_checked=self._is_checked, exons=self._exons, shortcut=True, is_inferred=False
             )
         else:
             return self
@@ -236,11 +212,7 @@ class Transcript(
         new_pos = bisect.bisect_left(new_exons, exon)
         new_exons.insert(new_pos, exon)
         return Transcript(
-            data=self._data,
-            is_checked=self._is_checked,
-            exons=new_exons,
-            is_inferred=self._is_inferred,
-            shortcut=True
+            data=self._data, is_checked=self._is_checked, exons=new_exons, is_inferred=self._is_inferred, shortcut=True
         )
 
     def del_exon(self, exon_index: int) -> Transcript:
@@ -259,53 +231,33 @@ class Transcript(
         new_exons = list(self._exons)
         _ = new_exons.pop(exon_index)
         return Transcript(
-            data=self._data,
-            is_checked=self._is_checked,
-            exons=new_exons,
-            is_inferred=self._is_inferred,
-            shortcut=True
+            data=self._data, is_checked=self._is_checked, exons=new_exons, is_inferred=self._is_inferred, shortcut=True
         )
 
     def transcribe(
-            self,
-            sequence_func: SequenceFuncType,
-            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
     ) -> str:
         if self._cdna is None:
             if self.strand is False:
-                self._cdna = "".join(exon.transcribe(
-                    sequence_func,
-                    legalize_region_func
-                ) for exon in self._exons[::-1])
+                self._cdna = "".join(exon.transcribe(sequence_func, legalize_region_func) for exon in self._exons[::-1])
             else:
-                self._cdna = "".join(exon.transcribe(
-                    sequence_func,
-                    legalize_region_func
-                ) for exon in self._exons)
+                self._cdna = "".join(exon.transcribe(sequence_func, legalize_region_func) for exon in self._exons)
             if len(self._cdna) != self.transcribed_length:
                 _lh.warning(
-                    f"Transcript {self.transcript_id} " +
-                    f"cdna_len({len(self._cdna)}) != transcribed_len ({self.transcribed_length})."
+                    f"Transcript {self.transcript_id} "
+                    + f"cdna_len({len(self._cdna)}) != transcribed_len ({self.transcribed_length})."
                 )
         return self._cdna
 
     def transcribe_unspliced_masked(
-            self,
-            sequence_func: SequenceFuncType,
-            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
     ) -> str:
         if self._cdna_unspliced_masked is None:
             if self.strand is False:
-                exon_seqs = (exon.transcribe(
-                    sequence_func,
-                    legalize_region_func
-                ) for exon in self._exons[::-1])
+                exon_seqs = (exon.transcribe(sequence_func, legalize_region_func) for exon in self._exons[::-1])
                 intron_seqs = ["N" * (splice_site[1] - splice_site[0]) for splice_site in self.splice_sites[::-1]]
             else:
-                exon_seqs = (exon.transcribe(
-                    sequence_func,
-                    legalize_region_func
-                ) for exon in self._exons)
+                exon_seqs = (exon.transcribe(sequence_func, legalize_region_func) for exon in self._exons)
                 intron_seqs = ["N" * (splice_site[1] - splice_site[0]) for splice_site in self.splice_sites]
             intron_seqs.append("")
             sio = io.StringIO()
@@ -316,29 +268,25 @@ class Transcript(
             self._cdna_unspliced_masked = sio.read()
             if len(self._cdna_unspliced_masked) != self.naive_length:
                 _lh.warning(
-                    f"Transcript {self.transcript_id} " +
-                    f"cdna_unspliced_masked ({len(self._cdna_unspliced_masked)}) != naive_length ({self.naive_length})."
+                    f"Transcript {self.transcript_id} "
+                    + f"cdna_unspliced_masked ({len(self._cdna_unspliced_masked)}) != naive_length ({self.naive_length})."
                 )
         return self._cdna_unspliced_masked
 
     def transcribe_unspliced(
-            self,
-            sequence_func: SequenceFuncType,
-            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
     ) -> str:
         if self._cdna_unspliced is None:
             try:
                 self._cdna_unspliced = sequence_func(
                     *legalize_region_func(
-                        self.seqname,
-                        min(exon.start0b for exon in self.exons),
-                        max(exon.end0b for exon in self.exons)
+                        self.seqname, min(exon.start0b for exon in self.exons), max(exon.end0b for exon in self.exons)
                     )
                 )
                 if len(self._cdna_unspliced) != self.naive_length:
                     _lh.warning(
-                        f"{self.transcript_id}: Different unspliced transcript length at {self}: " +
-                        f"cdna_unspliced ({len(self._cdna_unspliced)}) != transcript ({self.transcribed_length})"
+                        f"{self.transcript_id}: Different unspliced transcript length at {self}: "
+                        + f"cdna_unspliced ({len(self._cdna_unspliced)}) != transcript ({self.transcribed_length})"
                     )
                 if self.strand is False:
                     self._cdna_unspliced = reverse_complement(self._cdna_unspliced)

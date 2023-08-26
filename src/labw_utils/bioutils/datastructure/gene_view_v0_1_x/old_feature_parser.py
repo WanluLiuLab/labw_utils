@@ -25,8 +25,12 @@ This module does not:
 """
 from collections import defaultdict
 
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import FeatureType, GFF3_TOPLEVEL_NAME, \
-    Gff3Record, GtfRecord
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import (
+    FeatureType,
+    GFF3_TOPLEVEL_NAME,
+    Gff3Record,
+    GtfRecord,
+)
 from labw_utils.bioutils.parser import BaseFileIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
@@ -41,7 +45,7 @@ class GtfIterator(BaseFileIterator, Iterable[GtfRecord]):
     def __iter__(self) -> Iterator[GtfRecord]:
         self._fd = get_tqdm_line_reader(self.filename)
         for line in self._fd:
-            if line.startswith('#') or line == '':
+            if line.startswith("#") or line == "":
                 continue
             yield GtfRecord.from_string(line)
 
@@ -53,9 +57,9 @@ class Gff3Iterator(BaseFileIterator, Iterable[Gff3Record]):
     def __iter__(self) -> Iterator[Gff3Record]:
         self._fd = get_tqdm_line_reader(self.filename)
         for line in self._fd:
-            if line.startswith('##FASTA'):
+            if line.startswith("##FASTA"):
                 return
-            if line.startswith('#') or line == '':
+            if line.startswith("#") or line == "":
                 continue
             yield Gff3Record.from_string(line)
 
@@ -65,9 +69,9 @@ class _FeatureWriter:
 
     @staticmethod
     def write_iterator(
-            iterable: Union[GtfIterator, GtfIterator, Iterable[FeatureType]],
-            output_filename: str,
-            prefix_annotations: Optional[List[str]] = None
+        iterable: Union[GtfIterator, GtfIterator, Iterable[FeatureType]],
+        output_filename: str,
+        prefix_annotations: Optional[List[str]] = None,
     ):
         with _FeatureWriter(output_filename) as writer:
             if prefix_annotations is not None:
@@ -84,7 +88,7 @@ class _FeatureWriter:
         self.fd.write(feature.format_string(**kwargs) + "\n")
 
     def write_comment(self, comment: str):
-        self.fd.write('#' + comment + "\n")
+        self.fd.write("#" + comment + "\n")
 
     def close(self):
         self.fd.close()
@@ -112,7 +116,6 @@ class GtfWriter(_FeatureWriter):
 
 
 class Gff3Writer(_FeatureWriter):
-
     def __init__(self, output_filename: str):
         super().__init__(output_filename=output_filename)
         self.write_comment("#gff-version 3")  # This comment should be wrieen at the first line.

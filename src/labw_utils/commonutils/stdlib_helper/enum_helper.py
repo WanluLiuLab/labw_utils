@@ -15,6 +15,7 @@ class EnhancedEnum(enum.Enum):
 
     .. versionadded:: 1.0.3
     """
+
     @classmethod
     def from_name(cls, in_name: str):
         for choices in cls:

@@ -21,10 +21,7 @@ The compression algorithm would be Lempel-Ziv Markov Chain Algorithm (LZMA) vers
 
 from __future__ import annotations
 
-__all__ = (
-    "read_np_xz",
-    "write_np_xz"
-)
+__all__ = ("read_np_xz", "write_np_xz")
 
 import lzma
 
@@ -36,7 +33,7 @@ import numpy.typing as npt
 def read_np_xz(path: str) -> npt.NDArray:
     """
     Reader of compressed Numpy serialization format
-    
+
     .. versionadded:: 1.0.0
     """
     with lzma.open(path, "rb") as reader:
@@ -46,7 +43,7 @@ def read_np_xz(path: str) -> npt.NDArray:
 def write_np_xz(array: npt.NDArray, path: str) -> None:
     """
     Writer of compressed Numpy serialization format
-    
+
     .. versionadded:: 1.0.0
     """
     with lzma.open(path, "wb", preset=9) as writer:

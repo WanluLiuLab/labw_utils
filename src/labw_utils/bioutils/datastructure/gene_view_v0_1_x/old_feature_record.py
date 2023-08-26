@@ -21,12 +21,7 @@ GTFAttributeType = Mapping[str, Union[str, int, float, bool, None]]
 GFF3_TOPLEVEL_NAME = "YASIM_GFF_TOPLEVEL"
 """The top-level virtual parent for GFF record that does not have a parent"""
 
-VALID_GTF_QUOTE_OPTIONS = (
-    "none",
-    "blank",
-    "string",
-    "all"
-)
+VALID_GTF_QUOTE_OPTIONS = ("none", "blank", "string", "all")
 """
 Valid GTF Quoting Options. They are:
 
@@ -132,28 +127,28 @@ class Feature(FeatureType):
     """
 
     __slots__ = (
-        'seqname',
-        'source',
-        'feature',
-        'start',
-        'end',
-        'score',
-        'strand',
-        'frame',
-        'attribute',
+        "seqname",
+        "source",
+        "feature",
+        "start",
+        "end",
+        "score",
+        "strand",
+        "frame",
+        "attribute",
     )
 
     def __init__(
-            self,
-            seqname: str,
-            source: str,
-            feature: str,
-            start: int,
-            end: int,
-            score: Union[int, float],
-            strand: str,
-            frame: str,
-            attribute: Optional[GTFAttributeType] = None
+        self,
+        seqname: str,
+        source: str,
+        feature: str,
+        start: int,
+        end: int,
+        score: Union[int, float],
+        strand: str,
+        frame: str,
+        attribute: Optional[GTFAttributeType] = None,
     ):
         """
         The filenames are named after Ensembl specifications.
@@ -182,35 +177,30 @@ class Feature(FeatureType):
     def __eq__(self, other: object):
         if not isinstance(other, Feature):
             raise TypeError
-        return self.start == other.start and \
-            self.end == other.end and \
-            self.seqname == other.seqname and \
-            self.strand == other.strand
+        return (
+            self.start == other.start
+            and self.end == other.end
+            and self.seqname == other.seqname
+            and self.strand == other.strand
+        )
 
     def overlaps(self, other: FeatureType) -> bool:
         if self.seqname != other.seqname:
             return False
         return (
-                self.start < other.start < self.end or
-                self.start < other.end < self.end or
-                (
-                        other.start < self.start and
-                        self.end < other.end
-                )
+            self.start < other.start < self.end
+            or self.start < other.end < self.end
+            or (other.start < self.start and self.end < other.end)
         )
 
     def __gt__(self, other: FeatureType):
-        return self.seqname > other.seqname or (
-                self.seqname == other.seqname and self.start > other.start
-        )
+        return self.seqname > other.seqname or (self.seqname == other.seqname and self.start > other.start)
 
     def __ge__(self, other: FeatureType):
         return self > other or self == other
 
     def __lt__(self, other: FeatureType):
-        return self.seqname < other.seqname or (
-                self.seqname == other.seqname and self.start < other.start
-        )
+        return self.seqname < other.seqname or (self.seqname == other.seqname and self.start < other.start)
 
     def __le__(self, other: FeatureType):
         return self < other or self == other
@@ -248,16 +238,17 @@ class Gff3Record(Feature):
     """
 
     def __init__(
-            self,
-            seqname: str,
-            source: str,
-            feature: str,
-            start: int,
-            end: int,
-            score: float,
-            strand: str,
-            frame: str,
-            attribute: GTFAttributeType):
+        self,
+        seqname: str,
+        source: str,
+        feature: str,
+        start: int,
+        end: int,
+        score: float,
+        strand: str,
+        frame: str,
+        attribute: GTFAttributeType,
+    ):
         super(Gff3Record, self).__init__(
             seqname=seqname,
             source=source,
@@ -267,7 +258,7 @@ class Gff3Record(Feature):
             score=score,
             strand=strand,
             frame=frame,
-            attribute=attribute
+            attribute=attribute,
         )
         self.id = attribute.get("ID", str(uuid.uuid4()))
         self.parent_id = attribute.get("Parent", GFF3_TOPLEVEL_NAME)
@@ -280,11 +271,11 @@ class Gff3Record(Feature):
         :param in_str: Input dictionary.
         """
         global lh
-        lh.debug(f'Adding {in_str}')
-        line_split = in_str.split('\t')
+        lh.debug(f"Adding {in_str}")
+        line_split = in_str.split("\t")
 
         required_fields = line_split[0:-1]
-        attributes = to_dict(line_split[-1], field_sep='=', record_sep=';', quotation_mark='\"\'', resolve_str=True)
+        attributes = to_dict(line_split[-1], field_sep="=", record_sep=";", quotation_mark="\"'", resolve_str=True)
 
         # Score should be an integer
         if required_fields[5] == ".":
@@ -298,7 +289,7 @@ class Gff3Record(Feature):
             score=int(float(required_fields[5])),
             strand=(required_fields[6]),
             frame=(required_fields[7]),
-            attribute=attributes
+            attribute=attributes,
         )
 
     def format_string(self):
@@ -306,23 +297,25 @@ class Gff3Record(Feature):
         for k, v in self.attribute.items():
             v_str = repr(v).replace("'", '"')
             attribute_str = f"{attribute_str}{k}={v_str}; "
-        return ("\t".join((
-            self.seqname,
-            self.source,
-            self.feature,
-            str(self.start),
-            str(self.end),
-            str(self.score),
-            self.strand,
-            self.frame,
-            attribute_str
-        )))
+        return "\t".join(
+            (
+                self.seqname,
+                self.source,
+                self.feature,
+                str(self.start),
+                str(self.end),
+                str(self.score),
+                self.strand,
+                self.frame,
+                attribute_str,
+            )
+        )
 
 
 class GtfRecord(Feature):
     """
     A general GTF Record.
-    
+
     >>> gtf_str = 'chr1\\thg38_rmsk\\texon\\t50331337\\t50332274\\t1587.000000\\t+\\t.\\tgene_id "HAL1"; transcript_id "HAL1"; '
     >>> gtf_from_line = GtfRecord.from_string(gtf_str)
     >>> gtf_from_line.seqname
@@ -348,12 +341,12 @@ class GtfRecord(Feature):
     @classmethod
     def from_string(cls, in_str: str):
         global lh
-        in_str = in_str.rstrip('\n\r')
-        lh.trace(f'Adding {in_str}')
-        line_split = in_str.split('\t')
+        in_str = in_str.rstrip("\n\r")
+        lh.trace(f"Adding {in_str}")
+        line_split = in_str.split("\t")
 
         required_fields = line_split[0:-1]
-        attributes = to_dict(line_split[-1], field_sep=' ', record_sep=';', quotation_mark='\"\'', resolve_str=True)
+        attributes = to_dict(line_split[-1], field_sep=" ", record_sep=";", quotation_mark="\"'", resolve_str=True)
 
         # Score should be an integer
         if required_fields[5] == ".":
@@ -367,35 +360,34 @@ class GtfRecord(Feature):
             score=int(float(required_fields[5])),
             strand=(required_fields[6]),
             frame=(required_fields[7]),
-            attribute=attributes
+            attribute=attributes,
         )
 
-    def format_string(
-            self,
-            quote: str = DEFAULT_GTF_QUOTE_OPTIONS
-    ):
+    def format_string(self, quote: str = DEFAULT_GTF_QUOTE_OPTIONS):
         if quote not in VALID_GTF_QUOTE_OPTIONS:
             raise ValueError(f"Invalid quoting option {quote}, should be one in {VALID_GTF_QUOTE_OPTIONS}.")
         attribute_full_str = ""
         for k, v in self.attribute.items():
-            attr_str = repr(v).replace("'", '')
+            attr_str = repr(v).replace("'", "")
             if quote == "blank":
                 if "\r" in attr_str or "\n" in attr_str or "\f" in attr_str or "\t" in attr_str or " " in attr_str:
-                    attr_str = f"\"{attr_str}\""
+                    attr_str = f'"{attr_str}"'
             elif quote == "string":
                 if not isinstance(v, int) and not isinstance(v, float):
-                    attr_str = f"\"{attr_str}\""
+                    attr_str = f'"{attr_str}"'
             elif quote == "all":
-                attr_str = f"\"{attr_str}\""
+                attr_str = f'"{attr_str}"'
             attribute_full_str = f"{attribute_full_str}{k} " + attr_str + "; "
-        return ("\t".join((
-            self.seqname,
-            self.source,
-            self.feature,
-            str(self.start),
-            str(self.end),
-            str(self.score),
-            self.strand,
-            self.frame,
-            attribute_full_str
-        )))
+        return "\t".join(
+            (
+                self.seqname,
+                self.source,
+                self.feature,
+                str(self.start),
+                str(self.end),
+                str(self.score),
+                self.strand,
+                self.frame,
+                attribute_full_str,
+            )
+        )

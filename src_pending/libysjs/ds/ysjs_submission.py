@@ -31,22 +31,22 @@ class YSJSSubmission:
     _depends: List[str]
 
     def __init__(
-            self,
-            submission_id: str,
-            submission_name: str,
-            submission_description: str,
-            cpu: Union[int, float],
-            mem: Union[int, float],
-            submission_time: float,
-            cwd: str,
-            env: Mapping[str, str],
-            stdin: Optional[str],
-            stdout: Optional[str],
-            stderr: Optional[str],
-            script_path: str,
-            shell_path: str,
-            tags: List[str],
-            depends: List[str]
+        self,
+        submission_id: str,
+        submission_name: str,
+        submission_description: str,
+        cpu: Union[int, float],
+        mem: Union[int, float],
+        submission_time: float,
+        cwd: str,
+        env: Mapping[str, str],
+        stdin: Optional[str],
+        stdout: Optional[str],
+        stderr: Optional[str],
+        script_path: str,
+        shell_path: str,
+        tags: List[str],
+        depends: List[str],
     ):
         self._submission_id = submission_id
         self._submission_name = submission_name
@@ -66,20 +66,20 @@ class YSJSSubmission:
 
     @classmethod
     def new(
-            cls,
-            script_path: str,
-            cpu: Union[int, float] = DEFAULT_SUBMISSION_CPU,
-            mem: Union[int, float] = DEFAULT_SUBMISSION_MEM,
-            submission_name: str = DEFAULT_SUBMISSION_NAME,
-            submission_description: str = DEFAULT_SUBMISSION_DESCRIPTION,
-            cwd: Optional[str] = None,
-            env: Optional[Mapping[str, str]] = None,
-            stdin: Optional[str] = None,
-            stdout: Optional[str] = None,
-            stderr: Optional[str] = None,
-            shell_path: Optional[str] = None,
-            tags: Optional[List[str]] = None,
-            depends: Optional[List[str]] = None
+        cls,
+        script_path: str,
+        cpu: Union[int, float] = DEFAULT_SUBMISSION_CPU,
+        mem: Union[int, float] = DEFAULT_SUBMISSION_MEM,
+        submission_name: str = DEFAULT_SUBMISSION_NAME,
+        submission_description: str = DEFAULT_SUBMISSION_DESCRIPTION,
+        cwd: Optional[str] = None,
+        env: Optional[Mapping[str, str]] = None,
+        stdin: Optional[str] = None,
+        stdout: Optional[str] = None,
+        stderr: Optional[str] = None,
+        shell_path: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        depends: Optional[List[str]] = None,
     ):
         if tags is None:
             tags = []
@@ -98,9 +98,7 @@ class YSJSSubmission:
         if shell_path is None:
             shell_path = shutil.which("sh")
         if shell_path is None:
-            raise ValueError(
-                "Cannot find suitable Shell; tried bash, dash, ash, sh"
-            )
+            raise ValueError("Cannot find suitable Shell; tried bash, dash, ash, sh")
         script_path = os.path.abspath(script_path)
         cwd = os.path.abspath(cwd)
         if isinstance(stdin, str):
@@ -125,7 +123,7 @@ class YSJSSubmission:
             script_path=script_path,
             shell_path=shell_path,
             tags=tags,
-            depends=depends
+            depends=depends,
         )
 
     def to_dict(self) -> Mapping[str, Any]:
@@ -144,7 +142,7 @@ class YSJSSubmission:
             "shell_path": self._shell_path,
             "script_path": self._script_path,
             "tags": self._tags,
-            "depends": self._depends
+            "depends": self._depends,
         }
 
     def have_tag(self, tag: str) -> bool:

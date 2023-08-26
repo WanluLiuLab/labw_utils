@@ -12,13 +12,13 @@ class YSJSDStatus:
     _uptime: float
 
     def __init__(
-            self,
-            state: str,
-            current_cpu: float,
-            current_mem: float,
-            pending_queue_length: int,
-            running_queue_length: int,
-            uptime: float
+        self,
+        state: str,
+        current_cpu: float,
+        current_mem: float,
+        pending_queue_length: int,
+        running_queue_length: int,
+        uptime: float,
     ) -> None:
         self._state = state
         self._current_cpu = current_cpu
@@ -34,7 +34,7 @@ class YSJSDStatus:
             "current_mem": self._current_mem,
             "pending_queue_length": self._pending_queue_length,
             "running_queue_length": self._running_queue_length,
-            "uptime": self._uptime
+            "uptime": self._uptime,
         }
 
     @classmethod

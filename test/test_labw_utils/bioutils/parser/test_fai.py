@@ -4,8 +4,13 @@ import tempfile
 
 import pytest
 
-from labw_utils.bioutils.parser.fai import FastaBasedFastaIndexIterator, FAIBasedFastaIndexIterator, \
-    FastaIndexNotWritableError, FastaIndexWriter, DuplicatedFastaNameError
+from labw_utils.bioutils.parser.fai import (
+    FastaBasedFastaIndexIterator,
+    FAIBasedFastaIndexIterator,
+    FastaIndexNotWritableError,
+    FastaIndexWriter,
+    DuplicatedFastaNameError,
+)
 from labw_utils.bioutils.record.fai import FastaIndexRecord
 from labw_utils.typing_importer import List
 from test_labw_utils import NULL_PATH
@@ -18,7 +23,7 @@ test_fai_path = os.path.join(TEST_DATA_DIR, "test.fasta.fai")
 
 def test_fai_io():
     fairl: List[FastaIndexRecord] = list(iter(FAIBasedFastaIndexIterator(test_fai_path)))
-    assert fairl[0].name == 'chr1'
+    assert fairl[0].name == "chr1"
     assert fairl[0].length == 154
     assert fairl[0].offset == 15
     assert fairl[0].line_blen == 27
@@ -34,9 +39,7 @@ def test_fai_io():
 
 def test_fasta_to_fai():
     fairl: List[FastaIndexRecord] = list(iter(FAIBasedFastaIndexIterator(test_fai_path)))
-    fairl_fasta_fh: List[FastaIndexRecord] = list(
-        iter(FastaBasedFastaIndexIterator(test_fasta_path, full_header=True))
-    )
+    fairl_fasta_fh: List[FastaIndexRecord] = list(iter(FastaBasedFastaIndexIterator(test_fasta_path, full_header=True)))
     fairl_fasta_no_fh: List[FastaIndexRecord] = list(
         iter(FastaBasedFastaIndexIterator(test_fasta_path, full_header=False))
     )

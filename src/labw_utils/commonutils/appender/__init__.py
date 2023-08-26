@@ -41,6 +41,7 @@ class BaseTableAppender(ABC):
     .. versionchanged:: 1.0.3
         List instances changed from :py:class:`tuple` to :py:class:`list`.
     """
+
     _filename: str
     _header: Tuple[str, ...]
     _real_filename: str
@@ -120,10 +121,12 @@ def list_table_appender() -> Iterator[Tuple[str, str]]:
             mod = importlib.import_module(possible_path)
 
             for k, v in mod.__dict__.items():
-                if k.__contains__("Appender") and \
-                        not k.__contains__("Base") and \
-                        not k.__contains__("Config") and \
-                        k not in models:
+                if (
+                    k.__contains__("Appender")
+                    and not k.__contains__("Base")
+                    and not k.__contains__("Config")
+                    and k not in models
+                ):
                     try:
                         yield k, v.__doc__.strip().splitlines()[0]
                     except AttributeError:

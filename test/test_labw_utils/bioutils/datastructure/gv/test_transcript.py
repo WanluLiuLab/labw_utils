@@ -14,13 +14,11 @@ lh = logger_helper.get_logger(__name__)
 test_fasta_path = os.path.join(TEST_DATA_DIR, "test.fasta")
 
 standard_transcript = Transcript(
-    data=parse_record(
-        'chr1\tNA\ttranscript\t5\t35\t.\t+\t.\tgene_id "UN1"; transcript_id "UN1.1"'
-    ),
+    data=parse_record('chr1\tNA\ttranscript\t5\t35\t.\t+\t.\tgene_id "UN1"; transcript_id "UN1.1"'),
     exons=[],
     is_checked=True,
     is_inferred=False,
-    shortcut=False
+    shortcut=False,
 )
 
 
@@ -31,7 +29,7 @@ def test_transcript():
             exons=standard_transcript.exons,
             is_checked=True,
             is_inferred=False,
-            shortcut=False
+            shortcut=False,
         )
         assert transcript.transcript_id == "UN1.1"
         assert transcript.gene_id == "UN1"
@@ -52,13 +50,11 @@ def test_transcript():
 
 def test_infer_names():
     transcript = Transcript(
-        data=parse_record(
-            'chr1\tNA\ttranscript\t5\t35\t.\t+\t.\tsome_attr "NA";'
-        ),
+        data=parse_record('chr1\tNA\ttranscript\t5\t35\t.\t+\t.\tsome_attr "NA";'),
         exons=[],
         is_checked=True,
         is_inferred=False,
-        shortcut=False
+        shortcut=False,
     )
     assert transcript.transcript_id.startswith("unknown_transcript")
     assert transcript.gene_id.startswith("unknown_gene")
@@ -66,20 +62,14 @@ def test_infer_names():
 
 def test_transcript_from_exon():
     transcript = Transcript(
-        data=parse_record(
-            'chr1\tNA\ttranscript\t5\t35\t.\t+\t.\tsome_attr "NA";'
-        ),
+        data=parse_record('chr1\tNA\ttranscript\t5\t35\t.\t+\t.\tsome_attr "NA";'),
         exons=[],
         is_checked=True,
         is_inferred=False,
-        shortcut=False
+        shortcut=False,
     )
     transcript_from_exon = Transcript(
-        data=exons[0].get_data(),
-        exons=[],
-        is_checked=True,
-        is_inferred=True,
-        shortcut=False
+        data=exons[0].get_data(), exons=[], is_checked=True, is_inferred=True, shortcut=False
     )
     for exon in exons:
         transcript_from_exon = transcript_from_exon.add_exon(exon)
@@ -93,19 +83,18 @@ def test_exon_number():
     unnumbered_exons_str = [
         'chr1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"; transcript_id "UN1.1"; exon_number 0',
         'chr1\tNA\texon\t15\t20\t.\t+\t.\tgene_id "UN1"; transcript_id "UN1.2"; exon_number 0',
-        'chr1\tNA\texon\t25\t30\t.\t+\t.\tgene_id "UN1"; transcript_id "UN1.3"; exon_number 0'
+        'chr1\tNA\texon\t25\t30\t.\t+\t.\tgene_id "UN1"; transcript_id "UN1.3"; exon_number 0',
     ]
 
-    unnumbered_exons = list(map(
-        lambda exon_str: Exon(data=parse_record(exon_str), **exon_kwargs),
-        unnumbered_exons_str
-    ))
+    unnumbered_exons = list(
+        map(lambda exon_str: Exon(data=parse_record(exon_str), **exon_kwargs), unnumbered_exons_str)
+    )
     transcript = Transcript(
         data=standard_transcript.get_data(),
         exons=standard_transcript.exons,
         is_checked=True,
         is_inferred=False,
-        shortcut=False
+        shortcut=False,
     )
     for exon in unnumbered_exons:
         transcript = transcript.add_exon(exon)
@@ -118,21 +107,18 @@ def test_exon_number_rev():
     unnumbered_exons_str = [
         'chr1\tNA\texon\t5\t10\t.\t-\t.\tgene_id "UN1"; transcript_id "UN1.1"; exon_number 0',
         'chr1\tNA\texon\t15\t20\t.\t-\t.\tgene_id "UN1"; transcript_id "UN1.2"; exon_number 0',
-        'chr1\tNA\texon\t25\t30\t.\t-\t.\tgene_id "UN1"; transcript_id "UN1.3"; exon_number 0'
+        'chr1\tNA\texon\t25\t30\t.\t-\t.\tgene_id "UN1"; transcript_id "UN1.3"; exon_number 0',
     ]
 
-    unnumbered_exons = list(map(
-        lambda exon_str: Exon(data=parse_record(exon_str), **exon_kwargs),
-        unnumbered_exons_str
-    ))
+    unnumbered_exons = list(
+        map(lambda exon_str: Exon(data=parse_record(exon_str), **exon_kwargs), unnumbered_exons_str)
+    )
     transcript = Transcript(
-        data=parse_record(
-            'chr1\tNA\ttranscript\t5\t35\t.\t-\t.\tgene_id "UN1"; transcript_id "UN1.1"'
-        ),
+        data=parse_record('chr1\tNA\ttranscript\t5\t35\t.\t-\t.\tgene_id "UN1"; transcript_id "UN1.1"'),
         exons=standard_transcript.exons,
         is_checked=True,
         is_inferred=False,
-        shortcut=False
+        shortcut=False,
     )
     for exon in unnumbered_exons:
         transcript = transcript.add_exon(exon)
@@ -148,7 +134,7 @@ def test_del_exon():
         exons=standard_transcript.exons,
         is_checked=True,
         is_inferred=False,
-        shortcut=False
+        shortcut=False,
     )
     for exon in exons:
         transcript = transcript.add_exon(exon)

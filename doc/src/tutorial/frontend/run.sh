@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -ue
 
-if [ -n "${NO_NB:-}" ]; then echo "SUPPRESSED"; exit 0; fi
+if [ -n "${NO_NB:-}" ]; then
+    echo "SUPPRESSED"
+    exit 0
+fi
 
 if [ ! -f ce11.ncbiRefSeq.gtf ]; then
     axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>>/dev/null

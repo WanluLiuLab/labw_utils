@@ -17,12 +17,13 @@ class GtfIterator(BaseFileIterator, Iterable[FeatureInterface]):
 
     .. versionadded:: 1.0.2
     """
+
     filetype: str = "GTF"
     record_type = FeatureInterface
 
     def __iter__(self) -> Iterator[FeatureInterface]:
         for line in get_tqdm_line_reader(self.filename):
-            if line.startswith('#') or line == '':
+            if line.startswith("#") or line == "":
                 continue
             yield parse_record(line)
 
@@ -33,6 +34,7 @@ class GtfIteratorWriter(BaseIteratorWriter):
 
     .. versionadded:: 1.0.2
     """
+
     filetype: str = "GTF"
     record_type = FeatureInterface
 
@@ -43,11 +45,11 @@ class GtfIteratorWriter(BaseIteratorWriter):
 
     @staticmethod
     def write_iterator(
-            iterable: Iterable[FeatureInterface],
-            filename: str,
-            prefix_annotations: Iterable[str] = None,
-            quote: str = DEFAULT_GTF_QUOTE_OPTIONS,
-            **kwargs
+        iterable: Iterable[FeatureInterface],
+        filename: str,
+        prefix_annotations: Iterable[str] = None,
+        quote: str = DEFAULT_GTF_QUOTE_OPTIONS,
+        **kwargs,
     ):
         with GtfIteratorWriter(filename, quote) as writer:
             if prefix_annotations is not None:
@@ -60,4 +62,4 @@ class GtfIteratorWriter(BaseIteratorWriter):
         self._fd.write(format_string(record, quote=self._quote) + "\n")
 
     def write_comment(self, comment: str):
-        self._fd.write('#' + comment + "\n")
+        self._fd.write("#" + comment + "\n")

@@ -8,10 +8,7 @@ This data structure wraps one FAI record.
 
 from __future__ import annotations
 
-__all__ = (
-    "FastaIndexRecordParserError",
-    "FastaIndexRecord"
-)
+__all__ = ("FastaIndexRecordParserError", "FastaIndexRecord")
 
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
 
@@ -44,13 +41,7 @@ class FastaIndexRecord:
     _line_blen: int
     _line_len: int
 
-    __slots__ = (
-        "_name",
-        "_length",
-        "_offset",
-        "_line_blen",
-        "_line_len"
-    )
+    __slots__ = ("_name", "_length", "_offset", "_line_blen", "_line_len")
 
     @property
     def name(self) -> str:
@@ -87,14 +78,7 @@ class FastaIndexRecord:
         """
         return self._line_len
 
-    def __init__(
-            self,
-            name: str,
-            length: int,
-            offset: int,
-            line_len: int,
-            line_blen: int
-    ):
+    def __init__(self, name: str, length: int, offset: int, line_len: int, line_blen: int):
         self._name = name
         self._length = length
         self._offset = offset
@@ -124,13 +108,7 @@ class FastaIndexRecord:
         return new_instance
 
     def __repr__(self):
-        return "\t".join((
-            self.name,
-            str(self.length),
-            str(self.offset),
-            str(self.line_blen),
-            str(self.line_len)
-        ))
+        return "\t".join((self.name, str(self.length), str(self.offset), str(self.line_blen), str(self.line_len)))
 
     def __str__(self):
         return repr(self)

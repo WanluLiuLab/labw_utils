@@ -6,10 +6,7 @@ Here contains codes of parsers for basic bioinformatics databases
 .. versionadded:: 1.0.2
 """
 
-__all__ = (
-    "BaseFileIterator",
-    "BaseIteratorWriter"
-)
+__all__ = ("BaseFileIterator", "BaseIteratorWriter")
 
 from abc import abstractmethod, ABC
 
@@ -85,11 +82,7 @@ class BaseIteratorWriter(_BaseFileIO, Generic[_RecordType]):
 
     @staticmethod
     @abstractmethod
-    def write_iterator(
-            iterable: Iterable[_RecordType],
-            filename: str,
-            **kwargs
-    ):
+    def write_iterator(iterable: Iterable[_RecordType], filename: str, **kwargs):
         raise NotImplementedError
 
     def __init__(self, filename: str, **kwargs):

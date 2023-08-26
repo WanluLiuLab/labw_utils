@@ -26,11 +26,16 @@ def test_gene() -> None:
         with get_writer(os.path.join(test_path, "1.gtf")) as writer:
             writer.write(gene_gtf)
         gv = GeneViewFactory.from_file(os.path.join(test_path, "1.gtf"))
-        assert list(gv.iter_gene_ids()) == ['homt-1', 'nlp-40', 'D1081.6', "mdt-18"]
-        assert list(gv.iter_transcript_ids()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3',
-                                                  "NM_001322685.1"]
-        assert gv.get_transcript('NM_058260.4').get_nth_exon(0).start == 4221
+        assert list(gv.iter_gene_ids()) == ["homt-1", "nlp-40", "D1081.6", "mdt-18"]
+        assert list(gv.iter_transcript_ids()) == [
+            "NM_058260.4",
+            "NM_058259.4",
+            "NM_001306277.1",
+            "NM_059899.3",
+            "NM_001322685.1",
+        ]
+        assert gv.get_transcript("NM_058260.4").get_nth_exon(0).start == 4221
         gv.standardize()
-        assert list(gv.iter_transcript_ids()) == ['NM_058260.4', 'NM_058259.4', 'NM_001306277.1', 'NM_059899.3']
+        assert list(gv.iter_transcript_ids()) == ["NM_058260.4", "NM_058259.4", "NM_001306277.1", "NM_059899.3"]
         gv.to_file(os.path.join(test_path, "3.gtf"))
         os.system(f"gedit {test_path}/*.gtf")

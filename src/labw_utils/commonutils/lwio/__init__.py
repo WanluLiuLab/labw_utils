@@ -29,8 +29,21 @@ from abc import abstractmethod
 
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.devutils.decorators import supress_inherited_doc
-from labw_utils.typing_importer import Iterator, Iterable, List, Union, IO, Optional, AnyStr, Generic, Literal, \
-    overload, Dict, Tuple, Type
+from labw_utils.typing_importer import (
+    Iterator,
+    Iterable,
+    List,
+    Union,
+    IO,
+    Optional,
+    AnyStr,
+    Generic,
+    Literal,
+    overload,
+    Dict,
+    Tuple,
+    Type,
+)
 
 PathType = Union[str, bytes, os.PathLike]
 """Type that can be converted to ilesystem paths."""
@@ -44,6 +57,7 @@ PathOrFDType = Union[PathType, FDType]
 
 class ModeEnum(enum.Enum):
     """Simple read- or write-only mode enum."""
+
     READ = 0
     """To open a file read-only"""
     WRITE = 1
@@ -141,12 +155,12 @@ def wc_c_io(fd: FDType) -> int:
 def _get_buff(fd: FDType):
     buffer: Optional[FDType] = None
     for possible_name in (
-            "buffer",  # used by io.TextIOWrapper
-            "_buffer",  # Used by lzma.LZMAFile
-            "fileobj",  # Used by gzip.GzipFile
-            "raw",  # Used by gzip._GZipReader
-            "_fd",  # Used by IOProxy
-            "_fp"  # Used by bz2.BZ2File
+        "buffer",  # used by io.TextIOWrapper
+        "_buffer",  # Used by lzma.LZMAFile
+        "fileobj",  # Used by gzip.GzipFile
+        "raw",  # Used by gzip._GZipReader
+        "_fd",  # Used by IOProxy
+        "_fp",  # Used by bz2.BZ2File
     ):
         try:
             buffer = getattr(fd, possible_name)
@@ -183,12 +197,14 @@ def io_repr(fd: FDType):
         f"is_textio={repr(is_textio(fd))}",
     ]
     if isinstance(fd, io.StringIO) or isinstance(fd, io.TextIOWrapper):
-        repr_content.extend([
-            f"encoding={repr(fd.encoding)}",
-            f"errors={repr(fd.errors)}",
-            f"line_buffering={repr(fd.line_buffering)}",
-            f"newlines={repr(fd.newlines)}",
-        ])
+        repr_content.extend(
+            [
+                f"encoding={repr(fd.encoding)}",
+                f"errors={repr(fd.errors)}",
+                f"line_buffering={repr(fd.line_buffering)}",
+                f"newlines={repr(fd.newlines)}",
+            ]
+        )
 
     if isinstance(fd, io.TextIOWrapper):
         repr_content.append(f"write_through={repr(fd.write_through)}")
@@ -244,10 +260,12 @@ def is_textio(fd: FDType) -> bool:
     """
     if isinstance(fd, io.BytesIO):
         return False
-    elif isinstance(fd, io.StringIO) or \
-            isinstance(fd, io.TextIOBase) or \
-            isinstance(fd, io.TextIOWrapper) or \
-            hasattr(fd, "encoding"):
+    elif (
+        isinstance(fd, io.StringIO)
+        or isinstance(fd, io.TextIOBase)
+        or isinstance(fd, io.TextIOWrapper)
+        or hasattr(fd, "encoding")
+    ):
         return True
     try:
         modestr = getattr(fd, "mode")
@@ -287,10 +305,7 @@ def is_io(obj: object) -> bool:
     >>> is_io("AAA")
     False
     """
-    if (
-            isinstance(obj, IO) or
-            isinstance(obj, io.IOBase)
-    ):
+    if isinstance(obj, IO) or isinstance(obj, io.IOBase):
         return True
     return False
 
@@ -311,11 +326,7 @@ def is_path(obj: object) -> bool:
     >>> is_path(True)
     False
     """
-    if (
-            isinstance(obj, os.PathLike) or
-            isinstance(obj, bytes) or
-            isinstance(obj, str)
-    ):
+    if isinstance(obj, os.PathLike) or isinstance(obj, bytes) or isinstance(obj, str):
         return True
     return False
 
@@ -415,23 +426,23 @@ def determine_line_endings(fd: FDType) -> str:
         c = fd.read(1)
         if c is None or len(c) == 0:
             break
-        elif c == '\r' or c == b'\r':
+        elif c == "\r" or c == b"\r":
             find_cr = True
             if find_lf:
                 fd.seek(curr_pos)
-                return '\n\r'
-        elif c == '\n' or c == b'\n':
+                return "\n\r"
+        elif c == "\n" or c == b"\n":
             find_lf = True
             if find_cr:
                 fd.seek(curr_pos)
-                return '\r\n'
+                return "\r\n"
         else:
             if find_cr:
                 fd.seek(curr_pos)
-                return '\r'
+                return "\r"
             if find_lf:
                 fd.seek(curr_pos)
-                return '\n'
+                return "\n"
             find_cr = False
             find_lf = False
 
@@ -694,7 +705,7 @@ class IOProxy(IO[AnyStr]):
             return
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class ReadOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
     """
     The read-only version of :py:class:`IOProxy`.
@@ -726,7 +737,7 @@ class ReadOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
         raise TypeError("Write operation on Read-Only IOProxy not supported!")
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class WriteOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
     """
     The write-only version of :py:class:`IOProxy`.
@@ -775,7 +786,7 @@ class WriteOnlyIOProxy(IOProxy[AnyStr], Generic[AnyStr]):
         raise TypeError("Read operation on Write-Only IOProxy not supported!")
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class TextIOProxy(IOProxy[str]):
     """
     The text (string)-based version of :py:class:`IOProxy`.
@@ -791,7 +802,7 @@ class TextIOProxy(IOProxy[str]):
             raise TypeError(f"Type {type(fd)} is not TextIO!")
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class BinaryIOProxy(IOProxy[bytes]):
     """
     The binary (bytes)-based version of :py:class:`IOProxy`.
@@ -807,9 +818,8 @@ class BinaryIOProxy(IOProxy[bytes]):
             raise TypeError(f"Type {type(fd)} is not BinaryIO!")
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class ReadOnlyTextIOProxy(ReadOnlyIOProxy[str]):
-
     def __init__(self, fd: FDType):
         super().__init__(fd)
         if not fd.readable():
@@ -838,9 +848,8 @@ class ReadOnlyTextIOProxy(ReadOnlyIOProxy[str]):
         return self._fd.__iter__()
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class ReadOnlyBinaryIOProxy(ReadOnlyIOProxy[bytes]):
-
     def __init__(self, fd: FDType):
         super().__init__(fd)
         if not fd.readable():
@@ -869,9 +878,8 @@ class ReadOnlyBinaryIOProxy(ReadOnlyIOProxy[bytes]):
         return self._fd.__iter__()
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class WriteOnlyBinaryIOProxy(WriteOnlyIOProxy[bytes]):
-
     def __init__(self, fd: FDType):
         super().__init__(fd)
         if not fd.writable():
@@ -888,9 +896,8 @@ class WriteOnlyBinaryIOProxy(WriteOnlyIOProxy[bytes]):
         self._fd.writelines(lines)
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class WriteOnlyTextIOProxy(WriteOnlyIOProxy[str]):
-
     def __init__(self, fd: FDType):
         super().__init__(fd)
         if not fd.writable():
@@ -907,21 +914,18 @@ class WriteOnlyTextIOProxy(WriteOnlyIOProxy[str]):
         self._fd.writelines(lines)
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class ReadOnlyIOProxyWithTqdm(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
     """
     :py:class:`ReadOnlyIOProxy` with progress bar.
     """
+
     _tqdm: tqdm
 
     def __init__(self, fd: FDType):
         super().__init__(fd)
         self._tqdm = tqdm(
-            desc=f"Reading from {self.filename}",
-            total=wc_c_io(self._fd),
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024
+            desc=f"Reading from {self.filename}", total=wc_c_io(self._fd), unit="B", unit_scale=True, unit_divisor=1024
         )
 
     def read(self, size: int = -1) -> AnyStr:
@@ -943,7 +947,7 @@ class ReadOnlyIOProxyWithTqdm(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
         return update_bytes_arr
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class ByLineReadOnlyIOProxy(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
     """
     :py:class:`ReadOnlyIOProxy` with different `__iter__` method.
@@ -968,9 +972,9 @@ class ByLineReadOnlyIOProxy(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
             return
         else:
             if isinstance(line, bytes):
-                strip_content = b'\r\n'
+                strip_content = b"\r\n"
             else:
-                strip_content = '\r\n'
+                strip_content = "\r\n"
             yield line.rstrip(strip_content)
         while True:
             line = self.readline()
@@ -979,11 +983,12 @@ class ByLineReadOnlyIOProxy(ReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
             yield line.rstrip(strip_content)
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class ByLineReadOnlyIOProxyWithTqdm(ByLineReadOnlyIOProxy[AnyStr], Generic[AnyStr]):
     """
     :py:class:`ByLineReadOnlyIOProxy` with progress bar.
     """
+
     _tqdm: tqdm
 
     def __init__(self, fd: FDType):
@@ -991,9 +996,9 @@ class ByLineReadOnlyIOProxyWithTqdm(ByLineReadOnlyIOProxy[AnyStr], Generic[AnySt
         self._tqdm = tqdm(
             desc=f"Reading from {self.filename}",
             total=wc_l_io(self._fd) + 1,
-            unit='L',
+            unit="L",
             unit_scale=True,
-            unit_divisor=1000
+            unit_divisor=1000,
         )
 
     def readline(self, *args, **kwargs) -> AnyStr:
@@ -1009,6 +1014,7 @@ class CompressedReadOnlyIOProxy(ReadOnlyBinaryIOProxy):
 
     Supports binary IO only.
     """
+
     _llfd: FDType
 
     def __init__(self, fd: FDType, llfd: FDType):
@@ -1040,6 +1046,7 @@ class CompressedWriteOnlyIOProxy(WriteOnlyBinaryIOProxy):
 
     Supports binary IO only.
     """
+
     _llfd: FDType
 
     def __init__(self, fd: FDType, llfd: FDType):
@@ -1067,7 +1074,7 @@ class CompressedWriteOnlyIOProxy(WriteOnlyBinaryIOProxy):
             pass
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class DumbCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Pass-through dumb decompressor.
@@ -1078,7 +1085,7 @@ class DumbCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(fd, fd)
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class DumbCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Pass-through dumb compressor.
@@ -1091,7 +1098,7 @@ class DumbCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
         return cls(fd, fd)
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class GZipCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Read using :py:func:`gzip.open`.
@@ -1102,7 +1109,7 @@ class GZipCompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(gzip.open(fd, "rb"), fd)  # type: ignore
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class GZipCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Write using :py:func:`gzip.open`.
@@ -1113,7 +1120,7 @@ class GZipCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
         return cls(gzip.open(fd, "wb", compresslevel=compression_level), fd)  # type: ignore
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class LZMACompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Read using :py:func:`lzma.open`.
@@ -1124,7 +1131,7 @@ class LZMACompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(lzma.open(fd, "rb"), fd)  # type: ignore
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class LZMACompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Write using :py:func:`lzma.open`.
@@ -1132,15 +1139,10 @@ class LZMACompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType, compression_level: int):
-        return cls(lzma.open(
-            fd,  # type: ignore
-            "wb",
-            preset=compression_level,
-            format=lzma.FORMAT_ALONE
-        ), fd)
+        return cls(lzma.open(fd, "wb", preset=compression_level, format=lzma.FORMAT_ALONE), fd)  # type: ignore
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class XZCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Write using :py:func:`lzma.open`.
@@ -1148,15 +1150,10 @@ class XZCompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
 
     @classmethod
     def create(cls, fd: FDType, compression_level: int):
-        return cls(lzma.open(
-            fd,  # type: ignore
-            "wb",
-            preset=compression_level,
-            format=lzma.FORMAT_XZ
-        ), fd)
+        return cls(lzma.open(fd, "wb", preset=compression_level, format=lzma.FORMAT_XZ), fd)  # type: ignore
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class BZ2CompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
     """
     Read using :py:func:`bz2.open`.
@@ -1167,7 +1164,7 @@ class BZ2CompressedReadOnlyIOProxy(CompressedReadOnlyIOProxy):
         return cls(bz2.open(fd, "rb"), fd)  # type: ignore
 
 
-@supress_inherited_doc(modify_overwritten = True)
+@supress_inherited_doc(modify_overwritten=True)
 class BZ2CompressedWriteOnlyIOProxy(CompressedWriteOnlyIOProxy):
     """
     Read using :py:func:`bz2.open`.
@@ -1182,13 +1179,8 @@ class CompressionRuleRing:
     """
     Rule ring for compression.
     """
-    _rules: Dict[
-        str,
-        Tuple[
-            Type[CompressedReadOnlyIOProxy],
-            Type[CompressedWriteOnlyIOProxy]
-        ]
-    ] = {
+
+    _rules: Dict[str, Tuple[Type[CompressedReadOnlyIOProxy], Type[CompressedWriteOnlyIOProxy]]] = {
         "gz": (GZipCompressedReadOnlyIOProxy, GZipCompressedWriteOnlyIOProxy),
         "gzip": (GZipCompressedReadOnlyIOProxy, GZipCompressedWriteOnlyIOProxy),
         "GZ": (GZipCompressedReadOnlyIOProxy, GZipCompressedWriteOnlyIOProxy),
@@ -1219,98 +1211,94 @@ class CompressionRuleRing:
 
     @staticmethod
     def add_or_replace_rule(
-            name: str,
-            reader_type: Type[CompressedReadOnlyIOProxy],
-            writer_type: Type[CompressedWriteOnlyIOProxy]
+        name: str, reader_type: Type[CompressedReadOnlyIOProxy], writer_type: Type[CompressedWriteOnlyIOProxy]
     ):
         """
         Add a new rule.
         """
-        CompressionRuleRing._rules[name] = (
-            reader_type, writer_type
-        )
+        CompressionRuleRing._rules[name] = (reader_type, writer_type)
 
 
 @overload
 def file_open(
-        file_path: str,
-        mode: Literal[ModeEnum.READ],
-        is_binary: Literal[False],
-        encoding: str = "UTF-8",
-        newline: Optional[str] = None,
-        compression: Optional[str] = "Inferred",
-        compression_level: int = 0,
-        parallel_compression: int = 0,
-        line_reader: bool = False,
-        tqdm_reader: bool = False,
-        **kwargs
+    file_path: str,
+    mode: Literal[ModeEnum.READ],
+    is_binary: Literal[False],
+    encoding: str = "UTF-8",
+    newline: Optional[str] = None,
+    compression: Optional[str] = "Inferred",
+    compression_level: int = 0,
+    parallel_compression: int = 0,
+    line_reader: bool = False,
+    tqdm_reader: bool = False,
+    **kwargs,
 ) -> ReadOnlyTextIOProxy:
     ...
 
 
 @overload
 def file_open(
-        file_path: str,
-        mode: Literal[ModeEnum.WRITE, ModeEnum.APPEND],
-        is_binary: Literal[False],
-        encoding: str = "UTF-8",
-        newline: Optional[str] = None,
-        compression: Optional[str] = "Inferred",
-        compression_level: int = 0,
-        parallel_compression: int = 0,
-        line_reader: bool = False,
-        tqdm_reader: bool = False,
-        **kwargs
+    file_path: str,
+    mode: Literal[ModeEnum.WRITE, ModeEnum.APPEND],
+    is_binary: Literal[False],
+    encoding: str = "UTF-8",
+    newline: Optional[str] = None,
+    compression: Optional[str] = "Inferred",
+    compression_level: int = 0,
+    parallel_compression: int = 0,
+    line_reader: bool = False,
+    tqdm_reader: bool = False,
+    **kwargs,
 ) -> WriteOnlyTextIOProxy:
     ...
 
 
 @overload
 def file_open(
-        file_path: str,
-        mode: Literal[ModeEnum.READ],
-        is_binary: Literal[True],
-        encoding: str = "UTF-8",
-        newline: Optional[str] = None,
-        compression: Optional[str] = "Inferred",
-        compression_level: int = 0,
-        parallel_compression: int = 0,
-        line_reader: bool = False,
-        tqdm_reader: bool = False,
-        **kwargs
+    file_path: str,
+    mode: Literal[ModeEnum.READ],
+    is_binary: Literal[True],
+    encoding: str = "UTF-8",
+    newline: Optional[str] = None,
+    compression: Optional[str] = "Inferred",
+    compression_level: int = 0,
+    parallel_compression: int = 0,
+    line_reader: bool = False,
+    tqdm_reader: bool = False,
+    **kwargs,
 ) -> ReadOnlyBinaryIOProxy:
     ...
 
 
 @overload
 def file_open(
-        file_path: str,
-        mode: Literal[ModeEnum.WRITE, ModeEnum.APPEND],
-        is_binary: Literal[True],
-        encoding: str = "UTF-8",
-        newline: Optional[str] = None,
-        compression: Optional[str] = "Inferred",
-        compression_level: int = 0,
-        parallel_compression: int = 0,
-        line_reader: bool = False,
-        tqdm_reader: bool = False,
-        **kwargs
+    file_path: str,
+    mode: Literal[ModeEnum.WRITE, ModeEnum.APPEND],
+    is_binary: Literal[True],
+    encoding: str = "UTF-8",
+    newline: Optional[str] = None,
+    compression: Optional[str] = "Inferred",
+    compression_level: int = 0,
+    parallel_compression: int = 0,
+    line_reader: bool = False,
+    tqdm_reader: bool = False,
+    **kwargs,
 ) -> WriteOnlyBinaryIOProxy:
     ...
 
 
 def file_open(  # type: ignore
-        file_path: str,
-        mode: ModeEnum = ModeEnum.READ,
-        is_binary: Literal[True, False] = False,
-        encoding: str = "UTF-8",
-        newline: Optional[str] = None,
-        compression: Optional[str] = "inferred",
-        compression_level: int = 0,
-        parallel_compression: int = 0,
-        line_reader: bool = False,
-        tqdm_reader: bool = False,
-        **kwargs
+    file_path: str,
+    mode: ModeEnum = ModeEnum.READ,
+    is_binary: Literal[True, False] = False,
+    encoding: str = "UTF-8",
+    newline: Optional[str] = None,
+    compression: Optional[str] = "inferred",
+    compression_level: int = 0,
+    parallel_compression: int = 0,
+    line_reader: bool = False,
+    tqdm_reader: bool = False,
+    **kwargs,
 ) -> IOProxy:
     """
     Open a file using path.
@@ -1345,19 +1333,13 @@ def file_open(  # type: ignore
         elif os.path.isdir(file_path):
             raise IsADirectoryError(f"File {file_path} is a directory!")
 
-        rfd = CompressionRuleRing.get_reader(compression).create(
-            open(file_path, "rb")
-        )
+        rfd = CompressionRuleRing.get_reader(compression).create(open(file_path, "rb"))
         if newline is None and not is_binary:
             newline = determine_line_endings(rfd)
         if is_binary:
             rfd = ReadOnlyBinaryIOProxy(rfd)
         else:
-            rfd = ReadOnlyTextIOProxy(io.TextIOWrapper(
-                rfd,
-                encoding=encoding,
-                newline=newline
-            ))
+            rfd = ReadOnlyTextIOProxy(io.TextIOWrapper(rfd, encoding=encoding, newline=newline))
         if line_reader and tqdm_reader:
             return ByLineReadOnlyIOProxyWithTqdm(rfd)
         elif tqdm_reader:
@@ -1374,27 +1356,17 @@ def file_open(  # type: ignore
             wfd = open(file_path, "wb")
         else:
             wfd = open(file_path, "ab")
-        wfd = CompressionRuleRing.get_writer(compression).create(
-            wfd,
-            compression_level=compression_level
-        )
+        wfd = CompressionRuleRing.get_writer(compression).create(wfd, compression_level=compression_level)
         if is_binary:
             return WriteOnlyBinaryIOProxy(wfd)
         else:
-            return WriteOnlyTextIOProxy(io.TextIOWrapper(
-                wfd,
-                encoding=encoding,
-                newline=newline
-            ))
+            return WriteOnlyTextIOProxy(io.TextIOWrapper(wfd, encoding=encoding, newline=newline))
 
 
-def wrap_io(fd: FDType) -> Union[
-    ReadOnlyTextIOProxy,
-    WriteOnlyTextIOProxy,
-    ReadOnlyBinaryIOProxy,
-    WriteOnlyBinaryIOProxy,
-    TextIOProxy,
-    BinaryIOProxy
+def wrap_io(
+    fd: FDType,
+) -> Union[
+    ReadOnlyTextIOProxy, WriteOnlyTextIOProxy, ReadOnlyBinaryIOProxy, WriteOnlyBinaryIOProxy, TextIOProxy, BinaryIOProxy
 ]:
     if is_textio(fd):
         if fd.writable():
@@ -1413,28 +1385,16 @@ def wrap_io(fd: FDType) -> Union[
 
 
 @overload
-def get_reader(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False],
-        **kwargs
-) -> IOProxy[str]:
+def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]:
     ...
 
 
 @overload
-def get_reader(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[True],
-        **kwargs
-) -> IOProxy[bytes]:
+def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]:
     ...
 
 
-def get_reader(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False, True] = False,
-        **kwargs
-) -> IOProxy:
+def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False, **kwargs) -> IOProxy:
     """
     Get a reader for multiple format.
 
@@ -1455,37 +1415,20 @@ def get_reader(
         return wrap_io(path_or_fd)  # type: ignore
     else:
         path_or_fd = convert_path_to_str(path_or_fd)  # type: ignore
-        return file_open(
-            path_or_fd,
-            mode=ModeEnum.READ,
-            is_binary=is_binary,
-            **kwargs
-        )
+        return file_open(path_or_fd, mode=ModeEnum.READ, is_binary=is_binary, **kwargs)
 
 
 @overload
-def get_writer(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False],
-        **kwargs
-) -> IOProxy[str]:
+def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]:
     ...
 
 
 @overload
-def get_writer(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[True],
-        **kwargs
-) -> IOProxy[bytes]:
+def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]:
     ...
 
 
-def get_writer(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False, True] = False,
-        **kwargs
-) -> IOProxy:
+def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False, **kwargs) -> IOProxy:
     """
     Get a writer for multiple format.
 
@@ -1506,37 +1449,20 @@ def get_writer(
         return wrap_io(path_or_fd)  # type: ignore
     else:
         path_or_fd = convert_path_to_str(path_or_fd)  # type: ignore
-        return file_open(
-            path_or_fd,
-            mode=ModeEnum.WRITE,
-            is_binary=is_binary,
-            **kwargs
-        )
+        return file_open(path_or_fd, mode=ModeEnum.WRITE, is_binary=is_binary, **kwargs)
 
 
 @overload
-def get_appender(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False],
-        **kwargs
-) -> IOProxy[str]:
+def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]:
     ...
 
 
 @overload
-def get_appender(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[True],
-        **kwargs
-) -> IOProxy[bytes]:
+def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]:
     ...
 
 
-def get_appender(
-        path_or_fd: PathOrFDType,
-        is_binary: Literal[False, True] = False,
-        **kwargs
-) -> IOProxy:
+def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False, **kwargs) -> IOProxy:
     """
     Get an appender for multiple format.
 
@@ -1557,9 +1483,4 @@ def get_appender(
         return wrap_io(path_or_fd)  # type: ignore
     else:
         path_or_fd = convert_path_to_str(path_or_fd)  # type: ignore
-        return file_open(
-            path_or_fd,
-            mode=ModeEnum.APPEND,
-            is_binary=is_binary,
-            **kwargs
-        )
+        return file_open(path_or_fd, mode=ModeEnum.APPEND, is_binary=is_binary, **kwargs)

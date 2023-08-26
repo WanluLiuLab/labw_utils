@@ -4,7 +4,7 @@ sample_transcript.py -- Sample fraction of transcripts inside GTF file.
 
 __all__ = (
     "create_parser",
-    "main"
+    "main",
 )
 
 import argparse
@@ -20,25 +20,26 @@ from labw_utils.typing_importer import List
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils sample_transcript",
-        description=__doc__.splitlines()[1]
+        description=__doc__.splitlines()[1],
     )
     parser = FrontendOptSpecs.patch(parser, "-g")
     parser.add_argument(
         "--percent",
         required=False,
         help="How many percent of transcript to be sampled",
-        nargs='?',
+        nargs="?",
         type=float,
-        action='store',
-        default=50
+        action="store",
+        default=50,
     )
     parser.add_argument(
-        "-o", "--out",
+        "-o",
+        "--out",
         required=True,
         help="Path to filtered output",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     return parser
 
@@ -57,5 +58,5 @@ def main(args: List[str]):
         attribute_values=transcript_ids,
         attribute_name="transcript_id",
         gtf_filename=args.gtf,
-        out_filename=args.out
+        out_filename=args.out,
     )

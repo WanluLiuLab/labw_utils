@@ -58,16 +58,11 @@ def _single_monte_caro_pi(_) -> bool:
 
 
 def monte_caro_pi(n: int) -> float:
-    return sum(map(
-        _single_monte_caro_pi,
-        range(n)
-    )) / n * 4
+    return sum(map(_single_monte_caro_pi, range(n))) / n * 4
 
 
 def monte_caro_pi_threaded(n: int) -> float:
-    with concurrent.futures.ThreadPoolExecutor(
-            max_workers=multiprocessing.cpu_count()
-    ) as tpe:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as tpe:
         return sum(tpe.map(_single_monte_caro_pi, range(n))) / n * 4
 
 
@@ -75,7 +70,7 @@ def sqrt_binsearch(n: float, precision: float):
     lp, rp = 0.0, n
     pivot = (lp + rp) / 2
     while rp - lp > precision:
-        if pivot ** 2 > n:
+        if pivot**2 > n:
             rp = pivot
         else:
             lp = pivot

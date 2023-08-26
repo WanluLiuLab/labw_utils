@@ -23,7 +23,4 @@ class YSJSJobTable(SQLAlchemyDeclarativeBase):
         submission_id = job.submission.submission_id
         job_dict = dict(job.to_dict())
         _ = job_dict.pop("submission")
-        return cls(
-            submission_id=submission_id,
-            **job_dict
-        )
+        return cls(submission_id=submission_id, **job_dict)

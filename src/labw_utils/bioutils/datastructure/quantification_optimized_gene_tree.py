@@ -16,6 +16,7 @@ class QuantificationOptimizedGeneTree:
 
     .. versionadded:: 1.0.2
     """
+
     _feature_ids: List[str]
     _feature_boundary: NumpyIntervalEngine
     _chromosome_names: List[str]
@@ -23,22 +24,17 @@ class QuantificationOptimizedGeneTree:
     def iter_chromosome_names(self) -> Iterable[str]:
         return iter(self._chromosome_names)
 
-    def __init__(
-            self,
-            feature_ids: List[str],
-            feature_boundary: NumpyIntervalEngine,
-            chromosome_names: List[str]
-    ):
+    def __init__(self, feature_ids: List[str], feature_boundary: NumpyIntervalEngine, chromosome_names: List[str]):
         self._feature_ids = list(feature_ids)
         self._feature_boundary = feature_boundary
         self._chromosome_names = list(chromosome_names)
 
     @classmethod
     def from_feature_iterator(
-            cls,
-            feature_iterator: Iterable[Feature],
-            feature_attribute_name: str = "transcript_id",
-            feature_type: str = "exon"
+        cls,
+        feature_iterator: Iterable[Feature],
+        feature_attribute_name: str = "transcript_id",
+        feature_type: str = "exon",
     ) -> QuantificationOptimizedGeneTree:
         staged_features = []
         chromosome_names = set()

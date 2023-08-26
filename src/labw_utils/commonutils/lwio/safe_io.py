@@ -5,11 +5,7 @@ safe_io -- A Safe Wrapper for :py:mod:`commonutils.lwio`
     Use :py:func:`labw_utils.commonutils.lwio.file_open` instead.
 """
 
-__all__ = (
-    "get_reader",
-    "get_writer",
-    "get_appender"
-)
+__all__ = ("get_reader", "get_writer", "get_appender")
 
 from labw_utils.commonutils import lwio
 

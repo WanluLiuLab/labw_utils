@@ -17,13 +17,13 @@ can either be string or integer.
 from __future__ import annotations
 
 __all__ = (
-    'setup_frontend',
+    "setup_frontend",
     "get_subcommands",
     "get_argparser_from_subcommand",
     "get_main_func_from_subcommand",
     "get_doc_from_subcommand",
     "setup_basic_logger",
-    "add_file_handler_to_root_logger_handler"
+    "add_file_handler_to_root_logger_handler",
 )
 
 import argparse
@@ -46,29 +46,18 @@ _lh: Optional[logging.Logger] = None
 def setup_basic_logger():
     """
     Clear current logging configuration and setup basic command-line logging support.
-    Would respect :envvar:`LOG_LEVEL` environment variable.    
+    Would respect :envvar:`LOG_LEVEL` environment variable.
 
     .. versionadded:: 1.0.2
     """
     _stream_handler = logging.StreamHandler()
-    _stream_handler.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
+    _stream_handler.setLevel(os.environ.get("LOG_LEVEL", "INFO"))
     _stream_handler.setFormatter(logger_helper.get_formatter(_stream_handler.level))
 
     if sys.version_info < (3, 8):
-        logging.basicConfig(
-            handlers=[
-                _stream_handler
-            ],
-            level=logger_helper.TRACE
-        )
+        logging.basicConfig(handlers=[_stream_handler], level=logger_helper.TRACE)
     else:
-        logging.basicConfig(
-            handlers=[
-                _stream_handler
-            ],
-            force=True,
-            level=logger_helper.TRACE
-        )
+        logging.basicConfig(handlers=[_stream_handler], force=True, level=logger_helper.TRACE)
 
 
 _NONE_DOC = "NONE DOC"
@@ -81,14 +70,12 @@ def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[s
 
     .. versionadded:: 1.0.2
     """
-    for spec in pkgutil.iter_modules(
-            resolve_name(package_main_name).__spec__.submodule_search_locations
-    ):
+    for spec in pkgutil.iter_modules(resolve_name(package_main_name).__spec__.submodule_search_locations):
         subcommand_name = spec.name
         if subcommand_name.startswith("_"):
             continue
         try:
-            _ = resolve_name(f'{package_main_name}.{subcommand_name}')
+            _ = resolve_name(f"{package_main_name}.{subcommand_name}")
             _ = get_main_func_from_subcommand(package_main_name, subcommand_name)
         except (UnmetDependenciesError, ImportError, AttributeError):
             if verbose and _lh is not None:
@@ -97,61 +84,49 @@ def get_subcommands(package_main_name: str, verbose: bool = False) -> Iterable[s
         yield subcommand_name
 
 
-def get_doc_from_subcommand(
-        package_main_name: str,
-        subcommand_name: str
-) -> Optional[str]:
+def get_doc_from_subcommand(package_main_name: str, subcommand_name: str) -> Optional[str]:
     """
     Return documentation of that module
 
     .. versionadded:: 1.0.2
     """
-    importlib.import_module(f'{package_main_name}.{subcommand_name}')
-    i = resolve_name(f'{package_main_name}.{subcommand_name}')
-    if hasattr(i, '__doc__'):
+    importlib.import_module(f"{package_main_name}.{subcommand_name}")
+    i = resolve_name(f"{package_main_name}.{subcommand_name}")
+    if hasattr(i, "__doc__"):
         return i.__doc__
     else:
         return None
 
 
-def get_main_func_from_subcommand(
-        package_main_name: str,
-        subcommand_name: str
-) -> Optional[Callable[[list[str]], int]]:
+def get_main_func_from_subcommand(package_main_name: str, subcommand_name: str) -> Optional[Callable[[list[str]], int]]:
     """
     Return a subcommands' :py:func:`main` function.
 
     .. versionadded:: 1.0.2
     """
-    importlib.import_module(f'{package_main_name}.{subcommand_name}')
-    i = resolve_name(f'{package_main_name}.{subcommand_name}')
-    if hasattr(i, 'main') and inspect.isfunction(getattr(i, 'main')):
+    importlib.import_module(f"{package_main_name}.{subcommand_name}")
+    i = resolve_name(f"{package_main_name}.{subcommand_name}")
+    if hasattr(i, "main") and inspect.isfunction(getattr(i, "main")):
         return i.main
     else:
         return None
 
 
-def get_argparser_from_subcommand(
-        package_main_name: str,
-        subcommand_name: str
-) -> Optional[argparse.ArgumentParser]:
+def get_argparser_from_subcommand(package_main_name: str, subcommand_name: str) -> Optional[argparse.ArgumentParser]:
     """
     Return result of a subcommands' :py:func:`create_parser` function.
 
     .. versionadded:: 1.0.2
     """
-    importlib.import_module(f'{package_main_name}.{subcommand_name}')
-    i = resolve_name(f'{package_main_name}.{subcommand_name}')
-    if hasattr(i, 'create_parser') and inspect.isfunction(getattr(i, 'create_parser')):
+    importlib.import_module(f"{package_main_name}.{subcommand_name}")
+    i = resolve_name(f"{package_main_name}.{subcommand_name}")
+    if hasattr(i, "create_parser") and inspect.isfunction(getattr(i, "create_parser")):
         return i.create_parser()
     else:
         return None
 
 
-def lscmd(
-        package_main_name: str,
-        valid_subcommand_names: Iterable[str]
-):
+def lscmd(package_main_name: str, valid_subcommand_names: Iterable[str]):
     """
     ``lscmd`` frontend
 
@@ -195,18 +170,16 @@ class _ParsedArgs:
     parsed_args: List[str] = []
 
 
-def _parse_args(
-        args: List[str]
-) -> _ParsedArgs:
+def _parse_args(args: List[str]) -> _ParsedArgs:
     parsed_args = _ParsedArgs()
     i = 0
     while i < len(args):
         name = args[i]
-        if name in ('--help', '-h'):
+        if name in ("--help", "-h"):
             parsed_args.have_help = True
-        elif name in ('--version', '-v'):
+        elif name in ("--version", "-v"):
             parsed_args.have_version = True
-        elif not name.startswith('-') and parsed_args.input_subcommand_name == "":
+        elif not name.startswith("-") and parsed_args.input_subcommand_name == "":
             parsed_args.input_subcommand_name = name
             args.pop(i)
         i += 1
@@ -253,13 +226,13 @@ def add_file_handler_to_root_logger_handler(default_log_filename: str):
 
 
 def setup_frontend(
-        package_main_name: str,
-        one_line_description: str,
-        version: str,
-        help_info: Optional[str] = None,
-        subcommand_help: str = "Use 'lscmd' to list all valid subcommands.",
-        use_root_logger: bool = True,
-        default_log_filename: str = "log.log"
+    package_main_name: str,
+    one_line_description: str,
+    version: str,
+    help_info: Optional[str] = None,
+    subcommand_help: str = "Use 'lscmd' to list all valid subcommands.",
+    use_root_logger: bool = True,
+    default_log_filename: Optional[str] = None,
 ):
     """
     Setup the frontend.
@@ -271,13 +244,18 @@ def setup_frontend(
     :param subcommand_help: TODO
     :param use_root_logger: TODO
     :param default_log_filename: TODO
-    
+
     .. versionadded:: 1.0.2
     """
     global _lh
+    if default_log_filename is None:
+        pkg_full_name = package_main_name.split(".")
+        if pkg_full_name[-1] in {"main", "_main", "__main__"}:
+            pkg_full_name.pop()
+        default_log_filename = ".".join(pkg_full_name) + ".log"
     setup_basic_logger()
     _lh = logger_helper.get_logger(__name__)
-    _lh.info(f'{one_line_description} ver. {version}')
+    _lh.info(f"{one_line_description} ver. {version}")
     argv = sys.argv
     _lh.info(f'Called by: {" ".join(argv)}')
     parsed_args = _parse_args(argv[1:])
@@ -287,10 +265,7 @@ def setup_frontend(
         get_subcommands_verbose = True
     else:
         get_subcommands_verbose = False
-    valid_subcommand_names = get_subcommands(
-        package_main_name,
-        get_subcommands_verbose
-    )
+    valid_subcommand_names = get_subcommands(package_main_name, get_subcommands_verbose)
     if parsed_args.input_subcommand_name == "lscmd":
         lscmd(package_main_name, valid_subcommand_names)
     elif parsed_args.input_subcommand_name == "":
@@ -307,8 +282,7 @@ def setup_frontend(
             sys.exit(1)
     else:
         main_fnc = get_main_func_from_subcommand(
-            package_main_name=package_main_name,
-            subcommand_name=parsed_args.input_subcommand_name
+            package_main_name=package_main_name, subcommand_name=parsed_args.input_subcommand_name
         )
         if main_fnc is not None:
             sys.exit(main_fnc(parsed_args.parsed_args))

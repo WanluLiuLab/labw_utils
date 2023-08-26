@@ -10,27 +10,20 @@ class PandasIntervalEngine(BaseNaiveIntervalEngine):
     def overlap(self, query_interval: IntervalType) -> Iterable[int]:
         query_chr, query_s, query_e = query_interval
         for idx in self._df.query(
-                f"`chr` == '{query_chr}' & (" +
-                "|".join((
-                        f"s < {query_s} < e",
-                        f"s < {query_e} < e",
-                        f"{query_s} < s < {query_e}",
-                        f"{query_s} < e < {query_e}"
-                )) +
-                ")"
+            f"`chr` == '{query_chr}' & ("
+            + "|".join(
+                (f"s < {query_s} < e", f"s < {query_e} < e", f"{query_s} < s < {query_e}", f"{query_s} < e < {query_e}")
+            )
+            + ")"
         )["idx"]:
             yield idx
 
     def __init__(self, interval_file: str, show_tqdm: bool = True):
-        self._df = create_pandas_dataframe_from_input_file(
-            interval_file, show_tqdm
-        )
+        self._df = create_pandas_dataframe_from_input_file(interval_file, show_tqdm)
 
     def match(self, query_interval: IntervalType) -> Iterable[int]:
         query_chr, query_s, query_e = query_interval
-        for idx in self._df.query(
-                f"`chr` == '{query_chr}' & s > {query_s} & e < {query_e}"
-        )["idx"]:
+        for idx in self._df.query(f"`chr` == '{query_chr}' & s > {query_s} & e < {query_e}")["idx"]:
             yield idx
 
     def __iter__(self) -> Iterable[IntervalType]:

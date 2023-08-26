@@ -17,10 +17,7 @@ class IntervalTreeIntervalEngine(BaseNaiveIntervalEngine):
             selected_chr = self._dfs[interval_chr]
         except KeyError:
             return None
-        for it in sorted(map(
-                lambda i: i.data,
-                selected_chr.overlap(interval_s, interval_e)
-        )):
+        for it in sorted(map(lambda i: i.data, selected_chr.overlap(interval_s, interval_e))):
             yield it
 
     def __init__(self, interval_file: str, show_tqdm: bool = True):
@@ -41,10 +38,7 @@ class IntervalTreeIntervalEngine(BaseNaiveIntervalEngine):
             selected_chr = self._dfs[interval_chr]
         except KeyError:
             return None
-        for it in sorted(map(
-                lambda i: i.data,
-                selected_chr.envelop(interval_s, interval_e)
-        )):
+        for it in sorted(map(lambda i: i.data, selected_chr.envelop(interval_s, interval_e))):
             yield it
 
     def __iter__(self) -> Iterable[IntervalType]:

@@ -3,7 +3,7 @@ describe_gtf_by_binning.py -- Describe number of features in GTF by binning.
 """
 __all__ = (
     "create_parser",
-    "main"
+    "main",
 )
 
 import argparse
@@ -14,11 +14,15 @@ from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
-from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import QuantificationOptimizedGeneTree
+from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import (
+    QuantificationOptimizedGeneTree,
+)
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper import pickle_helper
-from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
+from labw_utils.commonutils.stdlib_helper.argparse_helper import (
+    ArgumentParserWithEnhancedFormatHelp,
+)
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List, Any, Dict
 
@@ -47,7 +51,7 @@ _lh.warning("This module is not finished")  # TODO
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils describe_gtf_by_binning",
-        description=__doc__.splitlines()[1]
+        description=__doc__.splitlines()[1],
     )
     parser = FrontendOptSpecs.patch(parser, "-g")
     parser = FrontendOptSpecs.patch(parser, "-f")
@@ -56,18 +60,18 @@ def create_parser() -> argparse.ArgumentParser:
         "--out",
         required=True,
         help="Output file basename. Will be {out}.csv or {out}.parquet if Apache Arrow is installed",
-        nargs='?',
+        nargs="?",
         type=str,
-        action='store'
+        action="store",
     )
     parser.add_argument(
         "--nbins",
         required=False,
         help="Number of bins for each chromosome",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=400
+        action="store",
+        default=400,
     )
     return parser
 
@@ -87,7 +91,7 @@ def main(args: List[str]) -> None:
         gtf_isoform_intervals = QuantificationOptimizedGeneTree.from_feature_iterator(
             tqdm([gv.iter_genes()], desc="Creating Isoform-Level QOIDX"),
             feature_attribute_name="transcript_id",
-            feature_type="transcript"
+            feature_type="transcript",
         )
         pickle_helper.dump(gtf_isoform_intervals, isoform_qoidx_path)
     if os.path.exists(gene_qoidx_path):
@@ -96,23 +100,27 @@ def main(args: List[str]) -> None:
         gtf_gene_intervals = QuantificationOptimizedGeneTree.from_feature_iterator(
             tqdm([gv.iter_transcripts()], desc="Creating Gene-Level QOIDX"),
             feature_attribute_name="gene_id",
-            feature_type="gene"
+            feature_type="gene",
         )
         pickle_helper.dump(gtf_gene_intervals, gene_qoidx_path)
     fasta_chromosome_names = list(fa.chr_names)
     gtf_chromosome_names = gtf_isoform_intervals.iter_chromosome_names()
-    final_chromosome_names = list(filter(
-        lambda chr_name: chr_name in fasta_chromosome_names,
-        gtf_isoform_intervals.iter_chromosome_names()
-    ))
+    final_chromosome_names = list(
+        filter(
+            lambda chr_name: chr_name in fasta_chromosome_names,
+            gtf_isoform_intervals.iter_chromosome_names(),
+        )
+    )
 
-    out_metadata.update({
-        "FATSA_FILE_PATH": fasta_file_path,
-        "FASTA_CHR_NAME": fasta_chromosome_names,
-        "FINAL_CHR_NAME": final_chromosome_names,
-        "GTF_FILE_PATH": gtf_file_path,
-        "GTF_CHR_NAME": gtf_chromosome_names
-    })
+    out_metadata.update(
+        {
+            "FATSA_FILE_PATH": fasta_file_path,
+            "FASTA_CHR_NAME": fasta_chromosome_names,
+            "FINAL_CHR_NAME": final_chromosome_names,
+            "GTF_FILE_PATH": gtf_file_path,
+            "GTF_CHR_NAME": gtf_chromosome_names,
+        }
+    )
     with get_writer(f"{args.out}.json") as metadata_writer:
         json.dump(out_metadata, metadata_writer)
 
@@ -125,30 +133,53 @@ def main(args: List[str]) -> None:
             segment_length = seq_len // args.nbins
             for start in range(0, seq_len - segment_length, segment_length):
                 end = start + segment_length
-                stats_dict = {
-                    "chr_name": chr_name,
-                    "start": start
-                }
-                stats_dict.update({
-                    "gtf_isoform_intervals_pos": len(
-                        list(gtf_isoform_intervals.overlap(((chr_name, True), start, end)))
-                    ),
-                    "gtf_isoform_intervals_neg": len(
-                        list(gtf_isoform_intervals.overlap(((chr_name, False), start, end)))
-                    ),
-                    "gtf_isoform_intervals_strandless": len(
-                        list(gtf_isoform_intervals.overlap(((chr_name, None), start, end)))
-                    ),
-                    "gtf_gene_intervals_pos": len(
-                        list(gtf_gene_intervals.overlap(((chr_name, True), start, end)))
-                    ),
-                    "gtf_gene_intervals_neg": len(
-                        list(gtf_gene_intervals.overlap(((chr_name, False), start, end)))
-                    ),
-                    "gtf_gene_intervals_strandless": len(
-                        list(gtf_gene_intervals.overlap(((chr_name, None), start, end)))
-                    )
-                })
+                stats_dict = {"chr_name": chr_name, "start": start}
+                stats_dict.update(
+                    {
+                        "gtf_isoform_intervals_pos": len(
+                            list(
+                                gtf_isoform_intervals.overlap(
+                                    ((chr_name, True), start, end)
+                                )
+                            )
+                        ),
+                        "gtf_isoform_intervals_neg": len(
+                            list(
+                                gtf_isoform_intervals.overlap(
+                                    ((chr_name, False), start, end)
+                                )
+                            )
+                        ),
+                        "gtf_isoform_intervals_strandless": len(
+                            list(
+                                gtf_isoform_intervals.overlap(
+                                    ((chr_name, None), start, end)
+                                )
+                            )
+                        ),
+                        "gtf_gene_intervals_pos": len(
+                            list(
+                                gtf_gene_intervals.overlap(
+                                    ((chr_name, True), start, end)
+                                )
+                            )
+                        ),
+                        "gtf_gene_intervals_neg": len(
+                            list(
+                                gtf_gene_intervals.overlap(
+                                    ((chr_name, False), start, end)
+                                )
+                            )
+                        ),
+                        "gtf_gene_intervals_strandless": len(
+                            list(
+                                gtf_gene_intervals.overlap(
+                                    ((chr_name, None), start, end)
+                                )
+                            )
+                        ),
+                    }
+                )
                 out_dataframe.append(stats_dict)
                 pbar.update(segment_length)
     _lh.info("Finished parsing, writing to disk...")

@@ -48,9 +48,7 @@ class FeatureView(Iterable[Feature]):
             except TypeError:
                 pass
 
-        new_instance = cls(
-            list(GtfIterator(gtf_file_path, show_tqdm=show_tqdm)), shortcut=True
-        )
+        new_instance = cls(list(GtfIterator(gtf_file_path, show_tqdm=show_tqdm)), shortcut=True)
         new_instance.to_fvpkl(index_file_path)
         return new_instance
 
@@ -66,9 +64,7 @@ class FeatureView(Iterable[Feature]):
         if fvpkl_version == FVPKL_VERSION:
             return new_instance
         else:
-            raise TypeError(
-                f"Version {fvpkl_version} (file) and {FVPKL_VERSION} (library) mismatch"
-            )
+            raise TypeError(f"Version {fvpkl_version} (file) and {FVPKL_VERSION} (library) mismatch")
 
     def to_fvpkl(self, index_file_path: str):
         pickle_helper.dump((FVPKL_VERSION, self), index_file_path)

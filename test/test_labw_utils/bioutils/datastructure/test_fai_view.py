@@ -13,11 +13,11 @@ test_fai_path = os.path.join(TEST_DATA_DIR, "test.fasta.fai")
 
 def test_fai_io():
     faiv = FastaIndexView.from_fai(test_fai_path)
-    assert faiv['chr1'].name == 'chr1'
-    assert faiv['chr1'].length == 154
-    assert faiv['chr1'].offset == 15
-    assert faiv['chr1'].line_blen == 27
-    assert faiv['chr1'].line_len == 28
+    assert faiv["chr1"].name == "chr1"
+    assert faiv["chr1"].length == 154
+    assert faiv["chr1"].offset == 15
+    assert faiv["chr1"].line_blen == 27
+    assert faiv["chr1"].line_len == 28
     assert len(faiv) == 5
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -32,9 +32,9 @@ def test_fasta_to_fai():
     faiv_fasta_no_fh = FastaIndexView.from_fasta(test_fasta_path, full_header=False)
     assert faiv == faiv_fasta_no_fh
     assert faiv != faiv_fasta_fh
-    assert list(faiv.keys()) == ['chr1', 'chr2', 'chr3', 'chr4', 'chr6']
-    assert list(faiv_fasta_no_fh.keys()) == ['chr1', 'chr2', 'chr3', 'chr4', 'chr6']
-    assert list(faiv_fasta_fh.keys()) == ['chr1 some att', 'chr2', 'chr3', 'chr4', 'chr6']
+    assert list(faiv.keys()) == ["chr1", "chr2", "chr3", "chr4", "chr6"]
+    assert list(faiv_fasta_no_fh.keys()) == ["chr1", "chr2", "chr3", "chr4", "chr6"]
+    assert list(faiv_fasta_fh.keys()) == ["chr1 some att", "chr2", "chr3", "chr4", "chr6"]
     with tempfile.TemporaryDirectory() as tmpdir:
         out_fq_path = os.path.join(tmpdir, "tmp.fasta.fai")
         with pytest.raises(FastaIndexNotWritableError):

@@ -6,14 +6,7 @@ More shell-like utilities.
 .. versionadded:: 1.0.2
 """
 
-__all__ = (
-    "rm_rf",
-    "wc_c",
-    "wc_l",
-    "wc_l_io",
-    "wc_c_io",
-    "touch"
-)
+__all__ = ("rm_rf", "wc_c", "wc_l", "wc_l_io", "wc_c_io", "touch")
 
 import os
 import shutil
@@ -41,7 +34,7 @@ def readlink_f(path: str) -> str:
     .. versionadded:: 1.0.2
     """
     path = path.rstrip(os.sep)
-    if path == '':
+    if path == "":
         return path
     while is_soft_link(path):
         path = get_abspath(os.path.realpath(path))
@@ -85,10 +78,7 @@ def wc_c(filename: str, opener: Optional[Callable[[str], IO]] = None) -> int:
 
 
 def touch(
-        filename: str,
-        time_ns: Optional[float] = None,
-        change_a_time: bool = True,
-        change_m_time: bool = False
+    filename: str, time_ns: Optional[float] = None, change_a_time: bool = True, change_m_time: bool = False
 ) -> None:
     """
     touch: ensure the existence of a file, just like GNU CoreUtils touch.

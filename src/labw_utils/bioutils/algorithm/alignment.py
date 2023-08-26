@@ -30,6 +30,7 @@ class SubstMatrix:
 
     .. versionadded:: 1.0.2
     """
+
     _real_mtx: Dict[str, Dict[str, int]]
 
     def __init__(self, real_mtx: Dict[str, Dict[str, int]]):
@@ -64,8 +65,7 @@ class SubstMatrix:
 _FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 _SUBST_MTX_PATHS = {
-    os.path.basename(fn).split(".")[0]: fn
-    for fn in glob.glob(os.path.join(_FILE_DIR, "scoring_mtx", "*.mat"))
+    os.path.basename(fn).split(".")[0]: fn for fn in glob.glob(os.path.join(_FILE_DIR, "scoring_mtx", "*.mat"))
 }
 
 
@@ -139,14 +139,14 @@ class SmithWatermanAligner:
     """Substitution Matrix"""
 
     def __init__(
-            self,
-            seq1: str,
-            seq2: str,
-            match_score: int = 5,
-            mismatch_score: int = -4,
-            indel_score: int = -4,
-            subst_mtx: Optional[SubstMatrix] = None,
-            is_global: bool = True
+        self,
+        seq1: str,
+        seq2: str,
+        match_score: int = 5,
+        mismatch_score: int = -4,
+        indel_score: int = -4,
+        subst_mtx: Optional[SubstMatrix] = None,
+        is_global: bool = True,
     ):
         self.seq1 = seq1
         self.seq2 = seq2
@@ -203,17 +203,17 @@ class SmithWatermanAligner:
                     score = max(
                         self._sw_matrix[i - 1][j] + self.indel_score,
                         self._sw_matrix[i][j - 1] + self.indel_score,
-                        self._sw_matrix[i - 1][j - 1] + this_score
+                        self._sw_matrix[i - 1][j - 1] + this_score,
                     )
                 if not self.is_global:
                     score = max(score, 0)
                 self._sw_matrix[i][j] = score
 
     def get_backtrack(
-            self,
-            seq1_title: str = "seq1",
-            seq2_title: str = "seq2",
-            alignment_title: str = "aln"
+        self,
+        seq1_title: str = "seq1",
+        seq2_title: str = "seq2",
+        alignment_title: str = "aln",
     ) -> Optional[List[str]]:
         """
         Get Smith-Waterman Alignment Backtrack in a human-readable form.
@@ -253,8 +253,10 @@ class SmithWatermanAligner:
                     (location[0], location[1] - 1),
                     (location[0] - 1, location[1]),
                 ]:
-                    if location_inside_bound(next_possible_location) and \
-                            self._sw_matrix[next_possible_location] > next_score:
+                    if (
+                        location_inside_bound(next_possible_location)
+                        and self._sw_matrix[next_possible_location] > next_score
+                    ):
                         next_score = self._sw_matrix[next_possible_location]
                         next_location = next_possible_location
                 location = next_location
@@ -270,8 +272,10 @@ class SmithWatermanAligner:
                     (location[0], location[1] + 1),
                     (location[0] + 1, location[1]),
                 ]:
-                    if location_inside_bound(next_possible_location) and \
-                            self._sw_matrix[next_possible_location] > next_score:
+                    if (
+                        location_inside_bound(next_possible_location)
+                        and self._sw_matrix[next_possible_location] > next_score
+                    ):
                         next_score = self._sw_matrix[next_possible_location]
                         next_location = next_possible_location
                 location = next_location
@@ -299,14 +303,10 @@ class SmithWatermanAligner:
                 else:
                     out_array.append(("-", "?", "-"))
                 prev_location = this_location
-            rets = ":".join((
-                f">{alignment_title}",
-                seq1_title,
-                "qual",
-                seq2_title,
-                str(np.max(self._sw_matrix[1:, 1:]))
-            )) + "\n" + "\n".join(
-                (_seq1 + "" for _seq1 in ["".join(_seq) for _seq in zip(*out_array)])
+            rets = (
+                ":".join((f">{alignment_title}", seq1_title, "qual", seq2_title, str(np.max(self._sw_matrix[1:, 1:]))))
+                + "\n"
+                + "\n".join((_seq1 + "" for _seq1 in ["".join(_seq) for _seq in zip(*out_array)]))
             )
             retl.add(rets)
         self._backtrack = list(retl)
@@ -366,9 +366,5 @@ def editing_distance(str1: str, str2: str) -> int:
             if str1[i - 1] == str2[j - 1]:
                 score_matrix[i][j] = score_matrix[i - 1][j - 1]
             else:
-                score_matrix[i][j] = min(
-                    score_matrix[i - 1][j - 1],
-                    score_matrix[i][j - 1],
-                    score_matrix[i - 1][j]
-                ) + 1
+                score_matrix[i][j] = min(score_matrix[i - 1][j - 1], score_matrix[i][j - 1], score_matrix[i - 1][j]) + 1
     return score_matrix[l1 - 1][l2 - 1]

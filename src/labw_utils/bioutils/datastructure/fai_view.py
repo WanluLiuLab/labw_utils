@@ -5,10 +5,7 @@ TODO: docs
 """
 from __future__ import annotations
 
-__all__ = (
-    "FastaIndexView",
-    "create_fai_from_fasta"
-)
+__all__ = ("FastaIndexView", "create_fai_from_fasta")
 
 from labw_utils.bioutils.parser.fai import FAIBasedFastaIndexIterator, FastaBasedFastaIndexIterator, FastaIndexWriter
 from labw_utils.bioutils.record.fai import FastaIndexRecord
@@ -21,6 +18,7 @@ class FastaIndexView:
 
      .. versionadded:: 1.0.2
     """
+
     _d: Dict[str, FastaIndexRecord]
     _full_header: bool
     _filename: str
@@ -63,27 +61,16 @@ class FastaIndexView:
         return list(self.values()) == list(other.values())
 
     def __repr__(self):
-        return f"Fasta Index from {self._filename}\n" \
-               f"Full Header: {self._full_header}\n" \
-               f"Seqname: {self.keys()}"
+        return f"Fasta Index from {self._filename}\n" f"Full Header: {self._full_header}\n" f"Seqname: {self.keys()}"
 
     def __str__(self):
         return f"Fasta Index from {self._filename} [Full Header: {self._full_header}]"
 
 
-def create_fai_from_fasta(
-        fasta_filename: str,
-        fai_filename: str,
-        full_header: bool = True,
-        show_tqdm: bool = True
-):
+def create_fai_from_fasta(fasta_filename: str, fai_filename: str, full_header: bool = True, show_tqdm: bool = True):
     """
     TODO: docs
 
      .. versionadded:: 1.0.2
     """
-    FastaIndexView.from_fasta(
-        filename=fasta_filename,
-        full_header=full_header,
-        show_tqdm=show_tqdm
-    ).write(fai_filename)
+    FastaIndexView.from_fasta(filename=fasta_filename, full_header=full_header, show_tqdm=show_tqdm).write(fai_filename)

@@ -13,11 +13,11 @@ from labw_utils.typing_importer import Any, Optional, Dict
 
 
 def to_dict(
-        in_str: str,
-        field_sep: str = '\t',
-        record_sep: str = '\n',
-        quotation_mark: Optional[str] = None,
-        resolve_str: bool = True
+    in_str: str,
+    field_sep: str = "\t",
+    record_sep: str = "\n",
+    quotation_mark: Optional[str] = None,
+    resolve_str: bool = True,
 ) -> Mapping[str, Any]:
     """
     A simple parser to get key-value pairs to a dictionary.
@@ -48,7 +48,7 @@ def to_dict(
                            If quoted by single and double quote, pass ``'\'\"'``.
                            Will not parse quoted by triple quotes.
     :param resolve_str: Whether to resolve strings to float or int.
-    
+
     .. versionadded:: 1.0.2
     """
     retd: Dict[str, Any] = {}

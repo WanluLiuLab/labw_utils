@@ -23,10 +23,7 @@ NOT_READY = ("Not ready\n", 500)
 global_config: Optional[ServerSideYSJSDConfig] = None
 global_ysjsd: Optional[YSJSD] = None
 global_server: Optional[pywsgi.WSGIServer] = None
-global_flask_app = flask.Flask(
-    APP_NAME,
-    template_folder=os.path.join(APP_DIR, "templates")
-)
+global_flask_app = flask.Flask(APP_NAME, template_folder=os.path.join(APP_DIR, "templates"))
 
 # Typings
 ResponseType = Tuple[Union[str, flask.Response], int]
@@ -37,7 +34,7 @@ libfrontend.setup_basic_logger()
 _lh = logger_helper.get_logger("YSJSD BACKEND")
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/config', methods=['GET'])
+@global_flask_app.route("/ysjsd/api/v1.0/config", methods=["GET"])
 def serve_config() -> ResponseType:
     global global_config
     if global_config is None:
@@ -45,7 +42,7 @@ def serve_config() -> ResponseType:
     return flask.jsonify(**global_config.to_dict()), 200
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/load', methods=['GET'])
+@global_flask_app.route("/ysjsd/api/v1.0/load", methods=["GET"])
 def serve_load() -> ResponseType:
     global global_ysjsd
     if global_ysjsd is None:
@@ -53,7 +50,7 @@ def serve_load() -> ResponseType:
     return flask.jsonify(**global_ysjsd.real_load.to_dict()), 200
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/status', methods=['GET'])
+@global_flask_app.route("/ysjsd/api/v1.0/status", methods=["GET"])
 def serve_status() -> ResponseType:
     global global_ysjsd
     if global_ysjsd is None:
@@ -61,17 +58,17 @@ def serve_status() -> ResponseType:
     return flask.jsonify(**global_ysjsd.status.to_dict()), 200
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/submission/<submission_id>', methods=['GET'])
+@global_flask_app.route("/ysjsd/api/v1.0/submission/<submission_id>", methods=["GET"])
 def serve_submission(submission_id: str) -> ResponseType:
     ...
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/job/<int:job_id>', methods=['GET'])
+@global_flask_app.route("/ysjsd/api/v1.0/job/<int:job_id>", methods=["GET"])
 def serve_job(job_id: int) -> ResponseType:
     ...
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/job/<int:job_id>/cancel', methods=['POST'])
+@global_flask_app.route("/ysjsd/api/v1.0/job/<int:job_id>/cancel", methods=["POST"])
 def cancel(job_id: int) -> ResponseType:
     global global_ysjsd
     if global_ysjsd is None:
@@ -83,7 +80,7 @@ def cancel(job_id: int) -> ResponseType:
         return f"Cancel {job_id} Failure -- Job not exist\n", 500
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/job/<int:job_id>/send_signal/<int:_signal>', methods=['POST'])
+@global_flask_app.route("/ysjsd/api/v1.0/job/<int:job_id>/send_signal/<int:_signal>", methods=["POST"])
 def send_signal(job_id: int, _signal: int) -> ResponseType:
     global global_ysjsd
     if global_ysjsd is None:
@@ -95,7 +92,7 @@ def send_signal(job_id: int, _signal: int) -> ResponseType:
         return f"Send signal {_signal} to {job_id} Failure -- Job not exist\n", 500
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/job/<int:job_id>/kill', methods=['POST'])
+@global_flask_app.route("/ysjsd/api/v1.0/job/<int:job_id>/kill", methods=["POST"])
 def kill(job_id: int) -> ResponseType:
     global global_ysjsd
     if global_ysjsd is None:
@@ -107,7 +104,7 @@ def kill(job_id: int) -> ResponseType:
         return f"Kill {job_id} Failure -- Job not exist\n", 500
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/stop', methods=['POST'])
+@global_flask_app.route("/ysjsd/api/v1.0/stop", methods=["POST"])
 def stop() -> ResponseType:
     global global_server, global_ysjsd
     global_server.stop()
@@ -116,14 +113,12 @@ def stop() -> ResponseType:
     return "STOPPED/n", 200
 
 
-@global_flask_app.route('/ysjsd/api/v1.0/submit', methods=['POST'])
+@global_flask_app.route("/ysjsd/api/v1.0/submit", methods=["POST"])
 def receive_submission() -> ResponseType:
     global global_ysjsd
     data = flask.request.get_data()
     try:
-        submission = YSJSSubmission.from_dict(
-            json.loads(str(data, encoding="UTF8"))
-        )
+        submission = YSJSSubmission.from_dict(json.loads(str(data, encoding="UTF8")))
     except Exception as e:
         err_message = f"{str(e)} when parse submission {str(base64.b64encode(data), encoding='UTF8')}"
         return err_message, 500
@@ -135,7 +130,7 @@ def receive_submission() -> ResponseType:
         return err_message, 500
 
 
-@global_flask_app.route('/', methods=['GET'])
+@global_flask_app.route("/", methods=["GET"])
 def serve_frontend() -> ResponseType:
     return flask.render_template("frontpage.html"), 200
 
@@ -163,7 +158,7 @@ def setup_globals(config: ServerSideYSJSDConfig):
         ("0.0.0.0", int(global_config.ysjs_port)),
         application=global_flask_app,
         log=pywsgi.LoggingLogAdapter(global_flask_app.logger, level=logging.DEBUG),
-        error_log=None
+        error_log=None,
     )
 
 

@@ -4,22 +4,22 @@ import pytest
 
 from labw_utils.commonutils.lwio import file_system
 
-if os.name != 'posix':
+if os.name != "posix":
     pytest.skip("System is NOT POSIX", allow_module_level=True)
 
 
 def test_get_abspath():
-    assert file_system.get_abspath('') == ''
+    assert file_system.get_abspath("") == ""
     home_directory = os.environ.get("HOME")  # FIXME: In freebsd, /home -> /usr/home
     current_working_directory = os.environ.get("PWD")
-    assert file_system.get_abspath('/a//b/c/') == '/a/b/c'
-    assert file_system.get_abspath('/a//b/.././..////c/') == '/c'
+    assert file_system.get_abspath("/a//b/c/") == "/a/b/c"
+    assert file_system.get_abspath("/a//b/.././..////c/") == "/c"
     if current_working_directory is not None:
-        assert file_system.get_abspath('.') == current_working_directory
+        assert file_system.get_abspath(".") == current_working_directory
     if home_directory is not None:
-        assert file_system.get_abspath('~') == home_directory
-        assert file_system.get_abspath('~/../') == os.path.dirname(home_directory)
-        assert file_system.get_abspath('~/../~') == os.path.dirname(home_directory) + '/~'
+        assert file_system.get_abspath("~") == home_directory
+        assert file_system.get_abspath("~/../") == os.path.dirname(home_directory)
+        assert file_system.get_abspath("~/../~") == os.path.dirname(home_directory) + "/~"
 
 
 def test_file_exists():

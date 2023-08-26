@@ -15,11 +15,7 @@ class ParallelCompressorThreadType(threading.Thread):
     _out_data: Optional[bytes]
     _compress_func: COMPRESS_FUNC_TYPE
 
-    def __init__(
-            self,
-            in_data: bytes,
-            compress_func: COMPRESS_FUNC_TYPE
-    ):
+    def __init__(self, in_data: bytes, compress_func: COMPRESS_FUNC_TYPE):
         super().__init__()
         self._in_data = in_data
         self._out_data = None
@@ -41,13 +37,7 @@ class ParallelReader(threading.Thread):
     _chunksize: int
     _compress_func: COMPRESS_FUNC_TYPE
 
-    def __init__(
-            self,
-            src_io: BinaryIO,
-            out_queue: queue.Queue,
-            chunksize: int,
-            compress_func: COMPRESS_FUNC_TYPE
-    ):
+    def __init__(self, src_io: BinaryIO, out_queue: queue.Queue, chunksize: int, compress_func: COMPRESS_FUNC_TYPE):
         super().__init__()
         self._src_io = src_io
         self._out_queue = out_queue
@@ -60,14 +50,9 @@ class ParallelReader(threading.Thread):
             chunk = self._src_io.read(self._chunksize)
             if not chunk:
                 break
-            compressor = ParallelCompressorThreadType(
-                in_data=chunk,
-                compress_func=self._compress_func
-            )
+            compressor = ParallelCompressorThreadType(in_data=chunk, compress_func=self._compress_func)
             compressor.start()
-            self._out_queue.put(
-                compressor
-            )
+            self._out_queue.put(compressor)
         print("Reader FIN")
 
 
@@ -76,11 +61,7 @@ class _ParallelCompressorWriter(threading.Thread):
     _in_queue: queue.Queue
     _is_finished: bool
 
-    def __init__(
-            self,
-            dst_io: BinaryIO,
-            in_queue: queue.Queue
-    ):
+    def __init__(self, dst_io: BinaryIO, in_queue: queue.Queue):
         super().__init__()
         self._dst_io = dst_io
         self._in_queue = in_queue
@@ -104,10 +85,7 @@ class _ParallelCompressorWriter(threading.Thread):
 
 
 def parallel_compress(
-        src_io: BinaryIO,
-        dst_io: BinaryIO,
-        compress_func: COMPRESS_FUNC_TYPE,
-        chunksize: int = 4 * 1024 * 1024
+    src_io: BinaryIO, dst_io: BinaryIO, compress_func: COMPRESS_FUNC_TYPE, chunksize: int = 4 * 1024 * 1024
 ):
     q = queue.Queue()
     reader_thread = ParallelReader(src_io, q, chunksize, compress_func)

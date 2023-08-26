@@ -14,6 +14,7 @@ class FastqView:
 
     .. versionadded:: 1.0.2
     """
+
     filename: str
     _dict: Dict[str, FastqRecord]
 

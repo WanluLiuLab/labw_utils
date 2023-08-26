@@ -8,10 +8,7 @@ class TSVTableAppender(BaseDictBufferAppender):
         return ".".join((self.filename, "tsv"))
 
     def _convert_dict_to_df(self) -> str:
-        return "\n".join(map(
-            lambda x: "\t".join(map(repr, x)),  # x is [COLUMN]
-            zip(*self._buff.values())
-        )) + "\n"
+        return "\n".join(map(lambda x: "\t".join(map(repr, x)), zip(*self._buff.values()))) + "\n"  # x is [COLUMN]
 
     def _create_file_hook(self):
         with open(self._real_filename, mode="wt") as writer:

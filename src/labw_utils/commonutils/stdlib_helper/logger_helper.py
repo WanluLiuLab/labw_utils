@@ -15,16 +15,7 @@ from logging import DEBUG, WARNING, ERROR, FATAL, INFO
 
 from labw_utils.typing_importer import Optional, Union
 
-__all__ = (
-    'DEBUG',
-    'WARNING',
-    'ERROR',
-    'FATAL',
-    'INFO',
-    'TRACE',
-    'get_logger',
-    'get_formatter'
-)
+__all__ = ("DEBUG", "WARNING", "ERROR", "FATAL", "INFO", "TRACE", "get_logger", "get_formatter")
 
 TRACE = 8
 """
@@ -64,21 +55,21 @@ def get_formatter(level: Union[int, str]) -> logging.Formatter:
     if isinstance(level, str):
         raise ValueError(f"{level} not exist!")
     if level > logging.DEBUG:
-        log_format = '%(asctime)s\t[%(levelname)s] %(message)s'
+        log_format = "%(asctime)s\t[%(levelname)s] %(message)s"
     else:
-        log_format = '%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s'
+        log_format = "%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s"
     return logging.Formatter(log_format)
 
 
 def get_logger(
-        name: Optional[str] = None,
-        level: Union[str, int] = TRACE,
-        log_to_stderr: bool = False,
-        log_stderr_level: Union[str, int] = INFO,
-        log_stderr_formatter: Optional[logging.Formatter] = None,
-        log_file_name: Optional[str] = None,
-        log_file_level: Union[str, int] = TRACE,
-        log_file_formatter: Optional[logging.Formatter] = None
+    name: Optional[str] = None,
+    level: Union[str, int] = TRACE,
+    log_to_stderr: bool = False,
+    log_stderr_level: Union[str, int] = INFO,
+    log_stderr_formatter: Optional[logging.Formatter] = None,
+    log_file_name: Optional[str] = None,
+    log_file_level: Union[str, int] = TRACE,
+    log_file_formatter: Optional[logging.Formatter] = None,
 ) -> logging.Logger:
     """
     A Simple :py:func:`logging.getLogger()` wrapper.
@@ -95,7 +86,7 @@ def get_logger(
       one from ``log_stderr_level``.
     :return: The logger handler.
     :raises ValueError: If level does not exist.
-    
+
     .. versionadded:: 1.0.2
     """
     if name is None:
@@ -104,27 +95,19 @@ def get_logger(
         logger = logging.getLogger(name)
         logger.setLevel(level)
         if log_file_name is not None:
-            file_handler = logging.FileHandler(
-                filename=log_file_name
-            )
+            file_handler = logging.FileHandler(filename=log_file_name)
             file_handler.setLevel(log_file_level)
             if log_file_formatter is not None:
                 file_handler.setFormatter(log_file_formatter)
             else:
                 file_handler.setFormatter(get_formatter(log_file_level))
-            logger.addHandler(
-                file_handler
-            )
+            logger.addHandler(file_handler)
         if log_to_stderr:
-            serr_handler = logging.StreamHandler(
-                stream=sys.stderr
-            )
+            serr_handler = logging.StreamHandler(stream=sys.stderr)
             serr_handler.setLevel(log_stderr_level)
             if log_stderr_formatter is not None:
                 serr_handler.setFormatter(log_stderr_formatter)
             else:
                 serr_handler.setFormatter(get_formatter(log_stderr_level))
-            logger.addHandler(
-                serr_handler
-            )
+            logger.addHandler(serr_handler)
         return logger

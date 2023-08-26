@@ -21,6 +21,7 @@ def ysjsd_test_prep() -> Tuple[Flask, YSJSD, FlaskClient]:
         setup_globals(config)
         from ysjsd.server import global_flask_app
         from ysjsd.server import global_ysjsd
+
         yield global_flask_app, global_ysjsd, global_flask_app.test_client()
         global_ysjsd.terminate()
         global_ysjsd.join()

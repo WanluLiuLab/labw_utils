@@ -7,7 +7,6 @@
 from labw_utils import UnmetDependenciesError
 
 try:
-
     import numpy as np
     import numpy.typing as npt
 except ImportError as e:

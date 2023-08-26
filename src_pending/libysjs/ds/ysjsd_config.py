@@ -19,17 +19,17 @@ class YSJSDConfig:
     _kill_timeout: float
 
     def __init__(
-            self,
-            name: str,
-            description: str,
-            ysjs_port: str,
-            var_directory_path: str,
-            config_file_path: str,
-            total_cpu: Union[int, float],
-            total_mem: Union[int, float],
-            schedule_method: str,
-            max_concurrent_jobs: int,
-            kill_timeout: float
+        self,
+        name: str,
+        description: str,
+        ysjs_port: str,
+        var_directory_path: str,
+        config_file_path: str,
+        total_cpu: Union[int, float],
+        total_mem: Union[int, float],
+        schedule_method: str,
+        max_concurrent_jobs: int,
+        kill_timeout: float,
     ):
         self._name = name
         self._description = description
@@ -89,7 +89,7 @@ class YSJSDConfig:
             "total_mem": self._total_mem,
             "schedule_method": self._schedule_method,
             "max_concurrent_jobs": self._max_concurrent_jobs,
-            "kill_timeout": self._kill_timeout
+            "kill_timeout": self._kill_timeout,
         }
 
     @classmethod

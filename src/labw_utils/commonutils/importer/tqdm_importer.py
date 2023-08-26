@@ -23,9 +23,7 @@ Allowed values:
 import os
 import sys
 
-__all__ = (
-    "tqdm",
-)
+__all__ = ("tqdm",)
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.importer import _silent_tqdm

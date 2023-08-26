@@ -4,9 +4,7 @@
 .. versionadded:: 1.0.2
 """
 
-__all__ = (
-    "FastaRecord",
-)
+__all__ = ("FastaRecord",)
 
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
 
@@ -19,10 +17,7 @@ class FastaRecord:
     .. versionadded:: 1.0.2
     """
 
-    __slots__ = (
-        '_seq_id',
-        '_sequence'
-    )
+    __slots__ = ("_seq_id", "_sequence")
     _seq_id: str
     _sequence: str
 
@@ -48,10 +43,12 @@ class FastaRecord:
         return len(self.sequence)
 
     def __repr__(self):
-        return "\n".join((
-            f">{self._seq_id}",
-            self._sequence,
-        ))
+        return "\n".join(
+            (
+                f">{self._seq_id}",
+                self._sequence,
+            )
+        )
 
     def __str__(self):
         return repr(self)

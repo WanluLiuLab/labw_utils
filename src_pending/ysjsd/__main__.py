@@ -13,15 +13,17 @@ _lh = logger_helper.get_logger("YSJSD BACKEND")
 def _parse_args(args: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-g", '--generate_default_config',
-        required=False, help="Generate default config and exit",
-        action="store_true"
+        "-g", "--generate_default_config", required=False, help="Generate default config and exit", action="store_true"
     )
     parser.add_argument(
-        '-e', '--config', required=False,
-        help="Config file path", nargs='?',
-        type=str, action='store',
-        default=os.path.join(os.path.abspath("."), "config.toml")
+        "-e",
+        "--config",
+        required=False,
+        help="Config file path",
+        nargs="?",
+        type=str,
+        action="store",
+        default=os.path.join(os.path.abspath("."), "config.toml"),
     )
     return parser.parse_args(args)
 

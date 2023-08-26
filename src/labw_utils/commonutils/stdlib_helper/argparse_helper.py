@@ -120,9 +120,7 @@ Namespace(e=<SampleEnum.A: 1>)
 .. todo:: Markdown support.
 """
 
-__all__ = (
-    "ArgumentParserWithEnhancedFormatHelp",
-)
+__all__ = ("ArgumentParserWithEnhancedFormatHelp",)
 
 import argparse
 import enum
@@ -138,7 +136,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             if params[name] is argparse.SUPPRESS:
                 del params[name]
         for name in list(params):
-            if hasattr(params[name], '__name__'):
+            if hasattr(params[name], "__name__"):
                 params[name] = params[name].__name__  # type: ignore
         if action.choices is not None:
             choices_str = "\nCHOICES:"
@@ -172,15 +170,15 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             dtype_prefix = "Type: " + action.type.__name__ + "; "  # type: ignore
 
         default_prefix = ""
-        if '%(default)' not in help_str:
+        if "%(default)" not in help_str:
             if action.default is not argparse.SUPPRESS:
                 if action.required is False:
                     defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
                     if action.option_strings or action.nargs in defaulting_nargs:
                         if isinstance(action.default, enum.Enum):
-                            default_prefix = f'Default: {action.default.name}'
+                            default_prefix = f"Default: {action.default.name}"
                         else:
-                            default_prefix = f'Default: {action.default}'
+                            default_prefix = f"Default: {action.default}"
                 else:
                     default_prefix = "No defaults"
         return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params + choices_str
@@ -196,7 +194,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             else:
                 raise TypeError(f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable")
 
-            result = '{%s}' % ','.join(choice_strs)
+            result = "{%s}" % ",".join(choice_strs)
         else:
             result = default_metavar
 
@@ -204,24 +202,22 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             if isinstance(result, tuple):
                 return result
             else:
-                return (result, ) * tuple_size
+                return (result,) * tuple_size
+
         return format
 
     def _format_action(self, action: argparse.Action):
-        help_position = min(
-            self._action_max_length + 2,
-            self._max_help_position
-        )
-        action_header = '%*s' % (self._current_indent, '') + self._format_action_invocation(action) + "\n"
+        help_position = min(self._action_max_length + 2, self._max_help_position)
+        action_header = "%*s" % (self._current_indent, "") + self._format_action_invocation(action) + "\n"
         parts = [action_header]
         if action.help:
             help_text = self._expand_help(action)
             help_lines = help_text.split("\n")
-            parts.append('%*s%s\n' % (help_position, '', help_lines[0]))
+            parts.append("%*s%s\n" % (help_position, "", help_lines[0]))
             for line in help_lines[1:]:
-                parts.append('%*s%s\n' % (help_position, '', line))
-        elif not action_header.endswith('\n'):
-            parts.append('\n')
+                parts.append("%*s%s\n" % (help_position, "", line))
+        elif not action_header.endswith("\n"):
+            parts.append("\n")
         for subaction in self._iter_indented_subactions(action):
             parts.append(self._format_action(subaction))
         return self._join_parts(parts)
@@ -231,7 +227,7 @@ _ACTION_GROUP_TILE_REPLACEMENT_DICT = {
     "optional arguments": "OPTIONS",  # Python < 3.10
     "options": "OPTIONS",  # Python >= 3.10
     "positional arguments": "PARAMETERS",
-    None: ""
+    None: "",
 }
 
 
@@ -246,10 +242,7 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         formatter.add_text(self.description)
 
         formatter.add_usage(
-            usage=self.usage,
-            actions=self._actions,
-            groups=self._mutually_exclusive_groups,
-            prefix="SYNOPSIS: "
+            usage=self.usage, actions=self._actions, groups=self._mutually_exclusive_groups, prefix="SYNOPSIS: "
         )
 
         for action_group in self._action_groups:
@@ -289,7 +282,6 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         def italic(instr: str) -> str:
             return "*" + instr.replace("*", "\\*") + "*"
 
-
         def code(instr: str) -> str:
             assert "`" not in instr
             return "`" + instr + "`"
@@ -298,12 +290,18 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         append("")
         formatter = _EnhancedHelpFormatter(prog=self.prog)
         formatter._width = 10240  # Now you're long enough
-        usage = bold("SYNOPSIS:") + " " + code(formatter._format_usage(
-            usage=self.usage,
-            actions=self._actions,
-            groups=self._mutually_exclusive_groups,
-            prefix="",
-        ).strip())
+        usage = (
+            bold("SYNOPSIS:")
+            + " "
+            + code(
+                formatter._format_usage(
+                    usage=self.usage,
+                    actions=self._actions,
+                    groups=self._mutually_exclusive_groups,
+                    prefix="",
+                ).strip()
+            )
+        )
         append(usage)
         append("")
 
@@ -353,9 +351,8 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         append("")
         return s.current_buff
 
-def enum_to_choices(
-        src_enum: Type[enum.Enum]
-) -> Sequence[str]:
+
+def enum_to_choices(src_enum: Type[enum.Enum]) -> Sequence[str]:
     """
     Convert an enum to choices.
 

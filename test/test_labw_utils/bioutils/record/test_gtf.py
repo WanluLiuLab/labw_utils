@@ -36,25 +36,33 @@ def test_gtf_reader():
 
 def test_partial_gtf_reader():
     with get_reader(test_gtf_path) as reader:
-        featl: List[Feature] = list(map(
-            lambda gtf_str: parse_record(
-                gtf_str,
-                skip_fields=["score", "not_exist"],
-                included_attributes=["gene_name", "not_exist"]
-            ),
-            reader
-        ))
+        featl: List[Feature] = list(
+            map(
+                lambda gtf_str: parse_record(
+                    gtf_str, skip_fields=["score", "not_exist"], included_attributes=["gene_name", "not_exist"]
+                ),
+                reader,
+            )
+        )
     assert featl[0].score is None
     assert list(featl[1].attribute_keys) == ["gene_name"]
 
 
 def test_format_str():
     gtf_str = '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"; exon_number 1; description "Sample exon"'
-    assert format_string(parse_record(gtf_str), "all") == \
-           '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"; exon_number "1"; description "Sample exon";'
-    assert format_string(parse_record(gtf_str), "none") == \
-           '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id UN1; exon_number 1; description Sample exon;'
-    assert format_string(parse_record(gtf_str), "blank") == \
-           '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id UN1; exon_number 1; description "Sample exon";'
-    assert format_string(parse_record(gtf_str), "string") == \
-           '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"; exon_number 1; description "Sample exon";'
+    assert (
+        format_string(parse_record(gtf_str), "all")
+        == '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"; exon_number "1"; description "Sample exon";'
+    )
+    assert (
+        format_string(parse_record(gtf_str), "none")
+        == "1\tNA\texon\t5\t10\t.\t+\t.\tgene_id UN1; exon_number 1; description Sample exon;"
+    )
+    assert (
+        format_string(parse_record(gtf_str), "blank")
+        == '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id UN1; exon_number 1; description "Sample exon";'
+    )
+    assert (
+        format_string(parse_record(gtf_str), "string")
+        == '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"; exon_number 1; description "Sample exon";'
+    )

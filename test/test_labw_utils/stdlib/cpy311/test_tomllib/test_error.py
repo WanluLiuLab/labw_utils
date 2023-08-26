@@ -15,9 +15,7 @@ class TestError(unittest.TestCase):
 
         with self.assertRaises(tomllib.TOMLDecodeError) as exc_info:
             tomllib.loads(".")
-        self.assertEqual(
-            str(exc_info.exception), "Invalid statement (at line 1, column 1)"
-        )
+        self.assertEqual(str(exc_info.exception), "Invalid statement (at line 1, column 1)")
 
         with self.assertRaises(tomllib.TOMLDecodeError) as exc_info:
             tomllib.loads("\n\nval=.")
@@ -25,9 +23,7 @@ class TestError(unittest.TestCase):
 
         with self.assertRaises(tomllib.TOMLDecodeError) as exc_info:
             tomllib.loads("\n\n.")
-        self.assertEqual(
-            str(exc_info.exception), "Invalid statement (at line 3, column 1)"
-        )
+        self.assertEqual(str(exc_info.exception), "Invalid statement (at line 3, column 1)")
 
     def test_missing_value(self):
         with self.assertRaises(tomllib.TOMLDecodeError) as exc_info:
@@ -52,6 +48,4 @@ class TestError(unittest.TestCase):
         for invalid_parse_float in (dict_returner, list_returner):
             with self.assertRaises(ValueError) as exc_info:
                 tomllib.loads("f=0.1", parse_float=invalid_parse_float)
-            self.assertEqual(
-                str(exc_info.exception), "parse_float must not return dicts or lists"
-            )
+            self.assertEqual(str(exc_info.exception), "parse_float must not return dicts or lists")

@@ -6,8 +6,12 @@ TODO: docs
 from __future__ import annotations
 
 from labw_utils.bioutils.algorithm.sequence import reverse_complement
-from labw_utils.bioutils.datastructure.gv import SequenceFuncType, CanTranscribeInterface, dumb_legalize_region_func, \
-    LegalizeRegionFuncType
+from labw_utils.bioutils.datastructure.gv import (
+    SequenceFuncType,
+    CanTranscribeInterface,
+    dumb_legalize_region_func,
+    LegalizeRegionFuncType,
+)
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_transcript_id
 from labw_utils.bioutils.record.feature import FeatureInterface
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -22,10 +26,8 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
 
     .. versionadded:: 1.0.2
     """
-    __slots__ = (
-        "_cdna",
-        "_transcript_id"
-    )
+
+    __slots__ = ("_cdna", "_transcript_id")
     _cdna: Optional[str]
     _transcript_id: str
 
@@ -37,13 +39,7 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
     def transcribed_length(self):
         return self.naive_length
 
-    def __init__(
-            self,
-            *,
-            data: FeatureInterface,
-            is_checked: bool,
-            shortcut: bool
-    ):
+    def __init__(self, *, data: FeatureInterface, is_checked: bool, shortcut: bool):
         self._cdna = None
         if not shortcut:
             self._transcript_id, data = update_transcript_id(data)
@@ -55,19 +51,15 @@ class Exon(BaseFeatureProxy, CanTranscribeInterface):
         return f"Exon ({self.start, self.end}) of Transcript {self.transcript_id}"
 
     def transcribe(
-            self,
-            sequence_func: SequenceFuncType,
-            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
     ) -> str:
         if self._cdna is None:
             try:
-                self._cdna = sequence_func(
-                    *legalize_region_func(self.seqname, self.start0b, self.end0b)
-                )
+                self._cdna = sequence_func(*legalize_region_func(self.seqname, self.start0b, self.end0b))
                 if len(self._cdna) != self.transcribed_length:
                     _lh.warning(
-                        f"{self.transcript_id}: Different exon length at {self}: " +
-                        f"cdna ({len(self._cdna)}) != exon ({self.transcribed_length})"
+                        f"{self.transcript_id}: Different exon length at {self}: "
+                        + f"cdna ({len(self._cdna)}) != exon ({self.transcribed_length})"
                     )
                 if self.strand is False:
                     self._cdna = reverse_complement(self._cdna)

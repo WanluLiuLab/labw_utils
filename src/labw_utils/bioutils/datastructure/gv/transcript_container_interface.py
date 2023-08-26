@@ -18,6 +18,7 @@ class DuplicatedTranscriptIDError(GVPError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, transcript_id: str):
         super().__init__(f"Transcript ID {transcript_id} duplicated")
 

@@ -10,7 +10,7 @@ __all__ = (
     "FastaIndexNotWritableError",
     "FastaBasedFastaIndexIterator",
     "FAIBasedFastaIndexIterator",
-    "FastaIndexWriter"
+    "FastaIndexWriter",
 )
 
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
@@ -27,6 +27,7 @@ class FastaIndexParserError(ValueError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
@@ -36,6 +37,7 @@ class DuplicatedFastaNameError(FastaIndexParserError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, name: str):
         super().__init__(f"FAI seqname {name} had occurred more than once")
 
@@ -46,6 +48,7 @@ class FastaIndexNotWritableError(FastaIndexParserError):
 
     .. versionadded:: 1.0.2
     """
+
     def __init__(self, name: str):
         super().__init__(
             f"FAI seqname '{name}' is valid in-memory not valid on disk\n"
@@ -59,6 +62,7 @@ class FAIBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord]):
 
     .. versionadded:: 1.0.2
     """
+
     filetype: Final[str] = "FAI (FAI based)"
 
     def __init__(self, filename: str, show_tqdm: bool = True):
@@ -85,6 +89,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord])
 
     .. versionadded:: 1.0.2
     """
+
     filetype: Final[str] = "FAI (FASTA based)"
     _full_header: bool
     _name: str
@@ -94,12 +99,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord])
     _line_blen: int
     _line_len: int
 
-    def __init__(
-            self,
-            filename: str,
-            show_tqdm: bool = True,
-            full_header: bool = True
-    ):
+    def __init__(self, filename: str, show_tqdm: bool = True, full_header: bool = True):
         super().__init__(filename, show_tqdm)
         self._name = ""
         self._offset = 0
@@ -124,7 +124,7 @@ class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord])
             length=self._length,
             offset=self._offset,
             line_blen=self._line_blen,
-            line_len=self._line_len
+            line_len=self._line_len,
         )
 
     def __iter__(self) -> Iterator[FastaIndexRecord]:
@@ -132,10 +132,10 @@ class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord])
             line = str(self._fd.readline(), encoding="utf-8")
             if not line:
                 break
-            if line == '':
+            if line == "":
                 continue
-            if line[0] == '>':  # FASTA header
-                if self._name != '':
+            if line[0] == ">":  # FASTA header
+                if self._name != "":
                     yield self._generate_fai_record()
                     self._offset = 0
                     self._line_len = 0
@@ -147,9 +147,9 @@ class FastaBasedFastaIndexIterator(BaseFileIterator, Iterable[FastaIndexRecord])
                 if self._line_len == 0:
                     self._line_len = len(line)
                 if self._line_blen == 0:
-                    self._line_blen = len(line.rstrip('\r\n'))
-                self._length += len(line.rstrip('\r\n'))
-        if self._name != '':
+                    self._line_blen = len(line.rstrip("\r\n"))
+                self._length += len(line.rstrip("\r\n"))
+        if self._name != "":
             yield self._generate_fai_record()
 
         self._fd.close()
@@ -161,6 +161,7 @@ class FastaIndexWriter(BaseIteratorWriter):
 
     .. versionadded:: 1.0.2
     """
+
     filetype: Final[str] = "FAI"
 
     def __init__(self, filename: str, **kwargs):
@@ -171,11 +172,7 @@ class FastaIndexWriter(BaseIteratorWriter):
         self._fd.write(str(record) + "\n")
 
     @staticmethod
-    def write_iterator(
-            iterable: Iterable[FastaIndexRecord],
-            filename: str,
-            **kwargs
-    ):
+    def write_iterator(iterable: Iterable[FastaIndexRecord], filename: str, **kwargs):
         with FastaIndexWriter(filename) as writer:
             for fastq_record in iterable:
                 if fastq_record.name.count("\t") + fastq_record.name.count(" ") != 0:

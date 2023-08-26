@@ -7,10 +7,7 @@ Existing argument parsers::
 
 """
 
-__all__ = (
-    "FrontendOptSpec",
-    "FrontendOptSpecs"
-)
+__all__ = ("FrontendOptSpec", "FrontendOptSpecs")
 
 import argparse
 
@@ -23,6 +20,7 @@ class FrontendOptSpec:
     """
     Class for Frontend option specification
     """
+
     _args: Tuple[Any, ...]
     _kwargs: Mapping[str, Any]
 
@@ -31,11 +29,7 @@ class FrontendOptSpec:
         self._args = args
         self._kwargs = kwargs
 
-    def patch(
-            self,
-            parser: argparse.ArgumentParser,
-            **update_kwargs
-    ) -> argparse.ArgumentParser:
+    def patch(self, parser: argparse.ArgumentParser, **update_kwargs) -> argparse.ArgumentParser:
         """
         Patch argument parser.
 
@@ -62,10 +56,7 @@ class FrontendOptSpecs:
         FrontendOptSpecs._inner_dict[opt_spec.name] = opt_spec
 
     @staticmethod
-    def patch(
-            parser: argparse.ArgumentParser,
-            name: str, **update_kwargs
-    ):
+    def patch(parser: argparse.ArgumentParser, name: str, **update_kwargs):
         return FrontendOptSpecs._inner_dict[name].patch(parser=parser, **update_kwargs)
 
     @staticmethod
@@ -73,33 +64,41 @@ class FrontendOptSpecs:
         return iter(FrontendOptSpecs._inner_dict.keys())
 
 
-FrontendOptSpecs.add(FrontendOptSpec(
-    '-f',
-    '--fasta',
-    required=True,
-    help="Path to input reference genome sequence in FASTA format. Can be compressed.",
-    nargs='?',
-    type=str,
-    action='store'
-))
+FrontendOptSpecs.add(
+    FrontendOptSpec(
+        "-f",
+        "--fasta",
+        required=True,
+        help="Path to input reference genome sequence in FASTA format. Can be compressed.",
+        nargs="?",
+        type=str,
+        action="store",
+    )
+)
 
-FrontendOptSpecs.add(FrontendOptSpec(
-    '-g', '--gtf',
-    required=True,
-    help="Path to input genomic annotation in GTF format. Can be compressed.",
-    nargs='?',
-    type=str,
-    action='store'
-))
+FrontendOptSpecs.add(
+    FrontendOptSpec(
+        "-g",
+        "--gtf",
+        required=True,
+        help="Path to input genomic annotation in GTF format. Can be compressed.",
+        nargs="?",
+        type=str,
+        action="store",
+    )
+)
 
-FrontendOptSpecs.add(FrontendOptSpec(
-    "-s", "--sam",
-    required=True,
-    help="Path to input alignment file in SAM/BAM format",
-    nargs='?',
-    type=str,
-    action='store'
-))
+FrontendOptSpecs.add(
+    FrontendOptSpec(
+        "-s",
+        "--sam",
+        required=True,
+        help="Path to input alignment file in SAM/BAM format",
+        nargs="?",
+        type=str,
+        action="store",
+    )
+)
 
 _parser = ArgumentParserWithEnhancedFormatHelp()
 for _name in FrontendOptSpecs.names():

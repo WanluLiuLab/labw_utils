@@ -11,20 +11,14 @@ from naive_interval_engine.np_impl import NumpyIntervalEngine
 from naive_interval_engine.pd_impl import PandasIntervalEngine
 
 FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEST_FILE_DIR = os.path.join(
-    FILE_DIR,
-    "test",
-    "test_naive_interval_engine"
-)
+TEST_FILE_DIR = os.path.join(FILE_DIR, "test", "test_naive_interval_engine")
 
 
 def assess_nie(
-        nie_type: Type[IntervalEngineType],
-        gtf_regions_filepath: str,
-        bam_regions_filepath: str,
-        show_tqdm: bool
+    nie_type: Type[IntervalEngineType], gtf_regions_filepath: str, bam_regions_filepath: str, show_tqdm: bool
 ):
     with open(os.path.join(FILE_DIR, "log.log"), "a") as log_appender:
+
         def write_log(contents):
             log_appender.write(
                 f"{time.asctime()}: "
@@ -59,17 +53,14 @@ def assess_nie(
         return reta
 
 
-def assess_using_test_data(
-        nie_type: Type[IntervalEngineType],
-        n_trials: int = 100
-):
+def assess_using_test_data(nie_type: Type[IntervalEngineType], n_trials: int = 100):
     final_assess = np.zeros((n_trials, 5), dtype=float)
     for i in tqdm.tqdm(range(n_trials)):
         final_assess[i] = assess_nie(
             nie_type,
             os.path.join(TEST_FILE_DIR, "test_match.tsv"),
             os.path.join(TEST_FILE_DIR, "test_data.tsv"),
-            show_tqdm=False
+            show_tqdm=False,
         )
     return np.sum(final_assess, axis=0)
 
@@ -79,36 +70,20 @@ def assess_using_real_data(nie_type: Type[IntervalEngineType]):
         nie_type,
         os.path.join(FILE_DIR, "gtf_regions_chr1.tsv"),
         os.path.join(FILE_DIR, "bam_regions_chr1.tsv"),
-        show_tqdm=True
+        show_tqdm=True,
     )
 
 
 if __name__ == "__main__":
     with open(os.path.join(FILE_DIR, "result.tsv"), "w") as writer:
-        writer.write("\t".join((
-            "Implementation",
-            "Data",
-            "Create",
-            "Match1",
-            "Match2",
-            "Overlap1",
-            "Overlap2"
-        )) + "\n")
+        writer.write("\t".join(("Implementation", "Data", "Create", "Match1", "Match2", "Overlap1", "Overlap2")) + "\n")
         for nie_type in (
-                NumpyIntervalEngine,
-                PandasIntervalEngine,
-                NumExprIntervalEngine,
-                # IntervalTreeIntervalEngine, # Ultra slow
+            NumpyIntervalEngine,
+            PandasIntervalEngine,
+            NumExprIntervalEngine,
+            # IntervalTreeIntervalEngine, # Ultra slow
         ):
             test_data_result = assess_using_test_data(nie_type=nie_type)
-            writer.write("\t".join((
-                nie_type.__name__,
-                "test",
-                *map(str, test_data_result)
-            )) + "\n")
+            writer.write("\t".join((nie_type.__name__, "test", *map(str, test_data_result))) + "\n")
             bulk_data_result = assess_using_real_data(nie_type=nie_type)
-            writer.write("\t".join((
-                nie_type.__name__,
-                "real",
-                *map(str, bulk_data_result)
-            )) + "\n")
+            writer.write("\t".join((nie_type.__name__, "real", *map(str, bulk_data_result))) + "\n")

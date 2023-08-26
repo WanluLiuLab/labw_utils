@@ -4,6 +4,7 @@ from labw_utils.typing_importer import Any, Tuple, Sequence
 
 class DumbTableAppender(BaseTableAppender):
     """Appender that does nothing."""
+
     def __init__(self, filename: str, header: Sequence[str], tac: TableAppenderConfig):
         super().__init__(filename, header, tac)
 

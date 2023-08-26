@@ -4,7 +4,7 @@ get_exonic_depth.py -- Get depth from RNA-Seq alignment files.
 
 __all__ = (
     "create_parser",
-    "main"
+    "main",
 )
 
 import argparse
@@ -39,7 +39,7 @@ _lh = get_logger(__name__)
 def create_parser() -> argparse.ArgumentParser:
     parser = ArgumentParserWithEnhancedFormatHelp(
         prog="python -m labw_utils.bioutils get_exonic_depth",
-        description=__doc__.splitlines()[1]
+        description=__doc__.splitlines()[1],
     )
     parser = FrontendOptSpecs.patch(parser, "-s")
     meg = parser.add_mutually_exclusive_group()
@@ -49,18 +49,15 @@ def create_parser() -> argparse.ArgumentParser:
         "--known_mappable_length",
         required=False,
         help="If the mappable length is known, put it here",
-        nargs='?',
+        nargs="?",
         type=int,
-        action='store',
-        default=0
+        action="store",
+        default=0,
     )
     return parser
 
 
-def get_file_length(
-        sam_path: str,
-        modestr: Literal["r", "rb"]
-) -> int:
+def get_file_length(sam_path: str, modestr: Literal["r", "rb"]) -> int:
     _lh.info("Determining file length...")
     file_length = 0
     with pysam.AlignmentFile(sam_path, modestr) as samfile:
@@ -109,12 +106,8 @@ def main(args: List[str]):
             if gtf_record.feature == "exon":
                 gtf_intervals[gtf_record.seqname].append([gtf_record.start, gtf_record.end - 1])
         _lh.info(f"Merging intervals...")
-        gtf_intervals = {
-            k: merge_intervals(gtf_intervals[k]) for k in gtf_intervals
-        }
-        gtf_mappable_length = sum(
-            interval[1] - interval[0] for interval in itertools.chain(*gtf_intervals.values())
-        )
+        gtf_intervals = {k: merge_intervals(gtf_intervals[k]) for k in gtf_intervals}
+        gtf_mappable_length = sum(interval[1] - interval[0] for interval in itertools.chain(*gtf_intervals.values()))
         _lh.info(f"GTF mappable length: %d", gtf_mappable_length)
     else:
         gtf_mappable_length = args.known_mappable_length

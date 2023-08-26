@@ -15,24 +15,15 @@ argvalues = (
     {"engine": NumpyIntervalEngine},
     {"engine": IntervalTreeIntervalEngine},
     {"engine": NumExprIntervalEngine},
-    {"engine": NclsIntervalEngine}
-
+    {"engine": NclsIntervalEngine},
 )
 
-test_filename = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "test_data.tsv"
-)
-test_match_filename = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "test_match.tsv"
-)
+test_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data.tsv")
+test_match_filename = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_match.tsv")
 
 
 @pytest.mark.parametrize(
-    argnames="kwargs",
-    argvalues=argvalues,
-    ids=list(map(lambda d: d["engine"].__name__, argvalues))
+    argnames="kwargs", argvalues=argvalues, ids=list(map(lambda d: d["engine"].__name__, argvalues))
 )
 def test_match(kwargs):
     engine_type: Type[IntervalEngineType] = kwargs["engine"]
@@ -51,9 +42,7 @@ def test_match(kwargs):
 
 
 @pytest.mark.parametrize(
-    argnames="kwargs",
-    argvalues=argvalues,
-    ids=list(map(lambda d: d["engine"].__name__, argvalues))
+    argnames="kwargs", argvalues=argvalues, ids=list(map(lambda d: d["engine"].__name__, argvalues))
 )
 def test_overlap(kwargs):
     engine_type: Type[IntervalEngineType] = kwargs["engine"]
@@ -72,9 +61,7 @@ def test_overlap(kwargs):
 
 
 @pytest.mark.parametrize(
-    argnames="kwargs",
-    argvalues=argvalues,
-    ids=list(map(lambda d: d["engine"].__name__, argvalues))
+    argnames="kwargs", argvalues=argvalues, ids=list(map(lambda d: d["engine"].__name__, argvalues))
 )
 def test_io(kwargs):
     engine_type: Type[IntervalEngineType] = kwargs["engine"]

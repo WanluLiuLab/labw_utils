@@ -11,7 +11,6 @@ from labw_utils.commonutils.appender._base_dict_buffer_appender import BaseDictB
 
 
 class BasePandasDictBufferAppender(BaseDictBufferAppender, ABC):
-
     def _convert_dict_to_df(self) -> pd.DataFrame:
         df = pd.DataFrame.from_dict(data=self._buff)
         return df

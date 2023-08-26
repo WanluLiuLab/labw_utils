@@ -308,9 +308,7 @@ class MappingProxy(Mapping[_KeyType, _ValueType]):
     def __iter__(self) -> Iterator[_KeyType]:
         yield from self._mapping
 
-    def __init__(
-        self, mapping: Mapping[_KeyType, _ValueType], deep_copy: Optional[bool] = None
-    ):
+    def __init__(self, mapping: Mapping[_KeyType, _ValueType], deep_copy: Optional[bool] = None):
         """
         Load the class with input mapping.
 

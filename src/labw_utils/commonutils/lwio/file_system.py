@@ -5,13 +5,7 @@ Here are very low-level filesystem functions used by other Python modules,
 like :py:mod:`commonutils.lwio.safe_io` or :py:mod:`commonutils.stdlib_helper.shutil_helper`.
 """
 
-__all__ = (
-    "get_abspath",
-    "file_exists",
-    "directory_exists",
-    "is_soft_link",
-    "should_regenerate"
-)
+__all__ = ("get_abspath", "file_exists", "directory_exists", "is_soft_link", "should_regenerate")
 
 import os
 import stat
@@ -31,7 +25,7 @@ def get_abspath(path: str) -> str:
     :param path: The relative path
     :return: The absolute path
     """
-    if path == '':
+    if path == "":
         return path
     path = os.path.abspath(os.path.expanduser(path))
     return path
@@ -68,11 +62,7 @@ def is_soft_link(path: str) -> bool:
     return stat.S_ISLNK(os.stat(path, follow_symlinks=False)[0])
 
 
-def should_regenerate(
-        src_path: str,
-        dst_path: str,
-        verbose: bool = True
-) -> bool:
+def should_regenerate(src_path: str, dst_path: str, verbose: bool = True) -> bool:
     """
     This function assumes ``dst_path`` is generated from ``src_path``
     and determine whether re-generation is necessary.

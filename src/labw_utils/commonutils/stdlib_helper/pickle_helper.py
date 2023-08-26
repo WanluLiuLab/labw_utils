@@ -39,10 +39,7 @@ Clean up the environment.
     Support StringIO and friends
 """
 
-__all__ = (
-    "load",
-    "dump"
-)
+__all__ = ("load", "dump")
 
 import pickle
 from pickle import Unpickler

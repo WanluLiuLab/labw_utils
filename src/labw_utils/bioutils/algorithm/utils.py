@@ -56,7 +56,6 @@ def merge_intervals(arr: List[Tuple[int, int]]) -> List[Tuple[int, int]]:
     # Traverse all input Intervals starting from
     # second interval
     for i in range(1, len(arr)):
-
         # If this is not first Interval and overlaps
         # with the previous one, Merge previous and
         # current Intervals

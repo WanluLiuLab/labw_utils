@@ -38,4 +38,5 @@ def test_gtf_reader():
 def test_empty_file():
     assert len(list(GtfIterator(NULL_PATH))) == 0
 
+
 # TODO: Writer test

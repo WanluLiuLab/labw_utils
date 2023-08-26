@@ -66,6 +66,9 @@
     <option name="format" value="PLAIN" />
     <option name="myDocStringFormat" value="Plain" />
   </component>
+  <component name="SonarLintModuleSettings">
+    <option name="uniqueId" value="cb9d2bda-88c4-4e59-9c09-33ae39aa1f0d" />
+  </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
     <option name="TEMPLATE_FOLDERS">

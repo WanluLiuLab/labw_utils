@@ -14,6 +14,7 @@ class NumpyIntervalEngine(BaseNaiveIntervalEngine):
 
     [[s, e], [s, e], [s, e,], ...]
     """
+
     _chromosomal_split_np_index: Dict[str, npt.NDArray[int]]
 
     def _select_chromosome(self, query_chr: str) -> Tuple[npt.NDArray[int], npt.NDArray[int]]:
@@ -29,39 +30,31 @@ class NumpyIntervalEngine(BaseNaiveIntervalEngine):
         except KeyError:
             return None
         for it in np.nonzero(
-                functools.reduce(
-                    np.logical_or,
-                    (
-                            np.logical_and(
-                                np.asarray(s < query_s),
-                                np.asarray(query_s < e),
-                            ),
-                            np.logical_and(
-                                np.asarray(s < query_e),
-                                np.asarray(query_e < e),
-                            ),
-                            np.logical_and(
-                                np.asarray(query_s < s),
-                                np.asarray(s < query_e)
-                            ),
-                            np.logical_and(
-                                np.asarray(query_s < e),
-                                np.asarray(e < query_e)
-                            )
-                    )
-                )
+            functools.reduce(
+                np.logical_or,
+                (
+                    np.logical_and(
+                        np.asarray(s < query_s),
+                        np.asarray(query_s < e),
+                    ),
+                    np.logical_and(
+                        np.asarray(s < query_e),
+                        np.asarray(query_e < e),
+                    ),
+                    np.logical_and(np.asarray(query_s < s), np.asarray(s < query_e)),
+                    np.logical_and(np.asarray(query_s < e), np.asarray(e < query_e)),
+                ),
+            )
         )[0].tolist():
             yield it
 
     def __init__(self, interval_file: str, show_tqdm: bool = True):
-        pd_df = create_pandas_dataframe_from_input_file(
-            interval_file, show_tqdm
-        )
+        pd_df = create_pandas_dataframe_from_input_file(interval_file, show_tqdm)
         self._chromosomal_split_np_index = {}
         for chr_name in pd.unique(pd_df["chr"]):
-            self._chromosomal_split_np_index[chr_name] = pd_df.query(
-                f"`chr` == '{chr_name}'"
-            ).loc[:, ["s", "e"]].to_numpy(dtype=np.int_)
+            self._chromosomal_split_np_index[chr_name] = (
+                pd_df.query(f"`chr` == '{chr_name}'").loc[:, ["s", "e"]].to_numpy(dtype=np.int_)
+            )
         del pd_df
 
     def match(self, query_interval: IntervalType) -> Iterable[int]:
@@ -70,12 +63,7 @@ class NumpyIntervalEngine(BaseNaiveIntervalEngine):
             s, e = self._select_chromosome(query_chr)
         except KeyError:
             return None
-        match_result = np.nonzero(
-            np.logical_and(
-                np.asarray(s > query_s),
-                np.asarray(e < query_e)
-            )
-        )[0]
+        match_result = np.nonzero(np.logical_and(np.asarray(s > query_s), np.asarray(e < query_e)))[0]
         for it in match_result.tolist():
             yield it
 

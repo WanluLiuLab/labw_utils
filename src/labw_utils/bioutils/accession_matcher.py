@@ -66,10 +66,7 @@ NCBI RefSeq, with {'TYPE': 'Chromosome in Reference Assembly', 'VERSION': None}
 
 from __future__ import annotations
 
-__all__ = (
-    "infer_accession_type",
-    "AccessionMatchResult"
-)
+__all__ = ("infer_accession_type", "AccessionMatchResult")
 
 import re
 from abc import abstractmethod, ABC
@@ -85,6 +82,7 @@ class AccessionMatchResult:
 
     .. versionadded:: 1.0.2
     """
+
     _toplevel: str
     _details: Mapping[str, AccessionMatchResult]
 
@@ -96,10 +94,7 @@ class AccessionMatchResult:
         """Convert to :py:class:`dict`"""
         return {
             "toplevel": self._toplevel,
-            "details": {
-                k: v.as_dict() if isinstance(v, AccessionMatchResult) else v
-                for k, v in self._details.items()
-            }
+            "details": {k: v.as_dict() if isinstance(v, AccessionMatchResult) else v for k, v in self._details.items()},
         }
 
     def __repr__(self) -> str:
@@ -140,6 +135,7 @@ class ChainAccessionMatcherRuleType(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _rule_chain: List[Type[AccessionMatcherRuleType]]
 
     def __init__(self):
@@ -163,6 +159,7 @@ class MasterEnsembleIDMatcher(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _regex = re.compile(r"^ENS([A-Z_]+)?(G|T|E|P|R|FM|GT)\d+(\.\d+)?$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -184,7 +181,7 @@ class MasterEnsembleIDMatcher(AccessionMatcherRuleType):
             "FM": "Protein Family",
             "GT": "Gene Tree",
             "P": "Protein",
-            "R": "Regulatory Feature"
+            "R": "Regulatory Feature",
         }.get(groups[1], "UNKNOWN")
         if groups[2] is None:
             details_dict["VERSION"] = "N/A"
@@ -199,6 +196,7 @@ class NCBIRefSeqMatcher(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _regex_dict = {
         "Protein-Coding Transcript": re.compile(r"^NM_\d+(\.\d+)?$"),
         "Non-Protein-Coding Transcript": re.compile(r"^NR_\d+(\.\d+)?$"),
@@ -213,25 +211,23 @@ class NCBIRefSeqMatcher(AccessionMatcherRuleType):
         "Protein Annotated on AC_ alternate assembly": re.compile(r"^AP_\d+(\.\d+)?$"),
         "Protein Associated with an NM_ or NC_ accession": re.compile(r"^NP_\d+(\.\d+)?$"),
         "Protein Annotated on genomic molecules without an instantiated transcript record": re.compile(
-            r"^YP_\d+(\.\d+)?$"),
+            r"^YP_\d+(\.\d+)?$"
+        ),
         "Protein Predicted model, associated with an XM_ accession": re.compile(r"^XP_\d+(\.\d+)?$"),
         "Protein	Non-redundant across multiple strains and species": re.compile(r"^WP_\d+(\.\d+)?$"),
     }
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
-        for k, v, in NCBIRefSeqMatcher._regex_dict.items():
+        for (
+            k,
+            v,
+        ) in NCBIRefSeqMatcher._regex_dict.items():
             match_result = v.match(accession)
             if match_result is not None:
                 version = match_result.groups()[0]
                 if version is not None:
                     version = version.strip(".")
-                return AccessionMatchResult(
-                    toplevel="NCBI RefSeq",
-                    details={
-                        "TYPE": k,
-                        "VERSION": version
-                    }
-                )
+                return AccessionMatchResult(toplevel="NCBI RefSeq", details={"TYPE": k, "VERSION": version})
         return None
 
 
@@ -241,6 +237,7 @@ class AnalysisSetChromosomeHLA(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _regex = re.compile(r"^HLA-(.+)$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -249,12 +246,7 @@ class AnalysisSetChromosomeHLA(AccessionMatcherRuleType):
             return None
         groups = match_result.groups()
         hla_name = groups[0]
-        return AccessionMatchResult(
-            toplevel="Analysis Set HLA Sequence",
-            details={
-                "HLA_NAME": hla_name
-            }
-        )
+        return AccessionMatchResult(toplevel="Analysis Set HLA Sequence", details={"HLA_NAME": hla_name})
 
 
 @supress_inherited_doc(modify_overwritten=True)
@@ -264,6 +256,7 @@ class NCBIGenBankAccessionMatchingEngine:
 
     .. versionadded:: 1.0.2
     """
+
     _regex_dict: Optional[Mapping[re.Pattern, Callable[[str], Mapping[str, Any]]]]
 
     def __init__(self):
@@ -271,12 +264,10 @@ class NCBIGenBankAccessionMatchingEngine:
 
     @staticmethod
     def generate_ncbi_genbank_nt_regex(
-            prefixes: Iterable[str],
-            kwargs: Mapping[str, str]
+        prefixes: Iterable[str], kwargs: Mapping[str, str]
     ) -> Mapping[re.Pattern, Callable[[str], Mapping[str, Any]]]:
-
         def generate_ncbi_genbank_nt_regex_from_single_prefix(
-                _prefix: str
+            _prefix: str,
         ) -> Mapping[re.Pattern, Callable[[str], Mapping[str, Any]]]:
             if len(_prefix) == 1:
                 regex = r"^" + _prefix + r"\d{5}" + r"(\.\d+)?" + r"$"
@@ -294,11 +285,7 @@ class NCBIGenBankAccessionMatchingEngine:
                         version = version.strip(".")
                 else:
                     raise ValueError
-                return {
-                    **kwargs,
-                    "DTYPE": "NUCLEOTIDES",
-                    'VERSION': version
-                }
+                return {**kwargs, "DTYPE": "NUCLEOTIDES", "VERSION": version}
 
             return {regex: retf}
 
@@ -309,9 +296,7 @@ class NCBIGenBankAccessionMatchingEngine:
 
     @staticmethod
     def generate_ncbi_genbank_wgs_regex(
-            prefix_regex: str,
-            prefix_len: int,
-            kwargs: Mapping[str, Any]
+        prefix_regex: str, prefix_len: int, kwargs: Mapping[str, Any]
     ) -> Mapping[re.Pattern, Callable[[str], Mapping[str, Any]]]:
         a_z_regex = r"[A-Z]" + r"{" + str(prefix_len - 1) + r"}"
         if prefix_len == 4:
@@ -335,7 +320,7 @@ class NCBIGenBankAccessionMatchingEngine:
                 **kwargs,
                 "DTYPE": "Whole Genome Shotgun (WGS)",
                 "INTERNAL_VERSION": internal_version,
-                'VERSION': version
+                "VERSION": version,
             }
 
         return {regex: retf}
@@ -344,292 +329,506 @@ class NCBIGenBankAccessionMatchingEngine:
     def regex_dict(self) -> Mapping[re.Pattern, Callable[[str], Mapping[str, Any]]]:
         if self._regex_dict is None:
             self._regex_dict = {
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BA", "DF", "DG", "LD"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "CON division"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AN",
-                ), {
-                    "DATABASE": "EMBL",
-                    "TYPE": "CON division"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "CH", "CM", "DS", "EM", "EN", "EP", "EQ", "FA", "GG", "GL", "JH", "KB", "KD", "KE", "KI", "KK",
-                    "KL",
-                    "KN", "KQ", "KV", "KZ", "ML", "MU"
-                ), {
-                    "DATABASE": "NCBI",
-                    "TYPE": "CON division"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "C", "AT", "AU", "AV", "BB", "BJ", "BP", "BW", "BY", "CI", "CJ", "DA", "DB", "DC", "DK", "FS", "FY",
-                    "HX", "HY", "LU", "OH"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "EST"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(("F",), {
-                    "DATABASE": "EMBL",
-                    "TYPE": "EST"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "H", "N", "T", "R", "W", "AA", "AI", "AW", "BE", "BF", "BG", "BI", "BM", "BQ", "BU", "CA", "CB",
-                    "CD",
-                    "CF", "CK", "CN", "CO", "CV", "CX", "DN", "DR", "DT", "DV", "DW", "DY", "EB", "EC", "EE",
-                    "EG", "EH", "EL", "ES", "EV", "EW", "EX", "EY", "FC", "FD", "FE", "FF", "FG", "FK", "FL",
-                    "GD", "GE", "GH", "GO", "GR", "GT", "GW", "HO", "HS", "JG", "JK", "JZ"
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "EST"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "D", "AB", "LC"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "Direct submissions"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "V", "X", "Y", "Z", "AJ", "AM", "FM", "FN", "HE", "HF", "HG", "FO", "LK", "LL", "LM", "LN", "LO",
-                    "LR",
-                    "LS", "LT", "OA", "OB", "OC", "OD", "OE", "OU", "OV", "OW", "OX", "OY", "OZ",
-                ), {
-                    "DATABASE": "EMBL",
-                    "TYPE": "Direct submissions"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "U", "AF", "AY", "DQ", "EF", "EU", "FJ", "GQ", "GU", "HM", "HQ", "JF", "JN", "JQ", "JX", "KC", "KF",
-                    "KJ", "KM", "KP", "KR", "KT", "KU", "KX", "KY", "MF", "MG", "MH", "MK", "MN", "MT", "MW", "MZ",
-                    "OK", "OL", "OM", "ON", "OP", "OQ"
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "Direct submissions"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AP", "BS"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "Genome project data"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AL", "BX", "CR", "CT", "CU", "FP", "FQ", "FR"
-                ), {
-                    "DATABASE": "EMBL",
-                    "TYPE": "Genome project data"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AE", "CP", "CY"
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "Genome project data"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AG", "DE", "DH", "FT", "GA", "LB"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "GSS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "B", "AQ", "AZ", "BH", "BZ", "CC", "CE", "CG", "CL", "CW", "CZ", "DU", "DX", "ED", "EI", "EJ", "EK",
-                    "ER", "ET", "FH", "FI", "GS", "HN", "HR", "JJ", "JM", "JS", "JY", "KG", "KO", "KS", "MJ"
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "GSS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AK"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "cDNA projects"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AC", "DP"
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "HTGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "E", "BD", "DD", "DI", "DJ", "DL", "DM", "FU", "FV", "FW", "FZ", "GB", "HV", "HW", "HZ", "LF", "LG",
-                    "LV", "LX", "LY", "LZ", "MA", "MB", "MC", "MD", "ME", "OF", "OG", "OI", "OJ", "PA", "PB", "PC",
-                    "PD", "PE"
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "Patents"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "A", "AX", "CQ", "CS", "FB", "GM", "GN", "HA", "HB", "HC", "HD", "HH", "HI", "JA", "JB", "JC", "JD",
-                    "JE", "LP", "LQ", "MP", "MQ", "MR", "MS",
-                ), {
-                    "DATABASE": "EMBL",
-                    "TYPE": "Patents (nucleotide only)"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "I", "AR", "DZ", "EA", "GC", "GP", "GV", "GX", "GY", "GZ", "HJ", "HK", "HL", "KH", "MI", "MM", "MO",
-                    "MV", "MX", "MY", "OO",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "Patents (nucleotide)"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "G", "BV", "GF",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "STS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BR",
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BN",
-                ), {
-                    "DATABASE": "EMBL",
-                    "TYPE": "TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BK",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "HT", "HU",
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "TPA CON division"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BL", "GJ", "GK",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "TPA CON division"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "EZ", "HP", "JI", "JL", "JO", "JP", "JR", "JT", "JU", "JV", "JW", "KA",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "TSA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "FX", "LA", "LE", "LH", "LI", "LJ",
-                ), {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "TSA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "S",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "From journal scanning"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AD",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "From GSDB"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AH",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "Segmented set header"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "AS",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "Other - not currently being used"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BC",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "MGC project"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "BT",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "FLI-cDNA projects"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex((
-                    "J", "K", "L", "M",
-                ), {
-                    "DATABASE": "GenBank",
-                    "TYPE": "From GSDB direct submissions"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"[AJLMMPQRSVWX]", 4, {
-                    "DATABASE": "GenBank",
-                    "TYPE": "WGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"[AJ]", 6, {
-                    "DATABASE": "GenBank",
-                    "TYPE": "WGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"B", 4, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "WGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"B", 6, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "WGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"[CFOU]", 4, {
-                    "DATABASE": "EMBL",
-                    "TYPE": "WGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"C", 6, {
-                    "DATABASE": "EMBL",
-                    "TYPE": "WGS"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"D", 4, {
-                    "DATABASE": "GenBank",
-                    "TYPE": "WGS or TSA TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"D", 6, {
-                    "DATABASE": "GenBank",
-                    "TYPE": "WGS TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"E", 4, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "WGS TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"G", 4, {
-                    "DATABASE": "GenBank",
-                    "TYPE": "TSA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"H", 4, {
-                    "DATABASE": "EMBL",
-                    "TYPE": "TSA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"I", 4, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "TSA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"T", 4, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "Targeted Gene Projects"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"K", 4, {
-                    "DATABASE": "GenBank",
-                    "TYPE": "Targeted Gene Projects (TLS)"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"Y", 4, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "TSA TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"Z", 4, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "Targeted Gene Projects TPA"
-                }),
-                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(r"A", 6, {
-                    "DATABASE": "DDBJ",
-                    "TYPE": "MGA"
-                }),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("BA", "DF", "DG", "LD"), {"DATABASE": "DDBJ", "TYPE": "CON division"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AN",), {"DATABASE": "EMBL", "TYPE": "CON division"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "CH",
+                        "CM",
+                        "DS",
+                        "EM",
+                        "EN",
+                        "EP",
+                        "EQ",
+                        "FA",
+                        "GG",
+                        "GL",
+                        "JH",
+                        "KB",
+                        "KD",
+                        "KE",
+                        "KI",
+                        "KK",
+                        "KL",
+                        "KN",
+                        "KQ",
+                        "KV",
+                        "KZ",
+                        "ML",
+                        "MU",
+                    ),
+                    {"DATABASE": "NCBI", "TYPE": "CON division"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "C",
+                        "AT",
+                        "AU",
+                        "AV",
+                        "BB",
+                        "BJ",
+                        "BP",
+                        "BW",
+                        "BY",
+                        "CI",
+                        "CJ",
+                        "DA",
+                        "DB",
+                        "DC",
+                        "DK",
+                        "FS",
+                        "FY",
+                        "HX",
+                        "HY",
+                        "LU",
+                        "OH",
+                    ),
+                    {"DATABASE": "DDBJ", "TYPE": "EST"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("F",), {"DATABASE": "EMBL", "TYPE": "EST"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "H",
+                        "N",
+                        "T",
+                        "R",
+                        "W",
+                        "AA",
+                        "AI",
+                        "AW",
+                        "BE",
+                        "BF",
+                        "BG",
+                        "BI",
+                        "BM",
+                        "BQ",
+                        "BU",
+                        "CA",
+                        "CB",
+                        "CD",
+                        "CF",
+                        "CK",
+                        "CN",
+                        "CO",
+                        "CV",
+                        "CX",
+                        "DN",
+                        "DR",
+                        "DT",
+                        "DV",
+                        "DW",
+                        "DY",
+                        "EB",
+                        "EC",
+                        "EE",
+                        "EG",
+                        "EH",
+                        "EL",
+                        "ES",
+                        "EV",
+                        "EW",
+                        "EX",
+                        "EY",
+                        "FC",
+                        "FD",
+                        "FE",
+                        "FF",
+                        "FG",
+                        "FK",
+                        "FL",
+                        "GD",
+                        "GE",
+                        "GH",
+                        "GO",
+                        "GR",
+                        "GT",
+                        "GW",
+                        "HO",
+                        "HS",
+                        "JG",
+                        "JK",
+                        "JZ",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "EST"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("D", "AB", "LC"), {"DATABASE": "DDBJ", "TYPE": "Direct submissions"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "V",
+                        "X",
+                        "Y",
+                        "Z",
+                        "AJ",
+                        "AM",
+                        "FM",
+                        "FN",
+                        "HE",
+                        "HF",
+                        "HG",
+                        "FO",
+                        "LK",
+                        "LL",
+                        "LM",
+                        "LN",
+                        "LO",
+                        "LR",
+                        "LS",
+                        "LT",
+                        "OA",
+                        "OB",
+                        "OC",
+                        "OD",
+                        "OE",
+                        "OU",
+                        "OV",
+                        "OW",
+                        "OX",
+                        "OY",
+                        "OZ",
+                    ),
+                    {"DATABASE": "EMBL", "TYPE": "Direct submissions"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "U",
+                        "AF",
+                        "AY",
+                        "DQ",
+                        "EF",
+                        "EU",
+                        "FJ",
+                        "GQ",
+                        "GU",
+                        "HM",
+                        "HQ",
+                        "JF",
+                        "JN",
+                        "JQ",
+                        "JX",
+                        "KC",
+                        "KF",
+                        "KJ",
+                        "KM",
+                        "KP",
+                        "KR",
+                        "KT",
+                        "KU",
+                        "KX",
+                        "KY",
+                        "MF",
+                        "MG",
+                        "MH",
+                        "MK",
+                        "MN",
+                        "MT",
+                        "MW",
+                        "MZ",
+                        "OK",
+                        "OL",
+                        "OM",
+                        "ON",
+                        "OP",
+                        "OQ",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "Direct submissions"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AP", "BS"), {"DATABASE": "DDBJ", "TYPE": "Genome project data"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AL", "BX", "CR", "CT", "CU", "FP", "FQ", "FR"),
+                    {"DATABASE": "EMBL", "TYPE": "Genome project data"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AE", "CP", "CY"), {"DATABASE": "GenBank", "TYPE": "Genome project data"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AG", "DE", "DH", "FT", "GA", "LB"), {"DATABASE": "DDBJ", "TYPE": "GSS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "B",
+                        "AQ",
+                        "AZ",
+                        "BH",
+                        "BZ",
+                        "CC",
+                        "CE",
+                        "CG",
+                        "CL",
+                        "CW",
+                        "CZ",
+                        "DU",
+                        "DX",
+                        "ED",
+                        "EI",
+                        "EJ",
+                        "EK",
+                        "ER",
+                        "ET",
+                        "FH",
+                        "FI",
+                        "GS",
+                        "HN",
+                        "HR",
+                        "JJ",
+                        "JM",
+                        "JS",
+                        "JY",
+                        "KG",
+                        "KO",
+                        "KS",
+                        "MJ",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "GSS"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AK"), {"DATABASE": "DDBJ", "TYPE": "cDNA projects"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AC", "DP"), {"DATABASE": "GenBank", "TYPE": "HTGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "E",
+                        "BD",
+                        "DD",
+                        "DI",
+                        "DJ",
+                        "DL",
+                        "DM",
+                        "FU",
+                        "FV",
+                        "FW",
+                        "FZ",
+                        "GB",
+                        "HV",
+                        "HW",
+                        "HZ",
+                        "LF",
+                        "LG",
+                        "LV",
+                        "LX",
+                        "LY",
+                        "LZ",
+                        "MA",
+                        "MB",
+                        "MC",
+                        "MD",
+                        "ME",
+                        "OF",
+                        "OG",
+                        "OI",
+                        "OJ",
+                        "PA",
+                        "PB",
+                        "PC",
+                        "PD",
+                        "PE",
+                    ),
+                    {"DATABASE": "DDBJ", "TYPE": "Patents"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "A",
+                        "AX",
+                        "CQ",
+                        "CS",
+                        "FB",
+                        "GM",
+                        "GN",
+                        "HA",
+                        "HB",
+                        "HC",
+                        "HD",
+                        "HH",
+                        "HI",
+                        "JA",
+                        "JB",
+                        "JC",
+                        "JD",
+                        "JE",
+                        "LP",
+                        "LQ",
+                        "MP",
+                        "MQ",
+                        "MR",
+                        "MS",
+                    ),
+                    {"DATABASE": "EMBL", "TYPE": "Patents (nucleotide only)"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "I",
+                        "AR",
+                        "DZ",
+                        "EA",
+                        "GC",
+                        "GP",
+                        "GV",
+                        "GX",
+                        "GY",
+                        "GZ",
+                        "HJ",
+                        "HK",
+                        "HL",
+                        "KH",
+                        "MI",
+                        "MM",
+                        "MO",
+                        "MV",
+                        "MX",
+                        "MY",
+                        "OO",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "Patents (nucleotide)"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "G",
+                        "BV",
+                        "GF",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "STS"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("BR",), {"DATABASE": "DDBJ", "TYPE": "TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("BN",), {"DATABASE": "EMBL", "TYPE": "TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("BK",), {"DATABASE": "GenBank", "TYPE": "TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "HT",
+                        "HU",
+                    ),
+                    {"DATABASE": "DDBJ", "TYPE": "TPA CON division"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "BL",
+                        "GJ",
+                        "GK",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "TPA CON division"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "EZ",
+                        "HP",
+                        "JI",
+                        "JL",
+                        "JO",
+                        "JP",
+                        "JR",
+                        "JT",
+                        "JU",
+                        "JV",
+                        "JW",
+                        "KA",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "TSA"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "FX",
+                        "LA",
+                        "LE",
+                        "LH",
+                        "LI",
+                        "LJ",
+                    ),
+                    {"DATABASE": "DDBJ", "TYPE": "TSA"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("S",), {"DATABASE": "GenBank", "TYPE": "From journal scanning"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AD",), {"DATABASE": "GenBank", "TYPE": "From GSDB"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AH",), {"DATABASE": "GenBank", "TYPE": "Segmented set header"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("AS",), {"DATABASE": "GenBank", "TYPE": "Other - not currently being used"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("BC",), {"DATABASE": "GenBank", "TYPE": "MGC project"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    ("BT",), {"DATABASE": "GenBank", "TYPE": "FLI-cDNA projects"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_nt_regex(
+                    (
+                        "J",
+                        "K",
+                        "L",
+                        "M",
+                    ),
+                    {"DATABASE": "GenBank", "TYPE": "From GSDB direct submissions"},
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"[AJLMMPQRSVWX]", 4, {"DATABASE": "GenBank", "TYPE": "WGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"[AJ]", 6, {"DATABASE": "GenBank", "TYPE": "WGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"B", 4, {"DATABASE": "DDBJ", "TYPE": "WGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"B", 6, {"DATABASE": "DDBJ", "TYPE": "WGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"[CFOU]", 4, {"DATABASE": "EMBL", "TYPE": "WGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"C", 6, {"DATABASE": "EMBL", "TYPE": "WGS"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"D", 4, {"DATABASE": "GenBank", "TYPE": "WGS or TSA TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"D", 6, {"DATABASE": "GenBank", "TYPE": "WGS TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"E", 4, {"DATABASE": "DDBJ", "TYPE": "WGS TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"G", 4, {"DATABASE": "GenBank", "TYPE": "TSA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"H", 4, {"DATABASE": "EMBL", "TYPE": "TSA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"I", 4, {"DATABASE": "DDBJ", "TYPE": "TSA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"T", 4, {"DATABASE": "DDBJ", "TYPE": "Targeted Gene Projects"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"K", 4, {"DATABASE": "GenBank", "TYPE": "Targeted Gene Projects (TLS)"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"Y", 4, {"DATABASE": "DDBJ", "TYPE": "TSA TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"Z", 4, {"DATABASE": "DDBJ", "TYPE": "Targeted Gene Projects TPA"}
+                ),
+                **NCBIGenBankAccessionMatchingEngine.generate_ncbi_genbank_wgs_regex(
+                    r"A", 6, {"DATABASE": "DDBJ", "TYPE": "MGA"}
+                ),
             }
         return self._regex_dict
 
@@ -650,10 +849,7 @@ class NCBIGenBankAccessionMatcher(AccessionMatcherRuleType):
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
         for k, v in self._regex_dict.items():
             if k.match(accession) is not None:
-                return AccessionMatchResult(
-                    toplevel="NCBI GeneBank Sequence",
-                    details=v(accession)
-                )
+                return AccessionMatchResult(toplevel="NCBI GeneBank Sequence", details=v(accession))
 
 
 @supress_inherited_doc(modify_overwritten=True)
@@ -662,6 +858,7 @@ class AnalysisSetChromosomePlacedGenbankMatcher(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _regex = re.compile(r"^chr(\d+|X|Y|M)_(.+)v(\d+)?(_alt|_random|_fix)?$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -677,12 +874,10 @@ class AnalysisSetChromosomePlacedGenbankMatcher(AccessionMatcherRuleType):
                 "GENBANK_ACCESSION": genbank_accession,
                 "GENBANK_MATCH": NCBIGenBankAccessionMatcher().match(genbank_accession),
                 "VERSION": groups[2],
-                "TYPE": {
-                    "_alt": "Alternate Loci",
-                    "_random": "Unlocalized Scaffolds",
-                    "_fix": "Fix Patches"
-                }.get(groups[3], "N/A")
-            }
+                "TYPE": {"_alt": "Alternate Loci", "_random": "Unlocalized Scaffolds", "_fix": "Fix Patches"}.get(
+                    groups[3], "N/A"
+                ),
+            },
         )
 
 
@@ -692,6 +887,7 @@ class AnalysisSetChromosomeUnplacedGenbankMatcher(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _regex = re.compile(r"^chrUn_(.+)v(\d+)(_decoy)?$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -706,8 +902,8 @@ class AnalysisSetChromosomeUnplacedGenbankMatcher(AccessionMatcherRuleType):
                 "GENBANK_ACCESSION": genbank_accession,
                 "GENBANK_MATCH": NCBIGenBankAccessionMatcher().match(genbank_accession),
                 "VERSION": groups[1],
-                "TYPE": "DECOY" if groups[2] is not None else "MISC"
-            }
+                "TYPE": "DECOY" if groups[2] is not None else "MISC",
+            },
         )
 
 
@@ -717,6 +913,7 @@ class AnalysisSetChromosomeMatcher(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _regex = re.compile(r"^chr(\d+|X|Y|M|EBV)$")
 
     def match(self, accession: str) -> Optional[AccessionMatchResult]:
@@ -728,13 +925,10 @@ class AnalysisSetChromosomeMatcher(AccessionMatcherRuleType):
             toplevel="Analysis Set Chromosome",
             details={
                 "NUMBER": groups[0],
-                "TYPE": {
-                    "X": "Sex",
-                    "Y": "Sex",
-                    "M": "Mitochondria",
-                    "EBV": "Epstein-Barr Virus"
-                }.get(groups[0], "NORMAL")
-            }
+                "TYPE": {"X": "Sex", "Y": "Sex", "M": "Mitochondria", "EBV": "Epstein-Barr Virus"}.get(
+                    groups[0], "NORMAL"
+                ),
+            },
         )
 
 
@@ -744,11 +938,12 @@ class AnalysisSetContigMatcher(ChainAccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _rule_chain: Final[list[AccessionMatcherRuleType]] = [
         AnalysisSetChromosomeMatcher,
         AnalysisSetChromosomeUnplacedGenbankMatcher,
         AnalysisSetChromosomePlacedGenbankMatcher,
-        AnalysisSetChromosomeHLA
+        AnalysisSetChromosomeHLA,
     ]
 
 
@@ -758,6 +953,7 @@ class IntegerMatcher(AccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _int_regex = re.compile(r"^\d+$")
     _roman_int_regex = re.compile(r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$")
 
@@ -777,12 +973,13 @@ class MasterAccessionMatcher(ChainAccessionMatcherRuleType):
 
     .. versionadded:: 1.0.2
     """
+
     _rule_chain: Final[list[AccessionMatcherRuleType]] = [
         MasterEnsembleIDMatcher,
         NCBIRefSeqMatcher,
         AnalysisSetContigMatcher,
         NCBIGenBankAccessionMatcher,
-        IntegerMatcher
+        IntegerMatcher,
     ]
 
 

@@ -28,13 +28,7 @@ def test_exon():
 
 def test_error_exon():
     with FastaViewFactory(test_fasta_path, read_into_memory=True) as fasta_view:
-        exon = Exon(
-            data=parse_record(
-                '1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"'
-            ),
-            is_checked=True,
-            shortcut=False
-        )
+        exon = Exon(data=parse_record('1\tNA\texon\t5\t10\t.\t+\t.\tgene_id "UN1"'), is_checked=True, shortcut=False)
         assert exon.attribute_get("exon_number") is None
         assert exon.transcribe(fasta_view.sequence) == ""
         assert exon.transcript_id.startswith("unknown_transcript")

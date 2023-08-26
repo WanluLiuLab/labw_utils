@@ -6,11 +6,7 @@
 
 from __future__ import annotations
 
-__all__ = (
-    "iterable_translate",
-    "list_translate",
-    "dict_translate"
-)
+__all__ = ("iterable_translate", "list_translate", "dict_translate")
 
 from labw_utils.typing_importer import Iterable, TypeVar, Mapping, List, Literal, Tuple, Optional
 
@@ -36,8 +32,9 @@ def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InTy
             yield old_item
 
 
-def dict_translate(in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InType, _InType]) -> Mapping[
-    _InType, _VarType]:
+def dict_translate(
+    in_dict: Mapping[_InType, _VarType], trans_dict: Mapping[_InType, _InType]
+) -> Mapping[_InType, _VarType]:
     """
     Dictionary Translator.
 
@@ -80,10 +77,10 @@ def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]
 
 
 def window(
-        it: Iterable[_InType],
-        size: int,
-        last_action: Literal["padd_front", "padd_back", "error", "ignore", "truncate"] = "ignore",
-        padding: Optional[_InType] = None
+    it: Iterable[_InType],
+    size: int,
+    last_action: Literal["padd_front", "padd_back", "error", "ignore", "truncate"] = "ignore",
+    padding: Optional[_InType] = None,
 ) -> Iterable[Tuple[_InType, ...]]:
     """
     Complex windowing support.

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="Black">
+    <option name="cmdArguments" value="--line-length 120 --target-version py38 --quiet" />
+    <option name="enabledOnReformat" value="true" />
+    <option name="enabledOnSave" value="true" />
+    <option name="sdkUUID" value="c1b8798c-2a81-44a8-a534-3be021205d53" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="labw_utils" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />

@@ -9,7 +9,7 @@ from labw_utils.typing_importer import Optional, Iterable, Sized, TypeVar, Itera
 
 __all__ = ("tqdm",)
 
-_VarType = TypeVar('_VarType')
+_VarType = TypeVar("_VarType")
 
 
 @create_class_init_doc_from_property()
@@ -42,7 +42,8 @@ class tqdm(Iterable[_VarType]):
 
     .. versionadded:: 1.0.2
     """
-    __slots__ = ('_iterable', '_total', '_desc', '_n', '_quarters')
+
+    __slots__ = ("_iterable", "_total", "_desc", "_n", "_quarters")
 
     _iterable: Optional[Iterable]
     _desc: Optional[str]
@@ -73,12 +74,15 @@ class tqdm(Iterable[_VarType]):
         """
         return self._iterable
 
+    def __iadd__(self, other: int):
+        self.update(other)
+
     def __init__(
-            self,
-            iterable: Optional[Iterable[_VarType]] = None,
-            desc: Optional[str] = None,
-            total: Optional[int] = None,
-            **kwargs
+        self,
+        iterable: Optional[Iterable[_VarType]] = None,
+        desc: Optional[str] = None,
+        total: Optional[int] = None,
+        **kwargs,
     ):
         _ = kwargs  # Stop PyCharm from complaining
         self._desc = desc
@@ -122,10 +126,10 @@ class tqdm(Iterable[_VarType]):
             percent = round(self._n / self._total, 2)
             if percent > self._quarters:
                 total_len = 100
-                pbar_fill = '=' * int(self._quarters * total_len)
-                pbar_blank = ' ' * int((1 - self._quarters) * total_len)
+                pbar_fill = "=" * int(self._quarters * total_len)
+                pbar_blank = " " * int((1 - self._quarters) * total_len)
                 print(
                     f"{self._desc}: {int(percent * 100)}% [{pbar_fill}|{pbar_blank}]",
-                    file=sys.stderr
+                    file=sys.stderr,
                 )
                 self._quarters += 0.25

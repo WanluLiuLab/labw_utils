@@ -22,14 +22,14 @@ class YSJSJob:
     _pid: Optional[int]
 
     def __init__(
-            self,
-            submission: YSJSSubmission,
-            job_id: int,
-            status: str,
-            retv: Optional[int],
-            start_time: Optional[float],
-            terminate_time: Optional[float],
-            pid: Optional[int]
+        self,
+        submission: YSJSSubmission,
+        job_id: int,
+        status: str,
+        retv: Optional[int],
+        start_time: Optional[float],
+        terminate_time: Optional[float],
+        pid: Optional[int],
     ):
         self._submission = submission
         self._status = status
@@ -47,7 +47,7 @@ class YSJSJob:
             "job_id": self._job_id,
             "start_time": self._start_time,
             "terminate_time": self._terminate_time,
-            "pid": self._pid
+            "pid": self._pid,
         }
 
     @classmethod
@@ -55,12 +55,7 @@ class YSJSJob:
         return cls(**in_dict)
 
     @classmethod
-    def new(
-            cls,
-            submission: YSJSSubmission,
-            job_id: int,
-            **kwargs
-    ):
+    def new(cls, submission: YSJSSubmission, job_id: int, **kwargs):
         return cls(
             submission=submission,
             status="pending",
@@ -68,7 +63,7 @@ class YSJSJob:
             job_id=job_id,
             start_time=None,
             terminate_time=None,
-            pid=None
+            pid=None,
         )
 
     @property

@@ -19,9 +19,7 @@ from labw_utils.typing_importer import Optional, Any
 if os.getenv("SPHINX_BUILD") is not None:
     __all__ = []
 else:
-    __all__ = (
-        "SerializableInterface",
-    )
+    __all__ = ("SerializableInterface",)
 
 
 class SerializableInterface(ABC):

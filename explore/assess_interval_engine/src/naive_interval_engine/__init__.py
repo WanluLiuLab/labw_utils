@@ -18,10 +18,7 @@ from labw_utils.typing_importer import Tuple, List, Iterable
 IntervalType = Tuple[str, int, int]
 
 
-def create_pandas_dataframe_from_input_file(
-        interval_file: str,
-        show_tqdm: bool = True
-) -> pd.DataFrame:
+def create_pandas_dataframe_from_input_file(interval_file: str, show_tqdm: bool = True) -> pd.DataFrame:
     """
     Pandas dataframe for the intervals.
 
@@ -35,16 +32,7 @@ def create_pandas_dataframe_from_input_file(
         reader = get_tqdm_reader(interval_file, is_binary=True)
     else:
         reader = get_reader(interval_file, is_binary=True)
-    df = pd.read_csv(
-        reader,
-        sep="\t",
-        engine="pyarrow",
-        dtype={
-            "chr": str,
-            "s": int,
-            "e": int
-        }
-    )
+    df = pd.read_csv(reader, sep="\t", engine="pyarrow", dtype={"chr": str, "s": int, "e": int})
     reader.close()
     df["idx"] = range(0, df.shape[0])
     return df
@@ -52,11 +40,7 @@ def create_pandas_dataframe_from_input_file(
 
 class IntervalEngineType:
     @abstractmethod
-    def __init__(
-            self,
-            interval_file: str,
-            show_tqdm: bool = True
-    ):
+    def __init__(self, interval_file: str, show_tqdm: bool = True):
         _ = interval_file, show_tqdm
 
     @abstractmethod
@@ -64,11 +48,7 @@ class IntervalEngineType:
         raise NotImplementedError
 
     @abstractmethod
-    def matches(
-            self,
-            query_intervals: Iterable[IntervalType],
-            show_tqdm: bool = True
-    ) -> Iterable[List[int]]:
+    def matches(self, query_intervals: Iterable[IntervalType], show_tqdm: bool = True) -> Iterable[List[int]]:
         raise NotImplementedError
 
     @abstractmethod
@@ -76,11 +56,7 @@ class IntervalEngineType:
         raise NotImplementedError
 
     @abstractmethod
-    def overlaps(
-            self,
-            query_intervals: Iterable[IntervalType],
-            show_tqdm: bool = True
-    ) -> Iterable[List[int]]:
+    def overlaps(self, query_intervals: Iterable[IntervalType], show_tqdm: bool = True) -> Iterable[List[int]]:
         raise NotImplementedError
 
     @abstractmethod

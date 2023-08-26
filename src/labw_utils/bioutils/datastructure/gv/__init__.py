@@ -38,6 +38,7 @@ TODO: docs
 .. versionadded:: 1.0.2
 """
 
+
 def dumb_legalize_region_func(seqname: str, from_pos: int, to_pos: int) -> Tuple[str, int, int]:
     """
     TODO: docs
@@ -46,13 +47,14 @@ def dumb_legalize_region_func(seqname: str, from_pos: int, to_pos: int) -> Tuple
     """
     return seqname, from_pos, to_pos
 
+
 def generate_unknown_transcript_id() -> str:
     """
     Generate a new unknown transcript ID
 
     .. versionadded:: 1.0.2
     """
-    return 'unknown_transcript_id' + str(uuid.uuid4())
+    return "unknown_transcript_id" + str(uuid.uuid4())
 
 
 def generate_unknown_gene_id() -> str:
@@ -61,7 +63,7 @@ def generate_unknown_gene_id() -> str:
 
     .. versionadded:: 1.0.2
     """
-    return 'unknown_gene_id' + str(uuid.uuid4())
+    return "unknown_gene_id" + str(uuid.uuid4())
 
 
 class GVPError(ValueError):
@@ -70,6 +72,7 @@ class GVPError(ValueError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
@@ -79,13 +82,12 @@ class CanTranscribeInterface(ABC):
 
     .. versionadded:: 1.0.2
     """
+
     __slots__: List[str] = []
 
     @abstractmethod
     def transcribe(
-            self,
-            sequence_func: SequenceFuncType,
-            legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
     ) -> str:
         raise NotImplementedError
 
@@ -101,6 +103,7 @@ class CanCheckInterface:
 
     .. versionadded:: 1.0.2
     """
+
     _is_checked: bool
 
     @property

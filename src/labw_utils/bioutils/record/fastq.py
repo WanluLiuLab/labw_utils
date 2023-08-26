@@ -42,7 +42,7 @@ __all__ = (
     "FastqRecordParserError",
     "MisFormattedFastqRecordError",
     "SequenceQualityLengthMismatchError",
-    "FastqRecord"
+    "FastqRecord",
 )
 
 from labw_utils.devutils.decorators import create_class_init_doc_from_property, doc_del_attr
@@ -56,6 +56,7 @@ class FastqRecordParserError(ValueError):
 
     .. versionadded:: 1.0.2
     """
+
     pass
 
 
@@ -95,11 +96,7 @@ class FastqRecord:
     A naive in-memory FASTQ record.
     """
 
-    __slots__ = (
-        '_seq_id',
-        '_sequence',
-        '_quality'
-    )
+    __slots__ = ("_seq_id", "_sequence", "_quality")
     _seq_id: str
     _sequence: str
     _quality: str
@@ -136,12 +133,7 @@ class FastqRecord:
         return len(self.sequence)
 
     def __repr__(self):
-        return "\n".join((
-            f"@{self._seq_id}",
-            self._sequence,
-            "+",
-            self._quality
-        ))
+        return "\n".join((f"@{self._seq_id}", self._sequence, "+", self._quality))
 
     def __str__(self):
         return repr(self)
@@ -162,11 +154,7 @@ class FastqRecord:
             raise MisFormattedFastqRecordError(f"Line 1 {l1} should start with @")
         if not l3.startswith("+"):
             raise MisFormattedFastqRecordError(f"Line 3 {l3} should start with +")
-        new_instance = cls(
-            seq_id=l1[1:].rstrip("\n\r"),
-            sequence=l2.rstrip("\n\r"),
-            quality=l4.rstrip("\n\r")
-        )
+        new_instance = cls(seq_id=l1[1:].rstrip("\n\r"), sequence=l2.rstrip("\n\r"), quality=l4.rstrip("\n\r"))
         return new_instance
 
     @classmethod

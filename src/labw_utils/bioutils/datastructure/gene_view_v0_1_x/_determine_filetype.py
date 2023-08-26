@@ -3,10 +3,7 @@ Common file suffixes. To be deprecated.
 """
 import itertools
 
-common_suffixes = {
-    "GTF": ('.gtf', '.gff'),
-    "GFF3": ('.gff3',)
-}
+common_suffixes = {"GTF": (".gtf", ".gff"), "GFF3": (".gff3",)}
 
 archive_suffixes = {
     "GZ": (".gz", ".gzip"),
@@ -20,7 +17,7 @@ archive_suffixes = {
     "ZSTD": (".zst", ".zstd"),
     "ZIP": (".zip",),
     "RAR": (".rar", ".rar5"),
-    "7Z": (".7z",)
+    "7Z": (".7z",),
 }
 
 
@@ -38,4 +35,4 @@ def get_file_type_from_suffix(filename: str) -> str:
         for real_suffix in real_suffixes:
             if filename.endswith(real_suffix):
                 return file_type
-    return 'UNKNOWN'
+    return "UNKNOWN"

@@ -56,10 +56,7 @@ class YSJSCluster:
 
     def submit(self, submission: YSJSSubmission) -> int:
         try:
-            resp = requests.post(
-                f"{self._conn}/ysjsd/api/v1.0/submit",
-                data=json.dumps(submission.to_dict())
-            )
+            resp = requests.post(f"{self._conn}/ysjsd/api/v1.0/submit", data=json.dumps(submission.to_dict()))
         except requests.RequestException as e:
             raise ClusterNotUpException from e
         if resp.status_code != 200:
@@ -73,9 +70,7 @@ class YSJSCluster:
 
     def stop(self):
         try:
-            resp = requests.post(
-                f"{self._conn}/ysjsd/api/v1.0/stop"
-            )
+            resp = requests.post(f"{self._conn}/ysjsd/api/v1.0/stop")
         except requests.RequestException as e:
             raise ClusterNotUpException from e
         if resp.status_code != 200:
@@ -140,13 +135,7 @@ class YSJSDLoad:
     _real_avail_mem: int
     _real_total_mem: int
 
-    def __init__(
-            self,
-            real_avail_cpu: float,
-            real_total_cpu: int,
-            real_avail_mem: int,
-            real_total_mem: int
-    ):
+    def __init__(self, real_avail_cpu: float, real_total_cpu: int, real_avail_mem: int, real_total_mem: int):
         self._real_avail_cpu = real_avail_cpu
         self._real_total_mem = real_total_mem
         self._real_avail_mem = real_avail_mem
@@ -157,7 +146,7 @@ class YSJSDLoad:
             "real_avail_cpu": self._real_avail_cpu,
             "real_total_cpu": self._real_total_cpu,
             "real_avail_mem": self._real_avail_mem,
-            "real_total_mem": self._real_total_mem
+            "real_total_mem": self._real_total_mem,
         }
 
     @classmethod

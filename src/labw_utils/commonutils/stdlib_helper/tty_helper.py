@@ -8,10 +8,7 @@
 .. versionadded:: 1.0.2
 """
 
-__all__ = (
-    "STANDARD_ANSI_OPERATORS",
-    "get_ansi_rgb"
-)
+__all__ = ("STANDARD_ANSI_OPERATORS", "get_ansi_rgb")
 
 STANDARD_ANSI_OPERATORS = {
     "RESET": "\033[0m",

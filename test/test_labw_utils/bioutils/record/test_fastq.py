@@ -1,7 +1,10 @@
 import pytest
 
-from labw_utils.bioutils.record.fastq import FastqRecord, SequenceQualityLengthMismatchError, \
-    MisFormattedFastqRecordError
+from labw_utils.bioutils.record.fastq import (
+    FastqRecord,
+    SequenceQualityLengthMismatchError,
+    MisFormattedFastqRecordError,
+)
 
 
 def test_fastq_errors():

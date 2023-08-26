@@ -10,9 +10,7 @@ from labw_utils.commonutils.stdlib_helper import logger_helper, shutil_helper
 
 
 class SessionTestInfo:
-    __slots__ = (
-        "base_test_dir"
-    )
+    __slots__ = "base_test_dir"
     base_test_dir: str
 
     def __init__(self):
@@ -25,10 +23,7 @@ class SessionTestInfo:
 
 
 class ModuleTestInfo:
-    __slots__ = (
-        "name",
-        "path"
-    )
+    __slots__ = ("name", "path")
     path: str
 
     def __init__(self, base_test_dir: str, name: str):

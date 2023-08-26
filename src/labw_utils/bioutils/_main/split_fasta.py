@@ -6,9 +6,7 @@ SYNOPSIS: python -m labw_utils.bioutils split_fasta [FASTA] [[FASTA]...]
 where [FASTA] are path to FASTA files.
 """
 
-__all__ = (
-    "main"
-)
+__all__ = "main"
 
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory, split_fasta
 from labw_utils.typing_importer import List

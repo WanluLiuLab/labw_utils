@@ -24,9 +24,7 @@ class NclsIntervalEngine(IntervalEngineType):
 
     def __init__(self, interval_file: str, show_tqdm: bool = True):
         self._chromosomal_split_ncls_index = {}
-        pd_df = create_pandas_dataframe_from_input_file(
-            interval_file, show_tqdm
-        )
+        pd_df = create_pandas_dataframe_from_input_file(interval_file, show_tqdm)
         for chr_name in pd.unique(pd_df["chr"]):
             pd_df_of_selected_chromosome = self._chromosomal_split_ncls_index[chr_name] = pd_df.query(
                 f"`chr` == '{chr_name}'"
@@ -39,10 +37,7 @@ class NclsIntervalEngine(IntervalEngineType):
         del pd_df
 
     def _matches_or_overlaps(
-            self,
-            operation_type: _OperationType,
-            query_intervals: Iterable[IntervalType],
-            show_tqdm: bool = True
+        self, operation_type: _OperationType, query_intervals: Iterable[IntervalType], show_tqdm: bool = True
     ) -> Iterable[List[int]]:
         _ = show_tqdm
 
@@ -63,7 +58,7 @@ class NclsIntervalEngine(IntervalEngineType):
         """
 
         query_length = query_intervals_df.shape[0]
-        query_intervals_df['qidx'] = range(0, query_length)
+        query_intervals_df["qidx"] = range(0, query_length)
 
         if operation_type == self._OperationType.Match:
             operation_func = ncls.NCLS64.all_containments_both
@@ -73,57 +68,50 @@ class NclsIntervalEngine(IntervalEngineType):
         for chr_name in pd.unique(query_intervals_df["chr"]):
             if chr_name not in self._chromosomal_split_ncls_index:
                 continue
-            query_df = query_intervals_df.query(
-                f"`chr` == '{chr_name}'"
-            ).loc[:, ["s", "e", "qidx"]]
+            query_df = query_intervals_df.query(f"`chr` == '{chr_name}'").loc[:, ["s", "e", "qidx"]]
             result_qidx, result_idx = operation_func(
                 self._chromosomal_split_ncls_index[chr_name],
                 query_df["s"].values,
                 query_df["e"].values,
                 query_df["qidx"].values,
             )
-            result_df_of_selected_chromosome = pd.DataFrame({
-                "qidx": result_qidx,
-                "idx": result_idx
-            })
+            result_df_of_selected_chromosome = pd.DataFrame({"qidx": result_qidx, "idx": result_idx})
             if full_result_df is None:
                 full_result_df = result_df_of_selected_chromosome
             else:
                 full_result_df = pd.concat([full_result_df, result_df_of_selected_chromosome])
         if full_result_df is None:
-            full_result_df = pd.DataFrame({
-                "qidx": [],
-                "idx": []
-            })
+            full_result_df = pd.DataFrame({"qidx": [], "idx": []})
         for qidx in range(query_length):
-            result_df_of_selected_qidx = full_result_df.query(
-                f"`qidx` == {qidx}"
-            )
+            result_df_of_selected_qidx = full_result_df.query(f"`qidx` == {qidx}")
             yield list(sorted(result_df_of_selected_qidx["idx"]))
 
     def overlap(self, query_interval: IntervalType) -> Iterable[int]:
-        return list(self.overlaps(
-            [query_interval],
-        ))[0]
+        return list(
+            self.overlaps(
+                [query_interval],
+            )
+        )[0]
 
     def match(self, query_interval: IntervalType) -> Iterable[int]:
-        return list(self.matches(
-            [query_interval],
-        ))[0]
+        return list(
+            self.matches(
+                [query_interval],
+            )
+        )[0]
 
     def matches(self, query_intervals: Iterable[IntervalType], show_tqdm: bool = True) -> Iterable[List[int]]:
-        return self._matches_or_overlaps(self._OperationType.Match, query_intervals=query_intervals,
-                                         show_tqdm=show_tqdm)
+        return self._matches_or_overlaps(
+            self._OperationType.Match, query_intervals=query_intervals, show_tqdm=show_tqdm
+        )
 
     def overlaps(self, query_intervals: Iterable[IntervalType], show_tqdm: bool = True) -> Iterable[List[int]]:
-        return self._matches_or_overlaps(self._OperationType.Overlap, query_intervals=query_intervals,
-                                         show_tqdm=show_tqdm)
+        return self._matches_or_overlaps(
+            self._OperationType.Overlap, query_intervals=query_intervals, show_tqdm=show_tqdm
+        )
 
     def __iter__(self) -> Iterable[IntervalType]:
         for chr_name, ncls_index_of_selected_chromosome in self._chromosomal_split_ncls_index.items():
-            for it in sorted(
-                    ncls_index_of_selected_chromosome.intervals(),
-                    key=lambda it: it[2]
-            ):
+            for it in sorted(ncls_index_of_selected_chromosome.intervals(), key=lambda it: it[2]):
                 s, e, _ = it
                 yield chr_name, s, e

@@ -97,9 +97,7 @@ class TOMLRepresentableInterface(ABC):
 
 
 def read_toml_with_metadata(
-        path_of_fd: lwio.PathOrFDType,
-        title: str,
-        validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None
+    path_of_fd: lwio.PathOrFDType, title: str, validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None
 ) -> Mapping[str, Any]:
     """
     Read and validate TOML files with metadata.
@@ -107,11 +105,7 @@ def read_toml_with_metadata(
     if lwio.is_io(path_of_fd) and path_of_fd.readable() and not lwio.is_textio(path_of_fd):
         in_dict = tomllib.load(path_of_fd)
     elif lwio.is_path(path_of_fd):
-        with lwio.file_open(
-                file_path=path_of_fd,
-                mode=lwio.ModeEnum.READ,
-                is_binary=True
-        ) as reader:
+        with lwio.file_open(file_path=path_of_fd, mode=lwio.ModeEnum.READ, is_binary=True) as reader:
             in_dict = tomllib.load(reader)
     else:
         raise TypeError(f"Type {type(path_of_fd)} not supported!")
@@ -123,11 +117,11 @@ def read_toml_with_metadata(
 
 
 def write_toml_with_metadata(
-        obj: Mapping[str, Any],
-        title: str,
-        path_of_fd: lwio.PathOrFDType,
-        dump_versions: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
-        dump_metadata: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None
+    obj: Mapping[str, Any],
+    title: str,
+    path_of_fd: lwio.PathOrFDType,
+    dump_versions: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
+    dump_metadata: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
 ) -> None:
     """
     Write TOML files with metadata.
@@ -145,35 +139,24 @@ def write_toml_with_metadata(
     if lwio.is_io(path_of_fd) and path_of_fd.writable() and not lwio.is_textio(path_of_fd):
         tomli_w.dump(retd, path_of_fd)
     elif lwio.is_path(path_of_fd):
-        with lwio.file_open(
-                file_path=path_of_fd,
-                mode=lwio.ModeEnum.WRITE,
-                is_binary=True
-        ) as writer:
+        with lwio.file_open(file_path=path_of_fd, mode=lwio.ModeEnum.WRITE, is_binary=True) as writer:
             tomli_w.dump(retd, writer)
     else:
         raise TypeError(f"Type {type(path_of_fd)} not supported!")
 
 
-class AbstractTOMLSerializable(
-    SerializableInterface,
-    TOMLRepresentableInterface,
-    ABC
-):
+class AbstractTOMLSerializable(SerializableInterface, TOMLRepresentableInterface, ABC):
     """
     Abstract Base Class of something that can be represented as TOML.
 
     Should be used as configuration class.
     """
+
     _title: str
 
     @classmethod
     def load(cls, path: str, **kwargs):
-        return cls.from_dict(read_toml_with_metadata(
-            path,
-            cls._title,
-            cls._validate_versions
-        ))
+        return cls.from_dict(read_toml_with_metadata(path, cls._title, cls._validate_versions))
 
     def save(self, path_of_fd: lwio.PathOrFDType, **kwargs) -> None:
         write_toml_with_metadata(self.to_dict(), self._title, path_of_fd, self._dump_versions, self._dump_metadata)

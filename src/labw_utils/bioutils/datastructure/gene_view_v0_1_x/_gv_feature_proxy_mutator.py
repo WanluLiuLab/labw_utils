@@ -2,22 +2,24 @@ import bisect
 import math
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x._gv_errors import *
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import DEFAULT_SORT_EXON_EXON_STRAND_POLICY, \
-    Transcript, Exon, \
-    Gene
+from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_feature_proxy import (
+    DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+    Transcript,
+    Exon,
+    Gene,
+)
 
 
 class TranscriptMutator:
-
     @staticmethod
     def del_exon(transcript: Transcript, exon_number: int):
         transcript._exons.pop(exon_number)
 
     @staticmethod
     def sort_exons(
-            transcript: Transcript,
-            exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
-            remove_exon_duplicates: bool = True
+        transcript: Transcript,
+        exon_number_policy: str = DEFAULT_SORT_EXON_EXON_STRAND_POLICY,
+        remove_exon_duplicates: bool = True,
     ):
         if transcript.number_of_exons == 0:
             return
@@ -30,10 +32,10 @@ class TranscriptMutator:
                 else:
                     exon_id += 1
         if exon_number_policy == "stranded":
-            if transcript.strand == '+':
+            if transcript.strand == "+":
                 for i in range(len(transcript._exons)):
                     transcript._exons[i].exon_number = i + 1
-            elif transcript.strand == '-':
+            elif transcript.strand == "-":
                 for i in range(len(transcript._exons)):
                     transcript._exons[len(transcript._exons) - i - 1].exon_number = i + 1
         elif exon_number_policy == "unstranded":
@@ -41,19 +43,16 @@ class TranscriptMutator:
                 transcript._exons[i].exon_number = i + 1
 
     @staticmethod
-    def fast_add_exon(
-            transcript: Transcript,
-            exon: Exon
-    ):
+    def fast_add_exon(transcript: Transcript, exon: Exon):
         TranscriptMutator.add_exon(transcript, exon, False, False, False)
 
     @staticmethod
     def add_exon(
-            transcript: Transcript,
-            exon: Exon,
-            check_duplicate: bool = True,
-            check_same_chrome: bool = True,
-            check_same_strand: bool = True
+        transcript: Transcript,
+        exon: Exon,
+        check_duplicate: bool = True,
+        check_same_chrome: bool = True,
+        check_same_strand: bool = True,
     ):
         new_pos = bisect.bisect_left(transcript._exons, exon)
         if check_duplicate and new_pos < len(transcript._exons) and exon == transcript._exons[new_pos]:
@@ -66,17 +65,15 @@ class TranscriptMutator:
 
     @staticmethod
     def rescale_inferred_transcript_from_exon_boundaries(
-            transcript: Transcript,
+        transcript: Transcript,
     ):
         exon_s_min = math.inf
-        exon_e_max = - math.inf
+        exon_e_max = -math.inf
         for exon in transcript.iter_exons():
             exon_s_min = min(exon_s_min, exon.start)
             exon_e_max = max(exon_e_max, exon.end)
 
-        if transcript.feature != "transcript" or \
-                transcript.start > exon_s_min or \
-                transcript.end < exon_e_max:
+        if transcript.feature != "transcript" or transcript.start > exon_s_min or transcript.end < exon_e_max:
             transcript.copy_data()
             transcript.start = exon_s_min
             transcript.end = exon_e_max
@@ -84,7 +81,6 @@ class TranscriptMutator:
 
 
 class GeneMutator:
-
     @staticmethod
     def del_transcript(gene: Gene, transcript_id: str):
         index = gene._transcript_ids.index(transcript_id)
@@ -92,32 +88,23 @@ class GeneMutator:
         gene._transcripts.pop(index)
 
     @staticmethod
-    def replace_transcript(
-            gene: Gene,
-            transcript: Transcript,
-            **kwargs
-    ):
+    def replace_transcript(gene: Gene, transcript: Transcript, **kwargs):
         GeneMutator.del_transcript(gene, transcript.transcript_id)
         GeneMutator.add_transcript(gene, transcript, **kwargs)
 
     @staticmethod
     def fast_add_transcript(
-            gene: Gene,
-            transcript: Transcript,
+        gene: Gene,
+        transcript: Transcript,
     ):
         GeneMutator.add_transcript(gene, transcript, False, False)
 
     @staticmethod
     def add_transcript(
-            gene: Gene,
-            transcript: Transcript,
-            check_same_chrome: bool = True,
-            check_same_strand: bool = True
+        gene: Gene, transcript: Transcript, check_same_chrome: bool = True, check_same_strand: bool = True
     ):
         if transcript.transcript_id in gene._transcript_ids:
-            raise DuplicatedTranscriptIDError(
-                f"Transcript ID {transcript.transcript_id} duplicated"
-            )
+            raise DuplicatedTranscriptIDError(f"Transcript ID {transcript.transcript_id} duplicated")
         new_pos = bisect.bisect_left(gene._transcripts, transcript)
         if check_same_chrome and transcript.seqname != gene.seqname:
             raise TranscriptInAGeneOnDifferentChromosomeError(

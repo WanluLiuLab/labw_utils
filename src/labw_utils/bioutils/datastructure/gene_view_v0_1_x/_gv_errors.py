@@ -1,18 +1,18 @@
 _all = [
-    'GVPError',
-    'ShouldOperateThroughGeneViewError',
-    'ExonInATranscriptOnDifferentStrandError',
-    'ExonInATranscriptOnDifferentChromosomeError',
-    'DuplicatedExonError',
-    'TranscriptInAGeneOnDifferentStrandError',
-    'DuplicatedTranscriptIDError',
-    'DuplicatedTranscriptError',
-    'TranscriptInAGeneOnDifferentChromosomeError'
+    "GVPError",
+    "ShouldOperateThroughGeneViewError",
+    "ExonInATranscriptOnDifferentStrandError",
+    "ExonInATranscriptOnDifferentChromosomeError",
+    "DuplicatedExonError",
+    "TranscriptInAGeneOnDifferentStrandError",
+    "DuplicatedTranscriptIDError",
+    "DuplicatedTranscriptError",
+    "TranscriptInAGeneOnDifferentChromosomeError",
 ]
 
 __all__ = _all
 
-__all__.append('_all')
+__all__.append("_all")
 
 
 class GVPError(ValueError):
