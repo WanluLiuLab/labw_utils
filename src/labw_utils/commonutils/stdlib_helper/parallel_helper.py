@@ -8,7 +8,14 @@ This includes a very basic job pool and some helper classes
 
 from __future__ import annotations
 
-__all__ = ("PRIMITIVE_JOB_TYPE", "PROCESS_TYPE", "Job", "ParallelJobExecutor", "TimeOutKiller", "parallel_map")
+__all__ = (
+    "PRIMITIVE_JOB_TYPE",
+    "PROCESS_TYPE",
+    "Job",
+    "ParallelJobExecutor",
+    "TimeOutKiller",
+    "parallel_map",
+)
 
 import gc
 import multiprocessing
@@ -19,6 +26,8 @@ import time
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.lwio import get_writer
+from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
 from labw_utils.typing_importer import Iterable
 from labw_utils.typing_importer import Union, Optional, TypeVar, Callable, List
@@ -52,6 +61,8 @@ _CALLBACK_TYPE = Callable[[PRIMITIVE_JOB_TYPE], None]
 
 _InType = TypeVar("_InType")
 _OutType = TypeVar("_OutType")
+
+_lh = get_logger(__name__)
 
 
 @create_class_init_doc_from_property(
@@ -242,7 +253,10 @@ class ParallelJobExecutor(threading.Thread):
                         pbar.update(1)
 
         while len(self._pending_job_queue) > 0 and not self._is_terminated:
-            while len(self._pending_job_queue) > 0 and len(self._running_job_queue) < self._pool_size:
+            while (
+                len(self._pending_job_queue) > 0
+                and len(self._running_job_queue) < self._pool_size
+            ):
                 new_process = self._pending_job_queue.pop(0)
                 self._running_job_queue.append(new_process)
                 new_process.start()
@@ -276,7 +290,12 @@ class ParallelJobExecutor(threading.Thread):
         """
         if self._is_appendable:
             self._pending_job_queue.append(
-                Job(job_object=mp_instance, job_id=self._n_jobs, terminate_handler=terminate_handler, callback=callback)
+                Job(
+                    job_object=mp_instance,
+                    job_id=self._n_jobs,
+                    terminate_handler=terminate_handler,
+                    callback=callback,
+                )
             )
             self._n_jobs += 1
         else:
@@ -412,3 +431,42 @@ def parallel_map(
         joblib.delayed(f)(i) for i in input_iterable
     )
     return it
+
+
+def easyexec(
+    cmd: List[str],
+    log_path: Optional[str] = None,
+    capture_output_path: Optional[str] = None,
+    is_binary: bool = True,
+    close_io: bool = True,
+) -> int:
+    _lh.debug(f"EASYEXEC {' '.join(cmd)} START")
+    err_stream = (
+        subprocess.DEVNULL if log_path is None else get_writer(log_path, is_binary)
+    )
+    out_stream = (
+        err_stream
+        if capture_output_path is None
+        else get_writer(capture_output_path, is_binary)
+    )
+    p = subprocess.Popen(
+        cmd,
+        stdin=subprocess.DEVNULL,
+        stdout=out_stream,
+        stderr=err_stream,
+    )
+    retv = p.wait()
+    if close_io:
+        try:
+            out_stream.close()
+        except AttributeError:
+            pass
+        try:
+            err_stream.close()
+        except AttributeError:
+            pass
+    if retv != 0:
+        _lh.warning(f"EASYEXEC {' '.join(cmd)} FIN RETV={retv}")
+    else:
+        _lh.debug(f"EASYEXEC {' '.join(cmd)} FIN RETV={retv}")
+    return retv
