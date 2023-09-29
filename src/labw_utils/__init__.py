@@ -116,7 +116,7 @@ class PackageSpec:
             pypi_str = f"`PYPI <https://pypi.org/project/{self._pypi_name}>`_"
         else:
             pypi_str = ""
-        return f"``{self.name}``: Instalable using {conda_str}; {pypi_str}."
+        return f"``{self.name}``: Installable using {conda_str}; {pypi_str}."
 
 
 class PackageSpecs:
