@@ -2,9 +2,11 @@
 >>> RMSK_GFF_ATTR_REGEX.match("ID=4663330;Target=LSU-rRNA_Hsa 3753 3907").groups()
 ('4663330', None, 'LSU-rRNA_Hsa', '3753', '3907')
 >>> RMSK_GFF_ATTR_REGEX.match("ID=129048;Target=A-rich -2 3907").groups()
-('4663330', None, 'LSU-rRNA_Hsa', '3753', '3907')
+('129048', None, 'A-rich', '-2', '3907')
 >>> RMSK_GFF_ATTR_REGEX.match("ID=443;Target \\"Motif:MIR1_Amn\\" 27 207").groups()
 ('443', 'Motif:', 'MIR1_Amn', '27', '207')
+
+.. versionadded:: 1.0.3
 """
 
 __all__ = "parse_record"

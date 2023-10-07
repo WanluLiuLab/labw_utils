@@ -186,12 +186,19 @@ _raw_feature_type_translator = {
 }
 
 
+@total_ordering
 class BiologicalIntervalInterface(ABC):
     """
     Interface representing biological intervals.
 
     .. versionadded:: 1.0.2
     """
+
+    @property
+    @abstractmethod
+    def naive_length(self) -> int:
+        """Naive length, is ``self.end0b - self.start0b``"""
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -263,8 +270,93 @@ class BiologicalIntervalInterface(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def __gt__(self, other: FeatureInterface) -> bool:
+        raise NotImplementedError
 
-@total_ordering
+
+class BiologicalInterval(BiologicalIntervalInterface):
+    """
+    .. versionadded:: 1.0.3
+    """
+
+    __slots__ = (
+        "_seqname",
+        "_start",
+        "_end",
+        "_strand",
+    )
+
+    _seqname: str
+    _start: int
+    _end: int
+    _strand: Optional[bool]
+
+    def __init__(self, seqname: str, start: int, end: int, strand: Optional[bool]):
+        if start < 1:
+            raise RegionError(f"Start ({start}) cannot less than 1")
+        if end < 1:
+            raise RegionError(f"End ({end}) cannot less than 1")
+        if end < start:
+            raise RegionError(f"End ({end}) cannot less than Start ({start})")
+        self._seqname = seqname
+        self._start = start
+        self._end = end
+        self._strand = strand
+
+    @property
+    def seqname(self) -> str:
+        return self._seqname
+
+    @property
+    def start(self) -> int:
+        return self._start
+
+    @property
+    def start0b(self) -> int:
+        return self._start - 1
+
+    @property
+    def end(self) -> int:
+        return self._end
+
+    @property
+    def end0b(self) -> int:
+        return self._end
+
+    @property
+    def strand(self) -> Optional[bool]:
+        return self._strand
+
+    def __gt__(self, other: FeatureInterface):
+        if self.seqname != other.seqname:
+            return self.seqname > other.seqname
+        if self.start != other.start:
+            return self.start > other.start
+        if self.end != other.end:
+            return self.end > other.end
+
+    def regional_equiv(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
+        if is_stranded and self._strand != other.strand:
+            return False
+        return self._start == other.start and self._end == other.end and self._seqname == other.seqname
+
+    def overlaps(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
+        if self.seqname != other.seqname:
+            return False
+        if is_stranded and self.strand != other.strand:
+            return False
+        return (
+            self.start < other.start < self.end
+            or self.start < other.end < self.end
+            or (other.start < self.start and self.end < other.end)
+        )
+
+    @property
+    def naive_length(self) -> int:
+        return self.end0b - self.start0b
+
+
 class FeatureInterface(BiologicalIntervalInterface):
     """
     TODO: docs
@@ -328,12 +420,6 @@ class FeatureInterface(BiologicalIntervalInterface):
     @abstractmethod
     def attribute_values(self) -> Sequence[GtfAttributeValueType]:
         """Other attributes presented in Key-Value pair"""
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def naive_length(self) -> int:
-        """Naive length, is ``self.end0b - self.start0b``"""
         raise NotImplementedError
 
     @abstractmethod
@@ -406,10 +492,6 @@ class FeatureInterface(BiologicalIntervalInterface):
         """
         raise NotImplementedError
 
-    @abstractmethod
-    def __gt__(self, other: FeatureInterface) -> bool:
-        raise NotImplementedError
-
 
 @create_class_init_doc_from_property(
     text_after="""
@@ -417,7 +499,7 @@ class FeatureInterface(BiologicalIntervalInterface):
 :raises RegionError: If the region is invalid.
 """
 )
-class Feature(FeatureInterface):
+class Feature(BiologicalInterval, FeatureInterface):
     """
     A general GTF/GFF/BED Record.
 
@@ -442,20 +524,12 @@ class Feature(FeatureInterface):
         "_parsed_feature",
     )
 
-    _seqname: str
     _source: Optional[str]
     _feature: Optional[str]
     _parsed_feature: Optional[FeatureType]
-    _start: int
-    _end: int
     _score: Optional[Union[int, float]]
-    _strand: Optional[bool]
     _frame: Optional[int]
     _attribute: GtfAttributeType
-
-    @property
-    def seqname(self) -> str:
-        return self._seqname
 
     @property
     def source(self) -> Optional[str]:
@@ -478,28 +552,8 @@ class Feature(FeatureInterface):
         return self._parsed_feature
 
     @property
-    def start(self) -> int:
-        return self._start
-
-    @property
-    def start0b(self) -> int:
-        return self._start - 1
-
-    @property
-    def end(self) -> int:
-        return self._end
-
-    @property
-    def end0b(self) -> int:
-        return self._end
-
-    @property
     def score(self) -> Optional[Union[int, float]]:
         return self._score
-
-    @property
-    def strand(self) -> Optional[bool]:
-        return self._strand
 
     @property
     def frame(self) -> Optional[int]:
@@ -512,10 +566,6 @@ class Feature(FeatureInterface):
     @property
     def attribute_values(self) -> Sequence[GtfAttributeValueType]:
         return SequenceProxy(self._attribute.values())
-
-    @property
-    def naive_length(self) -> int:
-        return self.end0b - self.start0b
 
     def attribute_get(self, name: str, default: Optional[GtfAttributeValueType] = None) -> GtfAttributeValueType:
         """Other attributes presented in Key-Value pair"""
@@ -534,17 +584,6 @@ class Feature(FeatureInterface):
         if coerce_func is not None:
             return coerce_func(v)
         raise TypeError(f"Type {type(v)} cannot be coerced to type {out_type}")
-
-    def overlaps(self, other: BiologicalIntervalInterface, is_stranded: bool = True) -> bool:
-        if self.seqname != other.seqname:
-            return False
-        if is_stranded and self.strand != other.strand:
-            return False
-        return (
-            self.start < other.start < self.end
-            or self.start < other.end < self.end
-            or (other.start < self.start and self.end < other.end)
-        )
 
     def update(
         self,
@@ -624,20 +663,12 @@ class Feature(FeatureInterface):
         frame: Optional[int],
         attribute: Optional[GtfAttributeType] = None,
     ):
-        if start < 1:
-            raise RegionError(f"Start ({start}) cannot less than 1")
-        if end < 1:
-            raise RegionError(f"End ({end}) cannot less than 1")
-        if end < start:
-            raise RegionError(f"End ({end}) cannot less than Start ({start})")
-        self._seqname = seqname
+        super().__init__(seqname=seqname, start=start, end=end, strand=strand)
+
         self._source = source
         self._feature = feature
         self._parsed_feature = None
-        self._start = start
-        self._end = end
         self._score = score
-        self._strand = strand
         self._frame = frame
         if attribute is None:
             attribute = {}
@@ -658,11 +689,6 @@ class Feature(FeatureInterface):
             and list(self.attribute_keys) == list(other.attribute_keys)
             and list(self.attribute_values) == list(other.attribute_values)
         )
-
-    def regional_equiv(self, other: BiologicalIntervalInterface, is_stranded: bool = True):
-        if is_stranded and self._strand != other.strand:
-            return False
-        return self._start == other.start and self._end == other.end and self._seqname == other.seqname
 
     def __gt__(self, other: FeatureInterface):
         if self.seqname != other.seqname:

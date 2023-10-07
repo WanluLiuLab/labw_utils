@@ -245,13 +245,18 @@ def translate_cdna(seq: str, transl_table: int = 1) -> str:
 
      .. versionadded:: 1.0.2
     """
+    if seq == "":
+        return ""
     if len(seq) < 3:
         raise MalformedMRNAError(f"seq ('{seq}') too short")
     if len(seq) % 3 != 0:
         raise MalformedMRNAError(f"Length of seq ('{len(seq)}') should be a multiple of 3")
     seq = seq.upper()
     aa_table = TRANSL_TABLES[transl_table]["AA"]
-    return "".join(aa_table[TRANSL_TABLES_NT.index(seq[i : i + 3])] for i in range(0, len(seq), 3))
+    return "".join(
+        aa_table[TRANSL_TABLES_NT.index(seq[i : i + 3])] if "N" not in seq[i : i + 3] else "X"
+        for i in range(0, len(seq), 3)
+    )
 
 
 def complement(seq: str) -> str:

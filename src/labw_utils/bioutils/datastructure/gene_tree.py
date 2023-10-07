@@ -32,15 +32,16 @@ from labw_utils.typing_importer import SequenceProxy
 
 _lh = get_logger(__name__)
 
-GVPKL_VERSION = "1.1"
+GVPKL_VERSION = "1.2"
 """
 Current version of GVPKL standard.
 
 Changes:
 
 - 1.1: Added gc() and multiple transcribe_* alternative to Transcript.
+- 1.2: Added BiologicalInterval class.
 
-.. versionadded:: 1.0.2
+.. versionadded:: 1.0.3
 """
 
 
