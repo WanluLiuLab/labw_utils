@@ -436,6 +436,7 @@ def easyexec(
     capture_output_path: Optional[str] = None,
     is_binary: bool = True,
     close_io: bool = True,
+    raise_on_error: bool = True,
     cwd: str = os.getcwd(),
 ) -> int:
     _lh.debug(f"EASYEXEC {' '.join(cmd)} START")
@@ -459,7 +460,10 @@ def easyexec(
         except AttributeError:
             pass
     if retv != 0:
-        _lh.warning(f"EASYEXEC {' '.join(cmd)} FIN RETV={retv}")
+        if raise_on_error:
+            raise RuntimeError(f"EASYEXEC {' '.join(cmd)} FIN RETV={retv}")
+        else:
+            _lh.warning(f"EASYEXEC {' '.join(cmd)} FIN RETV={retv}")
     else:
         _lh.debug(f"EASYEXEC {' '.join(cmd)} FIN RETV={retv}")
     return retv
