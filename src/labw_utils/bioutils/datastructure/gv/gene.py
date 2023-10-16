@@ -182,7 +182,7 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
                         seqname=contig_of_first_transcript,
                         start=exon_bondary[0] + 1,
                         end=exon_bondary[1],
-                    ).update_attribute(transcript_id=self.gene_id + "_collapsed")
+                    ).update_attribute(transcript_id=self.gene_id)
                 ),
                 is_checked=self.is_checked,
                 shortcut=True,
@@ -194,7 +194,7 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
             data=(
                 self._data.update(
                     feature="transcript", strand=strand_of_first_transcript, seqname=contig_of_first_transcript
-                ).update_attribute(transcript_id=self.gene_id + "_collapsed")
+                ).update_attribute(transcript_id=self.gene_id)
             ),
             is_checked=self.is_checked,
             is_inferred=True,

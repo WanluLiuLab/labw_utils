@@ -10,16 +10,17 @@ import os
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface
+from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
+from labw_utils.typing_importer import Iterable
 
 
-def transcribe(
-    gt: GeneTreeInterface,
+def transcribe_transcripts(
+    it: Iterable[Transcript],
     dst_fasta_path: str,
     fv: FastaViewType,
-    show_tqdm: bool = True,
     write_single_transcript: bool = True,
 ):
     """
@@ -46,10 +47,6 @@ def transcribe(
         ),
         tac=TableAppenderConfig(),
     ) as stats_writer:
-        if show_tqdm:
-            it = tqdm(iterable=list(gt.transcript_values), desc="Transcribing GTF...")
-        else:
-            it = gt.transcript_values
         for transcript_value in it:
             cdna_seq = transcript_value.transcribe(sequence_func=fv.sequence)
             if len(cdna_seq) == 0:
@@ -75,3 +72,27 @@ def transcribe(
                 transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
                 with get_writer(transcript_output_fasta) as single_transcript_writer:
                     single_transcript_writer.write(fa_str)
+
+
+def transcribe(
+    gt: GeneTreeInterface,
+    dst_fasta_path: str,
+    fv: FastaViewType,
+    show_tqdm: bool = True,
+    write_single_transcript: bool = True,
+):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.2
+    """
+    if show_tqdm:
+        it = tqdm(iterable=list(gt.transcript_values), desc="Transcribing GTF...")
+    else:
+        it = gt.transcript_values
+    transcribe_transcripts(
+        it=it,
+        dst_fasta_path=dst_fasta_path,
+        fv=fv,
+        write_single_transcript=write_single_transcript,
+    )

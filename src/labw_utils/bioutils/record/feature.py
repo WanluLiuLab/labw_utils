@@ -356,6 +356,9 @@ class BiologicalInterval(BiologicalIntervalInterface):
     def naive_length(self) -> int:
         return self.end0b - self.start0b
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}('{self.seqname}':{self.start0b}-{self.end0b}({strand_repr(self.strand)}))"
+
 
 class FeatureInterface(BiologicalIntervalInterface):
     """

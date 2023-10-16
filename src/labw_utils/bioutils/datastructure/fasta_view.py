@@ -24,16 +24,21 @@ __all__ = (
     "FromGreaterThanToError",
     "FastaViewInvalidRegionError",
     "DuplicatedChromosomeNameError",
+    "normalize_nt_sequence",
     "split_fasta",
 )
 
 import functools
 import os
+import random
+import re
 from abc import abstractmethod, ABC
+from typing import Mapping, Literal
 
 from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
-from labw_utils.bioutils.parser.fasta import FastaIterator
+from labw_utils.bioutils.parser.fasta import FastaIterator, FastaWriter
+from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.lwio.file_system import file_exists
 from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -485,3 +490,73 @@ def split_fasta(  # TODO: Add to commandline params
         transcript_output_fasta = os.path.join(out_dir_path, f"{safe_seqname}.fa")
         with get_writer(transcript_output_fasta) as single_transcript_writer:
             single_transcript_writer.write(f">{seqname}\n{fav.sequence(seqname)}\n")
+
+
+def normalize_nt_sequence(
+    seq: str,
+    force_upper_case: bool = True,
+    convert_u_into_t: bool = True,
+    convert_non_agct_to_n: bool = True,
+    n_operation: Literal["ignore", "random_assign", "omit"] = "random_assign",
+) -> str:
+    rdg = random.SystemRandom()
+    if n_operation == "random_assign":
+
+        def resolve_n() -> str:
+            return rdg.choice("AGCT")
+
+    elif n_operation == "omit":
+
+        def resolve_n() -> str:
+            return ""
+
+    elif n_operation == "ignore":
+
+        def resolve_n() -> str:
+            return "N"
+
+    else:
+        raise ValueError(f"Illegal N-operation '{n_operation}'")
+    if force_upper_case:
+        seq = seq.upper()
+    if convert_u_into_t:
+        seq = seq.replace("U", "T").replace("u", "t")
+    if convert_non_agct_to_n:
+        seq = "".join(nt if nt != "N" else resolve_n() for nt in seq)
+    return seq
+
+
+def normalize_nt_fasta(
+    src_fa_path: str,
+    dst_fa_path: str,
+    show_tqdm: bool = True,
+    reference_contig_alias: Optional[Mapping[str, str]] = None,
+    full_header: bool = False,
+    reference_genome_contig_regex: str = r".*",
+    force_upper_case: bool = True,
+    convert_u_into_t: bool = True,
+    convert_non_agct_to_n: bool = True,
+    n_operation: Literal["ignore", "random_assign", "omit"] = "random_assign",
+):
+    reference_genome_contig_regex = re.compile(reference_genome_contig_regex)
+
+    with FastaIterator(src_fa_path, show_tqdm=show_tqdm, full_header=full_header) as fi:
+        with FastaWriter(dst_fa_path, split_at=80) as faw:
+            for record in fi:
+                if reference_contig_alias:
+                    converted_contig_name = reference_contig_alias.get(record.seq_id)
+                    if converted_contig_name is None:
+                        continue  # Error
+                else:
+                    converted_contig_name = record.seq_id
+                if reference_genome_contig_regex.match(converted_contig_name) is None:
+                    continue
+                seq = normalize_nt_sequence(
+                    record.sequence,
+                    force_upper_case=force_upper_case,
+                    convert_u_into_t=convert_u_into_t,
+                    convert_non_agct_to_n=convert_non_agct_to_n,
+                    n_operation=n_operation,
+                )
+
+                faw.write(FastaRecord(converted_contig_name, seq))
