@@ -150,21 +150,19 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
     def __repr__(self):
         return f"Gene {self.gene_id}"
 
-    def collapse_transcript(self, skip_isoform_on_different_contig_or_strand_behaviour: bool = False) -> Transcript:
+    def collapse_transcript(self, skip_isoform_on_different_contig_or_strand_behaviour: bool = False) -> Optional[Transcript]:
         transcripts = []
-        contig_of_first_transcript: Optional[str] = None
-        strand_of_first_transcript: Optional[bool] = None
+        contig_of_first_transcript = self.seqname
+        strand_of_first_transcript = self.strand
         for transcript in self._transcripts:
-            if contig_of_first_transcript is None:
-                contig_of_first_transcript = transcript.seqname
-            elif contig_of_first_transcript != transcript.seqname:
+            if len(transcript.exons) == 0:
+                continue
+            if contig_of_first_transcript != transcript.seqname:
                 if skip_isoform_on_different_contig_or_strand_behaviour:
                     continue
                 else:
                     raise ValueError
-            if strand_of_first_transcript is None:
-                strand_of_first_transcript = transcript.strand
-            elif strand_of_first_transcript != transcript.strand:
+            if strand_of_first_transcript != transcript.strand:
                 if skip_isoform_on_different_contig_or_strand_behaviour:
                     continue
                 else:
@@ -189,11 +187,26 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
             )
             for exon_bondary in all_exon_bondary
         ]
-
+        if len(exon_list) == 0:
+            exon_list = [
+                Exon(
+                    data=(
+                        self._data.update(
+                            feature="exon",
+                            strand=strand_of_first_transcript,
+                            seqname=contig_of_first_transcript,
+                        ).update_attribute(transcript_id=self.gene_id)
+                    ),
+                    is_checked=self.is_checked,
+                    shortcut=True,
+                )
+            ]
         return Transcript(
             data=(
                 self._data.update(
-                    feature="transcript", strand=strand_of_first_transcript, seqname=contig_of_first_transcript
+                    feature="transcript",
+                    strand=strand_of_first_transcript,
+                    seqname=contig_of_first_transcript,
                 ).update_attribute(transcript_id=self.gene_id)
             ),
             is_checked=self.is_checked,
