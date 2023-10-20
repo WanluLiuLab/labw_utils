@@ -48,5 +48,8 @@ def main(args: List[str]):
     gv = GeneViewFactory.from_file(args.gtf)
     fv = FastaViewFactory(args.fasta)
     transcribe(
-        gv, args.out, fv, write_single_transcript=not args.no_write_single_transcript
+        gv,
+        args.out,
+        fv,
+        write_single_transcript=not args.no_write_single_transcript,
     )

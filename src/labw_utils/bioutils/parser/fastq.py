@@ -21,20 +21,22 @@ class FastqIterator(BaseFileIterator, Iterable[FastqRecord]):
     """
 
     filetype: Final[str] = "FASTQ"
+    _full_header: bool
 
-    def __init__(self, filename: str, show_tqdm: bool = True):
+    def __init__(self, filename: str, show_tqdm: bool = True, full_header: bool = True):
         super().__init__(filename, show_tqdm)
         if self._show_tqdm:
             self._fd = get_tqdm_line_reader(self.filename)
         else:
             self._fd = get_reader(self.filename)
+        self._full_header = full_header
 
     def __iter__(self) -> Iterator[FastqRecord]:
         while True:
             lines = [self._fd.readline(-1) for _ in range(4)]
             if "" in lines or len(lines) != 4:
                 break
-            yield FastqRecord.from_str(lines)
+            yield FastqRecord.from_str(lines, full_header=self._full_header)
         self._fd.close()
 
 

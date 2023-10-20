@@ -122,10 +122,13 @@ class FastqRecord:
         """
         return self._quality
 
-    def __init__(self, seq_id: str, sequence: str, quality: str):
+    def __init__(self, seq_id: str, sequence: str, quality: str, full_header: bool = True):
         if len(sequence) != len(quality):
             raise SequenceQualityLengthMismatchError(seq_id, sequence, quality)
-        self._seq_id = seq_id
+        if full_header:
+            self._seq_id = seq_id
+        else:
+            self._seq_id = seq_id.split(" ")[0].split("\t")[0]
         self._sequence = sequence
         self._quality = quality
 
@@ -139,7 +142,7 @@ class FastqRecord:
         return repr(self)
 
     @classmethod
-    def from_str(cls, lines: List[str]):
+    def from_str(cls, lines: List[str], full_header: bool = True):
         """
         Generate from FASTQ sequence, 4 lines.
 
@@ -154,7 +157,12 @@ class FastqRecord:
             raise MisFormattedFastqRecordError(f"Line 1 {l1} should start with @")
         if not l3.startswith("+"):
             raise MisFormattedFastqRecordError(f"Line 3 {l3} should start with +")
-        new_instance = cls(seq_id=l1[1:].rstrip("\n\r"), sequence=l2.rstrip("\n\r"), quality=l4.rstrip("\n\r"))
+        new_instance = cls(
+            seq_id=l1[1:].rstrip("\n\r"),
+            sequence=l2.rstrip("\n\r"),
+            quality=l4.rstrip("\n\r"),
+            full_header=full_header,
+        )
         return new_instance
 
     @classmethod
