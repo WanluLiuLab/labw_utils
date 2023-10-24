@@ -135,7 +135,7 @@ class BaseGeneTree(GeneTreeInterface, ABC):
         if not should_regenerate(gtf_file_path, gtf_index_file_path):
             try:
                 return cls.from_gvpkl(gtf_index_file_path)
-            except TypeError:
+            except (TypeError, EOFError):
                 pass
         new_instance = cls.from_feature_iterator(
             FeatureView.from_gtf(gtf_file_path, show_tqdm=show_tqdm),
