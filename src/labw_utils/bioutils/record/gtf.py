@@ -33,7 +33,7 @@ def _format_attribute_str(attribute_key: str, attribute_value: GtfAttributeValue
         return "; ".join(
             _format_attribute_str(attribute_key, _single_value, quote) for _single_value in attribute_value
         )
-    attr_str = feature_repr(attribute_value)
+    attr_str = feature_repr(attribute_value).replace(";", "!").replace('"', "!").replace("'", "!")
     if quote == "blank":
         if any(map(lambda blank_or_sep: blank_or_sep in attr_str, " \t\n\f\r;")):
             attr_str = f'"{attr_str}"'
