@@ -12,8 +12,6 @@ __all__ = (
     "update_transcript_id",
 )
 
-from abc import abstractmethod
-
 from labw_utils.bioutils.datastructure.gv import (
     CanCheckInterface,
     generate_unknown_gene_id,
@@ -32,7 +30,7 @@ from labw_utils.bioutils.record.feature import (
     notset,
 )
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, Tuple, Literal
+from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, Tuple, Literal, Dict, Any
 
 from labw_utils.typing_importer import SequenceProxy
 
@@ -62,31 +60,54 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
         frame: Union[Optional[int], NotSet] = notset,
         attribute: Union[GtfAttributeType, NotSet] = notset,
     ) -> BaseFeatureProxy:
-        return BaseFeatureProxy(
-            data=self._data.update(
-                seqname=seqname,
-                source=source,
-                feature=feature,
-                start=start,
-                end=end,
-                score=score,
-                strand=strand,
-                frame=frame,
-                attribute=attribute,
-            ),
-            is_checked=self._is_checked,
+        """
+        Update the data inside.
+
+        .. warning:: This function is in-place.
+        """
+        self._data = self._data.update(
+            seqname=seqname,
+            source=source,
+            feature=feature,
+            start=start,
+            end=end,
+            score=score,
+            strand=strand,
+            frame=frame,
+            attribute=attribute,
         )
+        return self
 
     def update_attribute(self, **attribute) -> BaseFeatureProxy:
-        return BaseFeatureProxy(data=self._data.update_attribute(**attribute), is_checked=self._is_checked)
+        """
+        Update the data inside.
+
+        .. warning:: This function is in-place.
+        """
+        self._data = self._data.update_attribute(**attribute)
+        return self
 
     def reset_attribute(self, **attribute) -> BaseFeatureProxy:
-        return BaseFeatureProxy(data=self._data.reset_attribute(**attribute), is_checked=self._is_checked)
+        """
+        Update the data inside.
+
+        .. warning:: This function is in-place.
+        """
+        self._data = self._data.reset_attribute(**attribute)
+        return self
 
     def keep_only_selected_attribute(self, *attribute_names) -> BaseFeatureProxy:
-        pass
+        """
+        Update the data inside.
 
-    __slots__ = ("_data",)
+        .. warning:: This function is in-place.
+        """
+        self._data = self._data.keep_only_selected_attribute(**attribute_names)
+        return self
+
+    __slots__ = (
+        "_data",
+    )
     _data: FeatureInterface
 
     def __init__(self, *, data: FeatureInterface, is_checked: bool, **kwargs):
@@ -200,9 +221,11 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
         else:
             return sequence_func(*legalize_region_func(self.seqname, self.end0b, self.end0b + length))
 
-    @abstractmethod
     def gc(self):
-        raise NotImplementedError
+        """
+        Perform garbage collection on cached cDNA, etc.
+        """
+        pass
 
 
 def update_gene_id(data: FeatureInterface) -> Tuple[str, FeatureInterface]:

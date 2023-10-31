@@ -105,7 +105,15 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
             self._gene_id = data.attribute_get("gene_id")  # type: ignore
             self._transcripts = transcripts  # type: ignore
             self._transcript_ids = transcript_ids  # type: ignore
-        BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
+        BaseFeatureProxy.__init__(
+            self,
+            data=data,
+            is_checked=self._is_inferred,
+            shortcut=shortcut,
+            transcripts=self._transcripts,
+            transcript_ids=self._transcript_ids,
+            is_inferred=self._is_inferred,
+        )
 
     def add_transcript(self, transcript: Transcript) -> Gene:
         if not self._is_checked:
@@ -150,7 +158,9 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
     def __repr__(self):
         return f"Gene {self.gene_id}"
 
-    def collapse_transcript(self, skip_isoform_on_different_contig_or_strand_behaviour: bool = False) -> Optional[Transcript]:
+    def collapse_transcript(
+        self, skip_isoform_on_different_contig_or_strand_behaviour: bool = False
+    ) -> Optional[Transcript]:
         transcripts = []
         contig_of_first_transcript = self.seqname
         strand_of_first_transcript = self.strand

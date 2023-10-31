@@ -52,9 +52,9 @@ class ExonInATranscriptOnDifferentStrandError(GVPError):
 
 class Transcript(BaseFeatureProxy, CanTranscribeInterface):
     """
-    Transcript is a list of exons, always sorted.
+    A transcript is a list of exons, always sorted.
 
-    .. versionadded:: 1.0.2
+    .. Versionadded:: 1.0.2
     """
 
     __slots__ = ["_exons", "_cdna", "_cdna_unspliced", "_is_inferred", "_transcript_id", "_gene_id"]
@@ -116,7 +116,13 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
         return SequenceProxy(self._exons)
 
     def __init__(
-        self, *, data: FeatureInterface, is_checked: bool, shortcut: bool, exons: Iterable[Exon], is_inferred: bool
+        self,
+        *,
+        data: FeatureInterface,
+        is_checked: bool,
+        shortcut: bool,
+        exons: Iterable[Exon],
+        is_inferred: bool,
     ):
         self._cdna = None
         self._cdna_unspliced = None
@@ -134,7 +140,14 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
             self._transcript_id = data.attribute_get("transcript_id")  # type: ignore
             self._gene_id = data.attribute_get("gene_id")  # type: ignore
             self._exons = exons  # type: ignore
-        BaseFeatureProxy.__init__(self, data=data, is_checked=is_checked)
+        BaseFeatureProxy.__init__(
+            self,
+            data=data,
+            is_checked=is_checked,
+            shortcut=shortcut,
+            exons=self._exons,
+            is_inferred=self._is_inferred,
+        )
 
     def __repr__(self):
         return f"Transcript {self.transcript_id} of gene {self.gene_id}"
@@ -217,7 +230,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
 
     def del_exon(self, exon_index: int) -> Transcript:
         """
-        Delete an exon with corresponding index.
+        Delete an exon with the corresponding index.
 
         .. warning::
             Exon index is NOT exon number!
@@ -231,7 +244,11 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
         new_exons = list(self._exons)
         _ = new_exons.pop(exon_index)
         return Transcript(
-            data=self._data, is_checked=self._is_checked, exons=new_exons, is_inferred=self._is_inferred, shortcut=True
+            data=self._data,
+            is_checked=self._is_checked,
+            exons=new_exons,
+            is_inferred=self._is_inferred,
+            shortcut=True,
         )
 
     def transcribe(

@@ -43,7 +43,7 @@ serve-doc:
 
 .PHONY: test
 test:
-	pytest .
+	pytest test src
 
 .PHONY: pytype
 pytype:
