@@ -15,6 +15,7 @@ import re
 
 from labw_utils.bioutils.parser import BaseFileIterator
 from labw_utils.bioutils.record.feature import FeatureInterface, Feature
+from labw_utils.commonutils.lwio import get_reader
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.typing_importer import List, Optional, Iterable, Iterator
 
@@ -84,7 +85,11 @@ class RMSKGffIterator(BaseFileIterator, Iterable[FeatureInterface]):
     record_type = FeatureInterface
 
     def __iter__(self) -> Iterator[FeatureInterface]:
-        for line in get_tqdm_line_reader(self.filename):
+        if self._show_tqdm:
+            it = get_tqdm_line_reader(self.filename)
+        else:
+            it = get_reader(self.filename, is_binary=False, line_reader=True)
+        for line in it:
             if line.startswith("#") or line == "":
                 continue
             yield parse_record(line)
