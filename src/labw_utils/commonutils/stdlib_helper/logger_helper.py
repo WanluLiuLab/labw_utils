@@ -55,7 +55,7 @@ def get_formatter(level: Union[int, str]) -> logging.Formatter:
     if isinstance(level, str):
         raise ValueError(f"{level} not exist!")
     if level > logging.DEBUG:
-        log_format = "%(asctime)s\t[%(levelname)s] %(message)s"
+        log_format = "%(asctime)s\t[%(levelname)s] %(name)s\t%(message)s"
     else:
         log_format = "%(asctime)s %(name)s:%(lineno)d::%(funcName)s\t[%(levelname)s]\t%(message)s"
     return logging.Formatter(log_format)
