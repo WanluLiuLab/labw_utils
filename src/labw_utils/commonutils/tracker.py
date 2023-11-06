@@ -1,4 +1,5 @@
 import itertools
+import os.path
 from hashlib import blake2b
 from json import JSONDecodeError
 from typing import Optional
@@ -83,6 +84,8 @@ class FTracker(AbstractJSONSerializable):
             return False, "Relation not recognized"
 
         for fn in itertools.chain(source, dest):
+            if not os.path.exists(fn):
+                return False, f"File {fn} not exist"
             if fn not in self.file_hash_map:
                 return False, f"File {fn} not recognized"
             if FTracker.get_hash(fn) != self.file_hash_map[fn]:
