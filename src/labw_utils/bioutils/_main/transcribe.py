@@ -1,5 +1,7 @@
 """
 transcribe.py -- General-purposed stranded transcription, from reference genome to reference cDNA.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (

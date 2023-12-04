@@ -4,6 +4,8 @@ describe_gtf.py -- Get statistics about GTF files that can be parsed into a Gene
 SYNOPSIS: python -m labw_utils.bioutils describe_gtf [GTF] [[GTF]...]
 
 where [GTF] are path to GTF files you wish to describe.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = ("main",)

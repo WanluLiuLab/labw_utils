@@ -1,5 +1,7 @@
 """
 filter_gtf_by_attribute.py -- Filter GTF records by a specific attributes
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (

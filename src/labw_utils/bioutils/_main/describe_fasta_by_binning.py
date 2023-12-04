@@ -1,5 +1,7 @@
 """
 describe_fasta_by_binning.py -- Describe statistics on FASTA by binning.
+
+.. versionadded:: 1.0.3
 """
 
 from __future__ import annotations
@@ -96,9 +98,7 @@ def main(args: List[str]) -> None:
             inf_type = infer_accession_type(chr_name).as_dict()
         else:
             fail_to_idenfy += 1
-        out_metadata["FASTA_CHRS"].append(
-            {"NAME": chr_name, "LEN": fa.get_chr_length(chr_name), "TYPE": inf_type}
-        )
+        out_metadata["FASTA_CHRS"].append({"NAME": chr_name, "LEN": fa.get_chr_length(chr_name), "TYPE": inf_type})
     _lh.info(
         "Identified %d out of %d contigs (%.2f%%)",
         num_of_contigs - fail_to_idenfy,

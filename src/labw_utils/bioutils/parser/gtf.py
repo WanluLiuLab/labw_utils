@@ -16,6 +16,8 @@ class GtfIterator(BaseFileIterator, Iterable[FeatureInterface]):
     TODO: docs
 
     .. versionadded:: 1.0.2
+    .. versionchanged:: 1.0.3
+        `onerror` was added to skip erroneous lines when parsing malformed GTF
     """
 
     filetype: str = "GTF"
@@ -23,6 +25,10 @@ class GtfIterator(BaseFileIterator, Iterable[FeatureInterface]):
     onerror: str
 
     def __init__(self, filename: str, onerror: str = "alert", **kwargs):
+        """
+        :param filename: Filename to be parsed.
+        :param onerror: What to do on error. Use ``skip`` to skip the erroneous line.
+        """
         super().__init__(filename, **kwargs)
         self.onerror = onerror
 

@@ -1,5 +1,7 @@
 """
 normalize_gtf.py -- Performs GTF normalization, etc.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (

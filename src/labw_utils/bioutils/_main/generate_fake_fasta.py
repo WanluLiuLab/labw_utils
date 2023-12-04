@@ -1,5 +1,7 @@
 """
 generate_fake_fasta.py -- Create fake organism.
+
+.. versionadded:: 1.0.2
 """
 __all__ = (
     "create_parser",

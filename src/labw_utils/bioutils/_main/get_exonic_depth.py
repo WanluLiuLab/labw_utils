@@ -1,5 +1,7 @@
 """
 get_exonic_depth.py -- Get depth from RNA-Seq alignment files.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (

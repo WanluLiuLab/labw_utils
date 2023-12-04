@@ -108,6 +108,7 @@ def write_json_with_metadata(
     path_of_fd: lwio.PathOrFDType,
     dump_versions: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
     dump_metadata: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
+    indent: Optional[int] = None
 ) -> None:
     """
     Write JSON files with metadata.
@@ -125,10 +126,10 @@ def write_json_with_metadata(
     if lwio.is_io(path_of_fd) and path_of_fd.writable():
         if not lwio.is_textio(path_of_fd):
             path_of_fd = lwio.WriteOnlyTextIOProxy(TextIOWrapper(path_of_fd))
-        json.dump(retd, path_of_fd, indent=4)
+        json.dump(retd, path_of_fd, indent=indent)
     elif lwio.is_path(path_of_fd):
         with lwio.file_open(file_path=path_of_fd, mode=lwio.ModeEnum.WRITE, is_binary=False) as writer:
-            json.dump(retd, writer, indent=4)
+            json.dump(retd, writer, indent=indent)
     else:
         raise TypeError(f"Type {type(path_of_fd)} not supported!")
 

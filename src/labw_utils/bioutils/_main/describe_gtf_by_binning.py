@@ -1,5 +1,7 @@
 """
 describe_gtf_by_binning.py -- Describe number of features in GTF by binning.
+
+.. versionadded:: 1.0.2
 """
 __all__ = (
     "create_parser",
@@ -137,46 +139,20 @@ def main(args: List[str]) -> None:
                 stats_dict.update(
                     {
                         "gtf_isoform_intervals_pos": len(
-                            list(
-                                gtf_isoform_intervals.overlap(
-                                    ((chr_name, True), start, end)
-                                )
-                            )
+                            list(gtf_isoform_intervals.overlap(((chr_name, True), start, end)))
                         ),
                         "gtf_isoform_intervals_neg": len(
-                            list(
-                                gtf_isoform_intervals.overlap(
-                                    ((chr_name, False), start, end)
-                                )
-                            )
+                            list(gtf_isoform_intervals.overlap(((chr_name, False), start, end)))
                         ),
                         "gtf_isoform_intervals_strandless": len(
-                            list(
-                                gtf_isoform_intervals.overlap(
-                                    ((chr_name, None), start, end)
-                                )
-                            )
+                            list(gtf_isoform_intervals.overlap(((chr_name, None), start, end)))
                         ),
-                        "gtf_gene_intervals_pos": len(
-                            list(
-                                gtf_gene_intervals.overlap(
-                                    ((chr_name, True), start, end)
-                                )
-                            )
-                        ),
+                        "gtf_gene_intervals_pos": len(list(gtf_gene_intervals.overlap(((chr_name, True), start, end)))),
                         "gtf_gene_intervals_neg": len(
-                            list(
-                                gtf_gene_intervals.overlap(
-                                    ((chr_name, False), start, end)
-                                )
-                            )
+                            list(gtf_gene_intervals.overlap(((chr_name, False), start, end)))
                         ),
                         "gtf_gene_intervals_strandless": len(
-                            list(
-                                gtf_gene_intervals.overlap(
-                                    ((chr_name, None), start, end)
-                                )
-                            )
+                            list(gtf_gene_intervals.overlap(((chr_name, None), start, end)))
                         ),
                     }
                 )

@@ -1,5 +1,7 @@
 """
 sample_transcript.py -- Sample fraction of transcripts inside GTF file.
+
+.. versionadded:: 1.0.2
 """
 
 __all__ = (

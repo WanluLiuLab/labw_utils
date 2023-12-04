@@ -3,6 +3,8 @@ Benchmark Python interpreter.
 
 .. warning::
     Not finished -- do not use
+
+.. versionadded:: 1.0.2
 """
 import concurrent.futures
 import functools
