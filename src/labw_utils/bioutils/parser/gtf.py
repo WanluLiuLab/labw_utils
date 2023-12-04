@@ -5,7 +5,7 @@ TODO: docs
 """
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.feature import FeatureInterface, DEFAULT_GTF_QUOTE_OPTIONS
-from labw_utils.bioutils.record.gtf import parse_record, format_string
+from labw_utils.bioutils.record.gtf import parse_record, format_string, GTFParsingError
 from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.typing_importer import Iterable, Iterator
@@ -20,12 +20,23 @@ class GtfIterator(BaseFileIterator, Iterable[FeatureInterface]):
 
     filetype: str = "GTF"
     record_type = FeatureInterface
+    onerror: str
+
+    def __init__(self, filename: str, onerror: str = "alert", **kwargs):
+        super().__init__(filename, **kwargs)
+        self.onerror = onerror
 
     def __iter__(self) -> Iterator[FeatureInterface]:
         for line in get_tqdm_line_reader(self.filename):
             if line.startswith("#") or line == "":
                 continue
-            yield parse_record(line)
+            try:
+                yield parse_record(line)
+            except GTFParsingError as e:
+                if self.onerror == "skip":
+                    pass
+                else:
+                    raise e
 
 
 class GtfIteratorWriter(BaseIteratorWriter):
