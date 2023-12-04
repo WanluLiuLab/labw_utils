@@ -45,7 +45,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-o",
         "--outdir",
-        required=True,
+        required=False,
         help="Path of output directory",
         nargs="?",
         type=str,
@@ -82,7 +82,7 @@ def fastqc(
     if not os.path.exists(filepath):
         _lh.error("File '%s' not exist!", filepath)
     outdir_path = filepath + ".stats.d" if outdir_path is None else outdir_path
-    os.makedirs(filepath + ".stats.d", exist_ok=True)
+    os.makedirs(outdir_path, exist_ok=True)
 
     if input_fmt == "fasta" and with_per_pos_base_qual:
         with_per_pos_base_qual = False
