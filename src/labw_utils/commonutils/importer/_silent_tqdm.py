@@ -43,13 +43,13 @@ class tqdm(Iterable[_VarType]):
     .. versionadded:: 1.0.2
     """
 
-    __slots__ = ("_iterable", "_total", "_desc", "_n", "_quarters")
+    __slots__ = ("_iterable", "_total", "_desc", "_n", "_last_percent")
 
     _iterable: Optional[Iterable]
     _desc: Optional[str]
     _total: Optional[int]
     _n: int
-    _quarters: float
+    _last_percent: int
 
     @property
     def total(self) -> Optional[int]:
@@ -87,7 +87,7 @@ class tqdm(Iterable[_VarType]):
         _ = kwargs  # Stop PyCharm from complaining
         self._desc = desc
         self._n = 0
-        self._quarters = 0
+        self._last_percent = 0
         if total is None and iterable is not None:
             if isinstance(iterable, Sized):
                 try:
@@ -101,6 +101,9 @@ class tqdm(Iterable[_VarType]):
         if total == float("inf"):
             self._total = None
         self._iterable = iterable
+        if self._total:
+            sys.stderr.write("0%   10   20   30   40   50   60   70   80   90   100%\n")
+            sys.stderr.write("|----|----|----|----|----|----|----|----|----|----|\n")
 
     def __iter__(self) -> Iterator[_VarType]:
         if self._iterable is None:
@@ -113,6 +116,7 @@ class tqdm(Iterable[_VarType]):
         return self
 
     def __exit__(self, *args, **kwargs):
+        sys.stderr.write("\n")
         return
 
     def update(self, i: int = 1):
@@ -123,13 +127,11 @@ class tqdm(Iterable[_VarType]):
         """
         self._n += i
         if self._total:
-            percent = round(self._n / self._total, 2)
-            if percent > self._quarters:
-                total_len = 100
-                pbar_fill = "=" * int(self._quarters * total_len)
-                pbar_blank = " " * int((1 - self._quarters) * total_len)
-                print(
-                    f"{self._desc}: {int(percent * 100)}% [{pbar_fill}|{pbar_blank}]",
-                    file=sys.stderr,
-                )
-                self._quarters += 0.25
+            percent = min(int(self._n / self._total * 50), 50)
+            while self._last_percent < percent:
+                sys.stderr.write("*")
+                sys.stderr.flush()
+                self._last_percent += 1
+            if self._last_percent == 50:
+                sys.stderr.write("\n")
+                self._total = None
