@@ -11,9 +11,11 @@ import re
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
 from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface, GeneTree
+from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene, Gene
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.parser.gtf import GtfIterator, GtfIteratorWriter
+from labw_utils.bioutils.record.feature import strand_repr
 from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
@@ -104,18 +106,12 @@ def transcribe(
     )
 
 
-def subset_gtf_by_attribute_value(
+def read_partial_gtf_by_attribute_value(
     attribute_values: Sequence[str],
     attribute_name: str,
     gtf_filename: str,
-    out_filename: str,
     regex: bool = False,
-):
-    """
-    TODO: docs
-
-    .. versionadded:: 1.0.3
-    """
+) -> GeneTreeInterface:
     gi = GtfIterator(gtf_filename)
     input_record_num = 0
     intermediate_records = []
@@ -138,23 +134,49 @@ def subset_gtf_by_attribute_value(
                 intermediate_records.append(gtf_record)
 
     gv = GeneTree.from_feature_iterator(intermediate_records, gene_implementation=DumbGene)
-    final_features = list(gv.to_feature_iterator())
-    GtfIteratorWriter.write_iterator(final_features, out_filename)
+    final_record_num = len(gv)
     _lh.info(
         "%d processed with %d (%.2f%%) records output",
         input_record_num,
-        len(final_features),
-        round(len(final_features) / input_record_num * 100, 2),
+        final_record_num,
+        round(final_record_num / input_record_num * 100, 2),
     )
+    return gv
+
+
+def subset_gtf_by_attribute_value(
+    attribute_values: Sequence[str],
+    attribute_name: str,
+    gtf_filename: str,
+    out_filename: str,
+    regex: bool = False,
+):
+    """
+    TODO: docs
+
+    .. versionadded:: 1.0.3
+    """
+    gv = read_partial_gtf_by_attribute_value(
+        attribute_values=attribute_values,
+        attribute_name=attribute_name,
+        gtf_filename=gtf_filename,
+        regex=regex,
+    )
+    final_features = list(gv.to_feature_iterator())
+    GtfIteratorWriter.write_iterator(final_features, out_filename)
 
 
 def describe(input_filename: str, out_basename: str):
     """
     Describe input GTF.
+
+    .. versionadd:: 0.1.3
+        Migrated from V1API with exon number disabled.
+        The file name of the gene description file changed from gene to genes.
     """
     gv = GeneTree.from_gtf_file(input_filename, gene_implementation=DumbGene)
 
-    with get_writer(f"{out_basename}.gene.tsv") as gene_writer, get_writer(
+    with get_writer(f"{out_basename}.genes.tsv") as gene_writer, get_writer(
         f"{out_basename}.transcripts.tsv"
     ) as transcripts_writer, get_writer(f"{out_basename}.exons.tsv") as exons_writer:
         gene_writer.write(
@@ -197,9 +219,9 @@ def describe(input_filename: str, out_basename: str):
                         str(gene.gene_id),
                         str(gene.number_of_transcripts),
                         str(gene.naive_length),
-                        str(gene.transcribed_length),  # FIXME: Fulfill this requirement
+                        str(gene.transcribed_length),
                         str(gene.mappable_length),
-                        gene.strand,
+                        strand_repr(gene.strand),
                     )
                 )
                 + "\n"
@@ -209,13 +231,14 @@ def describe(input_filename: str, out_basename: str):
             for t_i in range(len(transcripts)):
                 transcript = transcripts[t_i]
                 for exon in list(transcript.exons):
+                    exon: Exon
                     exons_writer.write(
                         "\t".join(
                             (
                                 exon.transcript_id,
-                                str(exon.exon_number),
+                                str(-1),  # This field is disabled
                                 str(exon.naive_length),
-                                exon.strand,
+                                strand_repr(exon.strand),
                             )
                         )
                         + "\n"
@@ -228,7 +251,7 @@ def describe(input_filename: str, out_basename: str):
                             str(transcript.naive_length),
                             str(transcript.transcribed_length),
                             str(transcript.number_of_exons),
-                            transcript.strand,
+                            strand_repr(transcript.strand),
                         )
                     )
                     + "\n"

@@ -1,6 +1,7 @@
 from labw_utils.commonutils.appender._base_dict_buffer_appender import BaseDictBufferAppender
 from labw_utils.commonutils.lwio.safe_io import get_writer
 
+
 class TSVTableAppender(BaseDictBufferAppender):
     """Append to TSV."""
 

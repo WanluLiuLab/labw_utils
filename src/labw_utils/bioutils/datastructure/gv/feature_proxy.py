@@ -105,9 +105,7 @@ class BaseFeatureProxy(FeatureInterface, CanCheckInterface):
         self._data = self._data.keep_only_selected_attribute(**attribute_names)
         return self
 
-    __slots__ = (
-        "_data",
-    )
+    __slots__ = ("_data",)
     _data: FeatureInterface
 
     def __init__(self, *, data: FeatureInterface, is_checked: bool, **kwargs):

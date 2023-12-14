@@ -77,6 +77,7 @@ source = [
 ]
 omit = [
     "*/_main/*",
+    "*/__main__.py"
 ]
 
 [tool.coverage.report]

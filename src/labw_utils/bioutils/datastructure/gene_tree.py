@@ -25,7 +25,7 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, Optional, Mapping, Literal
+from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, Optional, Mapping, Literal, Sized
 
 from labw_utils.typing_importer import SequenceProxy
 
@@ -57,7 +57,7 @@ class DuplicatedGeneIDError(GVPError):
         super().__init__(f"Gene ID {gene_id} duplicated")
 
 
-class GeneTreeInterface(GeneContainerInterface, TranscriptContainerInterface, CanCheckInterface):
+class GeneTreeInterface(GeneContainerInterface, TranscriptContainerInterface, CanCheckInterface, Sized):
     """
     TODO: docs
 
@@ -162,6 +162,15 @@ class GeneTree(BaseGeneTree):
     _gene_id_to_gene_index: Dict[str, Gene]
     _transcript_ids_to_gene_ids_index: Dict[str, str]
     """transcript_id -> gene_id"""
+
+    def __len__(self) -> int:
+        i = 0
+        for gene in self._gene_id_to_gene_index.values():
+            i += 1
+            for transcript in gene.transcript_values:
+                i += 1
+                i += transcript.number_of_exons
+        return i
 
     _transcripts: Optional[Sequence[Transcript]]
 
@@ -301,7 +310,7 @@ class GeneTree(BaseGeneTree):
     @classmethod
     def from_feature_iterator(
         cls,
-        feature_iterator: Iterable[Feature],
+        feature_iterator: Iterable[FeatureInterface],
         shortcut: bool = False,
         is_checked: bool = False,
         show_tqdm: bool = True,

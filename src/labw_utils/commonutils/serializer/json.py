@@ -80,8 +80,8 @@ class JSONRepresentableInterface(ABC):
 
 def read_json_with_metadata(
     path_of_fd: lwio.PathOrFDType,
-        title: str,
-        validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None,
+    title: str,
+    validate_versions: Optional[Callable[[Mapping[str, Any]], None]] = None,
 ) -> Mapping[str, Any]:
     """
     Read and validate JSON files with metadata.
@@ -108,7 +108,7 @@ def write_json_with_metadata(
     path_of_fd: lwio.PathOrFDType,
     dump_versions: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
     dump_metadata: Optional[Callable[[], Optional[Mapping[str, Any]]]] = None,
-    indent: Optional[int] = None
+    indent: Optional[int] = None,
 ) -> None:
     """
     Write JSON files with metadata.

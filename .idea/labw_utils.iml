@@ -60,6 +60,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/reference_generator/data_dl" />
       <excludeFolder url="file://$MODULE_DIR$/doc_contrib/labw_utils_design_impl_cn/_minted-main" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/dictionaries" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
     </content>
     <orderEntry type="jdk" jdkName="labw_utils" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

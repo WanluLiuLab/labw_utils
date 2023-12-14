@@ -23,6 +23,7 @@ class AbstractConfig:
             if self.which(program_name) is None:
                 raise RuntimeError(f"Program {program_name} is missing!")
 
+
 def merge_table(src_path_glob: str, dst_path: str):
     _lh.info("Merging table files...")
     functools.reduce(

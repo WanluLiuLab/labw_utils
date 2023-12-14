@@ -77,6 +77,17 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
     def gene_id(self) -> str:
         return self._gene_id
 
+    @property
+    def transcribed_length(self) -> int:
+        return sum(transcript.transcribed_length for transcript in self._transcripts)
+
+    @property
+    def mappable_length(self) -> int:
+        all_exons: List[Exon] = list(itertools.chain(*list(transcript.exons for transcript in self._transcripts)))
+        all_intervals = list((exon.start, exon.end) for exon in all_exons)
+        merged_intervals = merge_intervals(all_intervals)
+        return sum(interval[1] - interval[0] + 1 for interval in merged_intervals)
+
     def get_transcript(self, transcript_id: str) -> Transcript:
         return self._transcripts[self._transcript_ids.index(transcript_id)]
 
@@ -228,9 +239,6 @@ class Gene(BaseFeatureProxy, TranscriptContainerInterface):
     def gc(self):
         for transcript in self._transcripts:
             transcript.gc()
-
-
-# TODO: How to find rootkit
 
 
 class DumbGene(Gene):

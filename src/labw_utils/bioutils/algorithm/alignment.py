@@ -366,5 +366,14 @@ def editing_distance(str1: str, str2: str) -> int:
             if str1[i - 1] == str2[j - 1]:
                 score_matrix[i][j] = score_matrix[i - 1][j - 1]
             else:
-                score_matrix[i][j] = min(score_matrix[i - 1][j - 1], score_matrix[i][j - 1], score_matrix[i - 1][j]) + 1
-    return score_matrix[l1 - 1][l2 - 1]
+                score_matrix[i][j] = (
+                    np.min(
+                        (
+                            score_matrix[i - 1][j - 1],
+                            score_matrix[i][j - 1],
+                            score_matrix[i - 1][j],
+                        )
+                    )
+                    + 1
+                )
+    return score_matrix[l1 - 1][l2 - 1].item()

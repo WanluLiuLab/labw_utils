@@ -29,9 +29,7 @@ _InType = TypeVar("_InType")
 _VarType = TypeVar("_VarType")
 
 
-def iterable_translate(
-    in_iterable: Iterable[_InType], trans_dict: Mapping[_InType, _InType]
-) -> Iterable[_InType]:
+def iterable_translate(in_iterable: Iterable[_InType], trans_dict: Mapping[_InType, _InType]) -> Iterable[_InType]:
     """
     Iterable translator.
 
@@ -69,17 +67,10 @@ def dict_translate(
     .. versionadded:: 1.0.2
     """
     trans_dict = dict(trans_dict)
-    return {
-        k: v
-        for k, v in zip(
-            iterable_translate(in_dict.keys(), trans_dict), in_dict.values()
-        )
-    }
+    return {k: v for k, v in zip(iterable_translate(in_dict.keys(), trans_dict), in_dict.values())}
 
 
-def list_translate(
-    in_list: List[_InType], trans_dict: Mapping[_InType, _InType]
-) -> List[_InType]:
+def list_translate(in_list: List[_InType], trans_dict: Mapping[_InType, _InType]) -> List[_InType]:
     """
     List Translator.
 
@@ -103,9 +94,7 @@ def list_translate(
 def window(
     it: Iterable[_InType],
     size: int,
-    last_action: Literal[
-        "padd_front", "padd_back", "error", "ignore", "truncate"
-    ] = "ignore",
+    last_action: Literal["padd_front", "padd_back", "error", "ignore", "truncate"] = "ignore",
     padding: Optional[_InType] = None,
 ) -> Iterable[Tuple[_InType, ...]]:
     """
