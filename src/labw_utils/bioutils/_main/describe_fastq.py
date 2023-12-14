@@ -7,13 +7,12 @@ describe_fastq.py -- Lite Python-implemented fastqc.
 """
 import argparse
 import os
-from typing import Literal
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.parser.fasta import FastaIterator
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
-from labw_utils.typing_importer import List, Optional
+from labw_utils.typing_importer import List, Optional, Literal
 
 try:
     import numpy as np

@@ -74,21 +74,21 @@ class PackageSpec:
     @property
     def name(self) -> str:
         """
-        Commonly-used name of that package.
+        Commonly used name of that package.
         """
         return self._name
 
     @property
     def conda_name(self) -> Optional[str]:
         """
-        Name as-is in Conda
+        Name as-is in Anaconda.org
         """
         return self._conda_name
 
     @property
     def conda_channel(self) -> Optional[str]:
         """
-        Channel name as-is in Conda
+        Channel name as-is in Anaconda.org
         """
         return self._conda_channel
 

@@ -16,6 +16,8 @@ from collections import defaultdict
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
+from labw_utils.bioutils.parser.gtf import GtfIterator
+from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.typing_importer import List, Optional, Union, Literal
 
@@ -31,7 +33,6 @@ except ImportError:
         raise UnmetDependenciesError("pysam") from e
 
 from labw_utils.bioutils.algorithm.utils import merge_intervals
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
@@ -105,7 +106,7 @@ def main(args: List[str]):
         _lh.info(f"Iterating intervals from GTF...")
         gtf_intervals = defaultdict(lambda: [])
         for gtf_record in GtfIterator(args.gtf):
-            if gtf_record.feature == "exon":
+            if gtf_record.parsed_feature == FeatureType.EXON:
                 gtf_intervals[gtf_record.seqname].append([gtf_record.start, gtf_record.end - 1])
         _lh.info(f"Merging intervals...")
         gtf_intervals = {k: merge_intervals(gtf_intervals[k]) for k in gtf_intervals}

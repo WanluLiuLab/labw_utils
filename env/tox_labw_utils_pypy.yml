@@ -25,15 +25,8 @@ dependencies:
   - pytest-html
   - coverage
 
-  # ysjs
-  - flask
-  - sqlalchemy
-  - psutil
-  - gevent
-  - jinja2
-
   # mlutils
-  - pytorch
+  - pytorch=*=py*_cpu_0
 
   # Apache Parquet
   - pyarrow

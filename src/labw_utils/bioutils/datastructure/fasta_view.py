@@ -33,7 +33,6 @@ import os
 import random
 import re
 from abc import abstractmethod, ABC
-from typing import Mapping, Literal
 
 from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
@@ -43,7 +42,7 @@ from labw_utils.commonutils.lwio.file_system import file_exists
 from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
-from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable
+from labw_utils.typing_importer import List, Union, Tuple, Dict, Optional, IO, Iterable, Mapping, Literal
 
 _lh = get_logger(__name__)
 

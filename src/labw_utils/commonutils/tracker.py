@@ -2,13 +2,12 @@ import itertools
 import os.path
 from hashlib import blake2b
 from json import JSONDecodeError
-from typing import Optional
 
 from labw_utils import Dict
 from labw_utils.commonutils.lwio import get_reader
 from labw_utils.commonutils.serializer.json import AbstractJSONSerializable
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Sequence, Mapping, Any, List, Tuple
+from labw_utils.typing_importer import Sequence, Mapping, Any, List, Tuple, Optional
 
 CHUNK_SIZE = 1 << 14
 

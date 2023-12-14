@@ -16,7 +16,7 @@ With CC0 1.0 Universal License.
 
 ## Python Project
 
-Copyright (C) 2001-2023 Python Software Foundation; All Rights Reserved
+Copyright (C) 2001--2023 Python Software Foundation; All Rights Reserved
 
 Available from <https://github.com/python/cpython>, commit `675e3470ccf3804a36a9cd451b813e9bd655aeb3`.
 

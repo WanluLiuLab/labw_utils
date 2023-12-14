@@ -4,10 +4,9 @@ import abc
 import multiprocessing
 import shutil
 from abc import abstractmethod
-from typing import Literal, Optional
 
 from blast_utils import AbstractConfig
-from labw_utils.typing_importer import List
+from labw_utils.typing_importer import List, Literal, Optional
 
 CHUNK_SIZE_DEFAULT = 1 << 14
 

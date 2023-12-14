@@ -2,7 +2,7 @@ import functools
 import glob
 import shutil
 import subprocess
-from typing import Optional
+from labw_utils.typing_importer import Optional
 
 import pandas as pd
 

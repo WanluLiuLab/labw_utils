@@ -9,7 +9,7 @@
 .. versionadded:: 1.0.3
 """
 
-__all__ = "parse_record"
+__all__ = ("parse_record",)
 
 import re
 

@@ -9,7 +9,6 @@ import socket
 import subprocess
 import threading
 import time
-from typing import Literal, Optional
 
 from blast_utils import merge_table
 from blast_utils.blast_db import BlastSearchConfig, BlastConfig, AbstractBlastDB
@@ -20,7 +19,7 @@ from labw_utils.commonutils.stdlib_helper.itertools_helper import window, head
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import parallel_map
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
-from labw_utils.typing_importer import Iterable, Tuple, Dict
+from labw_utils.typing_importer import Iterable, Tuple, Dict, Literal, Optional
 
 _lh = get_logger(__name__)
 

@@ -7,9 +7,8 @@
 from __future__ import annotations
 
 import string
-from typing import Mapping
 
-from labw_utils.typing_importer import Any, Optional, Dict
+from labw_utils.typing_importer import Any, Optional, Dict, Mapping
 
 
 def to_dict(

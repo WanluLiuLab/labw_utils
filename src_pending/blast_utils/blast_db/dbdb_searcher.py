@@ -5,7 +5,6 @@ import math
 import os.path
 import re
 import shutil
-from typing import Optional, Sequence
 
 import networkx as nx
 import pandas as pd
@@ -19,7 +18,7 @@ from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.lwio import get_writer, get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
-from labw_utils.typing_importer import Tuple, Set, Mapping, Any, List, Dict
+from labw_utils.typing_importer import Tuple, Set, Mapping, Any, List, Dict, Optional, Sequence
 
 _lh = get_logger(__name__)
 

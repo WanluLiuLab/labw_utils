@@ -4,7 +4,6 @@ import gc
 import os
 import re
 import tempfile
-from typing import Optional, Literal
 
 import msgpack
 import pandas as pd
@@ -17,7 +16,7 @@ from labw_utils.commonutils.lwio.safe_io import get_reader, get_appender, get_wr
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import easyexec
 from labw_utils.commonutils.stdlib_helper.shutil_helper import rm_rf
-from labw_utils.typing_importer import Dict, Mapping
+from labw_utils.typing_importer import Dict, Mapping, Optional, Literal
 
 _lh = get_logger(__name__)
 

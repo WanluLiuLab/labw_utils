@@ -12,9 +12,7 @@ __all__ = (
 import argparse
 
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper import (
-    subset_gtf_by_attribute_value,
-)
+from labw_utils.bioutils.datastructure.gene_tree_helper import subset_gtf_by_attribute_value
 from labw_utils.commonutils.lwio.tqdm_reader import get_tqdm_line_reader
 from labw_utils.commonutils.stdlib_helper.argparse_helper import (
     ArgumentParserWithEnhancedFormatHelp,
@@ -72,7 +70,7 @@ def main(args: List[str]):
         possible_values.append(line)
     _lh.info(f"{len(possible_values)} values loaded")
     subset_gtf_by_attribute_value(
-        attribute_values=iter(possible_values),
+        attribute_values=possible_values,
         attribute_name=args.attribute_name,
         gtf_filename=args.gtf,
         out_filename=args.out,

@@ -43,11 +43,12 @@ class tqdm(Iterable[_VarType]):
     .. versionadded:: 1.0.2
     """
 
-    __slots__ = ("_iterable", "_total", "_desc", "_n", "_last_percent")
+    __slots__ = ("_iterable", "_total", "_desc", "_n", "_last_percent", "_stop_pbar_update")
 
     _iterable: Optional[Iterable]
     _desc: Optional[str]
     _total: Optional[int]
+    _stop_pbar_update: bool
     _n: int
     _last_percent: int
 
@@ -97,9 +98,11 @@ class tqdm(Iterable[_VarType]):
             else:
                 self._total = None
         else:
-            self._total = total
-        if total == float("inf"):
-            self._total = None
+            if total == float("inf") or total == 0:
+                self._total = None
+            else:
+                self._total = total
+        self._stop_pbar_update = self._total is None
         self._iterable = iterable
         if self._total:
             sys.stderr.write("0%   10   20   30   40   50   60   70   80   90   100%\n")
@@ -126,7 +129,7 @@ class tqdm(Iterable[_VarType]):
         The given value should NOT be negative.
         """
         self._n += i
-        if self._total:
+        if not self._stop_pbar_update:
             percent = min(int(self._n / self._total * 50), 50)
             while self._last_percent < percent:
                 sys.stderr.write("*")
@@ -134,4 +137,4 @@ class tqdm(Iterable[_VarType]):
                 self._last_percent += 1
             if self._last_percent == 50:
                 sys.stderr.write("\n")
-                self._total = None
+                self._stop_pbar_update = True

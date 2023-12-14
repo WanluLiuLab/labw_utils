@@ -1,6 +1,6 @@
 export SPHINX_BUILD := 1
 
-SPHINX_OPTS := -j auto
+SPHINX_OPTS := -j auto -v -T
 
 SPHINX_APIDOC_ARGS := --separate \
 	--no-toc \

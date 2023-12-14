@@ -58,7 +58,7 @@ def assess_text_archive_io(filename: str):
     with get_tqdm_line_reader(filename, newline="\n") as reader:
         reader: ByLineReadOnlyIOProxyWithTqdm
         i = 0
-        assert reader._tqdm._total == len(contents_list)
+        assert reader._tqdm.total == len(contents_list)
         for line in reader:
             assert contents_list[i] == line
             i += 1

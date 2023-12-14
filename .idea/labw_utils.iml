@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/explore/assess_interval_engine/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/explore/assess_interval_engine/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src_pending" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/test_pending" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/ZeppelinRemoteNotebooks" />
       <excludeFolder url="file://$MODULE_DIR$/doc/_apidoc" />
       <excludeFolder url="file://$MODULE_DIR$/doc/_build" />
@@ -58,6 +59,7 @@
       <excludeFolder url="file://$MODULE_DIR$/explore/ensembl_database_dump/ensdb_repeats.parquet.d" />
       <excludeFolder url="file://$MODULE_DIR$/explore/reference_generator/data_dl" />
       <excludeFolder url="file://$MODULE_DIR$/doc_contrib/labw_utils_design_impl_cn/_minted-main" />
+      <excludeFolder url="file://$MODULE_DIR$/.idea/dictionaries" />
     </content>
     <orderEntry type="jdk" jdkName="labw_utils" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

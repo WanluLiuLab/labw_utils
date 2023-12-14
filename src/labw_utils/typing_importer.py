@@ -168,11 +168,9 @@ else:
     DefaultDict = typing.DefaultDict
 try:
     from typing import Literal as Literal
+    from typing import Final as Final
 
-    # Literal = typing.Literal
-    Final = typing.Final
-
-except AttributeError:
+except (AttributeError, ImportError):
     # For Python 3.7 only
     Final = typing._SpecialForm("Union", doc="")
     Literal = typing._SpecialForm("Union", doc="")

@@ -45,17 +45,13 @@ serve-doc:
 test:
 	pytest test src
 
-.PHONY: pytype
-pytype:
-	 pytype --config=pytype.cfg src/labw_utils
-
 .PHONY: sonar-scanner
 sonar-scanner:
 	sonar-scanner
 
 .PHONY: tox
 tox:
-	CONDA_EXE=mamba tox run
+	CONDA_EXE=conda tox run
 
 .PHONY: mypy
 mypy:

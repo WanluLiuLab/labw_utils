@@ -13,8 +13,8 @@ import argparse
 import random
 
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper import subset_gtf_by_attribute_value
-from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_parser import GtfIterator
+from labw_utils.bioutils.datastructure.gene_tree_helper import subset_gtf_by_attribute_value
+from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.typing_importer import List
 
@@ -51,7 +51,7 @@ def main(args: List[str]):
     gi = GtfIterator(args.gtf)
     transcript_ids = set()
     for gtf_record in gi:
-        tmp_tid = gtf_record.attribute.get("transcript_id", None)
+        tmp_tid = gtf_record.attribute_get("transcript_id", None)
         if tmp_tid is not None:
             transcript_ids.add(tmp_tid)
     transcript_ids = random.sample(list(transcript_ids), int(len(transcript_ids) * args.percent / 100))

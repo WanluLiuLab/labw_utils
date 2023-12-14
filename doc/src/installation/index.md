@@ -216,7 +216,7 @@ Traceback (most recent call last):
 labw_utils.UnmetDependenciesError: torch not installed; Use ``conda install -c pytorch pytorch``; Use ``pip install torch``
 ```
 
-in place where default strategy fails. You can use pip's "optional extra" function to install other dependencies. For example, to perform installation with `bioutils` extra, you should:
+in place where the default strategy fails. You can use pip's "optional extra" function to install other dependencies. For example, to perform installation with `bioutils` extra, you should:
 
 ```shell
 pip install labw_utils[bioutils]~=[VERSION]
@@ -289,30 +289,27 @@ Known limitations are:
 1. The typing system would be completely a mess. The {py:class}`typing.Final` and {py:class}`typing.Literal` would not work as expected.
 2. Version of dependent packages (i.e., Pandas, Numpy, etc.) would be low, making it impossible for you to enjoy advantages provided by more recent versions.
 
-Python3 less than 3.6 and Python <= 3 is explicitly unsupported. Do not try on these Python implementations. [Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) and [PyPy](https://www.pypy.org) are not recommended. Use at your own risk.
+Python3 is less than 3.6, and Python <= 3 is explicitly unsupported. Python 3.7 had been excluded from automated testing. [Python implementation](https://wiki.python.org/moin/PythonImplementations) except from [CPython](https://github.com/python/cpython) and [PyPy](https://www.pypy.org) are not recommended. Use at your own risk.
 
 Following is a list of tested alternate Python implementations and versions using [Tox](https://tox.wiki/). Dependencies are set up using either `all` or default installation strategy using Conda.
 
-| Implementation | Version | Python API | ALL                | DEFAULT            |
-|----------------|---------|------------|--------------------|--------------------|
-| CPython        | NA      | 3.6        | NOT TESTED         | NOT TESTED         |
-| CPython        | 3.7.12  | 3.7        | PASS               | PASS               |
-| CPython        | 3.8.16  | 3.8        | PASS               | PASS               |
-| CPython        | 3.9.16  | 3.9        | PASS               | PASS               |
-| CPython        | 3.10.10 | 3.10       | PASS               | PASS               |
-| CPython        | 3.11.3  | 3.11       | UNMET DEPENDENCIES | PASS               |
-| CPython        | NA      | 3.12       | NOT TESTED         | NOT TESTED         |
-| PyPy           | NA      | 3.6        | NOT TESTED         | NOT TESTED         |
-| PyPy           | 7.3.7   | 3.7        | PASS               | PASS               |
-| PyPy           | 7.3.11  | 3.8        | UNMET DEPENDENCIES | FAILED             |
-| PyPy           | NA      | 3.9        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
-| GraalPy        |         | 3.8        | UNMET DEPENDENCIES | UNMET DEPENDENCIES |
+| Implementation | Version | Python API | ALL                                           | DEFAULT                                       |
+|----------------|---------|------------|-----------------------------------------------|-----------------------------------------------|
+| CPython        | 3.8.18  | 3.8        | ![PASS](build_passed.svg)                     | ![PASS](build_passed.svg)                     |
+| CPython        | 3.9.18  | 3.9        | ![PASS](build_passed.svg)                     | ![PASS](build_passed.svg)                     |
+| CPython        | 3.10.13 | 3.10       | ![PASS](build_passed.svg)                     | ![PASS](build_passed.svg)                     |
+| CPython        | 3.11.6  | 3.11       | ![UNMET DEPENDENCIES](unmet_dependencies.svg) | ![PASS](build_passed.svg)                     |
+| CPython        | -       | 3.12       | ![Ignored](build_ignored.svg)                 | ![UNMET DEPENDENCIES](unmet_dependencies.svg) |
+| PyPy           | 7.3.7   | 3.7        | ![PASS](build_passed.svg)                     | ![PASS](build_passed.svg)                     |
+| PyPy           | 7.3.11  | 3.8        | ![UNMET DEPENDENCIES](unmet_dependencies.svg) | ![PASS](build_passed.svg)                     |
+| PyPy           | 7.3.13  | 3.9        | ![Ignored](build_ignored.svg)                 | ![PASS](build_passed.svg)                     |
+| PyPy           | 7.3.13  | 3.10       | ![Ignored](build_ignored.svg)                 | ![UNMET DEPENDENCIES](unmet_dependencies.svg) |
 
 Side-loaded acceleration techniques:
 
-| Implementation | Version | Python API | ALL   | DEFAULT |
-|----------------|---------|------------|-------|---------|
-| Pyston         | 2.3.4   | 3.8        | PASS  | PASS    |
-| Pyjion         | 1.2.6   | 3.10       | PASS  | FAILED  |
+| Implementation | Version | Python API | ALL                         | DEFAULT                     |
+|----------------|---------|------------|-----------------------------|-----------------------------|
+| Pyston         | 2.3.4   | 3.8        | ![PASS](build_passed.svg)   | ![PASS](build_passed.svg)   |
+| Pyjion         | 1.2.6   | 3.10       | ![FAILED](build_failed.svg) | ![FAILED](build_failed.svg) |
 
-Python API supported by [Jython](https://www.jython.org) and [IronPython](https://ironpython.net) is too low, so not assessed.
+Python API supported by [Jython](https://www.jython.org) and [IronPython](https://ironpython.net) is too low, so not assessed. [GraalPy](https://www.graalvm.org/python) was not assessed.

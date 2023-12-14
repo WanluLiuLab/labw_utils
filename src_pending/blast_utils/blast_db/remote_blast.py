@@ -1,7 +1,7 @@
 import os.path
 import re
 import time
-from typing import Optional
+from labw_utils.typing_importer import Optional
 
 from Bio import GenBank
 from Bio import Entrez

@@ -86,19 +86,7 @@ else:
 
     def scale_torch_array(
         x: Any, domain: Optional[Any] = None, out_range: tuple[Union[int, float], Union[int, float]] = (0, 1)
-    ) -> torch.Tensor:
-        """
-        Scale a Torch array to specific range.
-
-        .. seealso :: :py:func:`scale_np_array`
-
-        Example:
-
-        >>> scale_torch_array(torch.tensor(np.array([1,2,3,4,5])), out_range=(0, 1))
-        tensor([0.0000, 0.2500, 0.5000, 0.7500, 1.0000])
-
-        .. versionadded:: 1.0.2
-        """
+    ) -> "torch.Tensor":
         _ = x, domain, out_range
         del x, domain, out_range
         raise UnmetDependenciesError("pytorch")

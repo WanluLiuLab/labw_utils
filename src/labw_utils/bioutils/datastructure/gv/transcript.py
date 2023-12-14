@@ -54,7 +54,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
     """
     A transcript is a list of exons, always sorted.
 
-    .. Versionadded:: 1.0.2
+    .. versionadded:: 1.0.2
     """
 
     __slots__ = ["_exons", "_cdna", "_cdna_unspliced", "_is_inferred", "_transcript_id", "_gene_id"]
