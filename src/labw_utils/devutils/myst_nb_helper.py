@@ -21,8 +21,22 @@ from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.typing_importer import Literal, Optional, Callable, List
 
-PackageSpecs.add(PackageSpec(name="jupytext", conda_name="jupytext", conda_channel="conda-forge", pypi_name="jupytext"))
-PackageSpecs.add(PackageSpec(name="nbformat", conda_name="nbformat", conda_channel="conda-forge", pypi_name="nbformat"))
+PackageSpecs.add(
+    PackageSpec(
+        name="jupytext",
+        conda_name="jupytext",
+        conda_channel="conda-forge",
+        pypi_name="jupytext",
+    )
+)
+PackageSpecs.add(
+    PackageSpec(
+        name="nbformat",
+        conda_name="nbformat",
+        conda_channel="conda-forge",
+        pypi_name="nbformat",
+    )
+)
 
 try:
     import pytest
@@ -69,7 +83,8 @@ def shell_filter(nb: nbf.NotebookNode) -> nbf.NotebookNode:
 
 
 def convert_ipynb_to_myst(
-    source_dir: str, hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None
+    source_dir: str,
+    hooks: Optional[List[Callable[[nbf.NotebookNode], nbf.NotebookNode]]] = None,
 ):
     if hooks is None:
         hooks = []
@@ -92,7 +107,11 @@ def convert_ipynb_to_myst(
             _lh.info(f"CONVERT {fn} -> {dst_fn}: REFUSE TO OVERWRITE NEWER FILE")
 
 
-def generate_cli_docs(config_toml_file_path: str, dest_dir_path: str, format: Literal["txt", "myst.md"] = "txt"):
+def generate_cli_docs(
+    config_toml_file_path: str,
+    dest_dir_path: str,
+    format: Literal["txt", "myst.md"] = "txt",
+):
     os.makedirs(dest_dir_path, exist_ok=True)
     with open(config_toml_file_path, "rb") as toml_reader:
         config_toml = tomllib.load(toml_reader)
@@ -100,12 +119,16 @@ def generate_cli_docs(config_toml_file_path: str, dest_dir_path: str, format: Li
     arg_parsers = defaultdict(lambda: [])
     for main_module in config_toml["names"]:
         for subcommand in libfrontend.get_subcommands(main_module):
+            print(f"Generating CLI docs for {subcommand}")
             parser = libfrontend.get_argparser_from_subcommand(main_module, subcommand)
-            this_help_path = os.path.join(dest_dir_path, f"{main_module}.{subcommand}.{format}")
+            this_help_path = os.path.join(
+                dest_dir_path, f"{main_module}.{subcommand}.{format}"
+            )
             if parser is not None:
                 with open(this_help_path, "w") as writer:
                     if format == "myst.md":
-                        writer.write(parser.to_markdown())
+                        raise NotImplementedError
+                        # writer.write(parser.to_markdown())
                     elif format == "txt":
                         writer.write(parser.format_help())
                 arg_parsers[main_module].append(subcommand)
@@ -121,13 +144,23 @@ def generate_cli_docs(config_toml_file_path: str, dest_dir_path: str, format: Li
     with open(os.path.join(dest_dir_path, "index.md"), "w") as index_writer:
         index_writer.write("# Command-Line Interfaces\n\n")
         for main_module, subcommands in arg_parsers.items():
-            main_module_correct_name = main_module.replace("._main", "").replace(".main", "")
+            main_module_correct_name = main_module.replace("._main", "").replace(
+                ".main", ""
+            )
             index_writer.write(f"## `{main_module_correct_name}`\n\n")
             for subcommand in subcommands:
-                index_writer.write(f"### `{main_module_correct_name}` `{subcommand}`\n\n")
+                index_writer.write(
+                    f"### `{main_module_correct_name}` `{subcommand}`\n\n"
+                )
                 if format == "myst.md":
-                    index_writer.write("```{include} " + f"{main_module}.{subcommand}.{format}" + "\n```\n\n")
+                    index_writer.write(
+                        "```{include} "
+                        + f"{main_module}.{subcommand}.{format}"
+                        + "\n```\n\n"
+                    )
                 elif format == "txt":
                     index_writer.write(
-                        "```{literalinclude} " + f"{main_module}.{subcommand}.{format}" + "\n:language: text\n```\n\n"
+                        "```{literalinclude} "
+                        + f"{main_module}.{subcommand}.{format}"
+                        + "\n:language: text\n```\n\n"
                     )

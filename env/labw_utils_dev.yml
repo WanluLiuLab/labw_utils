@@ -75,6 +75,7 @@ dependencies:
 
   # HDF5
   - pytables>=3.9.0 # Supported: 3.7.X
+  - h5py
 
   # Build utils
   - pip
