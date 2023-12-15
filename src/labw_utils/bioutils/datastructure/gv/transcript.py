@@ -150,7 +150,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
         )
 
     def __repr__(self):
-        return f"Transcript {self.transcript_id} of gene {self.gene_id}"
+        return f"Transcript {self.transcript_id} of gene {self.gene_id} [{self.exon_boundaries}]"
 
     def exon_level_equiv(self, other: Transcript) -> bool:
         if self.number_of_exons != other.number_of_exons:
@@ -251,8 +251,26 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
             shortcut=True,
         )
 
+    def duplicate(self, transcript_id: str) -> Transcript:
+        return Transcript(
+            data=self._data.update_attribute(transcript_id=transcript_id),
+            is_checked=self.is_checked,
+            is_inferred=self._is_inferred,
+            shortcut=False,
+            exons=[
+                Exon(
+                    data=exon._data.update_attribute(transcript_id=transcript_id),
+                    is_checked=exon.is_checked,
+                    shortcut=False,
+                )
+                for exon in self._exons
+            ],
+        )
+
     def transcribe(
-        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self,
+        sequence_func: SequenceFuncType,
+        legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func,
     ) -> str:
         if self._cdna is None:
             if self.strand is False:
@@ -267,7 +285,9 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
         return self._cdna
 
     def transcribe_unspliced_masked(
-        self, sequence_func: SequenceFuncType, legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func
+        self,
+        sequence_func: SequenceFuncType,
+        legalize_region_func: LegalizeRegionFuncType = dumb_legalize_region_func,
     ) -> str:
         if self._cdna_unspliced_masked is None:
             if self.strand is False:

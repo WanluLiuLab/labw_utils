@@ -38,7 +38,7 @@ from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError
 from labw_utils.bioutils.parser.fasta import FastaIterator, FastaWriter
 from labw_utils.bioutils.record.fasta import FastaRecord
-from labw_utils.commonutils.lwio.file_system import file_exists
+from labw_utils.commonutils.lwio.file_system import file_exists, to_safe_filename
 from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.shutil_helper import wc_c
@@ -431,7 +431,10 @@ class _DiskAccessFastaView(_BaseFastaView):
 
 
 def FastaViewFactory(
-    filename: str, full_header: bool = False, read_into_memory: Optional[bool] = None, show_tqdm: bool = True
+    filename: str,
+    full_header: bool = False,
+    read_into_memory: Optional[bool] = None,
+    show_tqdm: bool = True,
 ) -> FastaViewType:
     """
     Initialize a _DiskFasta interface using multiple backends.
@@ -451,14 +454,17 @@ def FastaViewFactory(
         return _DiskAccessFastaView(filename=filename, full_header=full_header, show_tqdm=show_tqdm)
 
 
-def split_fasta(  # TODO: Add to commandline params
-    fav: FastaViewType, out_dir_path: Optional[str] = None, safe_seqname: str = "convert"
+def split_fasta(
+    fav: FastaViewType,
+    out_dir_path: Optional[str] = None,
+    unsafe_seqname_action: Literal["convert", "error", "skip"] = "convert",  # TODO: Add to commandline params
 ):
     """
     Split input FASTA file into one-line FASTAs with one file per contig.
 
     :param fav: Source FASTA view.
     :param out_dir_path: Output directory.
+    :param unsafe_seqname_action: What to do on unsafe sequence names. Those names may break your filesystems.
 
     .. versionadded:: 1.0.2
     """
@@ -466,24 +472,13 @@ def split_fasta(  # TODO: Add to commandline params
     os.makedirs(out_dir_path, exist_ok=True)
 
     for seqname in fav.chr_names:
-        safe_seqname = (
-            seqname.replace(" ", "_")
-            .replace("\t", "_")
-            .replace("\\", "_")
-            .replace(":", "_")
-            .replace("*", "_")
-            .replace("?", "_")
-            .replace('"', "_")
-            .replace("<", "_")
-            .replace(">", "_")
-            .replace("|", "_")
-        )
+        safe_seqname = to_safe_filename(seqname)
         if seqname != safe_seqname:
-            if safe_seqname == "convert":
+            if unsafe_seqname_action == "convert":
                 _lh.warning("seqname '%s' is not safe -- Converted to '%s'", seqname, safe_seqname)
-            elif safe_seqname == "error":
+            elif unsafe_seqname_action == "error":
                 raise ValueError  # TODO
-            elif safe_seqname == "skip":
+            elif unsafe_seqname_action == "skip":
                 _lh.warning("seqname '%s' is not safe -- skipped", seqname)
                 continue
         transcript_output_fasta = os.path.join(out_dir_path, f"{safe_seqname}.fa")

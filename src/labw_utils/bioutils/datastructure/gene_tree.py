@@ -14,7 +14,9 @@ from labw_utils.bioutils.datastructure.gv import GVPError, CanCheckInterface
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy
 from labw_utils.bioutils.datastructure.gv.gene import Gene, DumbGene
-from labw_utils.bioutils.datastructure.gv.gene_container_interface import GeneContainerInterface
+from labw_utils.bioutils.datastructure.gv.gene_container_interface import (
+    GeneContainerInterface,
+)
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
 from labw_utils.bioutils.datastructure.gv.transcript_container_interface import (
     TranscriptContainerInterface,
@@ -25,7 +27,16 @@ from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.file_system import should_regenerate
 from labw_utils.commonutils.stdlib_helper import pickle_helper
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Iterable, Dict, Iterator, Sequence, Optional, Mapping, Literal, Sized
+from labw_utils.typing_importer import (
+    Iterable,
+    Dict,
+    Iterator,
+    Sequence,
+    Optional,
+    Mapping,
+    Literal,
+    Sized,
+)
 
 from labw_utils.typing_importer import SequenceProxy
 
@@ -158,7 +169,11 @@ class GeneTree(BaseGeneTree):
     .. versionadded:: 1.0.2
     """
 
-    __slots__ = ("_gene_id_to_gene_index", "_transcript_ids_to_gene_ids_index", "_transcripts")
+    __slots__ = (
+        "_gene_id_to_gene_index",
+        "_transcript_ids_to_gene_ids_index",
+        "_transcripts",
+    )
     _gene_id_to_gene_index: Dict[str, Gene]
     _transcript_ids_to_gene_ids_index: Dict[str, str]
     """transcript_id -> gene_id"""
@@ -292,7 +307,11 @@ class GeneTree(BaseGeneTree):
         else:
             return self.add_transcript(
                 Transcript(
-                    data=exon.get_data(), exons=[], is_inferred=True, is_checked=self._is_checked, shortcut=False
+                    data=exon.get_data(),
+                    exons=[],
+                    is_inferred=True,
+                    is_checked=self._is_checked,
+                    shortcut=False,
                 )
             ).add_exon(exon)
 
@@ -326,8 +345,17 @@ class GeneTree(BaseGeneTree):
             for feature in filter(lambda feature: feature.parsed_feature == FeatureType.EXON, feature_list)
         )
         initially_added_transcripts = list(
-            Transcript(data=feature, exons=[], is_checked=is_checked, is_inferred=False, shortcut=False)
-            for feature in filter(lambda feature: feature.parsed_feature == FeatureType.TRANSCRIPT, feature_list)
+            Transcript(
+                data=feature,
+                exons=[],
+                is_checked=is_checked,
+                is_inferred=False,
+                shortcut=False,
+            )
+            for feature in filter(
+                lambda feature: feature.parsed_feature == FeatureType.TRANSCRIPT,
+                feature_list,
+            )
         )
         initially_added_genes = list(
             gene_implementation(
@@ -358,7 +386,11 @@ class GeneTree(BaseGeneTree):
             if exon.transcript_id not in transcript_ids:
                 _lh.warning("Transcript %s inferred from exon!", exon.transcript_id)
                 new_transcript = Transcript(
-                    data=exon.get_data(), exons=[], is_checked=is_checked, is_inferred=True, shortcut=False
+                    data=exon.get_data(),
+                    exons=[],
+                    is_checked=is_checked,
+                    is_inferred=True,
+                    shortcut=False,
                 )
                 initially_added_transcripts.append(new_transcript)
                 transcript_ids.add(new_transcript.transcript_id)
@@ -427,9 +459,18 @@ class DiploidGeneTree(BaseGeneTree):
     .. versionadded:: 1.0.2
     """
 
+    def __len__(self) -> int:
+        return sum(len(gt) for gt in self._chr_gt_idx.values())
+
     _chr_gt_idx: Dict[str, GeneTreeInterface]
 
-    def __init__(self, *, is_checked: bool, shortcut: bool, chr_gt_idx: Mapping[str, GeneTreeInterface]):
+    def __init__(
+        self,
+        *,
+        is_checked: bool,
+        shortcut: bool,
+        chr_gt_idx: Mapping[str, GeneTreeInterface],
+    ):
         self._is_checked = is_checked
         if not shortcut:
             self._chr_gt_idx = dict(chr_gt_idx)
@@ -439,7 +480,10 @@ class DiploidGeneTree(BaseGeneTree):
     def _get_or_create_gt(self, feature: BaseFeatureProxy):
         if feature.seqname not in self._chr_gt_idx:
             self._chr_gt_idx[feature.seqname] = GeneTree(
-                gene_id_to_gene_index={}, transcript_ids_to_gene_ids_index={}, shortcut=True, is_checked=self.is_checked
+                gene_id_to_gene_index={},
+                transcript_ids_to_gene_ids_index={},
+                shortcut=True,
+                is_checked=self.is_checked,
             )
         return self._chr_gt_idx[feature.seqname]
 
@@ -476,7 +520,11 @@ class DiploidGeneTree(BaseGeneTree):
             it = tqdm(it, desc="Processing contigs...")
         for k, v in it:
             chr_gt_idx[k] = GeneTree.from_feature_iterator(
-                v, shortcut=True, is_checked=is_checked, gene_implementation=gene_implementation, show_tqdm=False
+                v,
+                shortcut=True,
+                is_checked=is_checked,
+                gene_implementation=gene_implementation,
+                show_tqdm=False,
             )
         return cls(chr_gt_idx=chr_gt_idx, is_checked=is_checked, shortcut=True)
 

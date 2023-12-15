@@ -5,7 +5,14 @@ Here are very low-level filesystem functions used by other Python modules,
 like :py:mod:`commonutils.lwio.safe_io` or :py:mod:`commonutils.stdlib_helper.shutil_helper`.
 """
 
-__all__ = ("get_abspath", "file_exists", "directory_exists", "is_soft_link", "should_regenerate")
+__all__ = (
+    "get_abspath",
+    "file_exists",
+    "directory_exists",
+    "is_soft_link",
+    "should_regenerate",
+    "to_safe_filename",
+)
 
 import os
 import stat
@@ -13,6 +20,56 @@ import stat
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 
 _lh = get_logger(__name__)
+
+
+def to_safe_filename(filename: str) -> str:
+    """
+    Get safe filename on any platform
+    """
+
+    filename = filename[:256]
+    filename = (
+        filename.replace(" ", "_")
+        .replace("\t", "_")
+        .replace("\\", "_")
+        .replace(":", "_")
+        .replace("*", "_")
+        .replace("?", "_")
+        .replace('"', "_")
+        .replace("<", "_")
+        .replace(">", "_")
+        .replace("|", "_")
+        .replace("/", "_")
+    )
+    if filename.endswith(".") or filename.endswith(" "):
+        filename += "_"
+    if filename.upper() in (
+        "CON",
+        "PRN",
+        "AUX",
+        "CLOCK$",
+        "NUL",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9",
+    ):
+        filename += "_"
+    return filename
 
 
 def get_abspath(path: str) -> str:

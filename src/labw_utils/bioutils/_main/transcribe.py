@@ -13,7 +13,7 @@ import argparse
 
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
-from labw_utils.bioutils.datastructure.gene_tree import GeneTree
+from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gene_tree_helper import transcribe
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
 
@@ -49,7 +49,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def main(args: List[str]):
     args = create_parser().parse_args(args)
-    gv = GeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
+    gv = DiploidGeneTree.from_gtf_file(args.gtf, gene_implementation=DumbGene)
     fv = FastaViewFactory(args.fasta)
     transcribe(
         gv,

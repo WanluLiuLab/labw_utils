@@ -6,6 +6,8 @@ SYNOPSIS: python -m labw_utils.bioutils describe_gtf [GTF] [[GTF]...]
 where [GTF] are path to GTF files you wish to describe.
 
 .. versionadded:: 1.0.2
+
+FIXME: This app uses GeneView v0.1!
 """
 
 __all__ = ("main",)

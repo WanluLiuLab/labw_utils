@@ -2,6 +2,8 @@
 describe_gtf_by_binning.py -- Describe number of features in GTF by binning.
 
 .. versionadded:: 1.0.2
+
+FIXME: This app uses GeneView v0.1!
 """
 __all__ = (
     "create_parser",

@@ -10,17 +10,26 @@ import re
 
 from labw_utils.bioutils.algorithm.sequence import get_gc_percent
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewType
-from labw_utils.bioutils.datastructure.gene_tree import GeneTreeInterface, GeneTree
+from labw_utils.bioutils.datastructure.gene_tree import (
+    GeneTreeInterface,
+    DiploidGeneTree,
+)
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene, Gene
 from labw_utils.bioutils.datastructure.gv.transcript import Transcript
+from labw_utils.bioutils.parser.fasta import FastaWriter
 from labw_utils.bioutils.parser.gtf import GtfIterator, GtfIteratorWriter
+from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.bioutils.record.feature import strand_repr
-from labw_utils.commonutils.appender import load_table_appender_class, TableAppenderConfig
+from labw_utils.commonutils.appender import (
+    load_table_appender_class,
+    TableAppenderConfig,
+)
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
+from labw_utils.commonutils.lwio.file_system import to_safe_filename
 from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Iterable, Sequence, List
+from labw_utils.typing_importer import Iterable, Sequence, List, Literal
 
 _lh = get_logger(__name__)
 
@@ -30,6 +39,7 @@ def transcribe_transcripts(
     dst_fasta_path: str,
     fv: FastaViewType,
     write_single_transcript: bool = True,
+    unsafe_seqname_action: Literal["convert", "error", "skip"] = "convert",
 ):
     """
     TODO: docs
@@ -40,7 +50,7 @@ def transcribe_transcripts(
     if write_single_transcript:
         intermediate_fasta_dir = dst_fasta_path + ".d"
         os.makedirs(intermediate_fasta_dir, exist_ok=True)
-    with get_writer(dst_fasta_path) as fasta_writer, load_table_appender_class("TSVTableAppender")(
+    with FastaWriter(dst_fasta_path) as fasta_writer, load_table_appender_class("TSVTableAppender")(
         dst_fasta_path + ".stats",
         (
             "TRANSCRIPT_ID",
@@ -55,31 +65,45 @@ def transcribe_transcripts(
         ),
         tac=TableAppenderConfig(),
     ) as stats_writer:
-        for transcript_value in it:
-            cdna_seq = transcript_value.transcribe(sequence_func=fv.sequence)
+        for transcript in it:
+            cdna_seq = transcript.transcribe(sequence_func=fv.sequence)
             if len(cdna_seq) == 0:
+                _lh.warning(
+                    "seqname '%s' (%s) transcribe failed -- Generated empty cDNA",
+                    transcript.transcript_id,
+                    repr(transcript),
+                )
                 continue
 
-            transcript_name = transcript_value.transcript_id
-            fa_str = f">{transcript_name}\n{cdna_seq}\n"
-            fasta_writer.write(fa_str)
+            transcript_name = transcript.transcript_id
+            safe_transcript_name = to_safe_filename(transcript_name)
+            if transcript_name != safe_transcript_name:
+                if unsafe_seqname_action == "convert":
+                    _lh.warning("seqname '%s' is not safe -- Converted to '%s'", transcript_name, safe_transcript_name)
+                elif unsafe_seqname_action == "error":
+                    raise ValueError  # TODO
+                elif unsafe_seqname_action == "skip":
+                    _lh.warning("seqname '%s' is not safe -- skipped", transcript_name)
+                    continue
+
+            fasta_writer.write(FastaRecord(seq_id=safe_transcript_name, sequence=cdna_seq))
             stats_writer.append(
                 (
                     transcript_name,
-                    transcript_value.gene_id,
-                    transcript_value.seqname,
-                    str(transcript_value.start),
-                    str(transcript_value.end),
-                    transcript_value.strand,
-                    str(transcript_value.end - transcript_value.start + 1),
-                    str(transcript_value.transcribed_length),
-                    str(round(get_gc_percent(cdna_seq) * 100, 2)),
+                    transcript.gene_id,
+                    transcript.seqname,
+                    transcript.start,
+                    transcript.end,
+                    transcript.strand,
+                    transcript.naive_length,
+                    transcript.transcribed_length,
+                    round(get_gc_percent(cdna_seq) * 100, 2),
                 )
             )
             if write_single_transcript:
                 transcript_output_fasta = os.path.join(intermediate_fasta_dir, f"{transcript_name}.fa")
-                with get_writer(transcript_output_fasta) as single_transcript_writer:
-                    single_transcript_writer.write(fa_str)
+                with FastaWriter(transcript_output_fasta) as single_transcript_writer:
+                    single_transcript_writer.write(FastaRecord(seq_id=safe_transcript_name, sequence=cdna_seq))
 
 
 def transcribe(
@@ -88,6 +112,7 @@ def transcribe(
     fv: FastaViewType,
     show_tqdm: bool = True,
     write_single_transcript: bool = True,
+    unsafe_seqname_action: Literal["convert", "error", "skip"] = "convert",
 ):
     """
     TODO: docs
@@ -103,6 +128,7 @@ def transcribe(
         dst_fasta_path=dst_fasta_path,
         fv=fv,
         write_single_transcript=write_single_transcript,
+        unsafe_seqname_action=unsafe_seqname_action,
     )
 
 
@@ -133,7 +159,7 @@ def read_partial_gtf_by_attribute_value(
             if gtf_record.attribute_get(attribute_name, None) in attribute_values:
                 intermediate_records.append(gtf_record)
 
-    gv = GeneTree.from_feature_iterator(intermediate_records, gene_implementation=DumbGene)
+    gv = DiploidGeneTree.from_feature_iterator(intermediate_records, gene_implementation=DumbGene)
     final_record_num = len(gv)
     _lh.info(
         "%d processed with %d (%.2f%%) records output",
@@ -174,7 +200,7 @@ def describe(input_filename: str, out_basename: str):
         Migrated from V1API with exon number disabled.
         The file name of the gene description file changed from gene to genes.
     """
-    gv = GeneTree.from_gtf_file(input_filename, gene_implementation=DumbGene)
+    gv = DiploidGeneTree.from_gtf_file(input_filename, gene_implementation=DumbGene)
 
     with get_writer(f"{out_basename}.genes.tsv") as gene_writer, get_writer(
         f"{out_basename}.transcripts.tsv"
@@ -205,7 +231,17 @@ def describe(input_filename: str, out_basename: str):
             )
             + "\n"
         )
-        exons_writer.write("\t".join(("TRANSCRIPT_ID", "EXON_NUMBER", "NAIVE_LENGTH", "STRAND")) + "\n")
+        exons_writer.write(
+            "\t".join(
+                (
+                    "TRANSCRIPT_ID",
+                    "EXON_NUMBER",
+                    "NAIVE_LENGTH",
+                    "STRAND",
+                )
+            )
+            + "\n"
+        )
 
         for gene in tqdm(
             desc="Iterating over genes...",
