@@ -14,8 +14,9 @@ class ArgparseRepresentableInterface(ABC):
     TODO
     """
 
+    @staticmethod
     @abstractmethod
-    def patch_agparser(self, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    def patch_agparser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         """Patch existing parser"""
         raise NotImplementedError
 
