@@ -121,9 +121,7 @@ def generate_cli_docs(
         for subcommand in libfrontend.get_subcommands(main_module):
             print(f"Generating CLI docs for {subcommand}")
             parser = libfrontend.get_argparser_from_subcommand(main_module, subcommand)
-            this_help_path = os.path.join(
-                dest_dir_path, f"{main_module}.{subcommand}.{format}"
-            )
+            this_help_path = os.path.join(dest_dir_path, f"{main_module}.{subcommand}.{format}")
             if parser is not None:
                 with open(this_help_path, "w") as writer:
                     if format == "myst.md":
@@ -144,23 +142,13 @@ def generate_cli_docs(
     with open(os.path.join(dest_dir_path, "index.md"), "w") as index_writer:
         index_writer.write("# Command-Line Interfaces\n\n")
         for main_module, subcommands in arg_parsers.items():
-            main_module_correct_name = main_module.replace("._main", "").replace(
-                ".main", ""
-            )
+            main_module_correct_name = main_module.replace("._main", "").replace(".main", "")
             index_writer.write(f"## `{main_module_correct_name}`\n\n")
             for subcommand in subcommands:
-                index_writer.write(
-                    f"### `{main_module_correct_name}` `{subcommand}`\n\n"
-                )
+                index_writer.write(f"### `{main_module_correct_name}` `{subcommand}`\n\n")
                 if format == "myst.md":
-                    index_writer.write(
-                        "```{include} "
-                        + f"{main_module}.{subcommand}.{format}"
-                        + "\n```\n\n"
-                    )
+                    index_writer.write("```{include} " + f"{main_module}.{subcommand}.{format}" + "\n```\n\n")
                 elif format == "txt":
                     index_writer.write(
-                        "```{literalinclude} "
-                        + f"{main_module}.{subcommand}.{format}"
-                        + "\n:language: text\n```\n\n"
+                        "```{literalinclude} " + f"{main_module}.{subcommand}.{format}" + "\n:language: text\n```\n\n"
                     )
