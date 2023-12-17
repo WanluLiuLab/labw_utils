@@ -24,10 +24,10 @@ from labw_utils.bioutils.record.feature import strand_repr
 from labw_utils.commonutils.appender import (
     load_table_appender_class,
     TableAppenderConfig,
+    BaseTableAppender,
 )
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.file_system import to_safe_filename
-from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import Iterable, Sequence, List, Literal
 
@@ -202,93 +202,79 @@ def describe(input_filename: str, out_basename: str):
     """
     gv = DiploidGeneTree.from_gtf_file(input_filename, gene_implementation=DumbGene)
 
-    with get_writer(f"{out_basename}.genes.tsv") as gene_writer, get_writer(
-        f"{out_basename}.transcripts.tsv"
-    ) as transcripts_writer, get_writer(f"{out_basename}.exons.tsv") as exons_writer:
-        gene_writer.write(
-            "\t".join(
-                (
-                    "GENE_ID",
-                    "TRANSCRIPT_NUMBER",
-                    "NAIVE_LENGTH",
-                    "TRANSCRIBED_LENGTH",
-                    "MAPPABLE_LENGTH",
-                    "STRAND",
-                )
-            )
-            + "\n"
-        )
-        transcripts_writer.write(
-            "\t".join(
-                (
-                    "TRANSCRIPT_ID",
-                    "GENE_ID",
-                    "NAIVE_LENGTH",
-                    "TRANSCRIBED_LENGTH",
-                    "EXON_NUMBER",
-                    "STRAND",
-                )
-            )
-            + "\n"
-        )
-        exons_writer.write(
-            "\t".join(
-                (
-                    "TRANSCRIPT_ID",
-                    "EXON_NUMBER",
-                    "NAIVE_LENGTH",
-                    "STRAND",
-                )
-            )
-            + "\n"
-        )
-
+    with load_table_appender_class("TSVTableAppender")(
+        os.path.join(f"{out_basename}.genes"),
+        (
+            "GENE_ID",
+            "TRANSCRIPT_NUMBER",
+            "NAIVE_LENGTH",
+            "TRANSCRIBED_LENGTH",
+            "MAPPABLE_LENGTH",
+            "STRAND",
+        ),
+        TableAppenderConfig(),
+    ) as gene_writer, load_table_appender_class("TSVTableAppender")(
+        os.path.join(f"{out_basename}.transcripts"),
+        (
+            "TRANSCRIPT_ID",
+            "GENE_ID",
+            "NAIVE_LENGTH",
+            "TRANSCRIBED_LENGTH",
+            "EXON_NUMBER",
+            "STRAND",
+        ),
+        TableAppenderConfig(),
+    ) as transcripts_writer, load_table_appender_class(
+        "TSVTableAppender"
+    )(
+        os.path.join(f"{out_basename}.exons"),
+        (
+            "TRANSCRIPT_ID",
+            "EXON_NUMBER",
+            "NAIVE_LENGTH",
+            "STRAND",
+        ),
+        TableAppenderConfig(),
+    ) as exons_writer:
+        gene_writer: BaseTableAppender
+        transcripts_writer: BaseTableAppender
+        exons_writer: BaseTableAppender
         for gene in tqdm(
             desc="Iterating over genes...",
             iterable=gv.gene_values,
             total=gv.number_of_genes,
         ):
             gene: Gene
-            gene_writer.write(
-                "\t".join(
-                    (
-                        str(gene.gene_id),
-                        str(gene.number_of_transcripts),
-                        str(gene.naive_length),
-                        str(gene.transcribed_length),
-                        str(gene.mappable_length),
-                        strand_repr(gene.strand),
-                    )
+            gene_writer.append(
+                (
+                    gene.gene_id,
+                    gene.number_of_transcripts,
+                    gene.naive_length,
+                    gene.transcribed_length,
+                    gene.mappable_length,
+                    strand_repr(gene.strand),
                 )
-                + "\n"
             )
-
             transcripts = list(gene.transcript_values)
             for t_i in range(len(transcripts)):
                 transcript = transcripts[t_i]
                 for exon in list(transcript.exons):
                     exon: Exon
-                    exons_writer.write(
-                        "\t".join(
-                            (
-                                exon.transcript_id,
-                                str(-1),  # This field is disabled
-                                str(exon.naive_length),
-                                strand_repr(exon.strand),
-                            )
-                        )
-                        + "\n"
-                    )
-                transcripts_writer.write(
-                    "\t".join(
+                    exons_writer.append(
                         (
-                            transcript.transcript_id,
-                            transcript.gene_id,
-                            str(transcript.naive_length),
-                            str(transcript.transcribed_length),
-                            str(transcript.number_of_exons),
-                            strand_repr(transcript.strand),
+                            exon.transcript_id,
+                            -1,  # This field is disabled
+                            exon.naive_length,
+                            strand_repr(exon.strand),
                         )
                     )
-                    + "\n"
+                transcripts_writer.append(
+                    (
+                        transcript.transcript_id,
+                        transcript.gene_id,
+                        transcript.naive_length,
+                        transcript.transcribed_length,
+                        transcript.number_of_exons,
+                        strand_repr(transcript.strand),
+                    )
                 )

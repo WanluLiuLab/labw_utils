@@ -46,7 +46,6 @@ elif os.getenv("TQDM_IMPL") == "SILENT":
     _external_tqdm = None
 else:
     if not sys.stderr.isatty():
-        _lh.warning("STDERR is not TTY!")
         _external_tqdm = None
 
 if _external_tqdm is not None:

@@ -12,15 +12,15 @@ test_gtf_path = os.path.join(TEST_DATA_DIR, "test.gtf")
 def test_describe():
     with tempfile.TemporaryDirectory() as tmp:
         describe(test_gtf_path, os.path.join(tmp, "tmp"))
-        exons = pd.read_csv(os.path.join(tmp, "tmp.exons.tsv"), sep="\t")
+        exons = pd.read_csv(os.path.join(tmp, "tmp.exons.tsv"), sep="\t", quotechar="'")
         assert len(exons) == 8
         assert list(exons.iloc[0]) == ["UN1.1", -1, 6, "+"]
 
-        transcripts = pd.read_csv(os.path.join(tmp, "tmp.transcripts.tsv"), sep="\t")
+        transcripts = pd.read_csv(os.path.join(tmp, "tmp.transcripts.tsv"), sep="\t", quotechar="'")
         assert len(transcripts) == 4
         assert list(transcripts.iloc[0]) == ["UN1.1", "UN1", 31, 18, 3, "+"]
 
-        genes = pd.read_csv(os.path.join(tmp, "tmp.genes.tsv"), sep="\t")
+        genes = pd.read_csv(os.path.join(tmp, "tmp.genes.tsv"), sep="\t", quotechar="'")
         assert len(genes) == 3
         assert list(genes.iloc[0]) == ["UN1", 2, 40, 30, 18, "+"]
 

@@ -21,7 +21,7 @@ from labw_utils.commonutils.lwio import get_writer, get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List, Mapping, Tuple, Optional
 
-_lh = get_logger()
+_lh = get_logger(__name__)
 
 
 class TransposonDatabase:
