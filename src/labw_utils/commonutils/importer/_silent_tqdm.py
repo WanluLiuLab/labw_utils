@@ -104,6 +104,7 @@ class tqdm(Iterable[_VarType]):
                 self._total = total
         self._stop_pbar_update = self._total is None
         self._iterable = iterable
+        sys.stderr.write(f"Progress bar for {desc}>\n")
         if self._total:
             sys.stderr.write("0%   10   20   30   40   50   60   70   80   90   100%\n")
             sys.stderr.write("|----|----|----|----|----|----|----|----|----|----|\n")
