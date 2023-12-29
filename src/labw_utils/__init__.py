@@ -16,7 +16,7 @@ from __future__ import annotations
 
 __all__ = ("PackageSpec", "PackageSpecs", "UnmetDependenciesError", "__version__")
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 import sys
 import warnings
