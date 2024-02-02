@@ -77,6 +77,8 @@ dependencies:
   - pytables>=3.9.0 # Supported: 3.7.X
   - h5py
 
+  - biopython=1.83
+
   # Build utils
   - pip
   - setuptools

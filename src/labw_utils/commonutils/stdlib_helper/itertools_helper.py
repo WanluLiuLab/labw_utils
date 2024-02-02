@@ -175,3 +175,28 @@ def tail(it: Iterable[_VarType], n: int = 10) -> Iterable[_InType]:
             retl.pop(0)
             retl.append(item)
     return iter(retl)
+
+
+def k_mer(it: Iterable[_VarType], k: int) -> Iterable[Tuple[_VarType, ...]]:
+    """
+    >>> list(k_mer("ABCDE", 3))
+    [('A', 'B', 'C'), ('B', 'C', 'D'), ('C', 'D', 'E')]
+    >>> list(k_mer("AB", 3))
+    [('A', 'B')]
+
+    .. versionadded:: 1.0.3
+    """
+    current_list = []
+    it = iter(it)
+    while len(current_list) < k:
+        try:
+            current_list.append(next(it))
+        except StopIteration:
+            yield from [tuple(current_list)]
+    while True:
+        yield tuple(current_list)
+        _ = current_list.pop(0)
+        try:
+            current_list.append(next(it))
+        except StopIteration:
+            break

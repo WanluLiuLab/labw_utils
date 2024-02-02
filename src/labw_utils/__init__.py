@@ -191,6 +191,7 @@ PackageSpecs.adds(
         PackageSpec(name="scipy", conda_name="scipy", pypi_name="scipy", conda_channel="conda-forge"),
         PackageSpec(name="snappy", conda_name="python-snappy", pypi_name="python-snappy", conda_channel="conda-forge"),
         PackageSpec(name="h5py", conda_name="h5py", pypi_name="h5py", conda_channel="conda-forge"),
+        PackageSpec(name="biopython", conda_name="biopython", pypi_name="biopython", conda_channel="bioconda"),
     ]
 )
 

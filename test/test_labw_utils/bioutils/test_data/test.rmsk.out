@@ -1,0 +1,19 @@
+   SW   perc perc perc  query     position in query              matching       repeat                          position in repeat
+score   div. del. ins.  sequence  begin    end          (left)   repeat         class/family                begin   end    (left)     ID
+
+  307    0.0  0.0  0.0  chrX             1      262 (17718680) + (CTAAGC)n      Simple_repeat                     1    262     (0)     1  
+  429   13.9  0.0 10.3  chrX          4180     4275 (17714667) + PALTTAA2_CE    DNA/PiggyBac                     91    177     (5)     2  
+ 3910    8.3  0.0  0.4  chrX          4400     4944 (17713998) + PALTTAA3_CE    DNA/PiggyBac                      1    543    (59)     3  
+  502   16.5  0.0 26.3  chrX          4937     5109 (17713833) + PALTTAA2_CE    DNA/PiggyBac                     27    163    (19)     4 *
+  445   15.4  0.0 12.8  chrX          5218     5314 (17713628) C PALTTAA2_CE    DNA/PiggyBac                    (5)    177      92     5  
+  410   17.7  0.0 12.8  chrX          5369     5465 (17713477) C PALTTAA2_CE    DNA/PiggyBac                    (4)    178      93     6  
+  436   13.1  0.0 14.9  chrX          5512     5619 (17713323) C PALTTAA2_CE    DNA/PiggyBac                    (5)    177      84     7  
+  433   18.0  0.0 17.4  chrX          5718     5845 (17713097) + PALTTAA2_CE    DNA/PiggyBac                     68    176     (6)     8  
+  502   16.7  0.0  1.1  chrX          6061     6151 (17712791) + PALTTAA2_CE    DNA/PiggyBac                     88    177     (5)     9  
+  662    9.6  2.3 10.1  chrX          6163     6290 (17712652) + PALTTAA2_CE    DNA/PiggyBac                     58    176     (6)    10  
+  242   16.7 13.7  8.5  chrX          7355     7478 (17711464) + HelitronY1A_CE RC/Helitron                     542    671  (2413)    11  
+  308   18.5  1.1 12.1  chrX          8092     8183 (17710759) C PALTTAA2_CE    DNA/PiggyBac                   (35)    147      65    12  
+  267   17.5  1.2 14.1  chrX          8129     8208 (17710734) + PALTTAA2_CE    DNA/PiggyBac                     64    134    (48)    12 *
+  235   13.1  2.1  2.1  chrX         11862    11908 (17707034) C PALTTAA2_CE    DNA/PiggyBac                   (40)    142      96     5  
+   17   14.9  0.0  2.6  chrX         11986    12024 (17706918) + A-rich         Low_complexity                    1     38     (0)    13  
+  479   18.9  2.3  2.3  chrX         13251    13380 (17705562) + CeRep5         Unknown/Unknown-UNKNOWN         172    301     (2)    14  
