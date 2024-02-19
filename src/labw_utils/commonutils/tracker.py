@@ -110,6 +110,7 @@ class FTracker(AbstractJSONSerializable):
 
 
 class FTrackerDaemon:
+    # FIXME: Lock
     ft: FTracker
     fn: str
 

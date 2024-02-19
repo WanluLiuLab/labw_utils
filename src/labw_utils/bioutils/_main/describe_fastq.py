@@ -101,6 +101,8 @@ def fastqc(
                 full_header=full_header,
             ):
                 len_record = len(fastq_record)
+                # FIXME: See <https://bioinformatics.stackexchange.com/questions/15941/what-is-the-right-way-of-calculating-a-phred-score-by-hand>
+                # FIXME: See also <https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/>
                 appender.append(
                     (
                         fastq_record.seq_id,

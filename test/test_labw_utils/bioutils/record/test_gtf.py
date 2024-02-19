@@ -1,6 +1,6 @@
 import os
 
-from labw_utils.bioutils.record.feature import Feature, FeatureType
+from labw_utils.bioutils.record.feature import FeatureInterface, FeatureType
 from labw_utils.bioutils.record.gtf import parse_record, format_string
 from labw_utils.commonutils.lwio.safe_io import get_reader
 from labw_utils.typing_importer import List
@@ -11,7 +11,7 @@ test_gtf_path = os.path.join(TEST_DATA_DIR, "test_various_format.gtf")
 
 def test_gtf_reader():
     with get_reader(test_gtf_path) as reader:
-        featl: List[Feature] = list(map(parse_record, reader))
+        featl: List[FeatureInterface] = list(map(parse_record, reader))
     assert featl[0].seqname == "1"
     assert featl[0].source == "ensembl_havana"
     assert featl[0].feature == "gene"
@@ -36,7 +36,7 @@ def test_gtf_reader():
 
 def test_partial_gtf_reader():
     with get_reader(test_gtf_path) as reader:
-        featl: List[Feature] = list(
+        featl: List[FeatureInterface] = list(
             map(
                 lambda gtf_str: parse_record(
                     gtf_str, skip_fields=["score", "not_exist"], included_attributes=["gene_name", "not_exist"]
