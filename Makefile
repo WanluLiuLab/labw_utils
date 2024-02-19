@@ -9,6 +9,7 @@ requirements_all.txt:
 		requirements_mlutils.txt \
 		requirements_ysjs.txt \
 		requirements_ysjsd.txt \
+		requirements_te.txt \
 	| sort | uniq \
 	> requirements_all.txt
 
