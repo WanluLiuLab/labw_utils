@@ -32,8 +32,12 @@ preconfigure: src
 src:
 	$(MAKE) -C src
 
+.PHONY: intersphinx
+intersphinx:
+	$(MAKE) -C intersphinx
+
 .PHONY: html
-html: apidoc src refs.bibtex.bib preconfigure
+html: apidoc src refs.bibtex.bib preconfigure intersphinx
 	sphinx-build -M html $(CURDIR) $(BUILD_DIR) $(SPHINX_OPTS)
 
 refs.bibtex.bib: refs.bib

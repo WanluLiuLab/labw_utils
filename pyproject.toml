@@ -45,17 +45,17 @@ license-files = ["License.md", "Copying.md"]
 
 [tool.setuptools.dynamic]
 version = { attr = "labw_utils.__version__" }
-readme = { file = "Readme.md" , content-type = "text/markdown"}
+readme = { file = "Readme.md", content-type = "text/markdown" }
 dependencies = { file = "requirements.txt" }
 
 [tool.setuptools.dynamic.optional-dependencies]
-bioutils =  { file = "requirements_bioutils.txt" }
-mlutils =  { file = "requirements_mlutils.txt" }
+bioutils = { file = "requirements_bioutils.txt" }
+mlutils = { file = "requirements_mlutils.txt" }
 #ysjs =  { file = "requirements_ysjs.txt" }
 #ysjsd =  { file = "requirements_ysjsd.txt" }
-appenders =  { file = "requirements_appenders.txt" }
-te =  { file = "requirements_te.txt" }
-all = {file = "requirements_all.txt" }
+appenders = { file = "requirements_appenders.txt" }
+te = { file = "requirements_te.txt" }
+all = { file = "requirements_all.txt" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -95,13 +95,15 @@ html_theme = 'furo'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
-#    'sphinx.ext.intersphinx',
+    'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     "sphinx.ext.viewcode",
     'myst_nb',
     'sphinx_copybutton',
     'sphinxcontrib.bibtex',
-    'sphinx_design'
+    'sphinx_design',
+    'hoverxref.extension',
+    'sphinxcontrib.jquery',
 ]
 
 [tool.mypy]

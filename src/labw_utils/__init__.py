@@ -51,7 +51,7 @@ class PackageSpec:
     _conda_name: Optional[str]
     _pypi_name: Optional[str]
 
-    def __repr__(self):
+    def _get_condastr(self):
         if self._conda_name is not None:
             if self._conda_channel is not None:
                 conda_str = f"Use ``conda install -c {self._conda_channel} {self._conda_name}``"
@@ -59,11 +59,17 @@ class PackageSpec:
                 conda_str = f"Use ``conda install {self._conda_name}``"
         else:
             conda_str = ""
+        return conda_str
+
+    def _get_pypistr(self):
         if self._pypi_name is not None:
             pypi_str = f"Use ``pip install {self._pypi_name}``"
         else:
             pypi_str = ""
-        return "; ".join((conda_str, pypi_str))
+        return pypi_str
+
+    def __repr__(self):
+        return "; ".join((self._get_condastr(), self._get_pypistr()))
 
     def __init__(self, name: str, conda_channel: Optional[str], conda_name: Optional[str], pypi_name: Optional[str]):
         self._name = name
@@ -105,18 +111,7 @@ class PackageSpec:
 
         .. versionadded:: 1.0.3
         """
-        if self._conda_name is not None:
-            if self._conda_channel is not None:
-                conda_str = f"`Conda <https://anaconda.org/{self._conda_channel}/{self._conda_name}>`_"
-            else:
-                conda_str = f"`Conda <https://anaconda.org/main/{self._conda_name}>`_"
-        else:
-            conda_str = ""
-        if self._pypi_name is not None:
-            pypi_str = f"`PYPI <https://pypi.org/project/{self._pypi_name}>`_"
-        else:
-            pypi_str = ""
-        return f"``{self.name}``: Installable using {conda_str}; {pypi_str}."
+        return f"``{self.name}``: Installable using {self._get_condastr()}; {self._get_pypistr()}."
 
 
 class PackageSpecs:
@@ -152,7 +147,7 @@ class PackageSpecs:
         PackageSpecs._deps[item.name] = item
         if PackageSpecs.__doc__ is None:  # Supress mypy
             PackageSpecs.__doc__ = ""
-        PackageSpecs.__doc__ = PackageSpecs.__doc__ + f"\n    - {item.to_rst()}"
+        PackageSpecs.__doc__ += f"\n    - {item.to_rst()}"
 
     @staticmethod
     def adds(items: Iterable[PackageSpec]) -> None:

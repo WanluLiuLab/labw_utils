@@ -57,13 +57,22 @@ autodoc_member_order = "bysource"
 autodoc_typehints = "description"
 
 # Intersphinx settings
+intersphinx_pkgs = [
+    "python",
+    "joblib",
+    "torch",
+    "psutil",
+    "pandas",
+    "numpy",
+]
+
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.8", None),
-    "joblib": ("https://joblib.readthedocs.io/en/latest", None),
-    "torch": ("https://pytorch.org/docs/stable", None),
-    "psutil": ("https://psutil.readthedocs.io/en/latest", None),
-    "pandas": ("https://pandas.pydata.org/docs/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
+    "python": ("https://docs.python.org/3.8", ("intersphinx/python.inv", None)),
+    "joblib": ("https://joblib.readthedocs.io/en/latest", ("intersphinx/joblib.inv", None)),
+    "torch": ("https://pytorch.org/docs/stable", ("intersphinx/torch.inv", None)),
+    "psutil": ("https://psutil.readthedocs.io/en/latest", ("intersphinx/psutil.inv", None)),
+    "pandas": ("https://pandas.pydata.org/docs/", ("intersphinx/pandas.inv", None)),
+    "numpy": ("https://numpy.org/doc/stable/", ("intersphinx/numpy.inv", None)),
 }
 manpages_url = "https://manpages.debian.org/{path}"
 
@@ -79,3 +88,12 @@ nb_merge_streams = True
 bibtex_bibfiles = ["refs.bibtex.bib"]
 bibtex_default_style = "plain"
 bibtex_reference_style = "super"
+
+# sphinx-hoverxref from <https://github.com/scverse/scvi-tools/blob/main/docs/conf.py>
+hoverx_default_type = "tooltip"
+hoverxref_domains = ["ref", "class", "func", "meth", "attr", "exc", "data", "mod", "py", "obj"]
+hoverxref_role_types = dict.fromkeys(
+    ["ref", "class", "func", "meth", "attr", "exc", "data", "mod", "py", "obj"],
+    "tooltip",
+)
+hoverxref_intersphinx = intersphinx_pkgs
