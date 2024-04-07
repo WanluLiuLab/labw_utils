@@ -111,3 +111,8 @@ extensions = [
 mypy_path = "src"
 follow_imports = "silent"
 ignore_missing_imports = true
+
+[tool.black]
+line-length = 120
+target-version = ['py38']
+

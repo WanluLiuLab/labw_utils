@@ -61,6 +61,8 @@
       <excludeFolder url="file://$MODULE_DIR$/doc_contrib/labw_utils_design_impl_cn/_minted-main" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/dictionaries" />
       <excludeFolder url="file://$MODULE_DIR$/.idea/dataSources" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/_cli_docs" />
+      <excludeFolder url="file://$MODULE_DIR$/doc/src/installation/index_files" />
     </content>
     <orderEntry type="jdk" jdkName="labw_utils" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
@@ -68,9 +70,6 @@
   <component name="PyDocumentationSettings">
     <option name="format" value="PLAIN" />
     <option name="myDocStringFormat" value="Plain" />
-  </component>
-  <component name="SonarLintModuleSettings">
-    <option name="uniqueId" value="cb9d2bda-88c4-4e59-9c09-33ae39aa1f0d" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />

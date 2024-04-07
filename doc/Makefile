@@ -50,7 +50,7 @@ refs.bibtex.bib: refs.bib
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) _apidoc _cli_docs _root
 	$(MAKE) -C src clean
 
 .PHONY: distclean

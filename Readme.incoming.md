@@ -4,21 +4,21 @@
 
 ---
 
-`labw_utils` contains a series of Python functions and classes for biological and general purpose programming in LabW.
+`labw_utils` contains a series of Python functions and classes for biological and general purpose programming in [LabW](https://labw.org/).
 
-The code base is designed with following principles:
+The code base is designed with the following principles:
 
 1. Pure-Python implemented.
-2. Minimal dependency. Contents inside this module try to not depend on third-party packages like Pandas or Numpy.
+2. Minimal dependency.
 
 ## Installation
 
 ### Using pre-built Library from PYPI
 
-You need Python interpreter (CPython implementation) >= 3.8 (recommended 3.8) and latest [`pip`](https://pip.pypa.io/) to install this software from [PYPI](https://pypi.org). Command:
+You need Python interpreter (CPython implementation) >= 3.8 (recommended 3.9) and latest [`pip`](https://pip.pypa.io/) to install this software from [PYPI](https://pypi.org). Command:
 
 ```shell
-pip install labw_utils
+pip install labw_utils[defaults]
 ```
 
 You are recommended to use this application inside a virtual environment like [`venv`](https://docs.python.org/3/library/venv.html), [`virtualenv`](https://virtualenv.pypa.io), [`pipenv`](https://pipenv.pypa.io), [`conda`](https://conda.io) or [`poetry`](https://python-poetry.org).
@@ -34,3 +34,7 @@ rm -fr dist # Remove build of previous versions
 python3 -m build
 pip install dist/labw_utils-*.whl
 ```
+
+## Development
+
+Interested in developing `labw_utils` to satisfy the need of your own lab? Contact us at TODO!

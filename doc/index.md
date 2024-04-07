@@ -11,6 +11,7 @@ _root/Readme.incoming
 src/installation/index
 src/tutorial/index
 src/dev/index
+_cli_docs/index
 apidoc_index
 _root/News
 _root/Copying

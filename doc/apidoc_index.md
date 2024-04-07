@@ -1,6 +1,6 @@
 # API Documentations
 
-Here are documentations for developers who wish to use infrastructure provided by this library.
+Here is documentation for developers who wish to use infrastructure provided by this library.
 
 ```{toctree}
 :caption: 'Contents:'

@@ -7,9 +7,9 @@ requirements_all.txt:
 	cat requirements.txt \
 		requirements_bioutils.txt \
 		requirements_mlutils.txt \
-		requirements_ysjs.txt \
-		requirements_ysjsd.txt \
-		requirements_te.txt \
+		requirements_appenders.txt \
+		requirements_transposons.txt \
+		requirements_defaults.txt \
 	| sort | uniq \
 	> requirements_all.txt
 
