@@ -2,7 +2,7 @@ import os
 
 from labw_utils import UnmetDependenciesError
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     try:
@@ -10,7 +10,7 @@ try:
     except AttributeError:
         # Error in Numba under PyPy 3.7
         pytest.skip(allow_module_level=True)
-except ImportError:
+else:
     pytest = None
     try:
         import fastparquet as fp

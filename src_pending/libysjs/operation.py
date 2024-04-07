@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
@@ -9,11 +10,11 @@ from libysjs.ds.ysjs_submission import YSJSSubmission
 from libysjs.ds.ysjsd_config import YSJSDConfig
 from libysjs.ds.ysjsd_status import YSJSDStatus
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     requests = pytest.importorskip("requests")
-except ImportError:
+else:
     pytest = None
     try:
         import requests

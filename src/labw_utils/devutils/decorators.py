@@ -131,7 +131,7 @@ def supress_inherited_doc(force: bool = False, modify_overwritten: bool = False)
 
         return f
 
-    if os.getenv("SPHINX_BUILD") is not None or force:
+    if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None or force:
 
         def real_decorator(obj: _InType) -> _InType:
             def _perform(require_del: bool):
@@ -196,7 +196,7 @@ def doc_del_attr(
 
     .. versionadded:: 1.0.3
     """
-    if os.getenv("SPHINX_BUILD") is not None or force:
+    if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None or force:
 
         def real_decorator(obj: _InType) -> _InType:
             for attr_name in attr_names:
@@ -233,7 +233,7 @@ def chronolog(display_time: bool = False, log_error: bool = False):
     """
 
     def msg_decorator(f: types.FunctionType) -> Callable:
-        if os.environ.get("SPHINX_BUILD") is not None:
+        if os.environ.get("LABW_UTILS_SPHINX_BUILD") is not None:
             return f  # To make Sphinx get the right result.
 
         def inner_dec(*args, **kwargs):
@@ -301,8 +301,10 @@ def create_class_init_doc_from_property(
     ...         \"\"\"Some B value\"\"\"
     ...         return self._b
     >>> print(TestInitDoc.__init__.__doc__)
+    <BLANKLINE>
     :param a: Some A value
     :param b: Some B value
+    <BLANKLINE>
     <BLANKLINE>
 
     Note that this example would NOT work:
@@ -318,6 +320,8 @@ def create_class_init_doc_from_property(
     ...     def __init__(self, a: int, b: int):
     ...         ...
     >>> print(TestInitDoc.__init__.__doc__)
+    <BLANKLINE>
+    <BLANKLINE>
     <BLANKLINE>
 
     .. versionadded:: 1.0.2
@@ -341,7 +345,7 @@ def create_class_init_doc_from_property(
                 result_doc += f":param {argname}: {doc}\n"
                 break
 
-        init_func.__doc__ = text_before + result_doc + text_after
+        init_func.__doc__ = "\n".join((text_before, result_doc, text_after))
         return cls
 
     return inner_dec

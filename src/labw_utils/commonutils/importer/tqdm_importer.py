@@ -30,7 +30,7 @@ from labw_utils.commonutils.importer import _silent_tqdm
 
 _lh = get_logger(__name__)
 
-if os.getenv("SPHINX_BUILD") is None:
+if os.getenv("LABW_UTILS_SPHINX_BUILD") is None:
     try:
         import tqdm as _external_tqdm
     except ImportError:

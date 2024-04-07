@@ -38,12 +38,12 @@ PackageSpecs.add(
     )
 )
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     jupytext = pytest.importorskip("jupytext")
     nbf = pytest.importorskip("nbformat")
-except ImportError:
+else:
     pytest = None
     try:
         import jupytext

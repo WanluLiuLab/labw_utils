@@ -2,11 +2,11 @@ import os
 
 from labw_utils import UnmetDependenciesError
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     pt = pytest.importorskip("tables")
-except ImportError:
+else:
     pytest = None
     try:
         import tables as pt

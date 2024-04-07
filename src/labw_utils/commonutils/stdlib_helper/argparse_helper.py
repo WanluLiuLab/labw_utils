@@ -147,9 +147,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
                 for c in action.choices:
                     choices_str += f"\n    {c}"
             else:
-                raise TypeError(
-                    f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable"
-                )
+                raise TypeError(f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable")
         else:
             choices_str = ""
 
@@ -158,9 +156,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
         if action.required:
             req_opt_prefix = "[REQUIRED] "
             if action.default is not None and action.default is not argparse.SUPPRESS:
-                raise ValueError(
-                    f"Argument {action} setted both required and default ({action.default})!"
-                )
+                raise ValueError(f"Argument {action} setted both required and default ({action.default})!")
         else:
             req_opt_prefix = "[OPTIONAL] "
         if not hasattr(action.type, "__name__"):
@@ -186,12 +182,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
                 else:
                     default_prefix = "No defaults"
         try:
-            return (
-                (req_opt_prefix + dtype_prefix + default_prefix).strip()
-                + "\n"
-                + help_str % params
-                + choices_str
-            )
+            return (req_opt_prefix + dtype_prefix + default_prefix).strip() + "\n" + help_str % params + choices_str
         except ValueError as e:
             print(f"Failed to format help string for '{help_str}' using {params}")
             raise e
@@ -205,9 +196,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
             elif isinstance(action.choices, Iterable):
                 choice_strs = [str(choice) for choice in action.choices]
             else:
-                raise TypeError(
-                    f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable"
-                )
+                raise TypeError(f"Type of {action.choices} ({type(action.choices)}) should be Enum or Iterable")
 
             result = "{%s}" % ",".join(choice_strs)
         else:
@@ -223,11 +212,7 @@ class _EnhancedHelpFormatter(argparse.HelpFormatter):
 
     def _format_action(self, action: argparse.Action):
         help_position = min(self._action_max_length + 2, self._max_help_position)
-        action_header = (
-            "%*s" % (self._current_indent, "")
-            + self._format_action_invocation(action)
-            + "\n"
-        )
+        action_header = "%*s" % (self._current_indent, "") + self._format_action_invocation(action) + "\n"
         parts = [action_header]
         if action.help:
             help_text = self._expand_help(action)
@@ -268,11 +253,7 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         )
 
         for action_group in self._action_groups:
-            formatter.start_section(
-                _ACTION_GROUP_TILE_REPLACEMENT_DICT.get(
-                    action_group.title, action_group.title
-                )
-            )
+            formatter.start_section(_ACTION_GROUP_TILE_REPLACEMENT_DICT.get(action_group.title, action_group.title))
             formatter.add_arguments(action_group._group_actions)
             formatter.end_section()
 
@@ -334,33 +315,17 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
         for action_group in self._action_groups:
             if not action_group._group_actions:
                 continue
-            append(
-                bold(
-                    _ACTION_GROUP_TILE_REPLACEMENT_DICT.get(
-                        action_group.title, action_group.title
-                    )
-                    + ":"
-                )
-            )
+            append(bold(_ACTION_GROUP_TILE_REPLACEMENT_DICT.get(action_group.title, action_group.title) + ":"))
             append("")
 
             for action in action_group._group_actions:
                 ah = action.help if action.help is not None else "NO HELP"
 
-                required_str = (
-                    italic("[REQUIRED]") if action.required else italic("[OPTIONAL]")
-                )
+                required_str = italic("[REQUIRED]") if action.required else italic("[OPTIONAL]")
                 if not action.option_strings:
                     append("- " + code(action.dest) + " " + required_str + ": " + ah)
                 else:
-                    append(
-                        "- "
-                        + ", ".join(map(code, action.option_strings))
-                        + " "
-                        + required_str
-                        + ": "
-                        + ah
-                    )
+                    append("- " + ", ".join(map(code, action.option_strings)) + " " + required_str + ": " + ah)
 
                 indent()
                 append("")
@@ -375,9 +340,7 @@ class ArgumentParserWithEnhancedFormatHelp(argparse.ArgumentParser):
                 if action.default is not argparse.SUPPRESS:
                     defaulting_nargs = [argparse.OPTIONAL, argparse.ZERO_OR_MORE]
                     if action.option_strings or action.nargs in defaulting_nargs:
-                        default_prefix = (
-                            bold("Default:") + " " + code(repr(action.default))
-                        )
+                        default_prefix = bold("Default:") + " " + code(repr(action.default))
                 append(default_prefix)
 
                 append("")

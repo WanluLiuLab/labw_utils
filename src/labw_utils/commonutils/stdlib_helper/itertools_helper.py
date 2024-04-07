@@ -13,6 +13,7 @@ __all__ = (
     "window",
     "head",
     "tail",
+    "k_mer",
 )
 
 from labw_utils.typing_importer import (
@@ -193,6 +194,7 @@ def k_mer(it: Iterable[_VarType], k: int) -> Iterable[Tuple[_VarType, ...]]:
             current_list.append(next(it))
         except StopIteration:
             yield from [tuple(current_list)]
+            return
     while True:
         yield tuple(current_list)
         _ = current_list.pop(0)

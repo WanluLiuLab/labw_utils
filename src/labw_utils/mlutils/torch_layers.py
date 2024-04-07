@@ -3,14 +3,15 @@
 
 .. versionadded:: 1.0.2
 """
+import os
 
 from labw_utils import UnmetDependenciesError
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     torch = pytest.importorskip("torch")
-except ImportError:
+else:
     pytest = None
     try:
         import torch

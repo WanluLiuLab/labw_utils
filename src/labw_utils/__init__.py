@@ -54,16 +54,16 @@ class PackageSpec:
     def _get_condastr(self):
         if self._conda_name is not None:
             if self._conda_channel is not None:
-                conda_str = f"Use ``conda install -c {self._conda_channel} {self._conda_name}``"
+                conda_str = f"``conda install -c {self._conda_channel} {self._conda_name}``"
             else:
-                conda_str = f"Use ``conda install {self._conda_name}``"
+                conda_str = f"``conda install {self._conda_name}``"
         else:
             conda_str = ""
         return conda_str
 
     def _get_pypistr(self):
         if self._pypi_name is not None:
-            pypi_str = f"Use ``pip install {self._pypi_name}``"
+            pypi_str = f"``pip install {self._pypi_name}``"
         else:
             pypi_str = ""
         return pypi_str

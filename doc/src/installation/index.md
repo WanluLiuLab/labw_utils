@@ -1,6 +1,6 @@
-# Installing `labw_utils`
+# Installation
 
-`labw_utils` is a package that can both be used as an executable and as a supporting library. Here provides a detailed guide on how it should be installed. In following text, `[VERSION]` should be replaced with your desired version, currently 1.0.1.
+`labw_utils` is a package that can both be used as an executable and as a supporting library. Here provides a detailed guide on how it should be installed.
 
 ```{warning}
 Copy-and-paste code on a website to your terminal is dangerous. See following StackOverflow pages for more details on prevention:
@@ -12,7 +12,7 @@ Copy-and-paste code on a website to your terminal is dangerous. See following St
 
 ## Prerequisites
 
-The `labw_utils` is implemented in Python, so a working Python intepreter is required. Following are several popular ways to get it installed:
+`labw_utils` is implemented in Python, so a working Python intepreter is required. The following are several popular ways to get it installed:
 
 ::::{tab-set}
 
@@ -80,7 +80,7 @@ You are recommended to use `labw_utils` in a separate environment since it may p
 ```shell
 conda create -n labw_utils python=3.8
 codna activate labw_utils
-pip install labw_utils~=[VERSION]
+pip install labw_utils[defaults]~=1.0.4
 ```
 
 :::
@@ -91,7 +91,7 @@ pip install labw_utils~=[VERSION]
 You are recommended to use `labw_utils` in a separate environment since it may pollute your global or user `site-packages` (or `dist-packages`, as-is in Debian-based GNU/Linux). You may create virtual environment using [`venv`](https://docs.python.org/3/library/venv.html), [`virtualenv`](https://virtualenv.pypa.io), [`pipenv`](https://pipenv.pypa.io), [`conda`](https://conda.io) or [`poetry`](https://python-poetry.org). You are recommended to use `venv` as it is usually binding with your Python installation [^Debian]. After activating your virtual environment, use:
 
 ```shell
-pip install labw_utils~=[VERSION]
+pip install labw_utils[defaults]~=1.0.4
 ```
 
 [^Debian]: In Debian-based GNU/Linux, install [`python3-venv`](https://packages.debian.org/stable/python3-venv) before proceeding if you installed your Python using APT.
@@ -152,7 +152,7 @@ Suppose you're developing a software package named `foo` using Python 3.8 and wi
     - [OTHER CONDA DEPENDENCIES]
 
     - pip:
-        - labw_utils~=[VERSION]
+        - labw_utils[defaults]~=1.0.4
         - [OTHER PIP DEPENDENCIES]
     ```
 
@@ -166,7 +166,7 @@ Suppose you're developing a software package named `foo` using Python 3.8 and wi
 1. Create a file named `requirements.txt` as follows:
 
     ```text
-    labw_utils~=[VERSION]
+    labw_utils[defaults]~=1.0.4
     ```
 
 2. Create virtual environment.
@@ -186,15 +186,7 @@ You may test whether your installation is successful using:
 
 ## Dependencies
 
-The default installation requires following packages:
-
-- [`tqdm`](https://tqdm.github.io), for a user-friendly progress bar.
-  - Although not recommended, this package can be uninstalled. If so, `labw_utils` would use a bundled shabby process bar implementation.
-- [`numpy`](https://numpy.org), for performing numerical operations. This package is used in most places so uninstallation is not recommended.
-- [`tomli-w`](https://pypi.org/project/tomli-w), for serialization to TOML formats.
-  - These packages can be uninstalled if you do not use {py:mod}`labw_utils.commonutils.serializer.toml` module.
-- [`pandas`](https://pandas.pydata.org), for reading and writing relational data formats. This package is used in most places so uninstallation is not recommended.
-- [`joblib`](https://joblib.readthedocs.io), for embarrasing parallelization of small tasks.
+From version 1.0.4 and on, `labw_utils` is provided with none dependency. That allows easy integration to environments where a solution cannot be found by PYPI.
 
 ### Non-Default Installation with Optional Extras
 
@@ -219,7 +211,7 @@ labw_utils.UnmetDependenciesError: torch not installed; Use ``conda install -c p
 in place where the default strategy fails. You can use pip's "optional extra" function to install other dependencies. For example, to perform installation with `bioutils` extra, you should:
 
 ```shell
-pip install labw_utils[bioutils]~=[VERSION]
+pip install labw_utils[defaults,bioutils]~=1.0.4
 ```
 
 which also works in `requirements.txt`.
@@ -227,10 +219,20 @@ which also works in `requirements.txt`.
 You can specify multiple extras. For example:
 
 ```shell
-pip install labw_utils[bioutils,mlutils]~=[VERSION]
+pip install labw_utils[defaults,bioutils,mlutils]~=1.0.4
 ```
 
 A list of extras are:
+
+#### `defaults`
+
+The default installation requires the following packages:
+
+- [`numpy`](https://numpy.org), for performing numerical operations.
+- [`tomli-w`](https://pypi.org/project/tomli-w), for serialization to TOML formats.
+    - These packages can be uninstalled if you do not use {py:mod}`labw_utils.commonutils.serializer.toml` module.
+- [`pandas`](https://pandas.pydata.org), for reading and writing relational data formats.
+- [`joblib`](https://joblib.readthedocs.io), for embarrassing parallelization of small tasks.
 
 #### `bioutils`
 

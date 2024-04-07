@@ -196,7 +196,7 @@ def describe(input_filename: str, out_basename: str):
     """
     Describe input GTF.
 
-    .. versionadd:: 0.1.3
+    .. versionadded:: 0.1.3
         Migrated from V1API with exon number disabled.
         The file name of the gene description file changed from gene to genes.
     """

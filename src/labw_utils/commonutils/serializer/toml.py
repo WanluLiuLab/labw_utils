@@ -54,7 +54,7 @@ from abc import ABC, abstractmethod
 import os
 
 # TODO: Finish this module
-if os.getenv("SPHINX_BUILD") is not None:
+if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None:
     __all__ = []
 else:
     __all__ = [
@@ -70,12 +70,12 @@ from labw_utils.stdlib.cpy311 import tomllib
 from labw_utils.typing_importer import Any, Optional, Callable
 from labw_utils.typing_importer import Mapping
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     tomli_w = pytest.importorskip("tomli_w")
 
-except ImportError:
+else:
     try:
         import tomli_w
     except ImportError as e:
@@ -111,16 +111,10 @@ def read_toml_with_metadata(
     """
     Read and validate TOML files with metadata.
     """
-    if (
-        lwio.is_io(path_of_fd)
-        and path_of_fd.readable()
-        and not lwio.is_textio(path_of_fd)
-    ):
+    if lwio.is_io(path_of_fd) and path_of_fd.readable() and not lwio.is_textio(path_of_fd):
         in_dict = tomllib.load(path_of_fd)
     elif lwio.is_path(path_of_fd):
-        with lwio.file_open(
-            file_path=path_of_fd, mode=lwio.ModeEnum.READ, is_binary=True
-        ) as reader:
+        with lwio.file_open(file_path=path_of_fd, mode=lwio.ModeEnum.READ, is_binary=True) as reader:
             in_dict = tomllib.load(reader)
     else:
         raise TypeError(f"Type {type(path_of_fd)} not supported!")
@@ -151,16 +145,10 @@ def write_toml_with_metadata(
         if metadata is not None:
             retd["metadata"] = metadata
 
-    if (
-        lwio.is_io(path_of_fd)
-        and path_of_fd.writable()
-        and not lwio.is_textio(path_of_fd)
-    ):
+    if lwio.is_io(path_of_fd) and path_of_fd.writable() and not lwio.is_textio(path_of_fd):
         tomli_w.dump(retd, path_of_fd)
     elif lwio.is_path(path_of_fd):
-        with lwio.file_open(
-            file_path=path_of_fd, mode=lwio.ModeEnum.WRITE, is_binary=True
-        ) as writer:
+        with lwio.file_open(file_path=path_of_fd, mode=lwio.ModeEnum.WRITE, is_binary=True) as writer:
             tomli_w.dump(retd, writer)
     else:
         raise TypeError(f"Type {type(path_of_fd)} not supported!")
@@ -177,9 +165,7 @@ class AbstractTOMLSerializable(SerializableInterface, TOMLRepresentableInterface
 
     @classmethod
     def load(cls, path: str, **kwargs):
-        return cls.from_dict(
-            read_toml_with_metadata(path, cls._title, cls._validate_versions)
-        )
+        return cls.from_dict(read_toml_with_metadata(path, cls._title, cls._validate_versions))
 
     def save(self, path_of_fd: lwio.PathOrFDType, **kwargs) -> None:
         write_toml_with_metadata(

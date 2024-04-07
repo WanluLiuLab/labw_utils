@@ -1,4 +1,4 @@
-export SPHINX_BUILD := 1
+export LABW_UTILS_SPHINX_BUILD := 1
 
 SPHINX_OPTS := -j auto -v -T
 

@@ -44,6 +44,7 @@ serve-doc:
 
 .PHONY: test
 test:
+	export LABW_UTILS_UNDER_PYTEST=1
 	pytest test src
 
 .PHONY: sonar-scanner

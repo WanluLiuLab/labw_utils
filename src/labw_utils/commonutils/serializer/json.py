@@ -47,7 +47,7 @@ import os
 from io import TextIOWrapper
 
 # TODO: Finish this module
-if os.getenv("SPHINX_BUILD") is not None:
+if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None:
     __all__ = []
 
 from labw_utils import UnmetDependenciesError

@@ -12,7 +12,7 @@ from sphinx.application import Sphinx
 import labw_utils
 from labw_utils.stdlib.cpy311 import tomllib
 
-os.environ["SPHINX_BUILD"] = "1"  # Disable chronolog and others.
+os.environ["LABW_UTILS_SPHINX_BUILD"] = "1"  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
 

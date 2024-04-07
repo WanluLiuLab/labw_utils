@@ -21,16 +21,17 @@ from labw_utils.bioutils.record.feature import FeatureType
 from labw_utils.commonutils.stdlib_helper.argparse_helper import ArgumentParserWithEnhancedFormatHelp
 from labw_utils.typing_importer import List, Optional, Union, Literal
 
-try:
+if os.environ.get("LABW_UTILS_UNDER_PYTEST", None) is not None:
     import pytest
 
     pysam = pytest.importorskip("pysam")
-except ImportError:
+else:
     pytest = None
     try:
         import pysam
     except ImportError as e:
         raise UnmetDependenciesError("pysam") from e
+
 
 from labw_utils.bioutils.algorithm.utils import merge_intervals
 from labw_utils.commonutils.importer.tqdm_importer import tqdm

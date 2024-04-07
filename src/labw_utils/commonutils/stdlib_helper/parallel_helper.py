@@ -254,10 +254,7 @@ class ParallelJobExecutor(threading.Thread):
                         pbar.update(1)
 
         while len(self._pending_job_queue) > 0 and not self._is_terminated:
-            while (
-                len(self._pending_job_queue) > 0
-                and len(self._running_job_queue) < self._pool_size
-            ):
+            while len(self._pending_job_queue) > 0 and len(self._running_job_queue) < self._pool_size:
                 new_process = self._pending_job_queue.pop(0)
                 self._running_job_queue.append(new_process)
                 new_process.start()
@@ -444,14 +441,8 @@ def easyexec(
     cwd: str = os.getcwd(),
 ) -> int:
     _lh.debug(f"EASYEXEC {' '.join(cmd)} START")
-    err_stream = (
-        subprocess.DEVNULL if log_path is None else get_writer(log_path, is_binary)
-    )
-    out_stream = (
-        err_stream
-        if capture_output_path is None
-        else get_writer(capture_output_path, is_binary)
-    )
+    err_stream = subprocess.DEVNULL if log_path is None else get_writer(log_path, is_binary)
+    out_stream = err_stream if capture_output_path is None else get_writer(capture_output_path, is_binary)
     p = subprocess.Popen(
         cmd,
         cwd=cwd,

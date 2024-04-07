@@ -16,7 +16,7 @@ from labw_utils.typing_importer import Mapping
 from labw_utils.typing_importer import Optional, Any
 
 # TODO: Finish this module
-if os.getenv("SPHINX_BUILD") is not None:
+if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None:
     __all__ = []
 else:
     __all__ = ("SerializableInterface",)

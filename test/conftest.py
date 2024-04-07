@@ -8,6 +8,8 @@ import pytest
 
 from labw_utils.commonutils.stdlib_helper import logger_helper, shutil_helper
 
+os.environ["LABW_UTILS_UNDER_PYTEST"] = "1"
+
 
 class SessionTestInfo:
     __slots__ = "base_test_dir"

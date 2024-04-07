@@ -58,17 +58,14 @@ class SubstMatrix:
                         while "" in contents:
                             contents.remove("")
                         h1 = contents.pop(0)
-                        real_mtx[h1] = {
-                            h2: v for h2, v in zip(header, map(int, contents))
-                        }
+                        real_mtx[h1] = {h2: v for h2, v in zip(header, map(int, contents))}
         return cls(real_mtx)
 
 
 _FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 _SUBST_MTX_PATHS = {
-    os.path.basename(fn).split(".")[0]: fn
-    for fn in glob.glob(os.path.join(_FILE_DIR, "scoring_mtx", "*.mat"))
+    os.path.basename(fn).split(".")[0]: fn for fn in glob.glob(os.path.join(_FILE_DIR, "scoring_mtx", "*.mat"))
 }
 
 
@@ -302,10 +299,7 @@ class SmithWatermanAligner:
                 if this_location == prev_location:
                     continue
                 elif this_location == (prev_location[0] + 1, prev_location[1] + 1):
-                    if (
-                        self.seq1[this_location[0] - 1]
-                        == self.seq2[this_location[1] - 1]
-                    ):
+                    if self.seq1[this_location[0] - 1] == self.seq2[this_location[1] - 1]:
                         out_array.append(
                             (
                                 self.seq1[this_location[0] - 1],
@@ -357,12 +351,7 @@ class SmithWatermanAligner:
                     )
                 )
                 + "\n"
-                + "\n".join(
-                    (
-                        _seq1 + ""
-                        for _seq1 in ["".join(_seq) for _seq in zip(*out_array)]
-                    )
-                )
+                + "\n".join((_seq1 + "" for _seq1 in ["".join(_seq) for _seq in zip(*out_array)]))
             )
             retl.add(rets)
         self._backtrack = list(retl)

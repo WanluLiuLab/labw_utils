@@ -5,7 +5,7 @@ import shutil
 from labw_utils.devutils import myst_nb_helper
 from labw_utils.typing_importer import List
 
-os.environ["SPHINX_BUILD"] = "1"  # Disable chronolog and others.
+os.environ["LABW_UTILS_SPHINX_BUILD"] = "1"  # Disable chronolog and others.
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(THIS_DIR)
 
