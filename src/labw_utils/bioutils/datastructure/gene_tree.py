@@ -3,6 +3,7 @@ TODO: docs
 
 .. versionadded:: 1.0.2
 """
+
 from __future__ import annotations
 
 import itertools
@@ -115,6 +116,15 @@ class GeneTreeInterface(GeneContainerInterface, TranscriptContainerInterface, Ca
     def gc(self):
         raise NotImplementedError
 
+    @abstractmethod
+    def gene_id_transcript_ids_map(self) -> Mapping[str, Sequence[str]]:
+        """
+        TODO docs
+
+        .. versionadded:: 1.0.4
+        """
+        raise NotImplementedError
+
 
 class BaseGeneTree(GeneTreeInterface, ABC):
     """
@@ -122,6 +132,14 @@ class BaseGeneTree(GeneTreeInterface, ABC):
 
     .. versionadded:: 1.0.2
     """
+
+    def gene_id_transcript_ids_map(self) -> Mapping[str, Sequence[str]]:
+        retd = {}
+        for gene_id in self.gene_ids:
+            retd[gene_id] = []
+            for gene in self.get_gene(gene_id):
+                retd[gene_id].extend(gene.transcript_ids)
+        return retd
 
     @classmethod
     def from_gvpkl(cls, gtf_index_file_path: str):

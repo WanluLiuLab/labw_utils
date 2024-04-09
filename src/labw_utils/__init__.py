@@ -6,8 +6,8 @@ It also defines some commonly used dependencies.
 
 Import of this module may raise the following errors & warnings:
 
-- :py:obj:`RuntimeError`: If Python version lower than or equal to 3.6.
-- :py:obj:`UserWarning`: If Python version is 3.7.
+- :py:obj:`RuntimeError`: If Python's version lower than or equal to 3.6.
+- :py:obj:`UserWarning`: If Python's version is 3.7.
 
 .. versionadded:: 1.0.2
 """
@@ -187,6 +187,9 @@ PackageSpecs.adds(
         PackageSpec(name="snappy", conda_name="python-snappy", pypi_name="python-snappy", conda_channel="conda-forge"),
         PackageSpec(name="h5py", conda_name="h5py", pypi_name="h5py", conda_channel="conda-forge"),
         PackageSpec(name="biopython", conda_name="biopython", pypi_name="biopython", conda_channel="bioconda"),
+        PackageSpec(name="scanpy", conda_name="scanpy", pypi_name="scanpy", conda_channel="bioconda"),
+        PackageSpec(name="anndata", conda_name="anndata", pypi_name="anndata", conda_channel="conda-forge"),
+        PackageSpec(name="yasim", pypi_name="yasim", conda_channel=None, conda_name=None),
     ]
 )
 
