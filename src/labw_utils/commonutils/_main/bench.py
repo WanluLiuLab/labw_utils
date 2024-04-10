@@ -6,6 +6,7 @@ Benchmark Python interpreter.
 
 .. versionadded:: 1.0.2
 """
+
 import concurrent.futures
 import functools
 import gc

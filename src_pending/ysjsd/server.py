@@ -59,13 +59,11 @@ def serve_status() -> ResponseType:
 
 
 @global_flask_app.route("/ysjsd/api/v1.0/submission/<submission_id>", methods=["GET"])
-def serve_submission(submission_id: str) -> ResponseType:
-    ...
+def serve_submission(submission_id: str) -> ResponseType: ...
 
 
 @global_flask_app.route("/ysjsd/api/v1.0/job/<int:job_id>", methods=["GET"])
-def serve_job(job_id: int) -> ResponseType:
-    ...
+def serve_job(job_id: int) -> ResponseType: ...
 
 
 @global_flask_app.route("/ysjsd/api/v1.0/job/<int:job_id>/cancel", methods=["POST"])

@@ -3,6 +3,7 @@
 
 .. versionadded:: 1.0.2
 """
+
 import os
 
 from labw_utils import UnmetDependenciesError

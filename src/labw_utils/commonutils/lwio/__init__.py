@@ -15,6 +15,7 @@ like is implemented in :py:mod:`fileinput` module.
 
 .. versionadded:: 1.0.2
 """
+
 # TODO: Fix docs
 
 from __future__ import annotations
@@ -356,13 +357,11 @@ def convert_path_to_str(path: PathType) -> str:
 
 
 @overload
-def type_check(obj: FDType) -> Literal[True]:
-    ...
+def type_check(obj: FDType) -> Literal[True]: ...
 
 
 @overload
-def type_check(obj: PathType) -> Literal[False]:
-    ...
+def type_check(obj: PathType) -> Literal[False]: ...
 
 
 def type_check(obj: object) -> bool:
@@ -1232,8 +1231,7 @@ def file_open(
     line_reader: bool = False,
     tqdm_reader: bool = False,
     **kwargs,
-) -> ReadOnlyTextIOProxy:
-    ...
+) -> ReadOnlyTextIOProxy: ...
 
 
 @overload
@@ -1249,8 +1247,7 @@ def file_open(
     line_reader: bool = False,
     tqdm_reader: bool = False,
     **kwargs,
-) -> WriteOnlyTextIOProxy:
-    ...
+) -> WriteOnlyTextIOProxy: ...
 
 
 @overload
@@ -1266,8 +1263,7 @@ def file_open(
     line_reader: bool = False,
     tqdm_reader: bool = False,
     **kwargs,
-) -> ReadOnlyBinaryIOProxy:
-    ...
+) -> ReadOnlyBinaryIOProxy: ...
 
 
 @overload
@@ -1283,8 +1279,7 @@ def file_open(
     line_reader: bool = False,
     tqdm_reader: bool = False,
     **kwargs,
-) -> WriteOnlyBinaryIOProxy:
-    ...
+) -> WriteOnlyBinaryIOProxy: ...
 
 
 def file_open(  # type: ignore
@@ -1385,13 +1380,11 @@ def wrap_io(
 
 
 @overload
-def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]:
-    ...
+def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]: ...
 
 
 @overload
-def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]:
-    ...
+def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]: ...
 
 
 def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False, **kwargs) -> IOProxy:
@@ -1419,13 +1412,11 @@ def get_reader(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False
 
 
 @overload
-def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]:
-    ...
+def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]: ...
 
 
 @overload
-def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]:
-    ...
+def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]: ...
 
 
 def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False, **kwargs) -> IOProxy:
@@ -1453,13 +1444,11 @@ def get_writer(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False
 
 
 @overload
-def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]:
-    ...
+def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[False], **kwargs) -> IOProxy[str]: ...
 
 
 @overload
-def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]:
-    ...
+def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[True], **kwargs) -> IOProxy[bytes]: ...
 
 
 def get_appender(path_or_fd: PathOrFDType, is_binary: Literal[False, True] = False, **kwargs) -> IOProxy:

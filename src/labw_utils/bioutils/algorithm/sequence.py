@@ -3,6 +3,7 @@
 
 .. versionadded:: 1.0.2
 """
+
 import itertools
 
 from labw_utils.typing_importer import Iterable, List, Optional, Tuple

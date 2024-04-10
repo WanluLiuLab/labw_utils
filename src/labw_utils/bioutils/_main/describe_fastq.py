@@ -5,6 +5,7 @@ describe_fastq.py -- Lite Python-implemented fastqc.
 .. versionchanged:: 1.0.3
     The param --out is truly optional.
 """
+
 import argparse
 import os
 

@@ -1,6 +1,7 @@
 """
 test_fasta.py -- Unit test of corresponding module.
 """
+
 import itertools
 import os
 import tempfile

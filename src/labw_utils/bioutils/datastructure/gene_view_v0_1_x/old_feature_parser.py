@@ -23,6 +23,7 @@ This module does not:
   See :py:class:`labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view.GeneView` for this feature.
 
 """
+
 from collections import defaultdict
 
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.old_feature_record import (

@@ -3,6 +3,7 @@ TODO: docs
 
  .. versionadded:: 1.0.2
 """
+
 from __future__ import annotations
 
 __all__ = ("FastaIndexView", "create_fai_from_fasta")

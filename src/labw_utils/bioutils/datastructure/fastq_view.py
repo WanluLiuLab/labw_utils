@@ -3,6 +3,7 @@ TODO: docs
 
 .. versionadded:: 1.0.2
 """
+
 from labw_utils.bioutils.parser.fastq import FastqIterator
 from labw_utils.bioutils.record.fastq import FastqRecord
 from labw_utils.typing_importer import Dict

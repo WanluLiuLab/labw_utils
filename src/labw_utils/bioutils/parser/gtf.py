@@ -3,6 +3,7 @@ TODO: docs
 
 .. versionadded:: 1.0.2
 """
+
 from labw_utils.bioutils.parser import BaseFileIterator, BaseIteratorWriter
 from labw_utils.bioutils.record.feature import FeatureInterface, DEFAULT_GTF_QUOTE_OPTIONS
 from labw_utils.bioutils.record.gtf import parse_record, format_string, GTFParsingError

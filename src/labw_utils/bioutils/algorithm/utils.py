@@ -3,6 +3,7 @@
 
  .. versionadded:: 1.0.2
 """
+
 from __future__ import annotations
 
 import math

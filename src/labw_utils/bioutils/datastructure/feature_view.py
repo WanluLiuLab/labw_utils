@@ -3,6 +3,7 @@
 
 .. versionadded:: 1.0.2
 """
+
 from labw_utils.bioutils.parser.gtf import GtfIterator
 from labw_utils.bioutils.record.feature import Feature
 from labw_utils.commonutils.lwio.file_system import should_regenerate

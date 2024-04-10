@@ -2,7 +2,6 @@
 .. versionadded:: 1.0.3
 """
 
-
 import argparse
 from abc import ABC, abstractmethod
 

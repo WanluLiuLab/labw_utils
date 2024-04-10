@@ -1,6 +1,7 @@
 """
 Common file suffixes. To be deprecated.
 """
+
 import itertools
 
 common_suffixes = {"GTF": (".gtf", ".gff"), "GFF3": (".gff3",)}
