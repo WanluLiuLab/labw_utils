@@ -118,7 +118,7 @@ def generate_cli_docs(
 
     arg_parsers = defaultdict(lambda: [])
     for main_module in config_toml["names"]:
-        for subcommand in libfrontend.get_subcommands(main_module):
+        for subcommand in libfrontend.get_subcommands(main_module, verbose=True):
             print(f"Generating CLI docs for {subcommand}")
             parser = libfrontend.get_argparser_from_subcommand(main_module, subcommand)
             this_help_path = os.path.join(dest_dir_path, f"{main_module}.{subcommand}.{format}")
