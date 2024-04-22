@@ -245,3 +245,6 @@ class TransposonDatabase:
         selected_accn = rdg.choice(self._accessions)
         selected_seq = self._accession_sequence_map[selected_accn]
         return selected_accn, selected_seq
+
+    def seq(self, transposon_accession: str) -> str:
+        return self._accession_sequence_map[transposon_accession]
