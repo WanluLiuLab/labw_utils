@@ -11,7 +11,7 @@ from labw_utils.bioutils.record.feature import Feature
 from labw_utils.typing_importer import Iterable, List, Tuple, Optional
 
 
-class QuantificationOptimizedGeneTree:
+class QuantificationOptimizedFeatureIndex:
     """
     TODO: docs
 
@@ -36,7 +36,7 @@ class QuantificationOptimizedGeneTree:
         feature_iterator: Iterable[Feature],
         feature_attribute_name: str = "transcript_id",
         feature_type: str = "exon",
-    ) -> QuantificationOptimizedGeneTree:
+    ) -> QuantificationOptimizedFeatureIndex:
         staged_features = []
         chromosome_names = set()
         for feature in feature_iterator:

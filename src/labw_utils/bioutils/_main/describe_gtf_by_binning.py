@@ -19,8 +19,8 @@ from labw_utils import UnmetDependenciesError
 from labw_utils.bioutils.comm_frontend_opts import FrontendOptSpecs
 from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory
-from labw_utils.bioutils.datastructure.quantification_optimized_gene_tree import (
-    QuantificationOptimizedGeneTree,
+from labw_utils.bioutils.datastructure.quantification_optimized_feature_index import (
+    QuantificationOptimizedFeatureIndex,
 )
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio.safe_io import get_writer
@@ -93,7 +93,7 @@ def main(args: List[str]) -> None:
     if os.path.exists(isoform_qoidx_path):
         gtf_isoform_intervals = pickle_helper.load(isoform_qoidx_path)
     else:
-        gtf_isoform_intervals = QuantificationOptimizedGeneTree.from_feature_iterator(
+        gtf_isoform_intervals = QuantificationOptimizedFeatureIndex.from_feature_iterator(
             tqdm([gv.iter_genes()], desc="Creating Isoform-Level QOIDX"),
             feature_attribute_name="transcript_id",
             feature_type="transcript",
@@ -102,7 +102,7 @@ def main(args: List[str]) -> None:
     if os.path.exists(gene_qoidx_path):
         gtf_gene_intervals = pickle_helper.load(gene_qoidx_path)
     else:
-        gtf_gene_intervals = QuantificationOptimizedGeneTree.from_feature_iterator(
+        gtf_gene_intervals = QuantificationOptimizedFeatureIndex.from_feature_iterator(
             tqdm([gv.iter_transcripts()], desc="Creating Gene-Level QOIDX"),
             feature_attribute_name="gene_id",
             feature_type="gene",
