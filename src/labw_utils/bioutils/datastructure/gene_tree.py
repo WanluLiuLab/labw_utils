@@ -586,7 +586,12 @@ class DiploidGeneTree(BaseGeneTree):
         return SequenceProxy(list(itertools.chain(*(gt.transcript_ids for gt in self._chr_gt_idx.values()))))
 
     def get_transcript(self, transcript_id: str) -> Transcript:
-        raise NotImplementedError
+        for gt in self._chr_gt_idx.values():
+            try:
+                return gt.get_transcript(transcript_id)
+            except:
+                continue
+        raise KeyError(f"Transcript {transcript_id} not exist!")
 
     def add_transcript(self, transcript: Transcript) -> TranscriptContainerInterface:
         this_gt = self._get_or_create_gt(transcript)
