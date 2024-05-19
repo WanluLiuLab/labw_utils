@@ -22,7 +22,7 @@ from labw_utils.bioutils.datastructure.gv import (
 )
 from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_gene_id, update_transcript_id
-from labw_utils.bioutils.record.feature import FeatureInterface, FeatureType
+from labw_utils.bioutils.record.feature import FeatureInterface, FeatureType, strand_repr
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.typing_importer import List, Optional, Iterable, Tuple, Union, Callable
 
@@ -151,7 +151,7 @@ class Transcript(BaseFeatureProxy, CanTranscribeInterface):
         )
 
     def __repr__(self):
-        return f"Transcript {self.transcript_id} of gene {self.gene_id} [{self.exon_boundaries}]"
+        return f"Transcript {self.transcript_id} of gene {self.gene_id} {self.seqname}:{strand_repr(self.strand)}:[{self.exon_boundaries}]"
 
     def exon_level_equiv(self, other: Transcript) -> bool:
         if self.number_of_exons != other.number_of_exons:

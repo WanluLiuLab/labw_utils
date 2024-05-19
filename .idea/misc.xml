@@ -6,6 +6,9 @@
     <option name="enabledOnSave" value="true" />
     <option name="sdkName" value="labw_utils" />
   </component>
+  <component name="PDMPlugin">
+    <option name="skipTestSources" value="false" />
+  </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="labw_utils" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />

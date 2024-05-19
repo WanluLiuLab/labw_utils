@@ -44,11 +44,12 @@ class QuantificationOptimizedFeatureIndex:
                 staged_features.append(feature)
                 chromosome_names.add(feature.seqname)
 
-        nie = NumpyIntervalEngine.from_interval_iterator(
-            ((_feature.seqname, _feature.strand), _feature.start0b, _feature.end0b) for _feature in staged_features
-        )
         feature_ids = list(_feature.attribute_get(feature_attribute_name) for _feature in staged_features)
+        nie = NumpyIntervalEngine.from_interval_iterator(
+            (((_feature.seqname, _feature.strand), _feature.start0b, _feature.end0b) for _feature in staged_features),
+            feature_ids,
+        )
         return cls(feature_ids, nie, list(chromosome_names))
 
     def overlap(self, query_interval: Tuple[Tuple[str, Optional[bool]], int, int]) -> List[str]:
-        return [self._feature_ids[i] for i in self._feature_boundary.overlap(query_interval)]
+        return list(self._feature_boundary.overlap(query_interval))

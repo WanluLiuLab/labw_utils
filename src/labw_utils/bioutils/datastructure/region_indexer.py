@@ -13,7 +13,6 @@ __all__ = (
     "NumpyIntervalEngine",
 )
 
-import functools
 from collections import defaultdict
 from labw_utils.typing_importer import Iterable, Dict, Tuple, Optional
 from labw_utils.typing_importer import List
@@ -23,8 +22,6 @@ try:
     import numpy.typing as npt
 except ImportError:
     raise UnmetDependenciesError("numpy")
-
-from labw_utils.commonutils.importer.tqdm_importer import tqdm
 
 IntervalType = Tuple[Tuple[str, Optional[bool]], int, int]
 
@@ -39,6 +36,7 @@ class NumpyIntervalEngine:
     """
 
     _chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]
+    _interval_name_index: Dict[IntervalType, str]
 
     def _select_chromosome(self, query_chr: Tuple[str, Optional[bool]]) -> Tuple[npt.NDArray, npt.NDArray]:
         stored_values_of_selected_chromosome = self._chromosomal_split_np_index[query_chr]
@@ -46,72 +44,35 @@ class NumpyIntervalEngine:
         e = stored_values_of_selected_chromosome[:, 1]
         return s, e
 
-    def overlap(self, query_interval: IntervalType) -> Iterable[int]:
+    def overlap(self, query_interval: IntervalType) -> Iterable[str]:
         query_chr, query_s, query_e = query_interval
         try:
             s, e = self._select_chromosome(query_chr)
         except KeyError:
             return None
-        for it in np.nonzero(
-            functools.reduce(
-                np.logical_or,
-                (
-                    np.logical_and(
-                        np.asarray(s < query_s),
-                        np.asarray(query_s < e),
-                    ),
-                    np.logical_and(
-                        np.asarray(s < query_e),
-                        np.asarray(query_e < e),
-                    ),
-                    np.logical_and(np.asarray(query_s < s), np.asarray(s < query_e)),
-                    np.logical_and(np.asarray(query_s < e), np.asarray(e < query_e)),
-                ),
-            )
-        )[0].tolist():
-            yield it
+        es = np.ndarray((2, e.shape[0]))
+        es[0:] = query_e
+        es[1:] = e
+        ss = np.ndarray((2, s.shape[0]))
+        ss[0:] = query_s
+        ss[1:] = s
+        for match_id in np.where(np.min(es, axis=0) - np.max(ss, axis=0) > 0)[0].tolist():
+            yield self._interval_name_index[(query_chr, s[match_id], e[match_id])]
 
-    def __init__(self, chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray]):
+    def __init__(
+        self,
+        chromosomal_split_np_index: Dict[Tuple[str, Optional[bool]], npt.NDArray],
+        interval_name_index: Dict[IntervalType, str],
+    ):
         self._chromosomal_split_np_index = chromosomal_split_np_index
+        self._interval_name_index = interval_name_index
 
     @classmethod
-    def from_interval_iterator(cls, interval_iterator: Iterable[IntervalType]):
+    def from_interval_iterator(cls, interval_iterator: Iterable[IntervalType], names_iterator: Iterable[str]):
         tmpd: Dict[Tuple[str, Optional[bool]], List[Tuple[int, int]]] = defaultdict(lambda: [])
-        for interval in interval_iterator:
+        interval_name_index: Dict[IntervalType, str] = {}
+        for interval, name in zip(interval_iterator, names_iterator):
             append_chr, append_s, append_e = interval
             tmpd[append_chr].append((append_s, append_e))
-        return cls({k: np.array(tmpd[k], dtype=int) for k in tmpd.keys()})
-
-    def match(self, query_interval: IntervalType) -> Iterable[int]:
-        query_chr, query_s, query_e = query_interval
-        try:
-            s, e = self._select_chromosome(query_chr)
-        except KeyError:
-            return None
-        match_result = np.nonzero(np.logical_and(np.asarray(s > query_s), np.asarray(e < query_e)))[0]
-        for it in match_result.tolist():
-            yield it
-
-    def __iter__(self) -> Iterable[IntervalType]:
-        for chr_name, chr_value in self._chromosomal_split_np_index.items():
-            for stored_values in chr_value:
-                s, e = stored_values
-                yield chr_name, s, e
-
-    def matches(self, query_intervals: Iterable[IntervalType], show_tqdm: bool = True) -> Iterable[List[int]]:
-        if show_tqdm:
-            query_intervals = tqdm(
-                iterable=list(query_intervals),
-                desc="matching...",
-            )
-        for interval in query_intervals:
-            yield list(self.match(interval))
-
-    def overlaps(self, query_intervals: Iterable[IntervalType], show_tqdm: bool = True) -> Iterable[List[int]]:
-        if show_tqdm:
-            query_intervals = tqdm(
-                iterable=list(query_intervals),
-                desc="overlapping...",
-            )
-        for interval in query_intervals:
-            yield list(self.overlap(interval))
+            interval_name_index[interval] = name
+        return cls({k: np.array(tmpd[k], dtype=int) for k in tmpd.keys()}, interval_name_index)
