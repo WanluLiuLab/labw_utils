@@ -7,7 +7,7 @@ This contains documentation for Users and Developers.
 :glob:
 :maxdepth: 2
 
-_root/Readme.incoming
+_root/Readme
 src/installation/index
 src/tutorial/index
 src/dev/index
