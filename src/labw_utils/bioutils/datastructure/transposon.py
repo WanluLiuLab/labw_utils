@@ -9,7 +9,7 @@ import random
 import re
 
 from labw_utils import UnmetDependenciesError
-from labw_utils.bioutils.parser.fasta import FastaWriter
+from labw_utils.bioutils.parser.fasta import FastaWriter, FastaIterator
 from labw_utils.bioutils.record.fasta import FastaRecord
 from labw_utils.commonutils.importer.tqdm_importer import tqdm
 from labw_utils.commonutils.lwio import get_writer, get_reader
@@ -41,6 +41,36 @@ class TransposonDatabase:
     _accession_hmm_map: Mapping[str, str]
     _accessions: List[str]
     _hmm_epool: List[Tuple[str, str]]
+
+    @staticmethod
+    def convert_ucsc_fa(
+        *,
+        src_ucsc_fa_path: str,
+        dst_index_file_path: str,
+        dst_consensus_fa_path: Optional[str],
+        with_tqdm: bool = True,
+    ):
+        _lh.info("Enumerating accessions...")
+        accession_info = {}
+        for record in FastaIterator(src_ucsc_fa_path, show_tqdm=with_tqdm):
+            accession_info[record.seq_id] = {
+                "CONSENSUS": record.sequence,
+                "HMM": "",
+                "NAME": record.seq_id,
+                "TYPE": "UNKNOWN",
+                "SUBTYPE": "UNKNOWN",
+            }
+        _lh.info(
+            "Finished with %d accesions, writing...",
+            len(accession_info),
+        )
+        with get_writer(dst_index_file_path, is_binary=False) as w:
+            json.dump(accession_info, w)
+        if dst_consensus_fa_path is not None:
+            with FastaWriter(dst_consensus_fa_path) as faw:
+                for v in accession_info.values():
+                    faw.write(FastaRecord(f"{v['NAME']}#{v['TYPE']}/{v['SUBTYPE']}", v["CONSENSUS"]))
+        _lh.info("Finished")
 
     @staticmethod
     def convert_dfam_embl(
