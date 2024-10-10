@@ -46,20 +46,35 @@ class TransposonDatabase:
     def convert_ucsc_fa(
         *,
         src_ucsc_fa_path: str,
+        src_ucsc_build_bed_path: str,
         dst_index_file_path: str,
         dst_consensus_fa_path: Optional[str],
         with_tqdm: bool = True,
     ):
         _lh.info("Enumerating accessions...")
         accession_info = {}
+        with get_reader(src_ucsc_build_bed_path, is_binary=False) as r:
+            for l in r:
+                l = l.strip()
+                if l.startswith("#") or not l:
+                    continue
+                ls = l.split("\t")
+                accession_info[ls[0]] = {
+                    "CONSENSUS": "",
+                    "HMM": "",
+                    "NAME": ls[0],
+                    "TYPE": ls[14] if ls[14] not in {"", "not found"} else "UNKNOWN",
+                    "SUBTYPE": ls[15] if ls[15] not in {"", "not found"} else "UNKNOWN",
+                }
         for record in FastaIterator(src_ucsc_fa_path, show_tqdm=with_tqdm):
-            accession_info[record.seq_id] = {
-                "CONSENSUS": record.sequence,
-                "HMM": "",
-                "NAME": record.seq_id,
-                "TYPE": "UNKNOWN",
-                "SUBTYPE": "UNKNOWN",
-            }
+            try:
+                accession_info[record.seq_id]["CONSENSUS"] = record.sequence
+            except KeyError:
+                _lh.warning("Contig %s found in FASTA but not in BUILD.BED", record.seq_id)
+        for k in accession_info.keys():
+            if accession_info[k]["CONSENSUS"] == "":
+                _lh.warning("Contig %s found in BUILD.BED but not in FASTA", k)
+                accession_info.pop(k)
         _lh.info(
             "Finished with %d accesions, writing...",
             len(accession_info),
