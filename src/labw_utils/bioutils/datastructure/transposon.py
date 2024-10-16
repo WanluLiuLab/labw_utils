@@ -79,6 +79,11 @@ class TransposonDatabase:
             "Finished with %d accesions, writing...",
             len(accession_info),
         )
+        accession_keys = set(accession_info.keys())
+        for key in accession_keys:
+
+            if "-full" in key:
+                accession_info.pop(key)
         with get_writer(dst_index_file_path, is_binary=False) as w:
             json.dump(accession_info, w)
         if dst_consensus_fa_path is not None:
