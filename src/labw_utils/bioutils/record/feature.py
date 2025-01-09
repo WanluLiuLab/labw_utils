@@ -14,10 +14,8 @@ from functools import total_ordering
 
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.devutils.decorators import create_class_init_doc_from_property
-from labw_utils.typing_importer import Union, Optional, Mapping, List, Type, TypeVar, Callable, Sequence
-
 from labw_utils.typing_importer import SequenceProxy
-
+from labw_utils.typing_importer import Union, Optional, Mapping, List, Type, TypeVar, Callable, Sequence
 
 _lh = get_logger(__name__)
 

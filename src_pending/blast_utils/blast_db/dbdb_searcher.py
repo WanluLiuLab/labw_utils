@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import json
 import math
+import networkx as nx
 import os.path
+import pandas as pd
 import re
 import shutil
-
-import networkx as nx
-import pandas as pd
 from networkx.readwrite import json_graph
 
 from blast_utils.blast_db import BlastSearchConfig, AbstractBlastDB

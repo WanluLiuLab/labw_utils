@@ -38,9 +38,7 @@ from labw_utils.typing_importer import (
     Literal,
     Sized,
 )
-
 from labw_utils.typing_importer import SequenceProxy
-
 
 _lh = get_logger(__name__)
 

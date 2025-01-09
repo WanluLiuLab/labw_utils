@@ -1,6 +1,5 @@
 import os
 import pathlib
-
 import pytest
 
 from labw_utils.commonutils.lwio import file_system

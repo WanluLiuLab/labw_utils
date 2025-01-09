@@ -30,7 +30,7 @@ from labw_utils.bioutils.record.feature import (
     notset,
 )
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, Tuple, Literal, Dict, Any
+from labw_utils.typing_importer import Optional, TypeVar, Union, Callable, Type, Tuple, Literal
 
 from labw_utils.typing_importer import SequenceProxy
 

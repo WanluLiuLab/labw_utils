@@ -1,12 +1,11 @@
 import enum
 import glob
+import msgpack
 import multiprocessing
 import os.path
+import pandas as pd
 import shutil
 import uuid
-
-import msgpack
-import pandas as pd
 
 from blast_utils import AbstractConfig, merge_table
 from blast_utils.blast6_io import read_blast6

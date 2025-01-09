@@ -2,12 +2,11 @@
 import copy
 import functools
 import gc
+import msgpack
 import os
+import pandas as pd
 import queue
 from collections import defaultdict
-
-import msgpack
-import pandas as pd
 from tqdm import tqdm
 
 from labw_utils.commonutils.lwio.safe_io import get_reader, get_writer

@@ -1,6 +1,5 @@
-import os
-
 import numpy as np
+import os
 
 from labw_utils.bioutils.record.rmsk_out import parse_record
 from test_labw_utils.bioutils import TEST_DATA_DIR

@@ -11,7 +11,7 @@ It performs the following:
 
 import logging
 import sys
-from logging import DEBUG, WARNING, ERROR, FATAL, INFO
+from logging import INFO
 
 from labw_utils.typing_importer import Optional, Union
 

@@ -1,5 +1,4 @@
 import os
-
 import pytest
 
 from labw_utils.commonutils.lwio import file_system

@@ -1,10 +1,9 @@
 import os
+import pandas as pd
+import pytest
 import sqlite3
 import tempfile
 import time
-
-import pandas as pd
-import pytest
 
 from labw_utils.commonutils.appender import (
     load_table_appender_class,

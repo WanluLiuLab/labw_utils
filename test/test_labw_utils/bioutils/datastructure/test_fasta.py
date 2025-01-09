@@ -4,9 +4,8 @@ test_fasta.py -- Unit test of corresponding module.
 
 import itertools
 import os
-import tempfile
-
 import pytest
+import tempfile
 
 from labw_utils.bioutils.datastructure.fai_view import create_fai_from_fasta
 from labw_utils.bioutils.datastructure.fasta_view import (

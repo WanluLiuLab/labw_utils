@@ -1,5 +1,4 @@
 import os
-
 import pytest
 
 from labw_utils.commonutils.stdlib_helper import shutil_helper

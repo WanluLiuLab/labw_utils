@@ -1,5 +1,5 @@
 from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
-from labw_utils.typing_importer import Any, Tuple, Sequence
+from labw_utils.typing_importer import Any, Sequence
 
 
 class DumbTableAppender(BaseTableAppender):

@@ -1,15 +1,12 @@
 import functools
 import glob
-import shutil
-import subprocess
-from labw_utils.typing_importer import Optional
-
 import pandas as pd
+import shutil
 
 from blast_utils.ncbi_taxdb import NON_EXIST, TaxonDB, CELLULAR_ORGANISMS
-from labw_utils.commonutils.lwio.safe_io import get_writer
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import List, Sequence
+from labw_utils.typing_importer import Optional
+from labw_utils.typing_importer import Sequence
 
 _lh = get_logger(__name__)
 

@@ -42,15 +42,14 @@ Is not finished -- do not use.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import os
+from abc import ABC, abstractmethod
 from io import TextIOWrapper
 
 # TODO: Finish this module
 if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None:
     __all__ = []
 
-from labw_utils import UnmetDependenciesError
 from labw_utils.commonutils import lwio
 from labw_utils.typing_importer import Any, Optional, Callable
 from labw_utils.typing_importer import Mapping

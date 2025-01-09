@@ -1,7 +1,6 @@
 import os
-import tempfile
-
 import pytest
+import tempfile
 
 import labw_utils.bioutils.datastructure.gene_view_v0_1_x.gv_helper as gvh
 from labw_utils.bioutils.datastructure.gene_view_v0_1_x.gene_view import GeneViewFactory

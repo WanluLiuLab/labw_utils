@@ -1,8 +1,7 @@
 import os
+import pytest
 import sys
 import tempfile
-
-import pytest
 
 import conftest
 from labw_utils.commonutils.lwio.file_system import file_exists

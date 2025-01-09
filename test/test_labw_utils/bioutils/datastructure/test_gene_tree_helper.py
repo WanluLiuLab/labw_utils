@@ -1,7 +1,6 @@
 import os
-import tempfile
-
 import pandas as pd
+import tempfile
 
 from labw_utils.bioutils.datastructure.gene_tree_helper import describe, read_partial_gtf_by_attribute_value
 from test_labw_utils.bioutils import TEST_DATA_DIR

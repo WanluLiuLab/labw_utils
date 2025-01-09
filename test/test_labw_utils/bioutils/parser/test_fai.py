@@ -1,8 +1,7 @@
 import os
+import pytest
 import random
 import tempfile
-
-import pytest
 
 from labw_utils.bioutils.parser.fai import (
     FastaBasedFastaIndexIterator,

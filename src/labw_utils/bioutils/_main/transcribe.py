@@ -16,7 +16,6 @@ from labw_utils.bioutils.datastructure.fasta_view import FastaViewFactory
 from labw_utils.bioutils.datastructure.gene_tree import DiploidGeneTree
 from labw_utils.bioutils.datastructure.gene_tree_helper import transcribe
 from labw_utils.bioutils.datastructure.gv.gene import DumbGene
-
 from labw_utils.commonutils.stdlib_helper.argparse_helper import (
     ArgumentParserWithEnhancedFormatHelp,
 )

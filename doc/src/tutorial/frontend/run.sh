@@ -7,11 +7,11 @@ if [ -n "${NO_NB:-}" ]; then
 fi
 
 if [ ! -f ce11.ncbiRefSeq.gtf ]; then
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>>/dev/null
+    wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/genes/ce11.ncbiRefSeq.gtf.gz &>>/dev/null
     gunzip -f ce11.ncbiRefSeq.gtf.gz
 fi
 if [ ! -f ce11.fa ]; then
-    axel https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz &>>/dev/null
+    wget https://hgdownload.soe.ucsc.edu/goldenPath/ce11/bigZips/ce11.fa.gz &>>/dev/null
     gunzip -f ce11.fa.gz
 fi
 

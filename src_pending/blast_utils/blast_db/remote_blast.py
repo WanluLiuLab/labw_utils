@@ -1,10 +1,8 @@
 import os.path
 import re
 import time
-from labw_utils.typing_importer import Optional
-
-from Bio import GenBank
 from Bio import Entrez
+from Bio import GenBank
 from Bio.GenBank.Record import Record as GBRecord, Feature
 
 from blast_utils.blast6_io import parse_blast6, read_blast6
@@ -14,10 +12,11 @@ from blast_utils.ncbi_taxdb import NON_EXIST
 from labw_utils.commonutils.lwio import get_reader
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
 from labw_utils.commonutils.stdlib_helper.parallel_helper import easyexec
+from labw_utils.typing_importer import Optional
 
 _TXID_REGEX = re.compile(r'.*/db_xref="taxon:(\d+)".*')
 
-Entrez.email = "theafamily@126.com"
+Entrez.email = "john.doe@some.com"
 
 _lh = get_logger(__name__)
 

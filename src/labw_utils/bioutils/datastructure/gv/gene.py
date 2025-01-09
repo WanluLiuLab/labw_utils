@@ -20,7 +20,6 @@ from labw_utils.bioutils.datastructure.gv.transcript_container_interface import 
 )
 from labw_utils.bioutils.record.feature import FeatureType, FeatureInterface
 from labw_utils.typing_importer import List, Optional, Iterable, Sequence
-
 from labw_utils.typing_importer import SequenceProxy
 
 

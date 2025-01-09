@@ -7,8 +7,8 @@
 
 import importlib
 import os
-from abc import ABC, abstractmethod
 import pkgutil
+from abc import ABC, abstractmethod
 
 from labw_utils import UnmetDependenciesError
 from labw_utils.stdlib.cpy310.pkgutil import resolve_name

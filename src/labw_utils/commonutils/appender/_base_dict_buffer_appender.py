@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from multiprocessing import synchronize
 
 from labw_utils.commonutils.appender import BaseTableAppender, TableAppenderConfig
-from labw_utils.typing_importer import Dict, Any, Tuple, List, Sequence
+from labw_utils.typing_importer import Dict, Any, List, Sequence
 
 
 class BaseDictBufferAppender(BaseTableAppender, ABC):

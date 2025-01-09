@@ -8,8 +8,8 @@ Is not finished -- do not use.
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import os
+from abc import ABC, abstractmethod
 
 from labw_utils.commonutils import lwio
 from labw_utils.typing_importer import Mapping

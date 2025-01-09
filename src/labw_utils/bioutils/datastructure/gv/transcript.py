@@ -24,8 +24,7 @@ from labw_utils.bioutils.datastructure.gv.exon import Exon
 from labw_utils.bioutils.datastructure.gv.feature_proxy import BaseFeatureProxy, update_gene_id, update_transcript_id
 from labw_utils.bioutils.record.feature import FeatureInterface, FeatureType, strand_repr
 from labw_utils.commonutils.stdlib_helper.logger_helper import get_logger
-from labw_utils.typing_importer import List, Optional, Iterable, Tuple, Union, Callable
-
+from labw_utils.typing_importer import List, Optional, Iterable, Tuple, Union
 from labw_utils.typing_importer import SequenceProxy
 
 _lh = get_logger(__name__)

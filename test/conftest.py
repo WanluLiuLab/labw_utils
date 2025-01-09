@@ -3,9 +3,8 @@ test_tetgs.py -- Unit test of corresponding module.
 """
 
 import os
-import tempfile
-
 import pytest
+import tempfile
 
 from labw_utils.commonutils.stdlib_helper import logger_helper, shutil_helper
 

@@ -3,7 +3,6 @@ import io
 import os.path
 import re
 import shutil
-
 from Bio import Entrez
 
 from labw_utils.commonutils.lwio import get_writer

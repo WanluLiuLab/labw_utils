@@ -2,8 +2,9 @@
 .. versionadded:: 1.0.3
 """
 
-import argparse
 from abc import ABC, abstractmethod
+
+import argparse
 
 __all__ = ("ArgparseRepresentableInterface",)
 

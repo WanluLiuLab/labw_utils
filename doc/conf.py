@@ -5,7 +5,6 @@ Configuration file for the Sphinx documentation builder.
 # pylint: disable=wrong-import-position, invalid-name
 
 import os
-
 from docutils.parsers.null import Parser as NullParser
 from sphinx.application import Sphinx
 

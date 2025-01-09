@@ -1,7 +1,6 @@
 import os
-import tempfile
-
 import pytest
+import tempfile
 
 from labw_utils.bioutils.datastructure.fai_view import FastaIndexView
 from labw_utils.bioutils.parser.fai import FastaIndexNotWritableError

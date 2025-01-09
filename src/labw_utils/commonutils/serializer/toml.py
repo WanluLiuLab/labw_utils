@@ -50,8 +50,8 @@ version = 1
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 import os
+from abc import ABC, abstractmethod
 
 # TODO: Finish this module
 if os.getenv("LABW_UTILS_SPHINX_BUILD") is not None:

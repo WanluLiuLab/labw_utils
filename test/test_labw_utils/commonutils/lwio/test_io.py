@@ -1,9 +1,8 @@
 import os
+import pytest
 import random
 import string
 import tempfile
-
-import pytest
 
 from labw_utils.commonutils.lwio import (
     get_reader,

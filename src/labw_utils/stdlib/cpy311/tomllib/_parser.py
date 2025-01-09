@@ -8,7 +8,6 @@ import string
 from types import MappingProxyType
 
 from labw_utils.typing_importer import Any, BinaryIO, NamedTuple, Iterable
-
 from ._re import (
     RE_DATETIME,
     RE_LOCALTIME,

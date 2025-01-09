@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import gc
+import msgpack
 import os
+import pandas as pd
 import re
 import tempfile
-
-import msgpack
-import pandas as pd
 
 from blast_utils.blast6_io import parse_blast6, read_blast6
 from blast_utils.blast_db import BlastSearchConfig, BlastConfig, AbstractBlastDB
